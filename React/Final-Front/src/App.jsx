@@ -10,7 +10,7 @@ import styled from 'styled-components'; // styled-components 임포트
 const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* 뷰포트 전체 높이를 최소로 유지 */
+  min-height: 100vh; /* 뷰포트 전체 높이를 최소로 유지함 */
 `;
 
 function App() {
