@@ -121,7 +121,7 @@ const VoteList = () => {
         <VoteItem key={vote.id}>
           <VoteHeader>
             <VoteTitle>{vote.id}. {vote.title}</VoteTitle>
-            <ResultButton>결과보기</ResultButton>
+            <ResultButton>결과보기기</ResultButton>
            {openId === vote.id ? (
       <FaCircleChevronUp onClick={() => setOpenId(null)} />
     ) : (
