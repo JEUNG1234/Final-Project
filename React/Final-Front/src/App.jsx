@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Home from './pages/Home';
-import Header from './components/Header';
+import MainHeader from './components/MainHeader';
 import Footer from './components/Footer';
 import Sidebar from './components/SideBar';
+import Layout from './components/Layout';
 
 import styled from 'styled-components';
+import VoteList from './pages/VoteList';
 
 // 푸쉬 시험중입니다
 // 전체 페이지 레이아웃을 위한 스타일 (Footer가 하단에 붙도록)
@@ -33,14 +35,12 @@ function App() {
   return (
     <Router>
       <AppContainer>
-        <Sidebar/>
-        <Header />
         
-        <Routes>
-          <Route path="/" element={<Home />} />
-
-        </Routes>
-        <Footer />
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home/>} />
+          </Routes>
+        </Layout>
       </AppContainer>
     </Router>
   );
