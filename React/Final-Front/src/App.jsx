@@ -4,8 +4,9 @@ import Home from './pages/Home';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-import styled from 'styled-components'; // styled-components 임포트
+import styled from 'styled-components';
 
+// 푸쉬 시험중입니다
 // 전체 페이지 레이아웃을 위한 스타일 (Footer가 하단에 붙도록)
 const AppContainer = styled.div`
   display: flex;
