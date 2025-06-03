@@ -5,11 +5,12 @@ import { FaClipboardList, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 
 import { MdDashboard, MdWork } from 'react-icons/md';
 
 const SidebarContainer = styled.div`
-  width: 220px;
+  width: 300px;
   height: 100vh;
   background-color: #ffffff;
   padding: 20px 16px;
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid #cecccc;
   font-family: 'Pretendard', sans-serif;
 `;
 
@@ -45,8 +46,9 @@ const MenuItem = styled.li`
   padding-left: 40px;
   border-radius: 8px;
   margin-bottom: 8px;
-  font-size: 14px;
-  color: #333;
+  font-size: 18px;
+font-weight: 600;
+     color: #929393;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -55,8 +57,7 @@ const MenuItem = styled.li`
   }
 
   svg {
-    width: 20px;
-    height: 20px;
+   font-size: 22px;
     margin-right: 20px;
     color: #4d8eff;
   }

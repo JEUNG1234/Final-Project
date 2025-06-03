@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { FaBriefcase, FaSuitcase, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 
 const HeaderContainer = styled.div`
-  width: 70%;
-  height: 60px;
+  width: 100%;
+  height: 100px;
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   display: flex;
@@ -23,14 +23,15 @@ const IconGroup = styled.div`
 
   svg {
     color: #2378ff;
-    font-size: 18px;
+    font-size: 22px;
     cursor: pointer;
   }
 `;
 
 const WelcomeMessage = styled.span`
-  color: #666;
-  font-size: 14px;
+      color: #929393;
+font-size: 18px;
+    font-weight: 500;
   margin-left: 12px;
 `;
 
