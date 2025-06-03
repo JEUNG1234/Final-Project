@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Sidebar from './components/SideBar';
 
 import styled from 'styled-components';
 
@@ -32,7 +33,9 @@ function App() {
   return (
     <Router>
       <AppContainer>
+        <Sidebar/>
         <Header />
+        
         <Routes>
           <Route path="/" element={<Home />} />
 
