@@ -110,9 +110,73 @@ const SubmitButton = styled.button`
   }
 `;
 
+//모달 영역
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: bold;
+`;
+
+const ResultBar = styled.div`
+  background-color: #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+`;
+
+const ResultFill = styled.div`
+  height: 24px;
+  background-color: #4d8eff;
+  width: ${props => props.percent}%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  color: white;
+  font-weight: 500;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  float: right;
+  cursor: pointer;
+`;
+
 const VoteList = () => {
   const [openId, setOpenId] = useState(1);
   const [selected, setSelected] = useState('신선한 과일 (사과, 바나나)');
+  
+  //모달 보여주기
+  const [showModal, setShowModal] = useState(false);
+
+  //모달에 보여줄 투표 결과
+  const [resultData, setResultData] = useState(null);
 
   return (
     <Container>
@@ -121,7 +185,44 @@ const VoteList = () => {
         <VoteItem key={vote.id}>
           <VoteHeader>
             <VoteTitle>{vote.id}. {vote.title}</VoteTitle>
-            <ResultButton>결과보기</ResultButton>
+            <ResultButton
+  onClick={() => {
+    if (vote.options) {
+      // 예시용 퍼센트 데이터
+      const fakeResults = [
+        { option: '신선한 과일 (사과, 바나나)', percent: 20 },
+        { option: '견과류 믹스(아몬드, 호두)', percent: 30 },
+        { option: '에너지바 / 단백질바', percent: 15 },
+        { option: '간단한 빵 / 샌드위치', percent: 35 },
+      ];
+      setResultData({ title: vote.title, results: fakeResults });
+      setShowModal(true);
+    }
+  }}
+>
+  결과보기
+</ResultButton>
+
+            {showModal && resultData && (
+  <ModalOverlay onClick={() => setShowModal(false)}>
+    <ModalContent onClick={(e) => e.stopPropagation()}>
+      <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
+      <ModalTitle>{resultData.title}</ModalTitle>
+      {resultData.results.map((item, idx) => (
+        <div key={idx}>
+          <div style={{ marginBottom: '4px', fontWeight: 500 }}>{item.option}</div>
+          <ResultBar>
+            <ResultFill percent={item.percent}>
+              <span>{item.percent}%</span>
+            </ResultFill>
+          </ResultBar>
+        </div>
+      ))}
+    </ModalContent>
+  </ModalOverlay>
+)}
+
+
            {openId === vote.id ? (
       <FaCircleChevronUp onClick={() => setOpenId(null)} />
     ) : (
@@ -149,7 +250,12 @@ const VoteList = () => {
         </VoteItem>
       ))}
     </Container>
+    
   );
+  
+
+  
 };
+
 
 export default VoteList;
