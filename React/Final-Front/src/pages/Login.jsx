@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import loginImage from '../assets/메인페이지사진1.png'; // 상대 경로로 변경!
+import { Link, useNavigate } from 'react-router-dom';
+import loginImage from '../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
 
 const Login = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('User ID:', userId);
     console.log('Password:', password);
     alert('로그인 시도! (실제 로직 필요)');
+    navigate('/votelist');
   };
 
   return (
@@ -22,8 +24,6 @@ const Login = () => {
       </ImageContainer>
       <LoginFormContainer>
         <FormCard>
-
-        
         <LoginTitle>로그인</LoginTitle>
         <LoginSubtitle>서비스를 이용하시려면 로그인해주세요.</LoginSubtitle>
         <LoginForm onSubmit={handleSubmit}>
