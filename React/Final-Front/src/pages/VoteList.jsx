@@ -200,7 +200,7 @@ const VoteList = () => {
     }
   }}
 >
-  결과보기기
+  결과보기
 </ResultButton>
 
             {showModal && resultData && (
