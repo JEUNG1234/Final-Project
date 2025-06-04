@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
       <Header />
       <Content>{children}</Content>
-      <Footer />
+    
       </div>
       </div>
     </>

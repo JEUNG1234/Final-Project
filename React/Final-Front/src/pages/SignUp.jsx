@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import loginImage from '../assets/메인페이지사진1.png';
+import loginImage from '../assets/메인페이지사진1.jpg';
 
 const SignUp = () => {
   const [userId, setUserId] = useState('');
