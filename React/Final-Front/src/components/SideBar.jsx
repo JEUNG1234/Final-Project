@@ -82,7 +82,7 @@ const Sidebar = () => {
 
       <MenuList>
         
-        <MenuItem><MdDashboard /> 대시보드</MenuItem>
+        <MenuItem onClick={() => navigate('/memberdashboard')}><MdDashboard /> 대시보드</MenuItem>
         <MenuItem><FaClipboardList /> 설문조사</MenuItem>
         <MenuItem onClick={() => navigate('/VoteList')}><FaPoll /> 투표</MenuItem>
         <MenuItem onClick={() => navigate('/workcation')}><MdWork /> 워케이션</MenuItem>
