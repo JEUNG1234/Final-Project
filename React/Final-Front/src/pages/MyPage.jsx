@@ -11,7 +11,7 @@ const MyPage = () => {
     email: 'user01@gmail.com',
     department: '개발팀',
     position: '사원',
-    point : '3000',
+    point: '3000',
   });
 
   const handleImageChange = () => {
@@ -32,7 +32,6 @@ const MyPage = () => {
     <MyPageContainer>
       <ContentCard>
         <ProfileSection>
-
           <ProfileImageWrapper>
             <ProfileImage src={ProfileImg} alt="프로필 이미지" />
             <ImageChangeButton onClick={handleImageChange}>이미지 변경</ImageChangeButton>
@@ -40,8 +39,8 @@ const MyPage = () => {
 
           <UserInfoSection>
             <WelcomeMessage>{userInfo.username}님, 환영합니다!</WelcomeMessage>
-            <Divider /> 
-    
+            <Divider />
+
             <UserDetailRow>
               <Label>아이디</Label>
               <UserInfoValue>: {userInfo.userId}</UserInfoValue>
@@ -76,7 +75,16 @@ const MyPage = () => {
           <Divider />
 
           <NoPostsMessage>
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              stroke="currentColor"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
             </svg>
@@ -93,7 +101,6 @@ const MyPage = () => {
   );
 };
 
-
 const MyPageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -106,7 +113,7 @@ const MyPageContainer = styled.div`
 `;
 
 const ContentCard = styled.div`
-  background-color: #E6F1FF; // 카드 배경색 (이미지와 유사하게)
+  background-color: #e6f1ff; // 카드 배경색 (이미지와 유사하게)
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   width: 100%;
@@ -142,8 +149,8 @@ const ProfileImageWrapper = styled.div`
 
 const ProfileImage = styled.img`
   width: 300px;
-  height: 320px; 
-  border-radius: 10px; 
+  height: 320px;
+  border-radius: 10px;
   object-fit: cover;
   border: 2px solid #e0e0e0;
 `;
@@ -306,7 +313,7 @@ const ReturnButton = styled(Link)`
   max-width: 300px; // 버튼 최대 너비
 
   &:hover {
-    background-color: #4CAF50;
+    background-color: #4caf50;
   }
 
   @media (max-width: 768px) {
@@ -318,7 +325,7 @@ const ReturnButton = styled(Link)`
 const Divider = styled.div`
   width: 100%;
   height: 1px;
-  background-color: #e0e0e0; 
+  background-color: #e0e0e0;
 `;
 
 export default MyPage;

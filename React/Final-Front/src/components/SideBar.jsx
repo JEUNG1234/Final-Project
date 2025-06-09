@@ -1,5 +1,5 @@
 import React from 'react';
-import logoImg from '../assets/로고 이미지.png'
+import logoImg from '../assets/로고 이미지.png';
 import styled from 'styled-components';
 import { FaClipboardList, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 'react-icons/fa';
 import { MdDashboard, MdWork } from 'react-icons/md';
@@ -14,8 +14,8 @@ const SidebarContainer = styled.div`
   border-right: 1px solid #cecccc;
   font-family: 'Pretendard', sans-serif;
   position: fixed;
-  top: 0;   /* 추가 */
-  left: 0;  /* 추가 */
+  top: 0; /* 추가 */
+  left: 0; /* 추가 */
   z-index: 100; /* 콘텐츠 위에 오도록 */
 `;
 
@@ -52,8 +52,8 @@ const MenuItem = styled.li`
   border-radius: 8px;
   margin-bottom: 8px;
   font-size: 18px;
-font-weight: 600;
-     color: #929393;
+  font-weight: 600;
+  color: #929393;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -63,32 +63,43 @@ font-weight: 600;
   }
 
   svg {
-   font-size: 22px;
+    font-size: 22px;
     margin-right: 20px;
     color: #4d8eff;
   }
 `;
 
 const Sidebar = () => {
-
   const navigate = useNavigate(); // useNavigate 훅 사용
 
   return (
     <SidebarContainer>
       <LogoContainer>
         <img src={logoImg} alt="SOWM 캐릭터" /> {/* 해당 경로는 적절히 변경 필요 */}
-        
       </LogoContainer>
 
       <MenuList>
-        
-        <MenuItem><MdDashboard /> 대시보드</MenuItem>
-        <MenuItem><FaClipboardList /> 설문조사</MenuItem>
-        <MenuItem onClick={() => navigate('/VoteList')}><FaPoll /> 투표</MenuItem>
-        <MenuItem onClick={() => navigate('/workcation')}><MdWork /> 워케이션</MenuItem>
-        <MenuItem><FaCalendarAlt /> 일정관리</MenuItem>
-        <MenuItem><FaComments /> 커뮤니티 게시판</MenuItem>
-        <MenuItem><FaHeartbeat /> 건강관리</MenuItem>
+        <MenuItem>
+          <MdDashboard /> 대시보드
+        </MenuItem>
+        <MenuItem>
+          <FaClipboardList /> 설문조사
+        </MenuItem>
+        <MenuItem onClick={() => navigate('/VoteList')}>
+          <FaPoll /> 투표
+        </MenuItem>
+        <MenuItem onClick={() => navigate('/workcation')}>
+          <MdWork /> 워케이션
+        </MenuItem>
+        <MenuItem>
+          <FaCalendarAlt /> 일정관리
+        </MenuItem>
+        <MenuItem>
+          <FaComments /> 커뮤니티 게시판
+        </MenuItem>
+        <MenuItem>
+          <FaHeartbeat /> 건강관리
+        </MenuItem>
       </MenuList>
     </SidebarContainer>
   );

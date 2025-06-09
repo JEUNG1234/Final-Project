@@ -41,13 +41,13 @@ const Footer = () => {
     <FooterContainer>
       <FooterContent>
         <ContactInfo>
-          (주)SOWM | 대표: 황동준 | 사업자등록번호: 123-45-67890<br />
-          주소: 서울특별시 강남구 테헤란로 123 헬스빌딩 10층<br />
+          (주)SOWM | 대표: 황동준 | 사업자등록번호: 123-45-67890
+          <br />
+          주소: 서울특별시 강남구 테헤란로 123 헬스빌딩 10층
+          <br />
           전화: 02-1234-5678 | 이메일: nikihwangg@naver.com
         </ContactInfo>
-        <Copyright>
-          &copy; {new Date().getFullYear()} SOWM. All rights reserved.
-        </Copyright>
+        <Copyright>&copy; {new Date().getFullYear()} SOWM. All rights reserved.</Copyright>
       </FooterContent>
     </FooterContainer>
   );
