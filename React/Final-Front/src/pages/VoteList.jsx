@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FaCircleChevronDown } from "react-icons/fa6";
-import { FaCircleChevronUp } from "react-icons/fa6";
+import { FaCircleChevronDown } from 'react-icons/fa6';
+import { FaCircleChevronUp } from 'react-icons/fa6';
 
 const voteData = [
   { id: 4, title: '점심 메뉴 투표' },
@@ -10,17 +10,12 @@ const voteData = [
   {
     id: 1,
     title: '사무실 간식, 무엇이 좋을까요?',
-    options: [
-      '신선한 과일 (사과, 바나나)',
-      '견과류 믹스(아몬드, 호두)',
-      '에너지바 / 단백질바',
-      '간단한 빵 / 샌드위치',
-    ],
+    options: ['신선한 과일 (사과, 바나나)', '견과류 믹스(아몬드, 호두)', '에너지바 / 단백질바', '간단한 빵 / 샌드위치'],
   },
 ];
 
 const Container = styled.div`
-  background-color: #F0F7FF;
+  background-color: #f0f7ff;
   border-radius: 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   padding: 32px;
@@ -58,6 +53,7 @@ const VoteTitle = styled.span`
 
 const ResultButton = styled.button`
   border: 1px solid #ccc;
+  color: black;
   padding: 6px 12px;
   font-size: 14px;
   border-radius: 6px;
@@ -69,10 +65,8 @@ const ResultButton = styled.button`
   }
 `;
 
-
-
 const OptionContainer = styled.div`
-background-color: #f9fafb;
+  background-color: #f9fafb;
   padding: ${(props) => (props.isOpen ? '20px' : '0 20px')};
   max-height: ${(props) => (props.isOpen ? '500px' : '0')};
   opacity: ${(props) => (props.isOpen ? 1 : 0)};
@@ -151,7 +145,7 @@ const ResultBar = styled.div`
 const ResultFill = styled.div`
   height: 24px;
   background-color: #4d8eff;
-  width: ${props => props.percent}%;
+  width: ${(props) => props.percent}%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,7 +165,7 @@ const CloseButton = styled.button`
 const VoteList = () => {
   const [openId, setOpenId] = useState(1);
   const [selected, setSelected] = useState('신선한 과일 (사과, 바나나)');
-  
+
   //모달 보여주기
   const [showModal, setShowModal] = useState(false);
 
@@ -184,78 +178,74 @@ const VoteList = () => {
       {voteData.map((vote) => (
         <VoteItem key={vote.id}>
           <VoteHeader>
-            <VoteTitle>{vote.id}. {vote.title}</VoteTitle>
+            <VoteTitle>
+              {vote.id}. {vote.title}
+            </VoteTitle>
             <ResultButton
-  onClick={() => {
-    if (vote.options) {
-      // 예시용 퍼센트 데이터
-      const fakeResults = [
-        { option: '신선한 과일 (사과, 바나나)', percent: 20 },
-        { option: '견과류 믹스(아몬드, 호두)', percent: 30 },
-        { option: '에너지바 / 단백질바', percent: 15 },
-        { option: '간단한 빵 / 샌드위치', percent: 35 },
-      ];
-      setResultData({ title: vote.title, results: fakeResults });
-      setShowModal(true);
-    }
-  }}
->
-  결과보기
-</ResultButton>
+              onClick={() => {
+                if (vote.options) {
+                  // 예시용 퍼센트 데이터
+                  const fakeResults = [
+                    { option: '신선한 과일 (사과, 바나나)', percent: 20 },
+                    { option: '견과류 믹스(아몬드, 호두)', percent: 30 },
+                    { option: '에너지바 / 단백질바', percent: 15 },
+                    { option: '간단한 빵 / 샌드위치', percent: 35 },
+                  ];
+                  setResultData({ title: vote.title, results: fakeResults });
+                  setShowModal(true);
+                }
+              }}
+            >
+              결과보기
+            </ResultButton>
 
             {showModal && resultData && (
-  <ModalOverlay onClick={() => setShowModal(false)}>
-    <ModalContent onClick={(e) => e.stopPropagation()}>
-      <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
-      <ModalTitle>{resultData.title}</ModalTitle>
-      {resultData.results.map((item, idx) => (
-        <div key={idx}>
-          <div style={{ marginBottom: '4px', fontWeight: 500 }}>{item.option}</div>
-          <ResultBar>
-            <ResultFill percent={item.percent}>
-              <span>{item.percent}%</span>
-            </ResultFill>
-          </ResultBar>
-        </div>
-      ))}
-    </ModalContent>
-  </ModalOverlay>
-)}
+              <ModalOverlay onClick={() => setShowModal(false)}>
+                <ModalContent onClick={(e) => e.stopPropagation()}>
+                  <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
+                  <ModalTitle>{resultData.title}</ModalTitle>
+                  {resultData.results.map((item, idx) => (
+                    <div key={idx}>
+                      <div style={{ marginBottom: '4px', fontWeight: 500 }}>{item.option}</div>
+                      <ResultBar>
+                        <ResultFill percent={item.percent}>
+                          <span>{item.percent}%</span>
+                        </ResultFill>
+                      </ResultBar>
+                    </div>
+                  ))}
+                </ModalContent>
+              </ModalOverlay>
+            )}
 
-
-           {openId === vote.id ? (
-      <FaCircleChevronUp onClick={() => setOpenId(null)} />
-    ) : (
-      <FaCircleChevronDown onClick={() => setOpenId(vote.id)} />
-    )}
+            {openId === vote.id ? (
+              <FaCircleChevronUp onClick={() => setOpenId(null)} />
+            ) : (
+              <FaCircleChevronDown onClick={() => setOpenId(vote.id)} />
+            )}
           </VoteHeader>
-{vote.options && (
-  <OptionContainer isOpen={vote.id === openId}>
-    {vote.id === openId &&
-      vote.options.map((option, index) => (
-        <OptionLabel key={index}>
-          <input
-            type="radio"
-            name="voteOption"
-            value={option}
-            checked={selected === option}
-            onChange={() => setSelected(option)}
-          />
-          {option}
-        </OptionLabel>
-      ))}
-    {vote.id === openId && <SubmitButton>투표하기</SubmitButton>}
-  </OptionContainer>
-)}
+          {vote.options && (
+            <OptionContainer isOpen={vote.id === openId}>
+              {vote.id === openId &&
+                vote.options.map((option, index) => (
+                  <OptionLabel key={index}>
+                    <input
+                      type="radio"
+                      name="voteOption"
+                      value={option}
+                      checked={selected === option}
+                      onChange={() => setSelected(option)}
+                    />
+                    {option}
+                  </OptionLabel>
+                ))}
+              {vote.id === openId && <SubmitButton>투표하기</SubmitButton>}
+            </OptionContainer>
+          )}
         </VoteItem>
       ))}
     </Container>
-    
   );
-  
-
-  
 };
-
 
 export default VoteList;

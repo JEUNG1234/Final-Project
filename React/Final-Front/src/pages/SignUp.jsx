@@ -31,59 +31,56 @@ const SignUp = () => {
 
   return (
     <LoginPageContainer>
-      <ImageContainer bgImage={loginImage}>
-      </ImageContainer>
+      <ImageContainer bgImage={loginImage}></ImageContainer>
       <LoginFormContainer>
         <FormCard>
-        <LoginTitle>회원가입</LoginTitle>
-        <LoginSubtitle>서비스를 이용하시려면 회원가입해주세요.</LoginSubtitle>
-        <LoginForm onSubmit={handleSubmit}>
-          <InputField
-            type="text"
-            id="userId"
-            placeholder="아이디"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            required
-          />
-          <InputField
-            type="password"
-            id="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <InputField
-            type="password"
-            id="checkPassword"
-            placeholder="비밀번호 확인"
-            value={checkPassword}
-            onChange={(e) => setCheckPassword(e.target.value)}
-            required
-          />
-          {passwordMismatchError && (
-            <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>
-          )}
-          <InputField
-            type="text"
-            id="userName"
-            placeholder="이름"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            required
-          />
-          <InputField
-            type="email"
-            id="email"
-            placeholder="이메일"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <LoginButton type="submit">회원가입</LoginButton>
-          <BackButton to="/login">뒤로가기</BackButton>
-        </LoginForm>
+          <LoginTitle>회원가입</LoginTitle>
+          <LoginSubtitle>서비스를 이용하시려면 회원가입해주세요.</LoginSubtitle>
+          <LoginForm onSubmit={handleSubmit}>
+            <InputField
+              type="text"
+              id="userId"
+              placeholder="아이디"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              required
+            />
+            <InputField
+              type="password"
+              id="password"
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <InputField
+              type="password"
+              id="checkPassword"
+              placeholder="비밀번호 확인"
+              value={checkPassword}
+              onChange={(e) => setCheckPassword(e.target.value)}
+              required
+            />
+            {passwordMismatchError && <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>}
+            <InputField
+              type="text"
+              id="userName"
+              placeholder="이름"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              required
+            />
+            <InputField
+              type="email"
+              id="email"
+              placeholder="이메일"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <LoginButton type="submit">회원가입</LoginButton>
+            <BackButton to="/login">뒤로가기</BackButton>
+          </LoginForm>
         </FormCard>
       </LoginFormContainer>
     </LoginPageContainer>
@@ -97,14 +94,14 @@ const LoginPageContainer = styled.div`
 
 const ImageContainer = styled.div`
   width: 70%;
-  background-image: url(${props => props.bgImage});
+  background-image: url(${(props) => props.bgImage});
   background-size: cover;
   background-position: center;
 `;
 
 const LoginFormContainer = styled.div`
   width: 30%;
-  background: #F3FBFF;
+  background: #f3fbff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -133,14 +130,14 @@ const LoginForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 13px; 
-  margin-bottom: 19px; 
+  gap: 13px;
+  margin-bottom: 19px;
 `;
 
 const InputField = styled.input`
   padding: 10px;
   border: none;
-  background: #E9E9E9;
+  background: #e9e9e9;
   color: black;
   border-radius: 10px;
   font-size: 14px;
@@ -154,7 +151,7 @@ const LoginButton = styled.button`
   color: #fff;
   border: none;
   border-radius: 4px;
-  padding: 13px; 
+  padding: 13px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -173,15 +170,14 @@ const FormCard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px; 
+  padding: 40px;
   z-index: 10;
-  position: relative; 
+  position: relative;
   @media (max-width: 768px) {
     width: 90%; /* 모바일에서 더 넓게 사용 */
     padding: 30px;
   }
 `;
-
 
 const BackButton = styled(Link)`
   display: flex;
@@ -191,12 +187,12 @@ const BackButton = styled(Link)`
   color: #fff;
   border: none;
   border-radius: 4px;
-  padding: 13px; 
-  font-size: 16px; 
+  padding: 13px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   width: 100%;
-  margin-top: 8px; 
+  margin-top: 8px;
   text-decoration: none;
 
   &:hover {
@@ -207,9 +203,9 @@ const BackButton = styled(Link)`
 
 const ErrorMessage = styled.p`
   color: red;
-  font-size: 13px; 
-  margin-top: -8px; 
-  margin-bottom: 8px; 
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 8px;
   text-align: left;
   width: 100%;
 `;
