@@ -15,10 +15,10 @@ const HeaderContainer = styled.div`
   font-family: 'Pretendard', sans-serif;
   box-sizing: border-box;
   position: fixed;
-  top: 0;    /* 추가 */
-  left: 0;   /* 추가 */
-  right: 0;  /* 추가 */
-  z-index: 99; 
+  top: 0; /* 추가 */
+  left: 0; /* 추가 */
+  right: 0; /* 추가 */
+  z-index: 99;
 `;
 
 const IconGroup = styled.div`
@@ -49,7 +49,7 @@ const HeaderBar = () => {
 
   const handleChulClick = () => {
     navigate('/adminattendance');
-  }
+  };
   return (
     <HeaderContainer>
       <IconGroup>
@@ -59,7 +59,7 @@ const HeaderBar = () => {
         <FaUserCircle
           title="마이페이지"
           onClick={handleMyPageClick} // 클릭 이벤트 추가
-          style={{ cursor: 'pointer' }} 
+          style={{ cursor: 'pointer' }}
         />
         <WelcomeMessage>사용자님, 환영합니다!</WelcomeMessage>
       </IconGroup>

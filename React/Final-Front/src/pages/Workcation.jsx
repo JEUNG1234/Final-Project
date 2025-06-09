@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+
+//달력기능
 import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 import { MdWork } from 'react-icons/md';
 import image from '../assets/돌하르방.jpg';
 
@@ -27,17 +29,37 @@ const Workcation = () => {
   const peopleRef = useRef();
   const dateRef = useRef();
 
-  const regionList = ['전체','서울', '경기', '인천', '부산', '광주', '대구', '대전', '울산', '제주', '강원', '경남', '경북', '전남', '전북', '충남','세종', '충북'];
+  const regionList = [
+    '전체',
+    '서울',
+    '경기',
+    '인천',
+    '부산',
+    '광주',
+    '대구',
+    '대전',
+    '울산',
+    '제주',
+    '강원',
+    '경남',
+    '경북',
+    '전남',
+    '전북',
+    '충남',
+    '세종',
+    '충북',
+  ];
   const peopleList = ['1명', '2명', '3명', '4명 이상'];
 
-
-
- useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (e) => {
       if (
-        regionRef.current && !regionRef.current.contains(e.target) &&
-        peopleRef.current && !peopleRef.current.contains(e.target) &&
-        dateRef.current && !dateRef.current.contains(e.target)
+        regionRef.current &&
+        !regionRef.current.contains(e.target) &&
+        peopleRef.current &&
+        !peopleRef.current.contains(e.target) &&
+        dateRef.current &&
+        !dateRef.current.contains(e.target)
       ) {
         setRegionOpen(false);
         setPeopleOpen(false);
@@ -50,92 +72,100 @@ const Workcation = () => {
 
   return (
     <Container>
-        <MainContent>
-          <Logodiv>
-            {/* 워케이션 아이콘 변경예정 */}
-            <MdWork /> 워케이션  
-          </Logodiv>
-      <Filters>
-  {/* 지역 선택 */}
-  <FilterWrapper ref={regionRef}>
-    <DropdownToggle type='button' onClick={() => setRegionOpen(!regionOpen)}>
-      {selectedRegion || '전체지역'}
-    </DropdownToggle>
-    {regionOpen && (
-      <DropdownMenu>
-        {regionList.map((region) => (
-          <DropdownItem key={region} onClick={() => {
-            setSelectedRegion(region);
-            setRegionOpen(false);
-          }}>
-            {region}
-          </DropdownItem>
-        ))}
-      </DropdownMenu>
-    )}
-  </FilterWrapper>
+      <MainContent>
+        <Logodiv>
+          {/* 워케이션 아이콘 변경예정 */}
+          <MdWork /> 워케이션
+        </Logodiv>
+        <Filters>
+          {/* 지역 선택 */}
+          <FilterWrapper ref={regionRef}>
+            <DropdownToggle type="button" onClick={() => setRegionOpen(!regionOpen)}>
+              {selectedRegion || '전체지역'}
+            </DropdownToggle>
+            {regionOpen && (
+              <DropdownMenu>
+                {regionList.map((region) => (
+                  <DropdownItem
+                    key={region}
+                    onClick={() => {
+                      setSelectedRegion(region);
+                      setRegionOpen(false);
+                    }}
+                  >
+                    {region}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            )}
+          </FilterWrapper>
 
-  {/* 인원 선택 */}
-  <FilterWrapper ref={peopleRef}>
-    <DropdownToggle type='button' onClick={() => setPeopleOpen(!peopleOpen)}>
-      {selectedPeople || '인원'}
-    </DropdownToggle>
-    {peopleOpen && (
-      <DropdownMenu>
-        {peopleList.map((people) => (
-          <DropdownItem key={people} onClick={() => {
-            setSelectedPeople(people);
-            setPeopleOpen(false);
-          }}>
-            {people}
-          </DropdownItem>
-        ))}
-      </DropdownMenu>
-    )}
-  </FilterWrapper>
+          {/* 인원 선택 */}
+          <FilterWrapper ref={peopleRef}>
+            <DropdownToggle type="button" onClick={() => setPeopleOpen(!peopleOpen)}>
+              {selectedPeople || '인원'}
+            </DropdownToggle>
+            {peopleOpen && (
+              <DropdownMenu>
+                {peopleList.map((people) => (
+                  <DropdownItem
+                    key={people}
+                    onClick={() => {
+                      setSelectedPeople(people);
+                      setPeopleOpen(false);
+                    }}
+                  >
+                    {people}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            )}
+          </FilterWrapper>
 
-  {/* 날짜 선택 */}
-  <FilterWrapper ref={dateRef}>
-    <DropdownToggle type='button' onClick={() => setDateOpen(!dateOpen)}>
-      {selectedDate ? selectedDate.toLocaleDateString() : '날짜'}
-    </DropdownToggle>
-    {dateOpen && (
-      <DateMenu>
-        <DatePicker
-          selected={selectedDate}
-          onChange={(date) => {
-            setSelectedDate(date);
-            setDateOpen(false);
-          }}
-          inline
-        />
-      </DateMenu>
-    )}
-  </FilterWrapper>
-</Filters>
-      <SectionTitle>장소</SectionTitle>
+          {/* 날짜 선택 */}
+          <FilterWrapper ref={dateRef}>
+            <DropdownToggle type="button" onClick={() => setDateOpen(!dateOpen)}>
+              {selectedDate ? selectedDate.toLocaleDateString() : '날짜'}
+            </DropdownToggle>
+            {dateOpen && (
+              <DateMenu>
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={(date) => {
+                    setSelectedDate(date);
+                    setDateOpen(false);
+                  }}
+                  inline
+                />
+              </DateMenu>
+            )}
+          </FilterWrapper>
+        </Filters>
+        <SectionTitle>장소</SectionTitle>
 
-      <CardGrid>
-        {workcationData.map((place) => (
-          <Card key={place.id}>
-            {/* 워케이션 장소 리스트 출력 */}
-            <CardImage src={image} alt={place.title} />
-            <CardTitle>{place.title}</CardTitle>
-            <CardLocationWrapper>
-            <CardLocation>{place.location} <CardAvailability>남은 예약: {place.availability}</CardAvailability></CardLocation>
-           </CardLocationWrapper>
-          </Card>
-        ))}
-      </CardGrid>
-
-      <BottomBar>
-        <Pagination>
-          {[1, 2, 3, 4].map((num) => (
-            <PageButton key={num}>{num}</PageButton>
+        <CardGrid>
+          {workcationData.map((place) => (
+            <Card key={place.id}>
+              {/* 워케이션 장소 리스트 출력 */}
+              <CardImage src={image} alt={place.title} />
+              <CardTitle>{place.title}</CardTitle>
+              <CardLocationWrapper>
+                <CardLocation>
+                  {place.location} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
+                </CardLocation>
+              </CardLocationWrapper>
+            </Card>
           ))}
-        </Pagination>
-        <RegisterButton>워크케이션 신청목록</RegisterButton>
-      </BottomBar>
+        </CardGrid>
+
+        <BottomBar>
+          <Pagination>
+            {[1, 2, 3, 4].map((num) => (
+              <PageButton key={num}>{num}</PageButton>
+            ))}
+          </Pagination>
+          <RegisterButton>워크케이션 신청목록</RegisterButton>
+        </BottomBar>
       </MainContent>
     </Container>
   );
@@ -143,52 +173,47 @@ const Workcation = () => {
 
 //사이드바, 헤더바를 제외한 전체 화면
 const Container = styled.div`
-height: 100%;
-width: 100%;
-    padding: 3%;
-    background: #F0F7FF;
+  height: 100%;
+  width: 100%;
+  padding: 3%;
+  background: #f0f7ff;
 `;
 
 //메인 콘텐츠 div
 const MainContent = styled.div`
-    height: 90%;
-    width: 80%;
-    background: #ffffff;
-    margin: 0 auto;
+  height: 90%;
+  width: 80%;
+  background: #ffffff;
+  margin: 0 auto;
 
-    h2{
-      
-        padding: 3% 7% 0 7%;
-    }
+  h2 {
+    padding: 3% 7% 0 7%;
+  }
 
-    div{
-         padding: 3% 3% 0 3%;
-    }
+  div {
+    padding: 3% 3% 0 3%;
+  }
 
-    
-      svg {
-   font-size: 22px;
+  svg {
+    font-size: 22px;
     margin-right: 20px;
     color: #4d8eff;
   }
-    
-`
+`;
 const Logodiv = styled.div`
-width: 100%;
-height: 7%;
+  width: 100%;
+  height: 7%;
 
   font-size: 18px;
-font-weight: 600;
-     color: #929393;
-`
+  font-weight: 600;
+  color: #929393;
+`;
 
 //검색 창
 const Filters = styled.form`
   display: flex;
   gap: 70px;
-      padding: 3% 7% 0 7%;
-
-  
+  padding: 3% 7% 0 7%;
 `;
 
 const Select = styled.select`
@@ -199,7 +224,6 @@ const Select = styled.select`
   width: 150px;
   height: 50px;
 `;
-
 
 //지역 선택 창
 
@@ -216,7 +240,7 @@ const DropdownToggle = styled.button`
 `;
 
 const DropdownMenu = styled.div`
-padding: 5% 5% 5% 5%;
+  padding: 5% 5% 5% 5%;
   position: absolute;
   top: 40px;
   background: #fff;
@@ -227,7 +251,7 @@ padding: 5% 5% 5% 5%;
   padding: 1rem;
   gap: 10px;
   z-index: 10;
-    min-width: 270px;
+  min-width: 270px;
 `;
 
 const DateMenu = styled.div`
@@ -250,9 +274,6 @@ const DropdownItem = styled.button`
   }
 `;
 
-
-
-
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: bold;
@@ -273,7 +294,6 @@ const Card = styled.div`
   border-radius: 10px;
   padding: 0.5rem;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
-
 `;
 
 const CardImage = styled.img`
@@ -289,14 +309,14 @@ const CardTitle = styled.div`
   text-align: center;
 `;
 const CardLocationWrapper = styled.div`
-  text-align: center; 
+  text-align: center;
   width: 100%;
 `;
 
 const CardLocation = styled.p`
   font-size: 0.875rem;
   color: #555;
-    text-align: right;
+  text-align: right;
 `;
 
 const CardAvailability = styled.span`

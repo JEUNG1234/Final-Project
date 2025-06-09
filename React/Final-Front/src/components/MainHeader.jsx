@@ -2,9 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
-const MainHeader = () => { // className prop 제거
+const MainHeader = () => {
+  // className prop 제거
   return (
-    <HeaderContainer> {/* className prop 전달 제거 */}
+    <HeaderContainer>
+      {' '}
+      {/* className prop 전달 제거 */}
       <Logo to="/">SOWM</Logo>
       <Nav>
         <NavLink to="/#system-introduction">시스템 소개</NavLink>
