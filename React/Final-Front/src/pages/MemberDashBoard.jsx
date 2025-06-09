@@ -95,21 +95,17 @@ const MemberDashBoard = () => {
         <CalendarCard>
           <h3>
             {currentYear}년 {currentMonth + 1}월
-            <span>
-              <i className="fas fa-chevron-left"></i> {/* 폰트 어썸 아이콘 예시 */}
-              <i className="fas fa-chevron-right"></i>
-            </span>
           </h3>
           <table>
             <thead>
               <tr>
+                <th>일</th>
                 <th>월</th>
                 <th>화</th>
                 <th>수</th>
                 <th>목</th>
                 <th>금</th>
                 <th>토</th>
-                <th>일</th>
               </tr>
             </thead>
             <tbody>
