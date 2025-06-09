@@ -18,41 +18,37 @@ const Login = () => {
 
   return (
     <LoginPageContainer>
-      
-      <ImageContainer bgImage={loginImage}>
-    
-      </ImageContainer>
+      <ImageContainer bgImage={loginImage}></ImageContainer>
       <LoginFormContainer>
         <FormCard>
-        <LoginTitle>로그인</LoginTitle>
-        <LoginSubtitle>서비스를 이용하시려면 로그인해주세요.</LoginSubtitle>
-        <LoginForm onSubmit={handleSubmit}>
-          <InputField
-            type="text"
-            id="userId"
-            placeholder="아이디를 입력하세요."
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            required
-          />
-          <InputField
-            type="password"
-            id="password"
-            placeholder="비밀번호를 입력하세요."
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <LoginButton type="submit">로그인</LoginButton>
-          <BackButton to="/">뒤로가기</BackButton>
-        </LoginForm>
-        <SignUpLink to="/signup">회원가입</SignUpLink>
+          <LoginTitle>로그인</LoginTitle>
+          <LoginSubtitle>서비스를 이용하시려면 로그인해주세요.</LoginSubtitle>
+          <LoginForm onSubmit={handleSubmit}>
+            <InputField
+              type="text"
+              id="userId"
+              placeholder="아이디를 입력하세요."
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              required
+            />
+            <InputField
+              type="password"
+              id="password"
+              placeholder="비밀번호를 입력하세요."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <LoginButton type="submit">로그인</LoginButton>
+            <BackButton to="/">뒤로가기</BackButton>
+          </LoginForm>
+          <SignUpLink to="/signup">회원가입</SignUpLink>
         </FormCard>
       </LoginFormContainer>
     </LoginPageContainer>
   );
 };
-
 
 const LoginPageContainer = styled.div`
   display: flex;
@@ -67,9 +63,9 @@ const FormCard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px; 
+  padding: 40px;
   z-index: 10;
-  position: relative; 
+  position: relative;
   @media (max-width: 768px) {
     width: 90%; /* 모바일에서 더 넓게 사용 */
     padding: 30px;
@@ -78,17 +74,17 @@ const FormCard = styled.div`
 
 const ImageContainer = styled.div`
   width: 70%;
-  background-image: url(${props => props.bgImage}); /* props.bgImage 값을 사용합니다. */
+  background-image: url(${(props) => props.bgImage}); /* props.bgImage 값을 사용합니다. */
   background-size: cover;
   background-position: center;
 `;
 
 const LoginFormContainer = styled.div`
   width: 30%;
-  background: #F3FBFF;
+  background: #f3fbff;
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
   justify-content: center;
   padding: 2rem;
 `;
@@ -121,7 +117,7 @@ const LoginForm = styled.form`
 const InputField = styled.input`
   padding: 10px;
   border: none;
-  background: #E9E9E9;
+  background: #e9e9e9;
   color: black;
   border-radius: 10px;
   font-size: 0.9rem;
@@ -154,12 +150,12 @@ const BackButton = styled(Link)`
   color: #fff;
   border: none;
   border-radius: 4px;
-  padding: 13px; 
-  font-size: 16px; 
+  padding: 13px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   width: 100%;
-  margin-top: 8px; 
+  margin-top: 8px;
   text-decoration: none;
 
   &:hover {

@@ -8,10 +8,9 @@ import { Doughnut, Bar } from 'react-chartjs-2';
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
-
 const AttendanceManagementContainer = styled.div`
   padding: 20px;
-  background-color: #F0F7FF; /* 연한 배경색 */
+  background-color: #f0f7ff; /* 연한 배경색 */
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
@@ -87,7 +86,7 @@ const SummaryCard = styled.div`
 
 // ChartPlaceholder 대신 ChartContainer 사용 (이름 변경)
 const ChartContainer = styled.div`
-  height: ${props => props.height || '120px'}; /* 기본 높이 120px, prop으로 조절 가능 */
+  height: ${(props) => props.height || '120px'}; /* 기본 높이 120px, prop으로 조절 가능 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -95,10 +94,10 @@ const ChartContainer = styled.div`
 `;
 
 const ChartLegend = styled.p`
-    font-size: 12px;
-    color: #6c757d;
-    margin-top: 10px;
-    text-align: center;
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 10px;
+  text-align: center;
 `;
 
 const DetailChartArea = styled.div`
@@ -212,32 +211,32 @@ const donutChartData = {
 };
 
 const donutChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false, // 컨테이너에 맞게 비율 조정
-    plugins: {
-        legend: {
-            position: 'bottom', // 범례를 하단에 배치
-            labels: {
-                boxWidth: 12, // 범례 색상 박스 너비
-                padding: 15,  // 범례 아이템 간 간격
-            },
-        },
-        tooltip: {
-            callbacks: {
-                label: function(context) {
-                    let label = context.label || '';
-                    if (label) {
-                        label += ': ';
-                    }
-                    if (context.parsed) {
-                        label += context.parsed + '%'; // 퍼센트 표시
-                    }
-                    return label;
-                }
-            }
-        }
+  responsive: true,
+  maintainAspectRatio: false, // 컨테이너에 맞게 비율 조정
+  plugins: {
+    legend: {
+      position: 'bottom', // 범례를 하단에 배치
+      labels: {
+        boxWidth: 12, // 범례 색상 박스 너비
+        padding: 15, // 범례 아이템 간 간격
+      },
     },
-    cutout: '60%', // 도넛 차트의 가운데 구멍 크기
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          let label = context.label || '';
+          if (label) {
+            label += ': ';
+          }
+          if (context.parsed) {
+            label += context.parsed + '%'; // 퍼센트 표시
+          }
+          return label;
+        },
+      },
+    },
+  },
+  cutout: '60%', // 도넛 차트의 가운데 구멍 크기
 };
 
 // 2. 주간/월간 근태 분포 누적 막대 그래프 데이터 (예시: 지난 7일)
@@ -281,35 +280,34 @@ const barChartOptions = {
       text: '주간/월간 근태 분포',
     },
     legend: {
-        position: 'bottom',
-        labels: {
-            boxWidth: 12,
-            padding: 15,
-        },
+      position: 'bottom',
+      labels: {
+        boxWidth: 12,
+        padding: 15,
+      },
     },
     tooltip: {
-        mode: 'index',
-        intersect: false,
-    }
+      mode: 'index',
+      intersect: false,
+    },
   },
   scales: {
     x: {
       stacked: true, // 막대 누적
       grid: {
         display: false, // X축 그리드 라인 숨김
-      }
+      },
     },
     y: {
       stacked: true, // 막대 누적
       beginAtZero: true,
       title: {
         display: true,
-        text: '직원 수'
-      }
+        text: '직원 수',
+      },
     },
   },
 };
-
 
 const AdminAttendance = () => {
   return (
@@ -391,7 +389,9 @@ const AdminAttendance = () => {
               <td>2025/03/01</td>
               <td>-</td>
               <td></td>
-              <td><TableActionButton>수정</TableActionButton></td>
+              <td>
+                <TableActionButton>수정</TableActionButton>
+              </td>
             </tr>
             <tr>
               <td>이영희</td>
@@ -403,7 +403,9 @@ const AdminAttendance = () => {
               <td>2025/02/29</td>
               <td>PC</td>
               <td></td>
-              <td><TableActionButton>수정</TableActionButton></td>
+              <td>
+                <TableActionButton>수정</TableActionButton>
+              </td>
             </tr>
             <tr>
               <td>박민수</td>
@@ -415,7 +417,9 @@ const AdminAttendance = () => {
               <td>2025/02/28</td>
               <td>앱</td>
               <td>교통 체증</td>
-              <td><TableActionButton>수정</TableActionButton></td>
+              <td>
+                <TableActionButton>수정</TableActionButton>
+              </td>
             </tr>
             <tr>
               <td>김철수</td>
@@ -427,7 +431,9 @@ const AdminAttendance = () => {
               <td>2025/02/27</td>
               <td>PC</td>
               <td></td>
-              <td><TableActionButton>수정</TableActionButton></td>
+              <td>
+                <TableActionButton>수정</TableActionButton>
+              </td>
             </tr>
             <tr>
               <td>이영희</td>
@@ -439,7 +445,9 @@ const AdminAttendance = () => {
               <td>2025/02/26</td>
               <td>PC</td>
               <td></td>
-              <td><TableActionButton>수정</TableActionButton></td>
+              <td>
+                <TableActionButton>수정</TableActionButton>
+              </td>
             </tr>
             {/* 더 많은 데이터 */}
           </tbody>
@@ -456,6 +464,6 @@ const AdminAttendance = () => {
       </DetailTableArea>
     </AttendanceManagementContainer>
   );
-}
+};
 
 export default AdminAttendance;
