@@ -5,7 +5,6 @@ import { FaClipboardList, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 
 import { MdDashboard, MdWork } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
-
 const SidebarContainer = styled.div`
   width: 300px;
   height: 100vh;
@@ -14,6 +13,10 @@ const SidebarContainer = styled.div`
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
   border-right: 1px solid #cecccc;
   font-family: 'Pretendard', sans-serif;
+  position: fixed;
+  top: 0;   /* 추가 */
+  left: 0;  /* 추가 */
+  z-index: 100; /* 콘텐츠 위에 오도록 */
 `;
 
 const LogoContainer = styled.div`
@@ -56,6 +59,7 @@ font-weight: 600;
 
   &:hover {
     background-color: #e4f0ff;
+    color: #4d8eff;
   }
 
   svg {
@@ -66,7 +70,9 @@ font-weight: 600;
 `;
 
 const Sidebar = () => {
-  const navigate = useNavigate(); 
+
+  const navigate = useNavigate(); // useNavigate 훅 사용
+
   return (
     <SidebarContainer>
       <LogoContainer>
