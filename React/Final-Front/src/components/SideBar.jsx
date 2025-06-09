@@ -78,28 +78,14 @@ const Sidebar = () => {
         <img src={logoImg} alt="SOWM 캐릭터" /> {/* 해당 경로는 적절히 변경 필요 */}
       </LogoContainer>
 
-      <MenuList>
-        <MenuItem>
-          <MdDashboard /> 대시보드
-        </MenuItem>
-        <MenuItem>
-          <FaClipboardList /> 설문조사
-        </MenuItem>
-        <MenuItem onClick={() => navigate('/VoteList')}>
-          <FaPoll /> 투표
-        </MenuItem>
-        <MenuItem onClick={() => navigate('/workcation')}>
-          <MdWork /> 워케이션
-        </MenuItem>
-        <MenuItem>
-          <FaCalendarAlt /> 일정관리
-        </MenuItem>
-        <MenuItem>
-          <FaComments /> 커뮤니티 게시판
-        </MenuItem>
-        <MenuItem>
-          <FaHeartbeat /> 건강관리
-        </MenuItem>
+      <MenuList>        
+        <MenuItem onClick={() => navigate('/memberdashboard')}><MdDashboard /> 대시보드</MenuItem>
+        <MenuItem><FaClipboardList /> 설문조사</MenuItem>
+        <MenuItem onClick={() => navigate('/VoteList')}><FaPoll /> 투표</MenuItem>
+        <MenuItem onClick={() => navigate('/workcation')}><MdWork /> 워케이션</MenuItem>
+        <MenuItem><FaCalendarAlt /> 일정관리</MenuItem>
+        <MenuItem><FaComments /> 커뮤니티 게시판</MenuItem>
+        <MenuItem><FaHeartbeat /> 건강관리</MenuItem>
       </MenuList>
     </SidebarContainer>
   );
