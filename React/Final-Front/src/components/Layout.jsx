@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
 };
 
 const Content = styled.main`
-  min-height: calc(100vh - 68px);
+  min-height: calc(100vh - 100px);
 `;
 
 export default Layout;
