@@ -3,6 +3,8 @@ import logoImg from '../assets/로고 이미지.png'
 import styled from 'styled-components';
 import { FaClipboardList, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 'react-icons/fa';
 import { MdDashboard, MdWork } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
+
 
 const SidebarContainer = styled.div`
   width: 300px;
@@ -64,6 +66,7 @@ font-weight: 600;
 `;
 
 const Sidebar = () => {
+  const navigate = useNavigate(); 
   return (
     <SidebarContainer>
       <LogoContainer>
@@ -72,10 +75,11 @@ const Sidebar = () => {
       </LogoContainer>
 
       <MenuList>
+        
         <MenuItem><MdDashboard /> 대시보드</MenuItem>
         <MenuItem><FaClipboardList /> 설문조사</MenuItem>
-        <MenuItem><FaPoll /> 투표</MenuItem>
-        <MenuItem><MdWork /> 워케이션</MenuItem>
+        <MenuItem onClick={() => navigate('/VoteList')}><FaPoll /> 투표</MenuItem>
+        <MenuItem onClick={() => navigate('/workcation')}><MdWork /> 워케이션</MenuItem>
         <MenuItem><FaCalendarAlt /> 일정관리</MenuItem>
         <MenuItem><FaComments /> 커뮤니티 게시판</MenuItem>
         <MenuItem><FaHeartbeat /> 건강관리</MenuItem>
