@@ -58,6 +58,7 @@ const VoteTitle = styled.span`
 
 const ResultButton = styled.button`
   border: 1px solid #ccc;
+  color: black;
   padding: 6px 12px;
   font-size: 14px;
   border-radius: 6px;
