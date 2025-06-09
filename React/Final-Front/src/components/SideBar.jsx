@@ -14,6 +14,9 @@ const SidebarContainer = styled.div`
   border-right: 1px solid #cecccc;
   font-family: 'Pretendard', sans-serif;
   position: fixed;
+  top: 0;   /* 추가 */
+  left: 0;  /* 추가 */
+  z-index: 100; /* 콘텐츠 위에 오도록 */
 `;
 
 const LogoContainer = styled.div`

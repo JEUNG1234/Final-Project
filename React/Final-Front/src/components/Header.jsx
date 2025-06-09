@@ -15,6 +15,10 @@ const HeaderContainer = styled.div`
   font-family: 'Pretendard', sans-serif;
   box-sizing: border-box;
   position: fixed;
+  top: 0;    /* 추가 */
+  left: 0;   /* 추가 */
+  right: 0;  /* 추가 */
+  z-index: 99; 
 `;
 
 const IconGroup = styled.div`
