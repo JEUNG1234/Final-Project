@@ -8,12 +8,9 @@ import Login from './pages/Login';
 import styled from 'styled-components';
 import VoteList from './pages/VoteList';
 import SignUp from './pages/SignUp';
-<<<<<<< HEAD
 import MyPage from './pages/MyPage';
 import AdminAttendance from './pages/AdminAttendance';
-=======
 import Workcation from './pages/Workcation';
->>>>>>> 6858aae76633b03cc5bf439b632bd12b3020d004
 
 const AppContainer = styled.div`
   display: flex;
