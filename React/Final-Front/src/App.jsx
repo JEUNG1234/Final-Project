@@ -12,6 +12,7 @@ import MyPage from './pages/MyPage';
 import AdminAttendance from './pages/AdminAttendance';
 import Workcation from './pages/Workcation';
 import MemberDashBoard from './pages/MemberDashBoard';
+import CommunityBoard from './pages/CommunityBoard';
 
 const AppContainer = styled.div`
   display: flex;
@@ -69,6 +70,7 @@ function App() {
                   <Route path="/memberdashboard" element = {<MemberDashBoard />} />
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
+                  <Route path="/communityboard" element={<CommunityBoard />} />
                 </Routes>
               </Layout>
             }
