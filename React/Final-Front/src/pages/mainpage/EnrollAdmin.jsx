@@ -30,7 +30,8 @@ const EnrollAdmin = () => {
     console.log('Email:', email);
     console.log('User Name:', userName);
 
-    alert('회원가입 시도! (실제 로직 및 백엔드 연동 필요)');
+    alert('대표님 회원가입 성공 (실제 로직 및 백엔드 연동 필요)');
+    navigate('/login');
   };
 
   return (
@@ -90,9 +91,7 @@ const EnrollAdmin = () => {
               onChange={(e) => setCompanyCode(e.target.value)}
               required
             />
-            <LoginButton type="submit" onClick={() => navigate('/login')}>
-              회원가입
-            </LoginButton>
+            <LoginButton type="submit">회원가입</LoginButton>
             <BackButton to="/login">뒤로가기</BackButton>
           </LoginForm>
         </FormCard>

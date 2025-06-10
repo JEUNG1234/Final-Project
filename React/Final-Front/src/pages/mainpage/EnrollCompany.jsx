@@ -15,7 +15,7 @@ const EnrollCompany = () => {
     e.preventDefault();
     console.log('handlesubmit 함수 정상 실행');
 
-    alert('회원가입이 성공적으로 처리되었습니다. 로그인해주세요. (실제 로직 및 백엔드 연동 필요)');
+    alert('회사신청이 성공적으로 처리되었습니다. 로그인해주세요. (실제 로직 및 백엔드 연동 필요)');
     navigate('/enrolladmin');
   };
 
