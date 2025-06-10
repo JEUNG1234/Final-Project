@@ -214,6 +214,8 @@ const Filters = styled.form`
   display: flex;
   gap: 70px;
   padding: 3% 7% 0 7%;
+
+
 `;
 
 const Select = styled.select`
@@ -236,6 +238,7 @@ const DropdownToggle = styled.button`
   border-radius: 6px;
   border: 1px solid #ccc;
   background: white;
+  width: 150px;
   cursor: pointer;
 `;
 

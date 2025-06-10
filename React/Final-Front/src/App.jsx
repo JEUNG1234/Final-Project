@@ -13,6 +13,7 @@ import AdminAttendance from './pages/AdminAttendance';
 import Workcation from './pages/Workcation';
 import MemberDashBoard from './pages/MemberDashBoard';
 import CommunityBoard from './pages/CommunityBoard';
+import AddBoard from './pages/AddBoard';
 
 const AppContainer = styled.div`
   display: flex;
@@ -70,7 +71,9 @@ function App() {
                   <Route path="/memberdashboard" element = {<MemberDashBoard />} />
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
-                  <Route path="/communityboard" element={<CommunityBoard />} />
+                  <Route path="/communityboard" element={<CommunityBoard />} />\
+                  <Route path="/addboard" element={<AddBoard />} />
+
                 </Routes>
               </Layout>
             }

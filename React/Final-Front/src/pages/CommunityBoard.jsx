@@ -1,9 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-// React Icons 임포트
-import { FaUsers, FaSearch, FaPlus, FaSortDown, FaSortUp } from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
+import { useNavigate } from 'react-router-dom';
+import { FaUsers, FaSearch, FaPlus, FaSortDown} from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
 
 const CommunityBoard = () => {
+
+  const navigate = useNavigate();
+
   // 예시 데이터 (실제로는 API에서 받아옴)
   const posts = [
     { id: 1, tag: '공지사항', title: '안녕하세요', author: '홍길동', date: '2025/03/01', views: 400 },
@@ -27,7 +30,7 @@ const CommunityBoard = () => {
         <ActionButton primary>
           <FaSearch /> 조회
         </ActionButton>
-        <ActionButton>
+        <ActionButton onClick={() => navigate('/addboard')}>
           <FaPlus /> 게시글 작성
         </ActionButton>
       </BoardActions>
@@ -97,7 +100,7 @@ const PageHeader = styled.div`
 
 const PageTitle = styled.h2`
   font-size: 28px;
-  color: #333;
+  color: #929393;
   display: flex;
   align-items: center;
   gap: 10px;
