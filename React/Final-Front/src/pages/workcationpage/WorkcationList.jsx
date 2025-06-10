@@ -21,7 +21,7 @@ const workcationData = [
 ];
 
 const WorkcationList = () => {
-    const navigate = useNavigate(); // 
+  const navigate = useNavigate(); //
   //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedPeople, setSelectedPeople] = useState('');
@@ -179,7 +179,7 @@ const WorkcationList = () => {
 
         <CardGrid>
           {workcationData.map((place) => (
-            <Card key={place.id}onClick={() => navigate('/workcationDetail')}>
+            <Card key={place.id} onClick={() => navigate('/workcationDetail')}>
               {/* 워케이션 장소 리스트 출력 */}
               <CardImage src={image} alt={place.title} />
               <CardTitle>{place.title}</CardTitle>
@@ -217,14 +217,24 @@ const Container = styled.div`
 
 //메인 콘텐츠 div
 
-
-
 //검색 창
 const Filters = styled.form`
   display: flex;
   gap: 50px;
   padding: 3% 7% 0 7%;
+<<<<<<< HEAD:React/Final-Front/src/pages/Workcation.jsx
+`;
+
+const Select = styled.select`
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex: 1;
+  width: 150px;
+  height: 50px;
+=======
   width: 100%;
+>>>>>>> 971b9885cefcecaf6350c1aea9696657e06a15f7:React/Final-Front/src/pages/workcationpage/Workcation.jsx
 `;
 
 //지역 선택 창
@@ -327,8 +337,6 @@ const CardGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
-
- 
 `;
 
 const Card = styled.div`
@@ -342,7 +350,9 @@ const Card = styled.div`
     transform: translateY(-5px); /* 약간 위로 떠오르는 효과 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 그림자 강화 */
     cursor: pointer;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* 부드러운 전환 효과 */
+    transition:
+      transform 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out; /* 부드러운 전환 효과 */
   }
 `;
 

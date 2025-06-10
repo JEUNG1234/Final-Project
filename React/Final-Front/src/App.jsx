@@ -75,6 +75,7 @@ function App() {
                   <Route path="/votelist" element={<VoteList />} />
                   {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
                   <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                  <Route path="/chellenge" element={<Chellenge />} />
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
                   <Route path="/communityboard" element={<CommunityBoard />} />\
