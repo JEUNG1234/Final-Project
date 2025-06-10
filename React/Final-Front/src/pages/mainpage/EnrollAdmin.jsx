@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import loginImage from '../assets/메인페이지사진1.jpg';
+import loginImage from '../../assets/메인페이지사진1.jpg';
+import { useNavigate } from 'react-router-dom';
 
-const SignUp = () => {
+const EnrollAdmin = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [checkPassword, setCheckPassword] = useState('');
   const [email, setEmail] = useState('');
   const [userName, setUserName] = useState('');
   const [passwordMismatchError, setPasswordMismatchError] = useState(false);
+  const [companyCode, setCompanyCode] = useState('');
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,7 +30,8 @@ const SignUp = () => {
     console.log('Email:', email);
     console.log('User Name:', userName);
 
-    alert('회원가입 시도! (실제 로직 및 백엔드 연동 필요)');
+    alert('대표님 회원가입 성공 (실제 로직 및 백엔드 연동 필요)');
+    navigate('/login');
   };
 
   return (
@@ -34,8 +39,8 @@ const SignUp = () => {
       <ImageContainer bgImage={loginImage}></ImageContainer>
       <LoginFormContainer>
         <FormCard>
-          <LoginTitle>회원가입</LoginTitle>
-          <LoginSubtitle>서비스를 이용하시려면 회원가입해주세요.</LoginSubtitle>
+          <LoginTitle>대표자 생성</LoginTitle>
+          <LoginSubtitle>대표님께서는 회원가입해주세요.</LoginSubtitle>
           <LoginForm onSubmit={handleSubmit}>
             <InputField
               type="text"
@@ -76,6 +81,14 @@ const SignUp = () => {
               placeholder="이메일"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <InputField
+              type="text"
+              id="companycode"
+              placeholder="회사코드"
+              value={companyCode}
+              onChange={(e) => setCompanyCode(e.target.value)}
               required
             />
             <LoginButton type="submit">회원가입</LoginButton>
@@ -210,4 +223,4 @@ const ErrorMessage = styled.p`
   width: 100%;
 `;
 
-export default SignUp;
+export default EnrollAdmin;

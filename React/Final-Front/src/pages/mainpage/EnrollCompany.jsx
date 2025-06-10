@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
-import loginImage from '../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
+import { Link } from 'react-router-dom';
+import loginImage from '../../assets/메인페이지사진1.jpg';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
+const EnrollCompany = () => {
   const navigate = useNavigate();
+
+  const [userId, setUserId] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('User ID:', userId);
-    console.log('Password:', password);
-    alert('로그인 시도! (실제 로직 필요)');
-    navigate('/MemberDashBoard');
+    console.log('handlesubmit 함수 정상 실행');
+
+    alert('회사신청이 성공적으로 처리되었습니다. 로그인해주세요. (실제 로직 및 백엔드 연동 필요)');
+    navigate('/enrolladmin');
   };
 
   return (
@@ -21,29 +24,36 @@ const Login = () => {
       <ImageContainer bgImage={loginImage}></ImageContainer>
       <LoginFormContainer>
         <FormCard>
-          <LoginTitle>로그인</LoginTitle>
-          <LoginSubtitle>서비스를 이용하시려면 로그인해주세요.</LoginSubtitle>
+          <LoginTitle>회사신청</LoginTitle>
+          <LoginSubtitle>회사코드 생성을 위해 신청해주세요.</LoginSubtitle>
           <LoginForm onSubmit={handleSubmit}>
             <InputField
               type="text"
-              id="userId"
-              placeholder="아이디를 입력하세요."
+              id="companyName"
+              placeholder="회사명"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               required
             />
             <InputField
-              type="password"
-              id="password"
-              placeholder="비밀번호를 입력하세요."
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="text"
+              id="phone"
+              placeholder="전화번호"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               required
             />
-            <LoginButton type="submit">로그인</LoginButton>
+            <InputField
+              type="textarea"
+              id="address"
+              placeholder="매장주소"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+            />
+            <LoginButton type="submit">신청하기</LoginButton>
             <BackButton to="/">뒤로가기</BackButton>
           </LoginForm>
-          <SignUpLink to="/signup">회원가입</SignUpLink>
         </FormCard>
       </LoginFormContainer>
     </LoginPageContainer>
@@ -53,6 +63,76 @@ const Login = () => {
 const LoginPageContainer = styled.div`
   display: flex;
   min-height: 100vh;
+`;
+
+const ImageContainer = styled.div`
+  width: 70%;
+  background-image: url(${(props) => props.bgImage});
+  background-size: cover;
+  background-position: center;
+`;
+
+const LoginFormContainer = styled.div`
+  width: 30%;
+  background: #f3fbff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px; /* 2rem -> 32px */
+`;
+
+const LoginTitle = styled.h2`
+  font-size: 32px; /* 2rem -> 32px */
+  margin-bottom: 8px; /* 0.5rem -> 8px */
+  text-align: center;
+  color: #333;
+  width: 100%;
+`;
+
+const LoginSubtitle = styled.p`
+  font-size: 13px; /* 0.8rem -> 12.8px (반올림) */
+  color: #777;
+  margin-bottom: 32px; /* 2rem -> 32px */
+  text-align: center;
+  width: 100%;
+`;
+
+const LoginForm = styled.form`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 19px;
+`;
+
+const InputField = styled.input`
+  padding: 10px;
+  border: none;
+  background: #e9e9e9;
+  color: black;
+  border-radius: 10px;
+  font-size: 14px;
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+`;
+
+const LoginButton = styled.button`
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 13px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
 
 const FormCard = styled.div`
@@ -69,76 +149,6 @@ const FormCard = styled.div`
   @media (max-width: 768px) {
     width: 90%; /* 모바일에서 더 넓게 사용 */
     padding: 30px;
-  }
-`;
-
-const ImageContainer = styled.div`
-  width: 70%;
-  background-image: url(${(props) => props.bgImage}); /* props.bgImage 값을 사용합니다. */
-  background-size: cover;
-  background-position: center;
-`;
-
-const LoginFormContainer = styled.div`
-  width: 30%;
-  background: #f3fbff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-`;
-
-const LoginTitle = styled.h2`
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  text-align: center;
-  color: #333;
-  width: 100%;
-`;
-
-const LoginSubtitle = styled.p`
-  font-size: 0.8rem;
-  color: #777;
-  margin-bottom: 2rem;
-  text-align: center;
-  width: 100%;
-`;
-
-const LoginForm = styled.form`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 1.2rem;
-`;
-
-const InputField = styled.input`
-  padding: 10px;
-  border: none;
-  background: #e9e9e9;
-  color: black;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  width: 100%;
-  height: 60px;
-  box-sizing: border-box;
-`;
-
-const LoginButton = styled.button`
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 0.8rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
-
-  &:hover {
-    background-color: #0056b3;
   }
 `;
 
@@ -164,16 +174,13 @@ const BackButton = styled(Link)`
   }
 `;
 
-const SignUpLink = styled(Link)`
-  color: #007bff;
-  text-decoration: none;
-  text-align: center;
-  font-size: 12px;
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  text-align: left;
   width: 100%;
-
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
-export default Login;
+export default EnrollCompany;

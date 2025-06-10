@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 
 //달력기능
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { MdWork } from 'react-icons/md';
-import image from '../assets/돌하르방.jpg';
+
+import image from '../../assets/돌하르방.jpg';
 
 const workcationData = [
   { id: 1, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
@@ -21,7 +23,6 @@ const Workcation = () => {
   //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedPeople, setSelectedPeople] = useState('');
-  // const [selectedDate, setSelectedDate] = useState(null); // Date object
 
   //날짜 범위 선택[시작일, 종료일]
   const [dateRange, setDateRange] = useState([null, null]);
@@ -92,10 +93,10 @@ const Workcation = () => {
     <Container>
       <MainContent>
         {/* 상단 로고 및 타이틀 */}
-        <Logodiv>
+        <PageTitle>
           {/* 워케이션 아이콘 변경예정 */}
           <MdWork /> 워케이션
-        </Logodiv>
+        </PageTitle>
         {/* 필터 영역 */}
         <Filters>
           {/* 지역 선택 드롭다운 */}
@@ -212,41 +213,13 @@ const Workcation = () => {
 const Container = styled.div`
   height: 100%;
   width: 100%;
-  padding: 3%;
+
   background: #f0f7ff;
 `;
 
 //메인 콘텐츠 div
-const MainContent = styled.div`
-  min-height: 100%;
-  /* height: 90%; */
-  width: 100%;
-  background: #ffffff;
-  margin: 0 auto;
-  border-radius: 16px;
 
-  h2 {
-    padding: 3% 7% 0 7%;
-  }
 
-  > div {
-    padding: 3% 3% 0 3%;
-  }
-
-  svg {
-    font-size: 22px;
-    margin-right: 20px;
-    color: #4d8eff;
-  }
-`;
-const Logodiv = styled.div`
-  width: 100%;
-  height: 7%;
-
-  font-size: 18px;
-  font-weight: 600;
-  color: #929393;
-`;
 
 //검색 창
 const Filters = styled.form`
@@ -355,7 +328,7 @@ const CalendarWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   background: white;
-  padding: 10px;
+  padding-bottom: 10px;
   box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 `;
