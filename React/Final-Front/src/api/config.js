@@ -11,5 +11,5 @@ export const API_CONFIG = {
 };
 
 export const API_ENDPOINTS = {
- //필요한endpoint작성
+  //필요한endpoint작성
 };

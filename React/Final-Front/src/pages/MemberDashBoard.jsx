@@ -4,11 +4,10 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components'; // styled-components는 여기서 임포트
 import ProfileImg from '../assets/ronaldo.jpg';
-import ChallangeImg from '../assets/challengeImg.jpg'
+import ChallangeImg from '../assets/challengeImg.jpg';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);
-
 
 // 달력 날짜 생성 함수
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
@@ -36,7 +35,7 @@ const healthDoughnutOptions = {
     },
     tooltip: {
       callbacks: {
-        label: function(context) {
+        label: function (context) {
           let label = context.label || '';
           if (label) {
             label += ': ';
@@ -45,13 +44,12 @@ const healthDoughnutOptions = {
             label += context.parsed + '%';
           }
           return label;
-        }
-      }
-    }
+        },
+      },
+    },
   },
   cutout: '50%', // 도넛 차트의 가운데 구멍 크기
 };
-
 
 // ==========================================================
 // 메인 대시보드 컴포넌트
@@ -85,7 +83,6 @@ const MemberDashBoard = () => {
       currentWeek = [];
     }
   });
-
 
   return (
     <DashboardContainer>
@@ -169,11 +166,15 @@ const MemberDashBoard = () => {
             </dl>
             <dl>
               <dt>남은 연차 수:</dt>
-              <dd><span>3일</span></dd>
+              <dd>
+                <span>3일</span>
+              </dd>
             </dl>
             <dl>
               <dt>복지 포인트:</dt>
-              <dd><span>1400점</span>(1500점 = 휴가 1일)</dd>
+              <dd>
+                <span>1400점</span>(1500점 = 휴가 1일)
+              </dd>
             </dl>
             <dl>
               <dt></dt>
@@ -191,9 +192,15 @@ const MemberDashBoard = () => {
             </div>
             {/* 커스텀 범례 */}
             <div className="legend-list">
-              <div><span className="color-box" style={{backgroundColor: '#28A745'}}></span>수면 시간: 9시간</div>
-              <div><span className="color-box" style={{backgroundColor: '#007BFF'}}></span>걸음 수: 3000보</div>
-              <div><span className="color-box" style={{backgroundColor: '#FFC107'}}></span>스트레스 지수: 중간</div>
+              <div>
+                <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>수면 시간: 9시간
+              </div>
+              <div>
+                <span className="color-box" style={{ backgroundColor: '#007BFF' }}></span>걸음 수: 3000보
+              </div>
+              <div>
+                <span className="color-box" style={{ backgroundColor: '#FFC107' }}></span>스트레스 지수: 중간
+              </div>
             </div>
           </HealthDataCard>
 
@@ -214,10 +221,9 @@ const MemberDashBoard = () => {
       </BottomSection>
     </DashboardContainer>
   );
-}
+};
 
 export default MemberDashBoard;
-
 
 // ==========================================================
 // 스타일 정의 (styled-components)
@@ -226,7 +232,7 @@ export default MemberDashBoard;
 // 전체 대시보드 컨테이너
 const DashboardContainer = styled.div`
   padding: 30px; /* 전체 대시보드 안쪽 여백 */
-  background-color: #F0F7FF; /* 전체 배경색 */
+  background-color: #f0f7ff; /* 전체 배경색 */
   display: flex;
   flex-direction: column;
   gap: 30px; /* 섹션 간의 간격 */
@@ -318,14 +324,14 @@ const CalendarCard = styled(Card)`
       }
 
       &.today {
-        background-color: #FB3F4A; /* 오늘 날짜 배경 */
+        background-color: #fb3f4a; /* 오늘 날짜 배경 */
         color: white;
         font-weight: bold;
       }
 
       &.highlight {
-        background-color: #FFECB3; /* 특별한 날짜 (예: 휴가) */
-        color: #C07000;
+        background-color: #ffecb3; /* 특별한 날짜 (예: 휴가) */
+        color: #c07000;
         font-weight: bold;
       }
     }
@@ -344,7 +350,7 @@ const ChallengeCard = styled(Card)`
     flex-grow: 1;
     h4 {
       font-size: 30px;
-      color: #2F80ED; /* 푸른색 제목 */
+      color: #2f80ed; /* 푸른색 제목 */
       margin-bottom: 5px;
     }
     p {
@@ -363,7 +369,7 @@ const ChallengeCard = styled(Card)`
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background-color: #C1E8EF; /* 이미지 플레이스홀더 배경 */
+    background-color: #c1e8ef; /* 이미지 플레이스홀더 배경 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -412,7 +418,7 @@ const UserInfoCard = styled(Card)`
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background-color: #E0E0E0; /* 아바타 플레이스홀더 배경 */
+    background-color: #e0e0e0; /* 아바타 플레이스홀더 배경 */
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -438,7 +444,7 @@ const UserInfoCard = styled(Card)`
       display: flex;
       margin-bottom: 10px;
       font-size: 15px;
-      
+
       dt {
         color: #777;
         width: 80px; /* 라벨 너비 고정 */
@@ -525,12 +531,16 @@ const AttendanceTimeCard = styled(Card)`
       font-weight: bold;
 
       &.check-in {
-        background-color: #28A745; /* 녹색 */
-        &:hover { background-color: #218838; }
+        background-color: #28a745; /* 녹색 */
+        &:hover {
+          background-color: #218838;
+        }
       }
       &.check-out {
-        background-color: #DC3545; /* 빨강 */
-        &:hover { background-color: #C82333; }
+        background-color: #dc3545; /* 빨강 */
+        &:hover {
+          background-color: #c82333;
+        }
       }
     }
   }
