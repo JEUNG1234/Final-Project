@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useLocation } from 'react-router-dom';
-import MainHeader from '../components/MainHeader';
-import Footer from '../components/Footer';
-import mainImage1 from '../assets/메인페이지사진1.jpg'; // 메인페이지사진1.png
-import mainImage2 from '../assets/메인페이지사진2.jpg'; // 메인페이지사진2.jpg
-import mainImage3 from '../assets/메인페이지사진3.png'; // 메인페이지사진3.jpg
-import mainImage4 from '../assets/메인페이지사진4.jpg'; // 메인페이지사진4.jpg
+import MainHeader from '../../components/MainHeader';
+import Footer from '../../components/Footer';
+import mainImage1 from '../../assets/메인페이지사진1.jpg'; // 메인페이지사진1.png
+import mainImage2 from '../../assets/메인페이지사진2.jpg'; // 메인페이지사진2.jpg
+import mainImage3 from '../../assets/메인페이지사진3.png'; // 메인페이지사진3.jpg
+import mainImage4 from '../../assets/메인페이지사진4.jpg'; // 메인페이지사진4.jpg
 
 const Home = () => {
   const location = useLocation();
@@ -93,7 +93,7 @@ const Home = () => {
         </ContentContainer>
 
         <FAQSection>
-          <SubSectionTitle>자주 묻는 질문 | FAQ</SubSectionTitle>
+          <SubSectionTitle id="faq">자주 묻는 질문 | FAQ</SubSectionTitle>
           <FAQList>
             <FAQItem>
               <Question>SOWM 시스템은 어떤 회사에 적합한가요?</Question>

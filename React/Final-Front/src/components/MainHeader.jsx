@@ -11,8 +11,10 @@ const MainHeader = () => {
       <Logo to="/">SOWM</Logo>
       <Nav>
         <NavLink to="/#system-introduction">시스템 소개</NavLink>
+        <NavLink to="/#faq">FAQ</NavLink>
         <NavLink to="/login">로그인</NavLink>
         <NavLink to="/signup">회원가입</NavLink>
+        <NavLink to="/enrollcompany">회사신청</NavLink>
       </Nav>
     </HeaderContainer>
   );

@@ -55,7 +55,7 @@ const HeaderBar = () => {
       <IconGroup>
         <FaBriefcase title="출근" />
         <FaSuitcase onClick={handleChulClick} title="퇴근" />
-        <FaSignOutAlt title="로그아웃" />
+        <FaSignOutAlt title="로그아웃" onClick={() => navigate('/')} />
         <FaUserCircle
           title="마이페이지"
           onClick={handleMyPageClick} // 클릭 이벤트 추가

@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import Home from './pages/Home';
+import Home from './pages/mainpage/Home';
 import MainHeader from './components/MainHeader'; // 메인 페이지 전용 헤더 (선택 사항)
 import Footer from './components/Footer'; // 공통 푸터 또는 각 페이지별 푸터
-import Layout from './components/Layout'; // 헤더와 사이드바가 있는 페이지들을 위한 레이아웃
-import Login from './pages/Login';
+import Layout from './components/Layout'; //
+import Login from './pages/mainpage/Login';
 import styled from 'styled-components';
 import VoteList from './pages/VoteList';
-import SignUp from './pages/SignUp';
+import SignUp from './pages/mainpage/SignUp';
 import MyPage from './pages/MyPage';
 import AdminAttendance from './pages/AdminAttendance';
-import Workcation from './pages/Workcation';
+import WorkcationList from './pages/workcationpage/WorkcationList';
+import MemberDashBoard from './pages/MemberDashBoard';
+import CommunityBoard from './pages/communitypage/CommunityBoard';
+import AddBoard from './pages/communitypage/AddBoard';
+import EditBoard from './pages/communitypage/EditBoard';
+import EnrollCompany from './pages/mainpage/EnrollCompany';
+import EnrollAdmin from './pages/mainpage/EnrollAdmin';
+import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
+import Chellenge from './pages/chellengepage/Chellenge';
 
 const AppContainer = styled.div`
   display: flex;
@@ -53,6 +61,8 @@ function App() {
 
           {/* 3. 회원가입 페이지: 헤더/사이드바 없음 */}
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/enrollcompany" element={<EnrollCompany />} />
+          <Route path="/enrolladmin" element={<EnrollAdmin />} />
 
           {/* 4. 그 외 다른 페이지들: Layout 컴포넌트 (Header와 Sidebar 포함) 사용 */}
           {/* 이제 '/*'는 Main, Login, SignUp을 제외한 나머지 모든 경로를 의미합니다. */}
@@ -62,12 +72,17 @@ function App() {
               <Layout>
                 <Routes>
                   {/* Layout 안에 포함될 페이지들 */}
-                  <Route path="/Workcation" element={<Workcation />} />
+                  <Route path="/workcationlist" element={<WorkcationList />} />
                   <Route path="/votelist" element={<VoteList />} />
-
                   {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
+                  <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                  <Route path="/chellenge" element={<Chellenge />} />
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
+                  <Route path="/communityboard" element={<CommunityBoard />} />\
+                  <Route path="/addboard" element={<AddBoard />} />
+                  <Route path="/editboard" element={<EditBoard />} />
+                  <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
                 </Routes>
               </Layout>
             }
