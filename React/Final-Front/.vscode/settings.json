@@ -1,0 +1,13 @@
+{
+  // 저장할 때 자동 포맷 활성화
+  "editor.formatOnSave": true,
+
+  // 저장할 때 ESLint가 고칠 수 있는 문제는 자동 수정
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // 기본 포맷터를 Prettier로 설정
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
