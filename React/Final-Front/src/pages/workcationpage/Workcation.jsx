@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 
 //달력기능
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+
 import { MdWork } from 'react-icons/md';
-import image from '../assets/돌하르방.jpg';
+
+import image from '../../assets/돌하르방.jpg';
 
 const workcationData = [
   { id: 1, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
@@ -17,14 +20,23 @@ const workcationData = [
 ];
 
 const Workcation = () => {
+  //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedPeople, setSelectedPeople] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null); // Date object
 
+  //날짜 범위 선택[시작일, 종료일]
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
+
+  //날짜 초기화
+  const resetDates = () => setDateRange([null, null]);
+
+  //드롭다운 오픈/클로즈 상태
   const [regionOpen, setRegionOpen] = useState(false);
   const [peopleOpen, setPeopleOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
 
+  //드롭다운 외부 클릭 처리용 ref
   const regionRef = useRef();
   const peopleRef = useRef();
   const dateRef = useRef();
@@ -51,6 +63,13 @@ const Workcation = () => {
   ];
   const peopleList = ['1명', '2명', '3명', '4명 이상'];
 
+  //날짜 적용후 달력 닫기
+  const applyDates = () => {
+    console.log('적용된 날짜:', startDate, endDate);
+    setDateOpen(false); // 달력 닫기
+  };
+
+  //외부 클릭 시 모든 드롭다운 닫기
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -73,12 +92,14 @@ const Workcation = () => {
   return (
     <Container>
       <MainContent>
-        <Logodiv>
+        {/* 상단 로고 및 타이틀 */}
+        <PageTitle>
           {/* 워케이션 아이콘 변경예정 */}
           <MdWork /> 워케이션
-        </Logodiv>
+        </PageTitle>
+        {/* 필터 영역 */}
         <Filters>
-          {/* 지역 선택 */}
+          {/* 지역 선택 드롭다운 */}
           <FilterWrapper ref={regionRef}>
             <DropdownToggle type="button" onClick={() => setRegionOpen(!regionOpen)}>
               {selectedRegion || '전체지역'}
@@ -100,7 +121,7 @@ const Workcation = () => {
             )}
           </FilterWrapper>
 
-          {/* 인원 선택 */}
+          {/* 인원 선택 드롭다운 */}
           <FilterWrapper ref={peopleRef}>
             <DropdownToggle type="button" onClick={() => setPeopleOpen(!peopleOpen)}>
               {selectedPeople || '인원'}
@@ -122,25 +143,40 @@ const Workcation = () => {
             )}
           </FilterWrapper>
 
-          {/* 날짜 선택 */}
+          {/* 날짜 선택 드롭다운 */}
           <FilterWrapper ref={dateRef}>
             <DropdownToggle type="button" onClick={() => setDateOpen(!dateOpen)}>
-              {selectedDate ? selectedDate.toLocaleDateString() : '날짜'}
+              {/* 선택된 날짜 범위 텍스트 */}
+              {startDate && endDate ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}` : '날짜'}
             </DropdownToggle>
             {dateOpen && (
               <DateMenu>
                 <DatePicker
-                  selected={selectedDate}
-                  onChange={(date) => {
-                    setSelectedDate(date);
-                    setDateOpen(false);
-                  }}
+                  selectsRange
+                  startDate={startDate}
+                  endDate={endDate}
+                  onChange={(update) => setDateRange(update)}
                   inline
+                  calendarContainer={({ children }) => (
+                    <CalendarWrapper>
+                      {children}
+                      <DateInfo>
+                        <Dot color="#facc15" /> 오늘
+                        <Dot color="#a78bfa" /> 선택
+                      </DateInfo>
+                      <ButtonWrapper>
+                        <ControlButton onClick={resetDates}>초기화</ControlButton>
+                        <ControlButton onClick={applyDates}>날짜 적용</ControlButton>
+                      </ButtonWrapper>
+                    </CalendarWrapper>
+                  )}
                 />
               </DateMenu>
             )}
           </FilterWrapper>
         </Filters>
+
+        {/* 장소 목록 섹션 */}
         <SectionTitle>장소</SectionTitle>
 
         <CardGrid>
@@ -157,14 +193,16 @@ const Workcation = () => {
             </Card>
           ))}
         </CardGrid>
-
+        <RegisterDiv>
+          <RegisterButton>워크케이션 신청목록</RegisterButton>
+        </RegisterDiv>
+        {/* 페이지 버튼 영역 */}
         <BottomBar>
           <Pagination>
             {[1, 2, 3, 4].map((num) => (
               <PageButton key={num}>{num}</PageButton>
             ))}
           </Pagination>
-          <RegisterButton>워크케이션 신청목록</RegisterButton>
         </BottomBar>
       </MainContent>
     </Container>
@@ -175,70 +213,37 @@ const Workcation = () => {
 const Container = styled.div`
   height: 100%;
   width: 100%;
-  padding: 3%;
+
   background: #f0f7ff;
 `;
 
 //메인 콘텐츠 div
-const MainContent = styled.div`
-  height: 90%;
-  width: 80%;
-  background: #ffffff;
-  margin: 0 auto;
 
-  h2 {
-    padding: 3% 7% 0 7%;
-  }
 
-  div {
-    padding: 3% 3% 0 3%;
-  }
-
-  svg {
-    font-size: 22px;
-    margin-right: 20px;
-    color: #4d8eff;
-  }
-`;
-const Logodiv = styled.div`
-  width: 100%;
-  height: 7%;
-
-  font-size: 18px;
-  font-weight: 600;
-  color: #929393;
-`;
 
 //검색 창
 const Filters = styled.form`
   display: flex;
-  gap: 70px;
+  gap: 50px;
   padding: 3% 7% 0 7%;
-
-
-`;
-
-const Select = styled.select`
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  flex: 1;
-  width: 150px;
-  height: 50px;
+  width: 100%;
 `;
 
 //지역 선택 창
-
 const FilterWrapper = styled.div`
   position: relative;
+  flex: 1;
 `;
 
 const DropdownToggle = styled.button`
-  padding: 0.5rem 1rem;
+  padding: 0;
+
   border-radius: 6px;
   border: 1px solid #ccc;
   background: white;
-  width: 150px;
+
+  height: 50px;
+  width: 100%;
   cursor: pointer;
 `;
 
@@ -260,6 +265,7 @@ const DropdownMenu = styled.div`
 const DateMenu = styled.div`
   position: absolute;
   top: 45px;
+  left: 0;
   z-index: 15;
 `;
 
@@ -277,6 +283,57 @@ const DropdownItem = styled.button`
   }
 `;
 
+//날짜 선택 창
+const DateInfo = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #555;
+`;
+
+const Dot = styled.span`
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: ${(props) => props.color || '#000'};
+  border-radius: 50%;
+  margin-right: 5px;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const ControlButton = styled.button`
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #2563eb;
+  }
+`;
+const CalendarWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  padding-bottom: 10px;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+`;
+
+//장소 목록 세션
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: bold;
@@ -289,7 +346,7 @@ const CardGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
-  margin-bottom: 2rem;
+
 `;
 
 const Card = styled.div`
@@ -297,6 +354,7 @@ const Card = styled.div`
   border-radius: 10px;
   padding: 0.5rem;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
+  background: #f0f7ff;
 `;
 
 const CardImage = styled.img`
@@ -328,8 +386,31 @@ const CardAvailability = styled.span`
   padding-left: 20px;
 `;
 
+//워케이션 신청 목록 div
+const RegisterDiv = styled.div`
+  width: 100%;
+  height: 5%;
+  display: flex;
+  justify-content: end;
+`;
+//워케이션 신청 목록 버튼
+const RegisterButton = styled.button`
+  padding: 0.6rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #2563eb;
+  }
+`;
+
+//페이지 버튼 영역
 const BottomBar = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
 `;
@@ -343,24 +424,12 @@ const PageButton = styled.button`
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   border: 1px solid #ccc;
-  background: white;
-  cursor: pointer;
-
-  &:hover {
-    background: #e6f0ff;
-  }
-`;
-
-const RegisterButton = styled.button`
-  padding: 0.6rem 1rem;
-  background-color: #3b82f6;
+  background: #3b82f6;
   color: white;
-  border-radius: 6px;
-  border: none;
   cursor: pointer;
 
   &:hover {
-    background-color: #2563eb;
+    background: #2563eb;
   }
 `;
 

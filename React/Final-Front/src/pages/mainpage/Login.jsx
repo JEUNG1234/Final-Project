@@ -12,8 +12,9 @@ const Login = () => {
     e.preventDefault();
     console.log('User ID:', userId);
     console.log('Password:', password);
-    alert('로그인 성공! ERP 페이지로 이제 넘어갑니다 (실제 로직 필요)');
-    navigate('/votelist');
+
+    alert('로그인 시도! (실제 로직 필요)');
+    navigate('/MemberDashBoard');
   };
 
   return (

@@ -10,7 +10,7 @@ import VoteList from './pages/VoteList';
 import SignUp from './pages/mainpage/SignUp';
 import MyPage from './pages/MyPage';
 import AdminAttendance from './pages/AdminAttendance';
-import Workcation from './pages/Workcation';
+import Workcation from './pages/workcationpage/Workcation';
 import MemberDashBoard from './pages/MemberDashBoard';
 import CommunityBoard from './pages/communitypage/CommunityBoard';
 import AddBoard from './pages/communitypage/AddBoard';
