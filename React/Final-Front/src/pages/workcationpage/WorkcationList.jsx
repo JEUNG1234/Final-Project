@@ -222,7 +222,6 @@ const Filters = styled.form`
   display: flex;
   gap: 50px;
   padding: 3% 7% 0 7%;
-<<<<<<< HEAD:React/Final-Front/src/pages/Workcation.jsx
 `;
 
 const Select = styled.select`
@@ -232,9 +231,7 @@ const Select = styled.select`
   flex: 1;
   width: 150px;
   height: 50px;
-=======
   width: 100%;
->>>>>>> 971b9885cefcecaf6350c1aea9696657e06a15f7:React/Final-Front/src/pages/workcationpage/Workcation.jsx
 `;
 
 //지역 선택 창
