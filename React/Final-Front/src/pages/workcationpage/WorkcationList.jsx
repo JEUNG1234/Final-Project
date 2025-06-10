@@ -9,6 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { MdWork } from 'react-icons/md';
 
 import image from '../../assets/돌하르방.jpg';
+import { useNavigate } from 'react-router-dom';
 
 const workcationData = [
   { id: 1, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
@@ -19,7 +20,8 @@ const workcationData = [
   { id: 6, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
 ];
 
-const Workcation = () => {
+const WorkcationList = () => {
+    const navigate = useNavigate(); // 
   //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedPeople, setSelectedPeople] = useState('');
@@ -160,10 +162,6 @@ const Workcation = () => {
                   calendarContainer={({ children }) => (
                     <CalendarWrapper>
                       {children}
-                      <DateInfo>
-                        <Dot color="#facc15" /> 오늘
-                        <Dot color="#a78bfa" /> 선택
-                      </DateInfo>
                       <ButtonWrapper>
                         <ControlButton onClick={resetDates}>초기화</ControlButton>
                         <ControlButton onClick={applyDates}>날짜 적용</ControlButton>
@@ -181,7 +179,7 @@ const Workcation = () => {
 
         <CardGrid>
           {workcationData.map((place) => (
-            <Card key={place.id}>
+            <Card key={place.id}onClick={() => navigate('/workcationDetail')}>
               {/* 워케이션 장소 리스트 출력 */}
               <CardImage src={image} alt={place.title} />
               <CardTitle>{place.title}</CardTitle>
@@ -296,23 +294,6 @@ const DropdownItem = styled.button`
 `;
 
 //날짜 선택 창
-const DateInfo = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #555;
-`;
-
-const Dot = styled.span`
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  background-color: ${(props) => props.color || '#000'};
-  border-radius: 50%;
-  margin-right: 5px;
-`;
 
 const ButtonWrapper = styled.div`
   display: flex;
@@ -359,6 +340,7 @@ const CardGrid = styled.div`
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 
+ 
 `;
 
 const Card = styled.div`
@@ -367,6 +349,13 @@ const Card = styled.div`
   padding: 0.5rem;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
   background: #f0f7ff;
+
+  &:hover {
+    transform: translateY(-5px); /* 약간 위로 떠오르는 효과 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 그림자 강화 */
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* 부드러운 전환 효과 */
+  }
 `;
 
 const CardImage = styled.img`
@@ -404,6 +393,8 @@ const RegisterDiv = styled.div`
   height: 5%;
   display: flex;
   justify-content: end;
+
+  padding-top: 20px;
 `;
 //워케이션 신청 목록 버튼
 const RegisterButton = styled.button`
@@ -445,4 +436,4 @@ const PageButton = styled.button`
   }
 `;
 
-export default Workcation;
+export default WorkcationList;

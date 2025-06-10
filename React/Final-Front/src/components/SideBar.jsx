@@ -25,7 +25,7 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/VoteList')}>
           <FaPoll /> 투표
         </MenuItem>
-        <MenuItem onClick={() => navigate('/workcation')}>
+        <MenuItem onClick={() => navigate('/workcationlist')}>
           <MdWork /> 워케이션
         </MenuItem>
         <MenuItem>
