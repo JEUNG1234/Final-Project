@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import loginImage from '../assets/메인페이지사진1.jpg';
+import loginImage from '../../assets/메인페이지사진1.jpg';
+import { useNavigate } from 'react-router-dom';
 
-const SignUp = () => {
+const EnrollAdmin = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [checkPassword, setCheckPassword] = useState('');
   const [email, setEmail] = useState('');
   const [userName, setUserName] = useState('');
   const [passwordMismatchError, setPasswordMismatchError] = useState(false);
+  const [companyCode, setCompanyCode] = useState('');
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,8 +38,8 @@ const SignUp = () => {
       <ImageContainer bgImage={loginImage}></ImageContainer>
       <LoginFormContainer>
         <FormCard>
-          <LoginTitle>회원가입</LoginTitle>
-          <LoginSubtitle>서비스를 이용하시려면 회원가입해주세요.</LoginSubtitle>
+          <LoginTitle>대표자 생성</LoginTitle>
+          <LoginSubtitle>대표님께서는 회원가입해주세요.</LoginSubtitle>
           <LoginForm onSubmit={handleSubmit}>
             <InputField
               type="text"
@@ -78,7 +82,17 @@ const SignUp = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <LoginButton type="submit">회원가입</LoginButton>
+            <InputField
+              type="text"
+              id="companycode"
+              placeholder="회사코드"
+              value={companyCode}
+              onChange={(e) => setCompanyCode(e.target.value)}
+              required
+            />
+            <LoginButton type="submit" onClick={() => navigate('/login')}>
+              회원가입
+            </LoginButton>
             <BackButton to="/login">뒤로가기</BackButton>
           </LoginForm>
         </FormCard>
@@ -210,4 +224,4 @@ const ErrorMessage = styled.p`
   width: 100%;
 `;
 
-export default SignUp;
+export default EnrollAdmin;

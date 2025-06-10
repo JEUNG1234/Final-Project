@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
-import loginImage from '../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
+import loginImage from '../../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
 
 const Login = () => {
   const [userId, setUserId] = useState('');
@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     console.log('User ID:', userId);
     console.log('Password:', password);
-    alert('로그인 시도! (실제 로직 필요)');
+    alert('로그인 성공! ERP 페이지로 이제 넘어갑니다 (실제 로직 필요)');
     navigate('/votelist');
   };
 
