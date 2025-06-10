@@ -14,6 +14,7 @@ import Workcation from './pages/Workcation';
 import MemberDashBoard from './pages/MemberDashBoard';
 import CommunityBoard from './pages/CommunityBoard';
 import AddBoard from './pages/AddBoard';
+import Chellenge from './pages/Chellenge';
 
 const AppContainer = styled.div`
   display: flex;
@@ -68,12 +69,12 @@ function App() {
                   <Route path="/Workcation" element={<Workcation />} />
                   <Route path="/votelist" element={<VoteList />} />
                   {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
-                  <Route path="/memberdashboard" element = {<MemberDashBoard />} />
+                  <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                  <Route path="/chellenge" element={<Chellenge />} />
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
                   <Route path="/communityboard" element={<CommunityBoard />} />\
                   <Route path="/addboard" element={<AddBoard />} />
-
                 </Routes>
               </Layout>
             }

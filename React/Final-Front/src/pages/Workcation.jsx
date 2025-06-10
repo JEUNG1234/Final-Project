@@ -214,8 +214,6 @@ const Filters = styled.form`
   display: flex;
   gap: 70px;
   padding: 3% 7% 0 7%;
-
-
 `;
 
 const Select = styled.select`
