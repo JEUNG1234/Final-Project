@@ -1,32 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import loginImage from '../assets/메인페이지사진1.jpg';
+import loginImage from '../../assets/메인페이지사진1.jpg';
+import { useNavigate } from 'react-router-dom';
 
-const SignUp = () => {
+const EnrollCompany = () => {
+  const navigate = useNavigate();
+
   const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
-  const [checkPassword, setCheckPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [userName, setUserName] = useState('');
-  const [passwordMismatchError, setPasswordMismatchError] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('handlesubmit 함수 정상 실행');
 
-    if (password !== checkPassword) {
-      setPasswordMismatchError(true);
-      return;
-    } else {
-      setPasswordMismatchError(false);
-    }
-
-    console.log('User ID:', userId);
-    console.log('Password:', password);
-    console.log('Email:', email);
-    console.log('User Name:', userName);
-
-    alert('회원가입 시도! (실제 로직 및 백엔드 연동 필요)');
+    alert('회사신청이 성공적으로 처리되었습니다. 로그인해주세요. (실제 로직 및 백엔드 연동 필요)');
+    navigate('/enrolladmin');
   };
 
   return (
@@ -34,52 +24,35 @@ const SignUp = () => {
       <ImageContainer bgImage={loginImage}></ImageContainer>
       <LoginFormContainer>
         <FormCard>
-          <LoginTitle>회원가입</LoginTitle>
-          <LoginSubtitle>서비스를 이용하시려면 회원가입해주세요.</LoginSubtitle>
+          <LoginTitle>회사신청</LoginTitle>
+          <LoginSubtitle>회사코드 생성을 위해 신청해주세요.</LoginSubtitle>
           <LoginForm onSubmit={handleSubmit}>
             <InputField
               type="text"
-              id="userId"
-              placeholder="아이디"
+              id="companyName"
+              placeholder="회사명"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               required
             />
             <InputField
-              type="password"
-              id="password"
-              placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <InputField
-              type="password"
-              id="checkPassword"
-              placeholder="비밀번호 확인"
-              value={checkPassword}
-              onChange={(e) => setCheckPassword(e.target.value)}
-              required
-            />
-            {passwordMismatchError && <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>}
-            <InputField
               type="text"
-              id="userName"
-              placeholder="이름"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
+              id="phone"
+              placeholder="전화번호"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               required
             />
             <InputField
-              type="email"
-              id="email"
-              placeholder="이메일"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="textarea"
+              id="address"
+              placeholder="매장주소"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
               required
             />
-            <LoginButton type="submit">회원가입</LoginButton>
-            <BackButton to="/login">뒤로가기</BackButton>
+            <LoginButton type="submit">신청하기</LoginButton>
+            <BackButton to="/">뒤로가기</BackButton>
           </LoginForm>
         </FormCard>
       </LoginFormContainer>
@@ -210,4 +183,4 @@ const ErrorMessage = styled.p`
   width: 100%;
 `;
 
-export default SignUp;
+export default EnrollCompany;
