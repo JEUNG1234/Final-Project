@@ -13,7 +13,7 @@ const Login = () => {
     console.log('User ID:', userId);
     console.log('Password:', password);
     alert('로그인 시도! (실제 로직 필요)');
-    navigate('/votelist');
+    navigate('/MemberDashBoard');
   };
 
   return (
