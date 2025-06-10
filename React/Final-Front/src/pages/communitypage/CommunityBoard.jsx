@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { FaUsers, FaSearch, FaPlus, FaSortDown} from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
+import { FaUsers, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
+import { MainContent } from '../../styles/common/MainContentLayout';
 
 const CommunityBoard = () => {
-
   const navigate = useNavigate();
 
   // 예시 데이터 (실제로는 API에서 받아옴)
@@ -17,7 +17,7 @@ const CommunityBoard = () => {
   ];
 
   return (
-    <CommunityContent>
+    <MainContent>
       <PageHeader>
         <PageTitle>
           <FaUsers /> {/* React Icons 컴포넌트 사용 */}
@@ -50,7 +50,7 @@ const CommunityBoard = () => {
           </tr>
         </thead>
         <tbody>
-          {posts.map(post => (
+          {posts.map((post) => (
             <TableRow key={post.id}>
               <TableCell tag={post.tag === '공지사항'}>{post.tag}</TableCell>
               <TableCell title>{post.title}</TableCell>
@@ -61,7 +61,7 @@ const CommunityBoard = () => {
           ))}
         </tbody>
       </CommunityTable>
-      
+
       {/* 이미지에는 없지만 일반적인 게시판에는 페이지네이션이 있으므로 추가 */}
       <Pagination>
         <PageButton>&lt;</PageButton>
@@ -70,7 +70,7 @@ const CommunityBoard = () => {
         <PageButton>3</PageButton>
         <PageButton>&gt;</PageButton>
       </Pagination>
-    </CommunityContent>
+    </MainContent>
   );
 };
 
@@ -106,7 +106,8 @@ const PageTitle = styled.h2`
   gap: 10px;
 
   /* React Icons는 SVG로 렌더링되므로, 직접적으로 스타일을 적용할 수 있습니다. */
-  svg { /* i 태그 대신 svg 태그에 스타일 적용 */
+  svg {
+    /* i 태그 대신 svg 태그에 스타일 적용 */
     font-size: 30px; /* 아이콘 크기 */
     color: #007bff; /* 아이콘 색상 */
   }
@@ -143,7 +144,7 @@ const ActionButton = styled.button`
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background-color: ${props => (props.primary ? '#007bff' : '#6c757d')}; /* 파란색 또는 회색 */
+  background-color: ${(props) => (props.primary ? '#007bff' : '#6c757d')}; /* 파란색 또는 회색 */
   color: white;
   font-size: 15px;
   cursor: pointer;
@@ -153,7 +154,7 @@ const ActionButton = styled.button`
   white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
 
   &:hover {
-    background-color: ${props => (props.primary ? '#0056b3' : '#5a6268')};
+    background-color: ${(props) => (props.primary ? '#0056b3' : '#5a6268')};
   }
 
   /* React Icons는 SVG로 렌더링되므로, svg 태그에 스타일 적용 */
@@ -186,8 +187,10 @@ const TableHeaderCell = styled.th`
   color: #555;
   font-weight: 600;
   white-space: nowrap; /* 줄바꿈 방지 */
-  
-  ${props => props.sortable && `
+
+  ${(props) =>
+    props.sortable &&
+    `
     cursor: pointer;
     &:hover {
       background-color: #e9ecef;
@@ -201,17 +204,18 @@ const TableHeaderCell = styled.th`
 `;
 
 const TableRow = styled.tr`
-
   &:hover {
     background-color: #fefefe; /* 마우스 오버 시 배경색 */
   }
 `;
 
 const TableCell = styled.td`
-  color: ${props => (props.tag ? '#007bff' : '#333')}; /* 태그는 파란색 */
-  font-weight: ${props => (props.tag ? 'bold' : 'normal')};
-  
-  ${props => props.title && `
+  color: ${(props) => (props.tag ? '#007bff' : '#333')}; /* 태그는 파란색 */
+  font-weight: ${(props) => (props.tag ? 'bold' : 'normal')};
+
+  ${(props) =>
+    props.title &&
+    `
     cursor: pointer;
     color: #000000;
     &:hover {
