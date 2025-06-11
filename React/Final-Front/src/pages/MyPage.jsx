@@ -16,6 +16,7 @@ const MyPage = () => {
 
   const handleImageChange = () => {
     alert('이미지 변경 기능 구현 예정');
+    console.log({ setUserInfo });
   };
 
   const handleEdit = () => {
@@ -106,14 +107,14 @@ const MyPageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 40px 20px;
-  background-color: #f7f9fc; // 연한 배경색
+  background-color: #e6f1ff; // 연한 배경색
   min-height: calc(100vh - 100px - 68px); // Header(100px)와 Footer(68px)를 제외한 최소 높이
   font-family: 'Pretendard', sans-serif; // 폰트 지정
   box-sizing: border-box;
 `;
 
 const ContentCard = styled.div`
-  background-color: #e6f1ff; // 카드 배경색 (이미지와 유사하게)
+  background-color: #f7f9fc; // 카드 배경색 (이미지와 유사하게)
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   width: 100%;
