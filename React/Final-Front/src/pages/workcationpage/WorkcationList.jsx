@@ -92,7 +92,7 @@ const WorkcationList = () => {
   }, []);
 
   return (
-    <Container>
+
       <MainContent>
         {/* 상단 로고 및 타이틀 */}
         <PageTitle>
@@ -203,23 +203,16 @@ const WorkcationList = () => {
           </Pagination>
         </BottomBar>
       </MainContent>
-    </Container>
+   
   );
 };
 
-//사이드바, 헤더바를 제외한 전체 화면
-const Container = styled.div`
-  height: 100%;
-  width: 100%;
-
-  background: #f0f7ff;
-`;
 
 //검색 창
 const Filters = styled.form`
   display: flex;
   gap: 50px;
-  padding: 3% 7% 0 7%;
+  padding: 0 7% 0 7%;
 `;
 
 //지역 선택 창
