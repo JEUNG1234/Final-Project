@@ -215,14 +215,14 @@ const Container = styled.div`
   background: #f0f7ff;
 `;
 
-//메인 콘텐츠 div
+
 
 //검색 창
 const Filters = styled.form`
   display: flex;
   gap: 50px;
   padding: 3% 7% 0 7%;
-`
+`;
 
 //지역 선택 창
 const FilterWrapper = styled.div`
