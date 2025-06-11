@@ -40,4 +40,4 @@ export const media = {
       ${css(...args)}
     }
   `,
-}; 
+};

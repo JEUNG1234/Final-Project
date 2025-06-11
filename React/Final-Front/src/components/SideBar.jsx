@@ -5,25 +5,38 @@ import { FaClipboardList, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 
 import { MdDashboard, MdWork } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
-
-
 const Sidebar = () => {
   const navigate = useNavigate(); // useNavigate 훅 사용
 
   return (
     <SidebarContainer>
       <LogoContainer>
-        <img src={logoImg} onClick={() => navigate('/memberdashboard')} alt="SOWM 캐릭터" /> {/* 해당 경로는 적절히 변경 필요 */}
+        <img src={logoImg} onClick={() => navigate('/memberdashboard')} alt="SOWM 캐릭터" />{' '}
+        {/* 해당 경로는 적절히 변경 필요 */}
       </LogoContainer>
 
-      <MenuList>        
-        <MenuItem onClick={() => navigate('/memberdashboard')}><MdDashboard /> 대시보드</MenuItem>
-        <MenuItem><FaClipboardList /> 챌린지</MenuItem>
-        <MenuItem onClick={() => navigate('/VoteList')}><FaPoll /> 투표</MenuItem>
-        <MenuItem onClick={() => navigate('/workcation')}><MdWork /> 워케이션</MenuItem>
-        <MenuItem><FaCalendarAlt /> 근태관리</MenuItem>
-        <MenuItem onClick={() => navigate('/communityboard')}><FaComments /> 커뮤니티 게시판</MenuItem>
-        <MenuItem><FaHeartbeat /> 건강관리</MenuItem>
+      <MenuList>
+        <MenuItem onClick={() => navigate('/memberdashboard')}>
+          <MdDashboard /> 대시보드
+        </MenuItem>
+        <MenuItem onClick={() => navigate('/chellenge')}>
+          <FaClipboardList /> 챌린지
+        </MenuItem>
+        <MenuItem onClick={() => navigate('/VoteList')}>
+          <FaPoll /> 투표
+        </MenuItem>
+        <MenuItem onClick={() => navigate('/workcationlist')}>
+          <MdWork /> 워케이션
+        </MenuItem>
+        <MenuItem>
+          <FaCalendarAlt /> 근태관리
+        </MenuItem>
+        <MenuItem onClick={() => navigate('/communityboard')}>
+          <FaComments /> 커뮤니티 게시판
+        </MenuItem>
+        <MenuItem>
+          <FaHeartbeat /> 건강관리
+        </MenuItem>
       </MenuList>
     </SidebarContainer>
   );
