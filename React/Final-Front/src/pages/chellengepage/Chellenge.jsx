@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FaClipboardList } from 'react-icons/fa';
+import { MainContent } from '../../styles/common/MainContentLayout';
+import { BottomBar, Pagination, PageButton } from '../../styles/common/MainContentLayout';
 
 // 이미지를 import 합니다. (실제 이미지 경로로 변경해주세요)
 // 이 경로는 Chellenge.jsx 파일이 src/pages/chellengepage/ 에 있고
@@ -76,34 +78,34 @@ const challengeData = [
 
 const Chellenge = () => {
   return (
-    <Container>
-      <MainContent>
-        <PageHeader>
-          <PageTitle>
-            <FaClipboardList />
-            챌린지
-          </PageTitle>
-        </PageHeader>
-        <MyChellengeAera>
-          <MyChellengeButton>내 챌린지</MyChellengeButton>
-        </MyChellengeAera>
-        <ContentBody>
-          {/* challengeData 배열을 map 함수로 순회하여 ChellengeCard 렌더링 */}
-          {challengeData.map((challenge) => (
-            <ChellengeCard key={challenge.id}>
-              <CardImage src={challenge.img} alt={challenge.title} />
-              <CardContent>
-                <CardTitle>챌린지: {challenge.title}</CardTitle>
-                <CardPeriod>기간 :{challenge.period}</CardPeriod>
-                <CardCompletion>완료 :{challenge.completion}</CardCompletion>
-                <ProgressBarContainer>
-                  <ProgressBarFill percentage={challenge.achievement} />
-                </ProgressBarContainer>
-                <CardAchievement>달성률 :{challenge.achievement}%</CardAchievement>
-              </CardContent>
-            </ChellengeCard>
-          ))}
-        </ContentBody>
+    <MainContent>
+      <PageHeader>
+        <PageTitle>
+          <FaClipboardList />
+          챌린지
+        </PageTitle>
+      </PageHeader>
+      <MyChellengeAera>
+        <MyChellengeButton>내 챌린지</MyChellengeButton>
+      </MyChellengeAera>
+      <ContentBody>
+        {/* challengeData 배열을 map 함수로 순회하여 ChellengeCard 렌더링 */}
+        {challengeData.map((challenge) => (
+          <ChellengeCard key={challenge.id}>
+            <CardImage src={challenge.img} alt={challenge.title} />
+            <CardContent>
+              <CardTitle>챌린지: {challenge.title}</CardTitle>
+              <CardPeriod>기간 :{challenge.period}</CardPeriod>
+              <CardCompletion>완료 :{challenge.completion}</CardCompletion>
+              <ProgressBarContainer>
+                <ProgressBarFill percentage={challenge.achievement} />
+              </ProgressBarContainer>
+              <CardAchievement>달성률 :{challenge.achievement}%</CardAchievement>
+            </CardContent>
+          </ChellengeCard>
+        ))}
+      </ContentBody>
+      <BottomBar>
         <Pagination>
           <PageButton>&lt;</PageButton>
           <PageButton className="active">1</PageButton>
@@ -111,8 +113,8 @@ const Chellenge = () => {
           <PageButton>3</PageButton>
           <PageButton>&gt;</PageButton>
         </Pagination>
-      </MainContent>
-    </Container>
+      </BottomBar>
+    </MainContent>
   );
 };
 
@@ -121,15 +123,6 @@ const Container = styled.div`
   width: 100%;
   padding: 2%;
   background: #f0f7ff;
-`;
-
-const MainContent = styled.div`
-  height: 100%;
-  width: 100%;
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  margin: 0 auto;
 `;
 
 const PageHeader = styled.div`
@@ -279,39 +272,4 @@ const CardAchievement = styled.p`
   text-align: right;
 `;
 
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  margin-top: 20px;
-  padding: 30px 0;
-
-  @media (max-width: 576px) {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-`;
-
-const PageButton = styled.button`
-  padding: 8px 14px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: white;
-  color: #333;
-  font-size: 14px;
-  cursor: pointer;
-  min-width: 35px;
-
-  &.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-    font-weight: bold;
-  }
-
-  &:hover:not(.active) {
-    background-color: #f0f0f0;
-  }
-`;
 export default Chellenge;
