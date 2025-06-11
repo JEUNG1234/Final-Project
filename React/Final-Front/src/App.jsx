@@ -19,8 +19,9 @@ import EnrollAdmin from './pages/mainpage/EnrollAdmin';
 import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
 import Chellenge from './pages/chellengepage/Chellenge';
 import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
-import MemberAttendance from './pages/memberattendancePage/MemberAttendance';
-import AdminAttendance from './pages/memberattendancePage/AdminAttendance';
+import MemberAttendance from './pages/attendancePage/MemberAttendance';
+import AdminAttendance from './pages/attendancePage/AdminAttendance';
+import HealthCareMain from './pages/healthcarepage/HealthCareMain';
 
 const AppContainer = styled.div`
   display: flex;
@@ -90,6 +91,8 @@ function App() {
                   <Route path="/memberattendance" element={<MemberAttendance />} />
                   {/* 직원 워케이션 페이지 */}
                   <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
+                  {/* 건강 관리 페이지 */}
+                  <Route path="healthcaremain" element={<HealthCareMain />} />
                 </Routes>
               </Layout>
             }
