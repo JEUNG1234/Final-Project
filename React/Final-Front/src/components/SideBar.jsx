@@ -28,13 +28,13 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/workcationlist')}>
           <MdWork /> 워케이션
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => navigate('/memberattendance')}>
           <FaCalendarAlt /> 근태관리
         </MenuItem>
         <MenuItem onClick={() => navigate('/communityboard')}>
           <FaComments /> 커뮤니티 게시판
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => navigate('/healthcaremain')}>
           <FaHeartbeat /> 건강관리
         </MenuItem>
       </MenuList>

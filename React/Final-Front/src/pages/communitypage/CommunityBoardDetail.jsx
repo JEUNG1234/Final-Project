@@ -3,17 +3,17 @@ import { FaUsers } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MainContent } from '../../styles/common/MainContentLayout';
 
-const AddBoard = () => {
+const CommunityBoardDetail = () => {
   const navigate = useNavigate();
   // 이부분에 로그인 유저랑 게시글 작성자랑 같은지 찾는 코드 작성해야함.
   const loginUser = 'admin';
-  const boardWriter = 'admin';
+  const boardWriter = 'admㄴin';
 
   return (
     <MainContent>
       <PageTitle>
         <FaUsers />
-        커뮤니티 게시판 {'>'} 게시글 작성
+        커뮤니티 게시판 {'>'} 게시글 상세보기
       </PageTitle>
       <InputGroup>
         <PageMidTitle>제목</PageMidTitle>
@@ -161,4 +161,4 @@ const ActionButton = styled.button`
     box-shadow: 0 0 0 3px rgba(150, 198, 254, 0.5);
   }
 `;
-export default AddBoard;
+export default CommunityBoardDetail;
