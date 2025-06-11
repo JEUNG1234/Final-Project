@@ -180,15 +180,15 @@ const ContentBody = styled.div`
   align-items: flex-start;
   gap: 40px;
 
-  @media (max-width: 1200px) {
+  @media (max-width: 1600px) {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1300px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 1000px) {
     grid-template-columns: repeat(1, 1fr);
     padding: 10px 20px;
   }
