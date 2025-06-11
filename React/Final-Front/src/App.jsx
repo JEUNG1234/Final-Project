@@ -18,6 +18,7 @@ import EditBoard from './pages/communitypage/EditBoard';
 import EnrollCompany from './pages/mainpage/EnrollCompany';
 import EnrollAdmin from './pages/mainpage/EnrollAdmin';
 import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
+import Chellenge from './pages/Chellenge';
 
 const AppContainer = styled.div`
   display: flex;
