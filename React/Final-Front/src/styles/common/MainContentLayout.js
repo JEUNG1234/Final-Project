@@ -4,10 +4,10 @@ import styled from 'styled-components';
 export const MainContent = styled.div`
   width: 95%;
   max-width: 1400px; /* 너무 넓어지지 않도록 최대 너비 설정 */
-  min-height: 80vh; /* 최소 높이 설정 (스크롤 영역에 맞춰 유동적으로) */
+  min-height: 84vh; /* 최소 높이 설정 (스크롤 영역에 맞춰 유동적으로) */
   background: white;
-  margin: 30px auto; /* 중앙 정렬 및 상하 마진 */
-  padding: 30px; /* 내부 패딩 */
+  margin: 25px auto; /* 중앙 정렬 및 상하 마진 */
+  padding: 25px; /* 내부 패딩 */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   display: flex; /* 내부 요소들을 flex로 배치 */
@@ -16,7 +16,7 @@ export const MainContent = styled.div`
 `;
 
 export const PageTitle = styled.h2`
-  font-size: 28px;
+  font-size: 26px;
   color: #929393;
   display: flex;
   align-items: center;
