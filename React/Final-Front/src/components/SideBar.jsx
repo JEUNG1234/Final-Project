@@ -28,7 +28,7 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/workcationlist')}>
           <MdWork /> 워케이션
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => navigate('/memberattendance')}>
           <FaCalendarAlt /> 근태관리
         </MenuItem>
         <MenuItem onClick={() => navigate('/communityboard')}>

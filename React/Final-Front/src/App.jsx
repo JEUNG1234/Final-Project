@@ -9,7 +9,6 @@ import styled from 'styled-components';
 import VoteList from './pages/VoteList';
 import SignUp from './pages/mainpage/SignUp';
 import MyPage from './pages/MyPage';
-import AdminAttendance from './pages/AdminAttendance';
 import WorkcationList from './pages/workcationpage/WorkcationList';
 import MemberDashBoard from './pages/MemberDashBoard';
 import CommunityBoard from './pages/communitypage/CommunityBoard';
@@ -19,6 +18,9 @@ import EnrollCompany from './pages/mainpage/EnrollCompany';
 import EnrollAdmin from './pages/mainpage/EnrollAdmin';
 import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
 import Chellenge from './pages/chellengepage/Chellenge';
+import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
+import MemberAttendance from './pages/memberattendancePage/MemberAttendance';
+import AdminAttendance from './pages/memberattendancePage/AdminAttendance';
 
 const AppContainer = styled.div`
   display: flex;
@@ -79,9 +81,14 @@ function App() {
                   <Route path="/chellenge" element={<Chellenge />} />
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
-                  <Route path="/communityboard" element={<CommunityBoard />} />\
+                  {/* 직원 커뮤니티 게시판 페이지 */}
+                  <Route path="/communityboard" element={<CommunityBoard />} />
+                  <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
                   <Route path="/addboard" element={<AddBoard />} />
                   <Route path="/editboard" element={<EditBoard />} />
+                  {/* 직원 근태관리 페이지 */}
+                  <Route path="/memberattendance" element={<MemberAttendance />} />
+                  {/* 직원 워케이션 페이지 */}
                   <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
                 </Routes>
               </Layout>

@@ -20,6 +20,7 @@ export const PageTitle = styled.h2`
   color: #929393;
   display: flex;
   align-items: center;
+  margin-bottom: 30px;
   gap: 10px;
 
   /* React Icons는 SVG로 렌더링되므로, 직접적으로 스타일을 적용할 수 있습니다. */
@@ -54,4 +55,26 @@ export const PageButton = styled.button`
   &:hover {
     background: #2563eb;
   }
+`;
+
+// 검색창
+export const SearchInput = styled.input`
+  flex-grow: 1;
+  padding: 10px 15px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 15px;
+  min-width: 180px;
+  font-family: 'Pretendard', sans-serif;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+export const PageHeader = styled.div`
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
 `;
