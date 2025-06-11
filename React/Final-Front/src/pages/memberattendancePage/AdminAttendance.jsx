@@ -4,7 +4,7 @@ import styled from 'styled-components';
 // Chart.js 및 react-chartjs-2 임포트
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
-import { Pagination, BottomBar, PageButton } from '../styles/common/MainContentLayout';
+import { Pagination, BottomBar, PageButton } from '../../styles/common/MainContentLayout';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaUsers, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
-import { MainContent, Pagination, PageButton, BottomBar } from '../../styles/common/MainContentLayout';
+import { MainContent, Pagination, PageButton, BottomBar, SearchInput } from '../../styles/common/MainContentLayout';
 
 const CommunityBoard = () => {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ const CommunityBoard = () => {
         </thead>
         <tbody>
           {posts.map((post) => (
-            <TableRow key={post.id}>
+            <TableRow key={post.id} onClick={() => navigate(`/communityboard/${post.id}`)}>
               <TableCell tag={post.tag === '공지사항'}>{post.tag}</TableCell>
               <TableCell title>{post.title}</TableCell>
               <TableCell>{post.author}</TableCell>
@@ -110,20 +110,6 @@ const BoardActions = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
-  }
-`;
-
-const SearchInput = styled.input`
-  flex-grow: 1; /* 남은 공간을 차지하도록 */
-  padding: 10px 15px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 15px;
-  min-width: 180px; /* 최소 너비 지정 */
-
-  @media (max-width: 768px) {
-    width: 100%; /* 작은 화면에서 전체 너비 차지 */
   }
 `;
 
