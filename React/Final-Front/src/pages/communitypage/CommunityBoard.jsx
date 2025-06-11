@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaUsers, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
-import { MainContent } from '../../styles/common/MainContentLayout';
+import { MainContent, Pagination, PageButton, BottomBar } from '../../styles/common/MainContentLayout';
 
 const CommunityBoard = () => {
   const navigate = useNavigate();
@@ -62,14 +62,15 @@ const CommunityBoard = () => {
         </tbody>
       </CommunityTable>
 
-      {/* 이미지에는 없지만 일반적인 게시판에는 페이지네이션이 있으므로 추가 */}
-      <Pagination>
-        <PageButton>&lt;</PageButton>
-        <PageButton className="active">1</PageButton>
-        <PageButton>2</PageButton>
-        <PageButton>3</PageButton>
-        <PageButton>&gt;</PageButton>
-      </Pagination>
+      <BottomBar>
+        <Pagination>
+          <PageButton>&lt;</PageButton>
+          <PageButton className="active">1</PageButton>
+          <PageButton>2</PageButton>
+          <PageButton>3</PageButton>
+          <PageButton>&gt;</PageButton>
+        </Pagination>
+      </BottomBar>
     </MainContent>
   );
 };
@@ -77,20 +78,6 @@ const CommunityBoard = () => {
 // =========================================================
 // 스타일 정의 (styled-components)
 // =========================================================
-
-const CommunityContent = styled.div`
-  width: 90%;
-  max-width: 1200px; /* 너무 넓어지지 않도록 최대 너비 설정 */
-  min-height: 80vh; /* 최소 높이 설정 (스크롤 영역에 맞춰 유동적으로) */
-  background: white;
-  margin: 60px auto; /* 중앙 정렬 및 상하 마진 */
-  padding: 30px; /* 내부 패딩 */
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  display: flex; /* 내부 요소들을 flex로 배치 */
-  flex-direction: column; /* 세로 방향으로 정렬 */
-  font-family: 'Pretendard', sans-serif;
-`;
 
 const PageHeader = styled.div`
   margin-bottom: 30px;
@@ -222,41 +209,6 @@ const TableCell = styled.td`
       text-decoration: underline;
     }
   `}
-`;
-
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px; /* 버튼 간 간격 */
-  margin-top: 20px;
-
-  @media (max-width: 576px) {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-`;
-
-const PageButton = styled.button`
-  padding: 8px 14px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: white;
-  color: #333;
-  font-size: 14px;
-  cursor: pointer;
-  min-width: 35px; /* 버튼 최소 너비 */
-
-  &.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-    font-weight: bold;
-  }
-
-  &:hover:not(.active) {
-    background-color: #f0f0f0;
-  }
 `;
 
 export default CommunityBoard;

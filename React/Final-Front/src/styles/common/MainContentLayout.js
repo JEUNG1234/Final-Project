@@ -29,3 +29,29 @@ export const PageTitle = styled.h2`
     color: #007bff; /* 아이콘 색상 */
   }
 `;
+
+/* 페이징 바 영역 */
+export const BottomBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const Pagination = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+export const PageButton = styled.button`
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+
+  &:hover {
+    background: #2563eb;
+  }
+`;

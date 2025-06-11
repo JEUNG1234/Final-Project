@@ -4,194 +4,10 @@ import styled from 'styled-components';
 // Chart.js 및 react-chartjs-2 임포트
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
+import { Pagination, BottomBar, PageButton } from '../styles/common/MainContentLayout';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
-
-const AttendanceManagementContainer = styled.div`
-  padding: 20px;
-  background-color: #f0f7ff; /* 연한 배경색 */
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-`;
-
-const PageHeader = styled.div`
-  margin-bottom: 30px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 20px;
-
-  h2 {
-    font-size: 28px;
-    color: #333;
-    margin-bottom: 15px;
-  }
-`;
-
-const SearchFilterArea = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-
-  input,
-  select {
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-  }
-
-  button {
-    padding: 10px 20px;
-    background-color: #007bff; /* 파란색 버튼 */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-
-    &:hover {
-      background-color: #0056b3;
-    }
-  }
-`;
-
-const SummaryDashboard = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 반응형 그리드 */
-  gap: 20px;
-  margin-bottom: 30px;
-`;
-
-const SummaryCard = styled.div`
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  h3 {
-    font-size: 18px;
-    color: #555;
-    margin-bottom: 10px;
-  }
-
-  p {
-    font-size: 16px;
-    color: #333;
-    line-height: 1.5;
-  }
-`;
-
-// ChartPlaceholder 대신 ChartContainer 사용 (이름 변경)
-const ChartContainer = styled.div`
-  height: ${(props) => props.height || '120px'}; /* 기본 높이 120px, prop으로 조절 가능 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
-`;
-
-const ChartLegend = styled.p`
-  font-size: 12px;
-  color: #6c757d;
-  margin-top: 10px;
-  text-align: center;
-`;
-
-const DetailChartArea = styled.div`
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  margin-bottom: 30px;
-
-  h3 {
-    font-size: 20px;
-    color: #333;
-    margin-bottom: 15px;
-  }
-`;
-
-const DetailTableArea = styled.div`
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  overflow-x: auto; /* 테이블이 넘칠 경우 스크롤바 */
-
-  h3 {
-    font-size: 20px;
-    color: #333;
-    margin-bottom: 15px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-    text-align: left;
-  }
-
-  th,
-  td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-  }
-
-  th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    color: #555;
-    white-space: nowrap; /* 헤더 텍스트 줄바꿈 방지 */
-  }
-
-  tbody tr:hover {
-    background-color: #f5f5f5;
-  }
-`;
-
-const TableActionButton = styled.button`
-  padding: 6px 12px;
-  background-color: #6c757d; /* 회색 버튼 */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-
-  &:hover {
-    background-color: #5a6268;
-  }
-`;
-
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 25px;
-  gap: 5px;
-
-  button {
-    padding: 8px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: white;
-    cursor: pointer;
-    font-size: 14px;
-    color: #333;
-
-    &.active {
-      background-color: #007bff;
-      color: white;
-      border-color: #007bff;
-    }
-
-    &:hover:not(.active) {
-      background-color: #f0f0f0;
-    }
-  }
-`;
 
 // =======================================================
 // 그래프 데이터 및 옵션 설정 (이전 코드와 동일)
@@ -453,17 +269,177 @@ const AdminAttendance = () => {
           </tbody>
         </table>
         {/* 페이지네이션 */}
-        <Pagination>
-          <button>&lt;</button>
-          <button className="active">1</button>
-          <button>2</button>
-          <button>3</button>
-          <button>4</button>
-          <button>&gt;</button>
-        </Pagination>
+        <BottomBar>
+          <Pagination>
+            <PageButton>&lt;</PageButton>
+            <PageButton className="active">1</PageButton>
+            <PageButton>2</PageButton>
+            <PageButton>3</PageButton>
+            <PageButton>4</PageButton>
+            <PageButton>&gt;</PageButton>
+          </Pagination>
+        </BottomBar>
       </DetailTableArea>
     </AttendanceManagementContainer>
   );
 };
+
+const AttendanceManagementContainer = styled.div`
+  padding: 20px;
+  background-color: #f0f7ff; /* 연한 배경색 */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+`;
+
+const PageHeader = styled.div`
+  margin-bottom: 30px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+
+  h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+`;
+
+const SearchFilterArea = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  input,
+  select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 10px 20px;
+    background-color: #007bff; /* 파란색 버튼 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+`;
+
+const SummaryDashboard = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 반응형 그리드 */
+  gap: 20px;
+  margin-bottom: 30px;
+`;
+
+const SummaryCard = styled.div`
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  h3 {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.5;
+  }
+`;
+
+// ChartPlaceholder 대신 ChartContainer 사용 (이름 변경)
+const ChartContainer = styled.div`
+  height: ${(props) => props.height || '120px'}; /* 기본 높이 120px, prop으로 조절 가능 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+`;
+
+const ChartLegend = styled.p`
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 10px;
+  text-align: center;
+`;
+
+const DetailChartArea = styled.div`
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+
+  h3 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+`;
+
+const DetailTableArea = styled.div`
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow-x: auto; /* 테이블이 넘칠 경우 스크롤바 */
+
+  h3 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* 헤더 텍스트 줄바꿈 방지 */
+  }
+
+  tbody tr:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const TableActionButton = styled.button`
+  padding: 6px 12px;
+  background-color: #6c757d; /* 회색 버튼 */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+
+  &:hover {
+    background-color: #5a6268;
+  }
+`;
 
 export default AdminAttendance;
