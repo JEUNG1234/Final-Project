@@ -18,11 +18,14 @@ import EditBoard from './pages/communitypage/EditBoard';
 import EnrollCompany from './pages/mainpage/EnrollCompany';
 import EnrollAdmin from './pages/mainpage/EnrollAdmin';
 import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
-import Chellenge from './pages/chellengepage/Chellenge';
+import Challenge from './pages/challengepage/Challenge';
 import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
 import MemberAttendance from './pages/attendancePage/MemberAttendance';
 import AdminAttendance from './pages/attendancePage/AdminAttendance';
 import HealthCareMain from './pages/healthcarepage/HealthCareMain';
+
+import ChallengeDetail from './pages/challengepage/ChallengeDetail';
+
 
 const AppContainer = styled.div`
   display: flex;
@@ -69,40 +72,45 @@ function App() {
             <Route path="/enrollcompany" element={<EnrollCompany />} />
             <Route path="/enrolladmin" element={<EnrollAdmin />} />
 
-            {/* 4. 그 외 다른 페이지들: Layout 컴포넌트 (Header와 Sidebar 포함) 사용 */}
-            {/* 이제 '/*'는 Main, Login, SignUp을 제외한 나머지 모든 경로를 의미합니다. */}
-            <Route
-              path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
-              element={
-                <Layout>
-                  <Routes>
-                    {/* Layout 안에 포함될 페이지들 */}
-                    <Route path="/workcationlist" element={<WorkcationList />} />
-                    <Route path="/votelist" element={<VoteList />} />
-                    {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
-                    <Route path="/memberdashboard" element={<MemberDashBoard />} />
-                    <Route path="/chellenge" element={<Chellenge />} />
-                    <Route path="/mypage" element={<MyPage />} />
-                    <Route path="/adminattendance" element={<AdminAttendance />} />
-                    {/* 직원 커뮤니티 게시판 페이지 */}
-                    <Route path="/communityboard" element={<CommunityBoard />} />
-                    <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
-                    <Route path="/addboard" element={<AddBoard />} />
-                    <Route path="/editboard" element={<EditBoard />} />
-                    {/* 직원 근태관리 페이지 */}
-                    <Route path="/memberattendance" element={<MemberAttendance />} />
-                    {/* 직원 워케이션 페이지 */}
-                    <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
-                    {/* 건강 관리 페이지 */}
-                    <Route path="healthcaremain" element={<HealthCareMain />} />
-                  </Routes>
-                </Layout>
-              }
-            />
-          </Routes>
-        </AppContainer>
-      </Router>
+
+          {/* 4. 그 외 다른 페이지들: Layout 컴포넌트 (Header와 Sidebar 포함) 사용 */}
+          {/* 이제 '/*'는 Main, Login, SignUp을 제외한 나머지 모든 경로를 의미합니다. */}
+          <Route
+            path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
+            element={
+              <Layout>
+                <Routes>
+                  {/* Layout 안에 포함될 페이지들 */}
+                  <Route path="/workcationlist" element={<WorkcationList />} />
+                  <Route path="/votelist" element={<VoteList />} />
+                  {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
+                  <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                  {/* 챌린지 페이지 */}
+                  <Route path="/challenge" element={<Challenge />} />
+                  {/* 상세 챌린지 페이지 */}
+                  <Route path="/challengeDetail" element={<ChallengeDetail />} />
+                  <Route path="/mypage" element={<MyPage />} />
+                  <Route path="/adminattendance" element={<AdminAttendance />} />
+                  {/* 직원 커뮤니티 게시판 페이지 */}
+                  <Route path="/communityboard" element={<CommunityBoard />} />
+                  <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
+                  <Route path="/addboard" element={<AddBoard />} />
+                  <Route path="/editboard" element={<EditBoard />} />
+                  {/* 직원 근태관리 페이지 */}
+                  <Route path="/memberattendance" element={<MemberAttendance />} />
+                  {/* 직원 워케이션 페이지 */}
+                  <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
+                  {/* 건강 관리 페이지 */}
+                  <Route path="healthcaremain" element={<HealthCareMain />} />
+                </Routes>
+              </Layout>
+            }
+          />
+        </Routes>
+      </AppContainer>
+    </Router>
     </ThemeProvider>
+
   );
 }
 

@@ -16,7 +16,7 @@ export const MainContent = styled.div`
 `;
 
 export const PageTitle = styled.h2`
-  font-size: 28px;
+  font-size: 26px;
   color: #929393;
   display: flex;
   align-items: center;

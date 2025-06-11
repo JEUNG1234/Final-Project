@@ -1,12 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FaClipboardList } from 'react-icons/fa';
-import { MainContent } from '../../styles/common/MainContentLayout';
-import { BottomBar, Pagination, PageButton } from '../../styles/common/MainContentLayout';
-
-// 이미지를 import 합니다. (실제 이미지 경로로 변경해주세요)
-// 이 경로는 Chellenge.jsx 파일이 src/pages/chellengepage/ 에 있고
-// 이미지가 src/assets/challengeImg.jpg 에 있을 때 올바릅니다.
+import { BsFire } from 'react-icons/bs';
+import {
+  BottomBar,
+  Pagination,
+  PageButton,
+  MainContent,
+  PageHeader,
+  PageTitle,
+} from '../../styles/common/MainContentLayout';
+import { useNavigate } from 'react-router-dom';
 import runningWoman from '../../assets/challengeImg.jpg';
 
 const challengeData = [
@@ -77,21 +80,21 @@ const challengeData = [
 ];
 
 const Chellenge = () => {
+  const navigate = useNavigate();
   return (
     <MainContent>
-      <PageHeader>
-        <PageTitle>
-          <FaClipboardList />
-          챌린지
-        </PageTitle>
-      </PageHeader>
+      <PageTitle>
+        <BsFire />
+        챌린지
+      </PageTitle>
+
       <MyChellengeAera>
         <MyChellengeButton>내 챌린지</MyChellengeButton>
       </MyChellengeAera>
       <ContentBody>
         {/* challengeData 배열을 map 함수로 순회하여 ChellengeCard 렌더링 */}
         {challengeData.map((challenge) => (
-          <ChellengeCard key={challenge.id}>
+          <ChellengeCard key={challenge.id} onClick={() => navigate('/challengeDetail')}>
             <CardImage src={challenge.img} alt={challenge.title} />
             <CardContent>
               <CardTitle>챌린지: {challenge.title}</CardTitle>
@@ -117,32 +120,6 @@ const Chellenge = () => {
     </MainContent>
   );
 };
-
-const Container = styled.div`
-  height: 100%;
-  width: 100%;
-  padding: 2%;
-  background: #f0f7ff;
-`;
-
-const PageHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-const PageTitle = styled.h2`
-  font-size: 24px;
-  color: #929393;
-  display: flex;
-  align-items: center;
-  margin: 25px 35px;
-  gap: 10px;
-
-  svg {
-    color: #4d8eff;
-  }
-`;
 
 const MyChellengeAera = styled.div`
   width: 100%;
