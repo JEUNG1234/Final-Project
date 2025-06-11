@@ -2,6 +2,7 @@ import React from 'react';
 import logoImg from '../assets/로고 이미지.png';
 import styled from 'styled-components';
 import { FaClipboardList, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 'react-icons/fa';
+import { BsFire } from 'react-icons/bs';
 import { MdDashboard, MdWork } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,8 +20,8 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/memberdashboard')}>
           <MdDashboard /> 대시보드
         </MenuItem>
-        <MenuItem onClick={() => navigate('/chellenge')}>
-          <FaClipboardList /> 챌린지
+        <MenuItem onClick={() => navigate('/challenge')}>
+          <BsFire /> 챌린지
         </MenuItem>
         <MenuItem onClick={() => navigate('/VoteList')}>
           <FaPoll /> 투표

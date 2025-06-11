@@ -215,8 +215,6 @@ const Container = styled.div`
   background: #f0f7ff;
 `;
 
-
-
 //검색 창
 const Filters = styled.form`
   display: flex;

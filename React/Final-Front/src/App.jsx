@@ -17,12 +17,12 @@ import EditBoard from './pages/communitypage/EditBoard';
 import EnrollCompany from './pages/mainpage/EnrollCompany';
 import EnrollAdmin from './pages/mainpage/EnrollAdmin';
 import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
-import Chellenge from './pages/chellengepage/Chellenge';
+import Challenge from './pages/challengepage/Challenge';
 import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
 import MemberAttendance from './pages/attendancePage/MemberAttendance';
 import AdminAttendance from './pages/attendancePage/AdminAttendance';
 import HealthCareMain from './pages/healthcarepage/HealthCareMain';
-
+import ChallengeDetail from './pages/challengepage/ChallengeDetail';
 
 const AppContainer = styled.div`
   display: flex;
@@ -80,7 +80,10 @@ function App() {
                   <Route path="/votelist" element={<VoteList />} />
                   {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
                   <Route path="/memberdashboard" element={<MemberDashBoard />} />
-                  <Route path="/chellenge" element={<Chellenge />} />
+                  {/* 챌린지 페이지 */}
+                  <Route path="/challenge" element={<Challenge />} />
+                  {/* 상세 챌린지 페이지 */}
+                  <Route path="/challengeDetail" element={<ChallengeDetail />} />
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
                   {/* 직원 커뮤니티 게시판 페이지 */}
