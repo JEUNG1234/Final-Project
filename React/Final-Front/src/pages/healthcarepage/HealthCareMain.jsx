@@ -143,7 +143,7 @@ const HealthCareMain = () => {
                   <FaBrain style={{ marginRight: '8px' }} />
                   심리 검사
                 </ActionButton>
-                <ActionButton onClick={() => navigate('/bodytest')}>
+                <ActionButton onClick={() => navigate('/physicaltest')}>
                   <FaUserMd style={{ marginRight: '8px' }} />
                   신체 검사
                 </ActionButton>
