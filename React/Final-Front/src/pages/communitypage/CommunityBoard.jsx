@@ -75,10 +75,6 @@ const CommunityBoard = () => {
   );
 };
 
-// =========================================================
-// 스타일 정의 (styled-components)
-// =========================================================
-
 const PageHeader = styled.div`
   margin-bottom: 30px;
   display: flex;

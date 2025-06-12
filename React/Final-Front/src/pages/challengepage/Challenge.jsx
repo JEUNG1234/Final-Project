@@ -88,13 +88,13 @@ const Chellenge = () => {
         챌린지
       </PageTitle>
 
-      <MyChellengeAera>
-        <MyChellengeButton>내 챌린지</MyChellengeButton>
-      </MyChellengeAera>
+      <MyChallengeAera>
+        <MyChallengeButton onClick={() => navigate('/myChallenge')}>내 챌린지</MyChallengeButton>
+      </MyChallengeAera>
       <ContentBody>
         {/* challengeData 배열을 map 함수로 순회하여 ChellengeCard 렌더링 */}
         {challengeData.map((challenge) => (
-          <ChellengeCard key={challenge.id} onClick={() => navigate('/challengeDetail')}>
+          <ChallengeCard key={challenge.id} onClick={() => navigate(`/challenge/${challenge.id}`)}>
             <CardImage src={challenge.img} alt={challenge.title} />
             <CardContent>
               <CardTitle>챌린지: {challenge.title}</CardTitle>
@@ -103,9 +103,9 @@ const Chellenge = () => {
               <ProgressBarContainer>
                 <ProgressBarFill percentage={challenge.achievement} />
               </ProgressBarContainer>
-              <CardAchievement>달성률 :{challenge.achievement}%</CardAchievement>
+              <CardAchievement>참여율 :{challenge.achievement}%</CardAchievement>
             </CardContent>
-          </ChellengeCard>
+          </ChallengeCard>
         ))}
       </ContentBody>
       <BottomBar>
@@ -121,25 +121,30 @@ const Chellenge = () => {
   );
 };
 
-const MyChellengeAera = styled.div`
+const MyChallengeAera = styled.div`
   width: 100%;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  padding: 0% 5%;
 `;
 
-const MyChellengeButton = styled.button`
-  width: 120px;
-  margin: 0px 70px;
+const MyChallengeButton = styled.button`
+  height: 50px;
   background-color: #4d8eff;
   color: white;
-  padding: 12px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 15px; /* 둥근 버튼 */
   font-size: 15px;
   font-weight: bold;
-  border: none;
-  border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #3c75e0;
@@ -149,7 +154,7 @@ const MyChellengeButton = styled.button`
 const ContentBody = styled.div`
   width: 100%;
   padding: 10px 50px;
-  margin: 10px 0;
+  margin: 20px 0;
   border-radius: 20px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -171,11 +176,11 @@ const ContentBody = styled.div`
   }
 `;
 
-const ChellengeCard = styled.div`
+const ChallengeCard = styled.div`
   width: 250px;
   padding-bottom: 5px; /* 기존 10px에서 줄임 */
-  border-radius: 10px;
-  border: 1px solid #dbdbdb;
+  border-radius: 15px;
+  border: 1px solid #ececec;
   background-color: #f0f7ff;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -193,7 +198,7 @@ const ChellengeCard = styled.div`
 
 const CardImage = styled.img`
   width: 100%;
-  height: 100px; /* 기존 120px에서 100px로 줄임 */
+  height: 120px; /* 기존 120px에서 100px로 줄임 */
   object-fit: contain;
   background-color: #ffffff; /* 빈 공간에 배경색을 주어 더 깔끔하게 보일 수 있습니다 */
   border-top-left-radius: 10px;
@@ -208,27 +213,29 @@ const CardContent = styled.div`
 `;
 
 const CardTitle = styled.p`
-  font-size: 13px; /* 기존 14px에서 줄임 */
+  font-size: 14px; /* 기존 14px에서 줄임 */
   font-weight: bold;
   color: #333;
   margin: 0;
 `;
 
 const CardPeriod = styled.p`
-  font-size: 11px; /* 기존 12px에서 줄임 */
+  font-size: 12px; /* 기존 12px에서 줄임 */
+  font-weight: 500;
   color: #666;
   margin: 0;
 `;
 
 const CardCompletion = styled.p`
-  font-size: 11px; /* 기존 12px에서 줄임 */
+  font-size: 12px; /* 기존 12px에서 줄임 */
+  font-weight: 500;
   color: #666;
   margin: 0;
 `;
 
 const ProgressBarContainer = styled.div`
   width: 100%;
-  height: 7px; /* 기존 8px에서 줄임 */
+  height: 8px; /* 기존 8px에서 줄임 */
   background-color: #e0e0e0;
   border-radius: 4px;
   margin-top: 4px; /* 기존 5px에서 줄임 */
@@ -243,7 +250,8 @@ const ProgressBarFill = styled.div`
 `;
 
 const CardAchievement = styled.p`
-  font-size: 11px; /* 기존 12px에서 줄임 */
+  font-size: 12px; /* 기존 12px에서 줄임 */
+  font-weight: 500;
   color: #666;
   margin: 4px 0 0 0; /* 기존 5px 0 0 0에서 줄임 */
   text-align: right;

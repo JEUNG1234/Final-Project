@@ -20,7 +20,7 @@ export const PageTitle = styled.h2`
   color: #929393;
   display: flex;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   gap: 10px;
 
   /* React Icons는 SVG로 렌더링되므로, 직접적으로 스타일을 적용할 수 있습니다. */
@@ -52,6 +52,10 @@ export const PageButton = styled.button`
   color: white;
   cursor: pointer;
 
+  &:focus {
+    outline: none;
+  }
+
   &:hover {
     background: #2563eb;
   }
@@ -78,3 +82,21 @@ export const PageHeader = styled.div`
   display: flex;
   align-items: center;
 `;
+
+// 심리검사 페이지의 헤더부분 양식
+// 중제목은 h2 태그로 통일하시면 됩니다.
+export const ContentHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  hr {
+    width: 700px;
+    border-top: 2px solid #267eff;
+    margin: 10px 20px;
+  }
+`;
+
+// 중제목
+export const Subtitle = styled.h4``;
