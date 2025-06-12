@@ -2,19 +2,34 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
+import { userService } from '../../api/users';
 
-const Login = () => {
+const Login = ({ setUser }) => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('User ID:', userId);
-    console.log('Password:', password);
 
-    alert('로그인 시도! (실제 로직 필요)');
-    navigate('/MemberDashBoard');
+    try {
+      const user = await userService.login(userId, password);
+
+      if (!user) {
+        alert('아이디 또는 비밀번호가 틀렸습니다.');
+        return;
+      }
+
+      setUser(user); // ✅ 상위 App 컴포넌트에서 상태 저장
+      if (user.role === 'admin') {
+        navigate('/AdminDashBoard');
+      } else {
+        navigate('/MemberDashBoard');
+      }
+    } catch (err) {
+      alert('로그인 중 오류가 발생했습니다.');
+      console.error(err);
+    }
   };
 
   return (

@@ -39,6 +39,7 @@ import TestResult from './pages/healthcarepage/TestResult';
 import ChallengeComplete from './pages/challengepage/ChallengeComplete';
 import MyChallengeComplete from './pages/challengepage/MyChallengeComplete';
 import ChallengeJoin from './pages/challengepage/ChallengeJoin';
+import AdminDashBoard from './pages/AdminDashBoard';
 
 const AppContainer = styled.div`
   display: flex;
@@ -48,6 +49,7 @@ const AppContainer = styled.div`
 
 function App() {
   const [setScrolled] = useState(false); // setScrolled를 사용하지 않는다면 제거해도 됩니다.
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,21 +78,19 @@ function App() {
                 </>
               }
             />
-
             {/* 2. 로그인 페이지: 헤더/사이드바 없음 (Login 컴포넌트 자체에 이미지 포함) */}
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Login setUser={setUser} />} />
 
             {/* 3. 회원가입 페이지: 헤더/사이드바 없음 */}
             <Route path="/signup" element={<SignUp />} />
             <Route path="/enrollcompany" element={<EnrollCompany />} />
             <Route path="/enrolladmin" element={<EnrollAdmin />} />
-
             {/* 4. 그 외 다른 페이지들: Layout 컴포넌트 (Header와 Sidebar 포함) 사용 */}
             {/* 이제 '/*'는 Main, Login, SignUp을 제외한 나머지 모든 경로를 의미합니다. */}
             <Route
               path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
               element={
-                <Layout>
+                <Layout user={user} onLogout={() => setUser(null)}>
                   <Routes>
                     {/* Layout 안에 포함될 페이지들 */}
                     <Route path="/workcationlist" element={<WorkcationList />} />
@@ -101,6 +101,7 @@ function App() {
                     <Route path="/employeeapproval" element={<EmployeeApproval />} />
                     {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
                     <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                    <Route path="/admindashboard" element={<AdminDashBoard />} />
                     {/* 챌린지 페이지 */}
                     <Route path="/challenge" element={<Challenge />} />
                     <Route path="/challenge/create" element={<ChallengeCreate />} />
@@ -126,7 +127,6 @@ function App() {
                     <Route path="/workcationadmin" element={<WorkcationAdmin />} />
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
-                    Add commentMore actions
                     <Route path="mentaltest" element={<MentalCareTest />} />
                     <Route path="mentalcareresult" element={<MentalCareResult />} />
                     <Route path="physicalcareresult" element={<PhysicalCareResult />} />
