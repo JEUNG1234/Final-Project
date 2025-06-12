@@ -120,7 +120,6 @@ function App() {
                     <Route path="/workcationadmin" element={<WorkcationAdmin />} />
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
-                    Add commentMore actions
                     <Route path="mentaltest" element={<MentalCareTest />} />
                     <Route path="mentalcareresult" element={<MentalCareResult />} />
                     <Route path="physicalcareresult" element={<PhysicalCareResult />} />
