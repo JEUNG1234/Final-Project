@@ -37,6 +37,7 @@ import MentalCareResult from './pages/healthcarepage/MentalCareResult';
 import PhysicalCareResult from './pages/healthcarepage/PhysicalCareResult';
 import TestResult from './pages/healthcarepage/TestResult';
 import AdminDashBoard from './pages/AdminDashBoard';
+import WorkcationCreate from './pages/workcationpage/WorkcationCreate';
 
 const AppContainer = styled.div`
   display: flex;
@@ -119,6 +120,7 @@ function App() {
                     <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
                     {/* 관리자 워케이션승인 페이지 */}
                     <Route path="/workcationadmin" element={<WorkcationAdmin />} />
+                    <Route path="/workcation/create" element={<WorkcationCreate />} /> 
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
                     <Route path="mentaltest" element={<MentalCareTest />} />
