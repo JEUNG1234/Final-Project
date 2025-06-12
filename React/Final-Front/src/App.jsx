@@ -23,6 +23,7 @@ import MemberAttendance from './pages/attendancePage/MemberAttendance';
 import AdminAttendance from './pages/attendancePage/AdminAttendance';
 import HealthCareMain from './pages/healthcarepage/HealthCareMain';
 import ChallengeDetail from './pages/challengepage/ChallengeDetail';
+import MyCallenge from './pages/challengepage/MyCallenge';
 
 const AppContainer = styled.div`
   display: flex;
@@ -83,7 +84,10 @@ function App() {
                   {/* 챌린지 페이지 */}
                   <Route path="/challenge" element={<Challenge />} />
                   {/* 상세 챌린지 페이지 */}
-                  <Route path="/challengeDetail" element={<ChallengeDetail />} />
+                  <Route path="/challenge/:id" element={<ChallengeDetail />} />
+                  {/* 내 챌린지 페이지 */}
+                  <Route path="/myChallenge" element={<MyCallenge />} />
+
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/adminattendance" element={<AdminAttendance />} />
                   {/* 직원 커뮤니티 게시판 페이지 */}
