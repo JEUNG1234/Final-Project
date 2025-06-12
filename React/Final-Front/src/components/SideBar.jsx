@@ -18,7 +18,18 @@ const Sidebar = ({ user }) => {
       </LogoContainer>
 
       <MenuList>
-        <MenuItem onClick={() => navigate('/memberdashboard')}>
+        <MenuItem
+          onClick={() => {
+            if (user.role === 'admin') {
+              navigate('/admindashboard');
+            } else if (user.role === 'member') {
+              navigate('/memberdashboard');
+            } else {
+              alert('로그인 후 이용해주세요.');
+              navigate('/login');
+            }
+          }}
+        >
           <MdDashboard /> 대시보드
         </MenuItem>
         <MenuItem onClick={() => navigate('/challenge')}>
