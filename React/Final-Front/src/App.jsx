@@ -29,8 +29,8 @@ import ChallengeCreate from './pages/challengepage/ChallengeCreate';
 import EmployeeManagement from './pages/EmployeeManagement';
 import EmployeeApproval from './pages/EmployeeApproval';
 import WorkcationAdmin from './pages/workcationpage/WorkcationAdmin';
-
 import ChallengeDetail from './pages/challengepage/ChallengeDetail';
+import MyCallenge from './pages/challengepage/MyCallenge';
 import MentalCareTest from './pages/healthcarepage/MentalCareTest';
 import PhysicalCareTest from './pages/healthcarepage/PhysicalCareTest';
 import MentalCareResult from './pages/healthcarepage/MentalCareResult';
@@ -82,55 +82,56 @@ function App() {
             <Route path="/enrollcompany" element={<EnrollCompany />} />
             <Route path="/enrolladmin" element={<EnrollAdmin />} />
 
-
-          {/* 4. 그 외 다른 페이지들: Layout 컴포넌트 (Header와 Sidebar 포함) 사용 */}
-          {/* 이제 '/*'는 Main, Login, SignUp을 제외한 나머지 모든 경로를 의미합니다. */}
-          <Route
-            path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
-            element={
-              <Layout>
-                <Routes>
-                  {/* Layout 안에 포함될 페이지들 */}
-                  <Route path="/workcationlist" element={<WorkcationList />} />
-                  <Route path="/votelist" element={<VoteList />} />
-                  <Route path="/voteresult/:voteId" element={<VoteResult />} /> 
-                  <Route path="/votecreate" element={<VoteCreate />} />
-                  <Route path="/employeemanagement" element={<EmployeeManagement />} />
-                  <Route path="/employeeapproval" element={<EmployeeApproval />} />
-                  {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
-                  <Route path="/memberdashboard" element={<MemberDashBoard />} />
-                  {/* 챌린지 페이지 */}
-                  <Route path="/challenge" element={<Challenge />} />
-                  <Route path="/challenge/create" element={<ChallengeCreate />} />
-                  {/* 상세 챌린지 페이지 */}
-                  <Route path="/challengeDetail" element={<ChallengeDetail />} />
-                  <Route path="/mypage" element={<MyPage />} />
-                  <Route path="/adminattendance" element={<AdminAttendance />} />
-                  {/* 직원 커뮤니티 게시판 페이지 */}
-                  <Route path="/communityboard" element={<CommunityBoard />} />
-                  <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
-                  <Route path="/addboard" element={<AddBoard />} />
-                  <Route path="/editboard" element={<EditBoard />} />
-                  {/* 직원 근태관리 페이지 */}
-                  <Route path="/memberattendance" element={<MemberAttendance />} />
-                  {/* 직원 워케이션 페이지 */}
-                  <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
-                  {/* 관리자 워케이션승인 페이지 */}
-                  <Route path="/workcationadmin" element={<WorkcationAdmin />} />
-                  {/* 건강 관리 페이지 */}
-                  <Route path="healthcaremain" element={<HealthCareMain />} />
+            {/* 4. 그 외 다른 페이지들: Layout 컴포넌트 (Header와 Sidebar 포함) 사용 */}
+            {/* 이제 '/*'는 Main, Login, SignUp을 제외한 나머지 모든 경로를 의미합니다. */}
+            <Route
+              path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
+              element={
+                <Layout>
+                  <Routes>
+                    {/* Layout 안에 포함될 페이지들 */}
+                    <Route path="/workcationlist" element={<WorkcationList />} />
+                    <Route path="/votelist" element={<VoteList />} />
+                    <Route path="/voteresult/:voteId" element={<VoteResult />} />
+                    <Route path="/votecreate" element={<VoteCreate />} />
+                    <Route path="/employeemanagement" element={<EmployeeManagement />} />
+                    <Route path="/employeeapproval" element={<EmployeeApproval />} />
+                    {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
+                    <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                    {/* 챌린지 페이지 */}
+                    <Route path="/challenge" element={<Challenge />} />
+                    <Route path="/challenge/create" element={<ChallengeCreate />} />
+                    {/* 상세 챌린지 페이지 */}
+                    <Route path="/challenge/:id" element={<ChallengeDetail />} />
+                    {/* 내 챌린지 페이지 */}
+                    <Route path="/myChallenge" element={<MyCallenge />} />
+                    <Route path="/mypage" element={<MyPage />} />
+                    <Route path="/adminattendance" element={<AdminAttendance />} />
+                    {/* 직원 커뮤니티 게시판 페이지 */}
+                    <Route path="/communityboard" element={<CommunityBoard />} />
+                    <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
+                    <Route path="/addboard" element={<AddBoard />} />
+                    <Route path="/editboard" element={<EditBoard />} />
+                    {/* 직원 근태관리 페이지 */}
+                    <Route path="/memberattendance" element={<MemberAttendance />} />
+                    {/* 직원 워케이션 페이지 */}
+                    <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
+                    {/* 관리자 워케이션승인 페이지 */}
+                    <Route path="/workcationadmin" element={<WorkcationAdmin />} />
+                    {/* 건강 관리 페이지 */}
+                    <Route path="healthcaremain" element={<HealthCareMain />} />
                     <Route path="mentaltest" element={<MentalCareTest />} />
                     <Route path="mentalcareresult" element={<MentalCareResult />} />
                     <Route path="physicalcareresult" element={<PhysicalCareResult />} />
                     <Route path="physicaltest" element={<PhysicalCareTest />} />
                     <Route path="testresult" element={<TestResult />} />
-                </Routes>
-              </Layout>
-            }
-          />
-        </Routes>
-      </AppContainer>
-    </Router>
+                  </Routes>
+                </Layout>
+              }
+            />
+          </Routes>
+        </AppContainer>
+      </Router>
     </ThemeProvider>
   );
 }
