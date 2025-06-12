@@ -36,6 +36,7 @@ import PhysicalCareTest from './pages/healthcarepage/PhysicalCareTest';
 import MentalCareResult from './pages/healthcarepage/MentalCareResult';
 import PhysicalCareResult from './pages/healthcarepage/PhysicalCareResult';
 import TestResult from './pages/healthcarepage/TestResult';
+import AdminDashBoard from './pages/AdminDashBoard';
 
 const AppContainer = styled.div`
   display: flex;
@@ -97,6 +98,7 @@ function App() {
                     <Route path="/employeeapproval" element={<EmployeeApproval />} />
                     {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
                     <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                    <Route path="/admindashboard" element={<AdminDashBoard />} />
                     {/* 챌린지 페이지 */}
                     <Route path="/challenge" element={<Challenge />} />
                     <Route path="/challenge/create" element={<ChallengeCreate />} />
