@@ -8,6 +8,8 @@ import Layout from './components/Layout'; //
 import Login from './pages/mainpage/Login';
 import styled, { ThemeProvider } from 'styled-components';
 import VoteList from './pages/VoteList';
+import VoteResult from './pages/VoteResult';
+import VoteCreate from './pages/VoteCreate';
 import SignUp from './pages/mainpage/SignUp';
 import MyPage from './pages/MyPage';
 import WorkcationList from './pages/workcationpage/WorkcationList';
@@ -23,8 +25,10 @@ import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
 import MemberAttendance from './pages/attendancePage/MemberAttendance';
 import AdminAttendance from './pages/attendancePage/AdminAttendance';
 import HealthCareMain from './pages/healthcarepage/HealthCareMain';
-import VoteResult from './pages/VoteResult';
-import VoteCreate from './pages/VoteCreate';
+import ChallengeCreate from './pages/challengepage/ChallengeCreate';
+import EmployeeManagement from './pages/EmployeeManagement';
+import EmployeeApproval from './pages/EmployeeApproval';
+import WorkcationAdmin from './pages/workcationpage/WorkcationAdmin';
 
 import ChallengeDetail from './pages/challengepage/ChallengeDetail';
 
@@ -87,10 +91,13 @@ function App() {
                   <Route path="/votelist" element={<VoteList />} />
                   <Route path="/voteresult/:voteId" element={<VoteResult />} /> 
                   <Route path="/votecreate" element={<VoteCreate />} />
+                  <Route path="/employeemanagement" element={<EmployeeManagement />} />
+                  <Route path="/employeeapproval" element={<EmployeeApproval />} />
                   {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
                   <Route path="/memberdashboard" element={<MemberDashBoard />} />
                   {/* 챌린지 페이지 */}
                   <Route path="/challenge" element={<Challenge />} />
+                  <Route path="/challenge/create" element={<ChallengeCreate />} />
                   {/* 상세 챌린지 페이지 */}
                   <Route path="/challengeDetail" element={<ChallengeDetail />} />
                   <Route path="/mypage" element={<MyPage />} />
@@ -104,6 +111,8 @@ function App() {
                   <Route path="/memberattendance" element={<MemberAttendance />} />
                   {/* 직원 워케이션 페이지 */}
                   <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
+                  {/* 관리자 워케이션승인 페이지 */}
+                  <Route path="/workcationadmin" element={<WorkcationAdmin />} />
                   {/* 건강 관리 페이지 */}
                   <Route path="healthcaremain" element={<HealthCareMain />} />
                 </Routes>

@@ -6,6 +6,8 @@ import { MainContent as BaseMainContent } from '../styles/common/MainContentLayo
 const resultData = {
   title: '6월 건강 챌린지',
   dateRange: '2025-06-05 — 2025-07-04',
+  startDate: '2025-06-05', // state로 넘겨주기 위한 데이터
+  endDate: '2025-07-04',   // state로 넘겨주기 위한 데이터
   tag: '장기 챌린지',
   points: 300,
   totalParticipants: 100,
@@ -20,6 +22,19 @@ const resultData = {
 const VoteResult = () => {
   const navigate = useNavigate();
   const winningOption = resultData.options.reduce((prev, current) => (prev.votes > current.votes ? prev : current));
+
+  // 챌린지 생성 페이지로 데이터를 가지고 이동하는 함수
+  const handleCreateChallenge = () => {
+    navigate('/challenge/create', {
+      state: {
+        title: winningOption.title, // 1등한 항목의 제목
+        startDate: resultData.startDate,
+        endDate: resultData.endDate,
+        type: resultData.tag.includes('장기') ? '장기' : '단기',
+        points: resultData.points,
+      },
+    });
+  };
 
   return (
     <MainContent>
@@ -37,7 +52,6 @@ const VoteResult = () => {
           const percentage = (option.votes / resultData.totalParticipants) * 100;
           return (
             <ResultItem key={index}>
-              {/* 제목과 투표 수를 함께 묶어서 표시 */}
               <TitleWrapper>
                 <OptionTitle>{option.title}</OptionTitle>
                 <VoteCount>({option.votes}표)</VoteCount>
@@ -59,7 +73,8 @@ const VoteResult = () => {
           </p>
           <ButtonWrapper>
             <ActionButton onClick={() => navigate('/votelist')}>투표 목록으로</ActionButton>
-            <ActionButton primary>챌린지 생성</ActionButton>
+            {/* '챌린지 생성' 버튼에 onClick 이벤트 연결 */}
+            <ActionButton primary onClick={handleCreateChallenge}>챌린지 생성</ActionButton>
           </ButtonWrapper>
         </SummaryBox>
         <TotalParticipants>총 {resultData.totalParticipants}명 참여</TotalParticipants>
@@ -68,37 +83,31 @@ const VoteResult = () => {
   );
 };
 
-// --- Styled Components (수정된 부분 포함) ---
-
+// ... (이하 Styled Components는 이전과 동일)
 const MainContent = styled(BaseMainContent)`
   margin: 30px auto;
   padding: 30px 40px;
 `;
-
 const ResultHeader = styled.div`
   text-align: center;
   margin-bottom: 30px;
 `;
-
 const Title = styled.h2`
   font-size: 28px;
   font-weight: 700;
   color: #333;
 `;
-
 const DateRange = styled.p`
   font-size: 16px;
   color: #888;
   margin: 8px 0;
 `;
-
 const TagWrapper = styled.div`
   display: flex;
   justify-content: center;
   gap: 8px;
   margin-top: 16px;
 `;
-
 const Tag = styled.span`
   padding: 4px 12px;
   border-radius: 14px;
@@ -117,36 +126,28 @@ const Tag = styled.span`
         color: #f59e0b;
       `)}
 `;
-
 const ResultList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
 `;
-
 const ResultItem = styled.div``;
-
-// 제목과 투표 수를 감싸는 Wrapper 추가
 const TitleWrapper = styled.div`
   display: flex;
   align-items: baseline;
   gap: 8px;
   margin-bottom: 10px;
 `;
-
 const OptionTitle = styled.h3`
   font-size: 18px;
   font-weight: 600;
   color: #444;
 `;
-
-// 투표 수 스타일 추가
 const VoteCount = styled.span`
   font-size: 16px;
   font-weight: 500;
   color: #888;
 `;
-
 const ProgressBar = styled.div`
   width: 100%;
   height: 28px;
@@ -154,19 +155,16 @@ const ProgressBar = styled.div`
   border-radius: 8px;
   overflow: hidden;
 `;
-
 const ProgressFill = styled.div`
   width: ${(props) => props.percentage}%;
   height: 100%;
   background-color: #5cb85c;
   border-radius: 8px;
 `;
-
 const Footer = styled.div`
   margin-top: 30px;
   position: relative;
 `;
-
 const SummaryBox = styled.div`
   background-color: #eaf3ff;
   border: 1px solid #b8d6ff;
@@ -182,14 +180,12 @@ const SummaryBox = styled.div`
     font-weight: 700;
   }
 `;
-
 const ButtonWrapper = styled.div`
   margin-top: 16px;
   display: flex;
   justify-content: center;
   gap: 12px;
 `;
-
 const ActionButton = styled.button`
   padding: 12px 24px;
   font-size: 15px;
@@ -216,7 +212,6 @@ const ActionButton = styled.button`
           }
         `}
 `;
-
 const TotalParticipants = styled.p`
   position: absolute;
   bottom: 24px;
