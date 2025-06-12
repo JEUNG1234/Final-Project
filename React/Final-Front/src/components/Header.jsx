@@ -40,28 +40,44 @@ const WelcomeMessage = styled.span`
   margin-left: 12px;
 `;
 
-const HeaderBar = () => {
+const HeaderBar = ({ user, onLogout }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
+  const isAdmin = user && user.role === 'admin';
 
   const handleMyPageClick = () => {
-    navigate('/mypage'); // '/mypage' 경로로 이동
+    if (!user) {
+      alert('로그인 후 마이페이지를 이용해주세요.');
+      navigate('/login');
+      return;
+    }
+    navigate('/mypage');
   };
 
-  const handleChulClick = () => {
-    navigate('/adminattendance');
+  const handleLogoutClick = () => {
+    if (onLogout) {
+      onLogout(); // App.js에서 전달받은 로그아웃 함수 호출
+    }
+    navigate('/login'); // 로그아웃 후 로그인 페이지로 이동
   };
+
   return (
     <HeaderContainer>
       <IconGroup>
-        <FaBriefcase title="출근" />
-        <FaSuitcase onClick={handleChulClick} title="퇴근" />
-        <FaSignOutAlt title="로그아웃" onClick={() => navigate('/')} />
+        <FaBriefcase title="출근/근태 현황" />
+        <FaSuitcase title="퇴근/근태 현황" />
+        <FaSignOutAlt title="로그아웃" onClick={handleLogoutClick} />
         <FaUserCircle
           title="마이페이지"
           onClick={handleMyPageClick} // 클릭 이벤트 추가
           style={{ cursor: 'pointer' }}
         />
-        <WelcomeMessage>사용자님, 환영합니다!</WelcomeMessage>
+        {user ? (
+          <WelcomeMessage>
+            {user.user_name}님, 환영합니다! ({isAdmin ? '관리자' : '직원'})
+          </WelcomeMessage>
+        ) : (
+          <WelcomeMessage>로그인해 주세요.</WelcomeMessage>
+        )}
       </IconGroup>
     </HeaderContainer>
   );

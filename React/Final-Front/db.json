@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "user_id": "user",
+      "user_pwd": "1234",
+      "user_name": "테스트용계정",
+      "email": "swom@gmail.com",
+      "department": "개발팀",
+      "created_date": "2025-06-12",
+      "total_point": "1500",
+      "role": "member",
+      "status": "Y"
+    },
+    {
+      "user_id": "admin",
+      "user_pwd": "1234",
+      "user_name": "관리자",
+      "email": "swom@gmail.com",
+      "department": "본사",
+      "created_date": "2025-06-12",
+      "total_point": "1500",
+      "role": "admin",
+      "status": "Y"
+    }
+  ]
+}

@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import ProfileImg from '../assets/ronaldo.jpg';
+import { userService } from '../api/users';
 
 // MyPage Component
 const MyPage = () => {
-  const [userInfo, setUserInfo] = useState({
-    username: '호날두',
-    userId: 'user01',
-    email: 'user01@gmail.com',
-    department: '개발팀',
-    position: '사원',
-    point: '3000',
-  });
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    // 예시: 로컬스토리지에 userId 저장되어 있다고 가정
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      userService
+        .getUserInfo(storedUserId)
+        .then((data) => setUserInfo(data))
+        .catch((err) => {
+          console.error('유저 정보 가져오기 실패:', err);
+          setUserInfo(null);
+        });
+    }
+  }, []);
 
   const handleImageChange = () => {
     alert('이미지 변경 기능 구현 예정');
@@ -39,32 +47,32 @@ const MyPage = () => {
           </ProfileImageWrapper>
 
           <UserInfoSection>
-            <WelcomeMessage>{userInfo.username}님, 환영합니다!</WelcomeMessage>
+            <WelcomeMessage>{userInfo?.user_name}님, 환영합니다!</WelcomeMessage>
             <Divider />
 
             <UserDetailRow>
               <Label>아이디</Label>
-              <UserInfoValue>: {userInfo.userId}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.user_id}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>이메일</Label>
-              <UserInfoValue>: {userInfo.email}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.email}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>부서</Label>
-              <UserInfoValue>: {userInfo.department}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.department}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>직급</Label>
-              <UserInfoValue>: {userInfo.position}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.role}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>누적 포인트</Label>
-              <UserInfoValue>: {userInfo.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>
+              <UserInfoValue>: {userInfo?.total_point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>
             </UserDetailRow>
 
             <ActionButton onClick={handleEdit}>수정하기</ActionButton>
