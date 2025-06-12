@@ -451,7 +451,7 @@ const UserInfoCard = styled(Card)`
 
       dt {
         color: #777;
-        width: 70px;
+        width: 95px;
         flex-shrink: 0;
       }
       dd {
