@@ -156,7 +156,7 @@ const ChallengeSummarySection = styled.div`
   position: relative; /* + 챌린지 참여 버튼 위치 조정을 위해 */
   overflow: hidden; /* 이미지 오버플로우 방지 */
 
-  @media (max-width: 900px) {
+  @media (max-width: 990px) {
     flex-direction: column;
     align-items: flex-start;
     padding: 20px 30px;
@@ -217,15 +217,15 @@ const ProgressText = styled.p`
 `;
 
 const SummaryImage = styled.img`
-  width: 400px;
+  width: 300px;
   height: 200px;
-  border-radius: 25px; /* 이미지를 원형으로 */
+  border-radius: 25px;
   object-fit: cover;
   flex-shrink: 0; /* 이미지 크기 유연하게 줄어들지 않도록 */
   background-color: #ffe08a; /* 이미지 배경색 (노란 원) */
   padding: 10px; /* 이미지와 원형 배경 사이 여백 */
 
-  @media (max-width: 768px) {
+  @media (max-width: 1200px) {
     width: 150px;
     height: 150px;
   }
