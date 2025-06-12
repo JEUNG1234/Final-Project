@@ -12,18 +12,6 @@ import { FaCalendarAlt, FaSearch, FaSortDown } from 'react-icons/fa'; // FaSearc
 import styled from 'styled-components';
 
 const MemberAttendance = () => {
-  // 날짜 선택 상태 (날짜 검색 기능을 위한)
-  const [selectedDate, setSelectedDate] = useState('');
-
-  const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
-  };
-
-  const handleSearch = () => {
-    console.log('선택된 날짜로 조회:', selectedDate);
-    // 여기에 선택된 날짜 (selectedDate)를 기반으로 근태 데이터를 조회하는 로직 추가
-  };
-
   // 근태 데이터 예시 (실제로는 API에서 받아옴)
   const attendanceRecords = [
     { id: 1, name: '사용자', date: '2025-06-10', checkIn: '09:00', checkOut: '18:00', status: '출근' },
@@ -37,6 +25,23 @@ const MemberAttendance = () => {
     { id: 9, name: '사용자', date: '2025-06-10', checkIn: '09:00', checkOut: '18:00', status: '출근' },
     { id: 10, name: '사용자', date: '2025-06-10', checkIn: '09:15', checkOut: '18:00', status: '지각' },
   ];
+  // 날짜 선택 상태 (날짜 검색 기능을 위한)
+  const [selectedDate, setSelectedDate] = useState('');
+  const [filteredRecords, setFilteredRecords] = useState(attendanceRecords);
+
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
+  };
+
+  const handleSearch = () => {
+    console.log('선택된 날짜로 조회:', selectedDate);
+    if (!selectedDate) {
+      setFilteredRecords(attendanceRecords); // 선택 안 하면 전체
+    } else {
+      const filtered = attendanceRecords.filter((record) => record.date === selectedDate);
+      setFilteredRecords(filtered);
+    }
+  };
 
   return (
     <MainContent>
@@ -74,10 +79,8 @@ const MemberAttendance = () => {
           </tr>
         </thead>
         <tbody>
-          {attendanceRecords.map((record) => (
+          {filteredRecords.map((record) => (
             <AttendanceRow key={record.id}>
-              {' '}
-              {/* TableRow 대신 AttendanceRow */}
               <AttendanceCell>{record.id}</AttendanceCell>
               <AttendanceCell>{record.checkIn}</AttendanceCell>
               <AttendanceCell>{record.checkOut}</AttendanceCell>
