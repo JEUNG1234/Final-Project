@@ -1,12 +1,13 @@
 import React from 'react';
 import logoImg from '../assets/로고 이미지.png';
 import styled from 'styled-components';
-import { FaClipboardList, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 'react-icons/fa';
+import { FaClipboardCheck, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat } from 'react-icons/fa';
+import { MdPeople } from 'react-icons/md';
 import { BsFire } from 'react-icons/bs';
 import { MdDashboard, MdWork } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
-const Sidebar = () => {
+const Sidebar = ({ user }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
 
   return (
@@ -17,7 +18,18 @@ const Sidebar = () => {
       </LogoContainer>
 
       <MenuList>
-        <MenuItem onClick={() => navigate('/memberdashboard')}>
+        <MenuItem
+          onClick={() => {
+            if (user.role === 'admin') {
+              navigate('/admindashboard');
+            } else if (user.role === 'member') {
+              navigate('/memberdashboard');
+            } else {
+              alert('로그인 후 이용해주세요.');
+              navigate('/login');
+            }
+          }}
+        >
           <MdDashboard /> 대시보드
         </MenuItem>
         <MenuItem onClick={() => navigate('/challenge')}>
@@ -29,15 +41,43 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/workcationlist')}>
           <MdWork /> 워케이션
         </MenuItem>
-        <MenuItem onClick={() => navigate('/memberattendance')}>
+
+        <MenuItem
+          onClick={() => {
+            if (user?.role === 'admin') {
+              navigate('/adminattendance');
+            } else if (user?.role === 'member') {
+              navigate('/memberattendance');
+            } else {
+              alert('로그인 후 이용해주세요.');
+              navigate('/login');
+            }
+          }}
+        >
           <FaCalendarAlt /> 근태관리
         </MenuItem>
         <MenuItem onClick={() => navigate('/communityboard')}>
           <FaComments /> 커뮤니티 게시판
         </MenuItem>
-        <MenuItem onClick={() => navigate('/healthcaremain')}>
-          <FaHeartbeat /> 건강관리
-        </MenuItem>
+        {/* 관리자는 안 보이게 */}
+        {user && user.role !== 'admin' && (
+          <>
+            <MenuItem onClick={() => navigate('/healthcaremain')}>
+              <FaHeartbeat /> 건강관리
+            </MenuItem>
+          </>
+        )}
+        {/* 관리자 전용 메뉴 */}
+        {user && user.role === 'admin' && (
+          <>
+            <MenuItem onClick={() => navigate('/workcationadmin')}>
+              <FaClipboardCheck /> 워케이션승인
+            </MenuItem>
+            <MenuItem onClick={() => navigate('/employeemanagement')}>
+              <MdPeople /> 직원관리
+            </MenuItem>
+          </>
+        )}
       </MenuList>
     </SidebarContainer>
   );

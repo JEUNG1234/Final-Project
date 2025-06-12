@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import Header from './Header'; // HeaderContainer를 사용하는 컴포넌트
 import Sidebar from './SideBar'; // SidebarContainer를 사용하는 컴포넌트
 
-const Layout = ({ children }) => {
+const Layout = ({ children, user, onLogout }) => {
   return (
     <LayoutContainer>
-      <Sidebar />
-      <Header /> {/* Header 컴포넌트도 fixed이므로 Sidebar와 형제로 두는 것이 일반적입니다. */}
+      <Sidebar user={user} />
+      <Header user={user} onLogout={onLogout} />{' '}
       <MainContentWrapper>
         <Content>{children}</Content>
       </MainContentWrapper>
