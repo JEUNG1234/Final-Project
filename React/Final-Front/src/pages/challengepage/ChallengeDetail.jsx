@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'; // React 자체는 그대로 임포트
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react'; // React 자체는 그대로 임포트
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { Pagination, PageButton, MainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
 import runningWoman from '../../assets/challengeImg.jpg';
 import { FaPlus } from 'react-icons/fa';
@@ -33,7 +33,7 @@ const ChallengeDetail = () => {
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지
+        챌린지 {'>'} {mockChallengeDetails[1].title}
       </PageTitle>
 
       <ChallengeSummarySection>
@@ -68,7 +68,7 @@ const ChallengeDetail = () => {
         </BoardHeader>
         <BoardTable>
           {mockChallengeDetails[1].boardPosts.map((post) => (
-            <BoardRow key={post.id}>
+            <BoardRow key={post.id} onClick={() => navigate(`/challenge/챌린지id/${post.id}`)}>
               <BoardCell typeColumn>{post.type}</BoardCell>
               <BoardCell>{post.title}</BoardCell>
               <BoardCell>{post.author}</BoardCell>
@@ -123,6 +123,7 @@ const SummaryTextContent = styled.div`
 
 const PeriodText = styled.p`
   font-size: 16px;
+  font-weight: 600;
   color: #6c757d;
   margin: 0;
 `;
@@ -135,7 +136,7 @@ const ChallengeTitle = styled.h1`
 `;
 
 const ProgressBarWrapper = styled.div`
-  width: 250px; /* 진행바 너비 고정 */
+  width: 300px; /* 진행바 너비 고정 */
   margin-top: 10px;
   display: flex;
   flex-direction: column;
@@ -159,13 +160,14 @@ const ProgressBarFill = styled.div`
 
 const ProgressText = styled.p`
   font-size: 14px;
+  font-weight: 500;
   color: #555;
   text-align: right;
   margin: 0;
 `;
 
 const SummaryImage = styled.img`
-  width: 200px; /* 이미지 크기 */
+  width: 300px; /* 이미지 크기 */
   height: 150px;
   object-fit: contain;
   margin-left: 50px; /* 텍스트와의 간격 */
@@ -195,17 +197,12 @@ const JoinChallengeButton = styled.button`
   &:hover {
     background-color: #3c75e0;
   }
-
-  @media (max-width: 900px) {
-    position: static; /* 모바일에서는 정적으로 배치 */
-    margin-top: 20px;
-    align-self: flex-end; /* 오른쪽 정렬 */
-  }
 `;
 
 const BoardSection = styled.div`
   margin: 10px 35px; /* MainContent 내부 여백 */
   background-color: #ffffff;
+  border: 1px solid #ececec;
   border-radius: 15px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -245,13 +242,18 @@ const BoardRow = styled.div`
   display: grid;
   grid-template-columns: 120px 3fr 1.5fr 1.5fr; /* Header와 동일하게 설정 */
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #ffffff;
   font-size: 14px;
   color: #555;
   align-items: center;
+  transition: background-color 0.3s ease;
 
   &:last-child {
     border-bottom: none;
+  }
+
+  &:hover {
+    background-color: #ebebeb;
   }
 
   @media (max-width: 768px) {
@@ -289,19 +291,22 @@ const BackButtonContainer = styled.div`
 `;
 
 const BackButton = styled.button`
-  background-color: #f8f9fa;
-  color: #495057;
-  padding: 10px 30px;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 16px;
+  height: 50px;
+  background-color: #4d8eff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 15px;
+  font-size: 15px;
+  font-weight: bold;
   cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
+    background-color: #3c75e0;
   }
 `;
