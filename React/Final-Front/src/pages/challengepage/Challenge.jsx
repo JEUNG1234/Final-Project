@@ -95,7 +95,9 @@ const Chellenge = () => {
         {/* challengeData 배열을 map 함수로 순회하여 ChellengeCard 렌더링 */}
         {challengeData.map((challenge) => (
           <ChallengeCard key={challenge.id} onClick={() => navigate(`/challenge/${challenge.id}`)}>
-            <CardImage src={challenge.img} alt={challenge.title} />
+            <CardImageArea>
+              <CardImage src={challenge.img} alt={challenge.title} />
+            </CardImageArea>
             <CardContent>
               <CardTitle>챌린지: {challenge.title}</CardTitle>
               <CardPeriod>기간 :{challenge.period}</CardPeriod>
@@ -196,13 +198,21 @@ const ChallengeCard = styled.div`
   }
 `;
 
-const CardImage = styled.img`
+const CardImageArea = styled.div`
   width: 100%;
-  height: 120px; /* 기존 120px에서 100px로 줄임 */
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CardImage = styled.img`
+  width: 90%;
+  height: 85%; /* 기존 120px에서 100px로 줄임 */
   object-fit: contain;
   background-color: #ffffff; /* 빈 공간에 배경색을 주어 더 깔끔하게 보일 수 있습니다 */
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
 `;
 
 const CardContent = styled.div`

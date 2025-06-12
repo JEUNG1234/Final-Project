@@ -113,8 +113,10 @@ const MyCallenge = () => {
         </SectionHeader>
         <ChallengeCardGrid>
           {completedChallengeData.map((challenge) => (
-            <ChallengeCard key={challenge.id} onClick={() => navigate('/myChallengeDetail')}>
-              <CardImage src={challenge.img} alt={challenge.title} />
+            <ChallengeCard key={challenge.id} onClick={() => navigate('/myChallengeComplete')}>
+              <CardImageArea>
+                <CardImage src={challenge.img} alt={challenge.title} />
+              </CardImageArea>
               <CardContent>
                 <CardTitle>챌린지: {challenge.title}</CardTitle>
                 <CardPeriod>기간 :{challenge.period}</CardPeriod>
@@ -265,7 +267,8 @@ const SummaryCard = styled.div`
 // 도전한 챌린지 목록 섹션
 const CompletedChallengesSection = styled.div`
   padding: 0 10px;
-  margin: 0 50px;
+  margin: 0 30px;
+  justify-content: center;
 
   @media (max-width: 768px) {
     padding: 20px 30px;
@@ -312,13 +315,27 @@ const NavButton = styled.button`
 `;
 
 const ChallengeCardGrid = styled.div`
+  width: 100%;
+  padding: 5px 50px;
+  margin: 5px 0;
+  border-radius: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* 반응형 그리드 */
-  gap: 20px; /* 카드 간 간격 */
-  justify-content: center; /* 카드들을 가운데 정렬 */
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  align-items: flex-start;
+  gap: 40px;
 
-  @media (max-width: 576px) {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  @media (max-width: 1600px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 1300px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(1, 1fr);
+    padding: 10px 20px;
   }
 `;
 
@@ -342,13 +359,21 @@ const ChallengeCard = styled.div`
   }
 `;
 
-const CardImage = styled.img`
+const CardImageArea = styled.div`
   width: 100%;
-  height: 120px; /* 기존 120px에서 100px로 줄임 */
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CardImage = styled.img`
+  width: 90%;
+  height: 85%; /* 기존 120px에서 100px로 줄임 */
   object-fit: contain;
   background-color: #ffffff; /* 빈 공간에 배경색을 주어 더 깔끔하게 보일 수 있습니다 */
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
 `;
 
 const CardContent = styled.div`
@@ -405,7 +430,7 @@ const CardAchievement = styled.p`
 
 // 뒤로가기 버튼
 const GoBackButtonContainer = styled.div`
-  margin-top: 30px;
+  margin-top: 15px;
   display: flex;
   justify-content: center;
 `;
