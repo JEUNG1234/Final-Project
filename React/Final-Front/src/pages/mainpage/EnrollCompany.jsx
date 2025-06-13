@@ -11,12 +11,24 @@ const EnrollCompany = () => {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
 
+  const createCompanyCode = () => {
+    const letters = Array.from(
+      { length: 3 },
+      () => String.fromCharCode(65 + Math.floor(Math.random() * 26)) // A-Z
+    ).join('');
+
+    const numbers = Math.floor(100 + Math.random() * 900); // 100~999
+
+    return letters + numbers;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('handlesubmit 함수 정상 실행');
+
+    const companyCode = createCompanyCode();
 
     alert('회사신청이 성공적으로 처리되었습니다. 로그인해주세요. (실제 로직 및 백엔드 연동 필요)');
-    navigate('/enrolladmin');
+    navigate('/enrolladmin', { state: { companyCode } });
   };
 
   return (
