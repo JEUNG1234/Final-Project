@@ -125,7 +125,6 @@ function App() {
                     <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
                     {/* 관리자 워케이션승인 페이지 */}
                     <Route path="/workcationadmin" element={<WorkcationAdmin />} />
-                    <Route path="/workcation/create" element={<WorkcationCreate />} /> 
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
                     <Route path="mentaltest" element={<MentalCareTest />} />
