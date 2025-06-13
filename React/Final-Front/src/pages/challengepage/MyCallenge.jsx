@@ -74,7 +74,7 @@ const MyCallenge = () => {
     <MainContent>
       <PageTitle>
         <BsFire />
-        건강 챌린지 {'>'} 내 챌린지
+        챌린지 {'>'} MY 챌린지
       </PageTitle>
 
       <ChallengeSummarySection>
