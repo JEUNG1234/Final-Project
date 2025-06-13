@@ -231,7 +231,7 @@ export default MemberDashBoard;
 
 // 전체 대시보드 컨테이너
 const DashboardContainer = styled.div`
-  padding: 30px; /* 전체 대시보드 안쪽 여백 */
+  padding: 25px; /* 전체 대시보드 안쪽 여백 */
   background-color: #f0f7ff; /* 전체 배경색 */
   display: flex;
   flex-direction: column;
