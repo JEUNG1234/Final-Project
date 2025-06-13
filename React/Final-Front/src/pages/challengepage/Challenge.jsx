@@ -89,7 +89,7 @@ const Chellenge = () => {
       </PageTitle>
 
       <MyChallengeAera>
-        <MyChallengeButton onClick={() => navigate('/myChallenge')}>내 챌린지</MyChallengeButton>
+        <MyChallengeButton onClick={() => navigate('/myChallenge')}>MY 챌린지</MyChallengeButton>
       </MyChallengeAera>
       <ContentBody>
         {/* challengeData 배열을 map 함수로 순회하여 ChellengeCard 렌더링 */}

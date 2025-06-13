@@ -191,7 +191,7 @@ const PhotoAttachContainer = styled.div`
 
 const PlaceholderPhotoText = styled.div`
   background-color: #f8f8f8;
-  padding: 12px 15px;
+  padding: 10px 15px;
   border: 1px solid #ddd;
   border-radius: 8px;
   color: #999;
@@ -233,8 +233,8 @@ const AttachedPhotoName = styled.div`
 const PhotoAttachButton = styled.label`
   background-color: #4d8eff;
   color: white;
-  padding: 12px 15px;
-  border-radius: 8px;
+  padding: 10px 15px;
+  right-top-radius: 15px;
   cursor: pointer;
   font-size: 1em;
   font-weight: bold;
