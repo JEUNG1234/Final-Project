@@ -5,7 +5,7 @@ import { MainContent, PageTitle, Pagination, PageButton } from '../../styles/com
 import { BsFire } from 'react-icons/bs';
 import { IoCameraOutline } from 'react-icons/io5'; // 사진 첨부 아이콘
 
-const ChallengeComplete = () => {
+const ChallengeJoin = () => {
   const navigate = useNavigate();
 
   // 입력 필드 상태 관리
@@ -13,45 +13,67 @@ const ChallengeComplete = () => {
   const [title, setTitle] = useState('하루 만보 걷기 완료'); // 이미지에 있는 기본값 설정
   const [author, setAuthor] = useState('홍길동'); // 이미지에 있는 기본값 설정
   const [content, setContent] = useState('열심히 했어'); // 이미지에 있는 기본값 설정
+  const [attachedPhoto, setAttachedPhoto] = useState(null); // 첨부된 사진 파일 상태
 
   const handleGoBack = () => {
     navigate(-1); // 이전 페이지로 이동
+  };
+
+  const handlePhotoAttach = (event) => {
+    // 실제 파일 첨부 로직 (예: 파일을 서버에 업로드하고 URL을 받아오거나, 미리보기)
+    const file = event.target.files[0];
+    if (file) {
+      setAttachedPhoto(file.name); // 파일 이름만 저장 (실제로는 파일 객체나 URL을 저장)
+      alert(`사진 첨부: ${file.name}`);
+    }
   };
 
   return (
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} {breadcrumbs} {'>'} {title}
+        챌린지 {'>'} {breadcrumbs} {'>'} 챌린지 참여
       </PageTitle>
 
       <FormContainer>
         <FormField>
           <Label>제목</Label>
-          <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} readOnly />
+          <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </FormField>
 
         <FormField>
           <Label>작성자</Label>
           <AuthorInputGroup>
             <AuthorName>{author}</AuthorName>
+            <PhotoAttachContainer>
+              {attachedPhoto ? (
+                <AttachedPhotoName>{attachedPhoto}</AttachedPhotoName>
+              ) : (
+                <PlaceholderPhotoText>사진첨부</PlaceholderPhotoText>
+              )}
+              <PhotoAttachButton htmlFor="photo-upload">
+                <IoCameraOutline /> 사진 첨부
+              </PhotoAttachButton>
+              <FileInput id="photo-upload" type="file" accept="image/*" onChange={handlePhotoAttach} />
+            </PhotoAttachContainer>
           </AuthorInputGroup>
         </FormField>
 
         <FormField wide>
           <Label>내용</Label>
-          <TextArea value={content} onChange={(e) => setContent(e.target.value)} readOnly />
+          <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
         </FormField>
       </FormContainer>
 
       <GoBackButtonContainer>
+        <GoBackButton onClick={handleGoBack}>참여신청</GoBackButton>
         <GoBackButton onClick={handleGoBack}>뒤로가기</GoBackButton>
       </GoBackButtonContainer>
     </MainContent>
   );
 };
 
-export default ChallengeComplete;
+export default ChallengeJoin;
 
 // =========================================================
 // Styled Components
@@ -154,6 +176,88 @@ const AuthorName = styled.div`
   }
 `;
 
+const PhotoAttachContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1; /* 남은 공간을 채우도록 */
+  flex-wrap: wrap; /* 요소들이 많아질 때 줄바꿈 */
+
+  @media (max-width: 480px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+`;
+
+const PlaceholderPhotoText = styled.div`
+  background-color: #f8f8f8;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  color: #999;
+  font-size: 1em;
+  flex-grow: 1; /* 최대한 공간 차지 */
+  text-align: center;
+  min-width: 100px; /* 최소 너비 */
+
+  @media (max-width: 480px) {
+    flex-grow: 0; /* 작은 화면에서 유연성 줄임 */
+    min-width: unset;
+    width: calc(60% - 10px); /* 버튼 옆에 적절히 배치 */
+    text-align: left;
+  }
+`;
+
+const AttachedPhotoName = styled.div`
+  background-color: #e0e0e0; /* 첨부 완료 시 색상 변경 */
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  color: #333;
+  font-size: 1em;
+  flex-grow: 1;
+  text-align: center;
+  min-width: 100px;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  overflow: hidden; /* 넘치는 텍스트 숨기기 */
+  text-overflow: ellipsis; /* ... 표시 */
+
+  @media (max-width: 480px) {
+    flex-grow: 0;
+    min-width: unset;
+    width: calc(60% - 10px);
+    text-align: left;
+  }
+`;
+
+const PhotoAttachButton = styled.label`
+  background-color: #4d8eff;
+  color: white;
+  padding: 10px 15px;
+  right-top-radius: 15px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  flex-shrink: 0; /* 버튼이 줄어들지 않도록 */
+
+  &:hover {
+    background-color: #3c75e0;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    font-size: 0.9em;
+  }
+`;
+
+const FileInput = styled.input`
+  display: none; /* 실제 파일 입력 필드를 숨김 */
+`;
+
 const TextArea = styled.textarea`
   width: calc(100% - 20px); /* 양쪽 패딩 고려 */
   height: 300px; /* 이미지와 유사하게 높이 설정 */
@@ -181,6 +285,8 @@ const TextArea = styled.textarea`
 const GoBackButtonContainer = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 20px;
   margin-top: 15px;
   /* padding: 20px 0 40px 0; */
 `;

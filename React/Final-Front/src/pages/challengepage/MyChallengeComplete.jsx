@@ -18,22 +18,22 @@ const mockChallengeDetails = {
     img: runningWoman,
     boardPosts: [
       { id: 1, type: '공지사항', title: '안녕하세요', author: '홍길동', date: '2025/03/01' },
-      { id: 2, type: '챌린지', title: '안녕하세요', author: '김철수', date: '2025/03/01' },
-      { id: 3, type: '챌린지', title: '안녕하세요', author: '이영구', date: '2025/02/01' },
-      { id: 4, type: '챌린지', title: '안녕하세요', author: '최지원', date: '2025/02/01' },
-      { id: 5, type: '챌린지', title: '안녕하세요', author: '박지원', date: '2025/02/01' },
+      { id: 2, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/03/01' },
+      { id: 3, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/02/01' },
+      { id: 4, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/02/01' },
+      { id: 5, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/02/01' },
     ],
   },
 };
 
-const ChallengeDetail = () => {
+const MyChallengeComplete = () => {
   const navigate = useNavigate(); // 뒤로가기 버튼을 위한 navigate 훅
 
   return (
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} {mockChallengeDetails[1].title}
+        챌린지 {'>'} MY 챌린지 {'>'} {mockChallengeDetails[1].title}
       </PageTitle>
 
       <ChallengeSummarySection>
@@ -53,11 +53,7 @@ const ChallengeDetail = () => {
         <SummaryImage src={mockChallengeDetails[1].img} alt={mockChallengeDetails[1].title} />
       </ChallengeSummarySection>
 
-      <JoinButtonArea>
-        <JoinChallengeButton onClick={() => navigate(`/challenge/challengeJoin`)}>
-          <FaPlus /> 챌린지 참여
-        </JoinChallengeButton>
-      </JoinButtonArea>
+      <JoinButtonArea></JoinButtonArea>
 
       <BoardSection>
         <BoardHeader>
@@ -85,11 +81,11 @@ const ChallengeDetail = () => {
   );
 };
 
-export default ChallengeDetail;
+export default MyChallengeComplete;
 
 const JoinButtonArea = styled.div`
   width: 100%;
-  height: 50px;
+  height: 20px;
   padding-right: 50px;
   display: flex;
   justify-content: end;
@@ -98,8 +94,8 @@ const JoinButtonArea = styled.div`
 const ChallengeSummarySection = styled.div`
   background-color: #e6f2ff; /* 연한 파란색 배경 */
   border-radius: 15px;
-  padding: 10px 20px 10px 40px; /* 내부 여백 */
-  margin: 0 35px 10px 35px; /* MainContent 내부 여백 */
+  padding: 20px 40px; /* 내부 여백 */
+  margin: 10px 35px; /* MainContent 내부 여백 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -178,27 +174,6 @@ const SummaryImage = styled.img`
   @media (max-width: 1200px) {
     width: 150px;
     height: 150px;
-  }
-`;
-
-const JoinChallengeButton = styled.button`
-  height: 50px;
-  background-color: #4d8eff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 20px; /* 둥근 버튼 */
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #3c75e0;
   }
 `;
 

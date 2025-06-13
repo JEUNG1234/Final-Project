@@ -36,6 +36,9 @@ import PhysicalCareTest from './pages/healthcarepage/PhysicalCareTest';
 import MentalCareResult from './pages/healthcarepage/MentalCareResult';
 import PhysicalCareResult from './pages/healthcarepage/PhysicalCareResult';
 import TestResult from './pages/healthcarepage/TestResult';
+import ChallengeComplete from './pages/challengepage/ChallengeComplete';
+import MyChallengeComplete from './pages/challengepage/MyChallengeComplete';
+import ChallengeJoin from './pages/challengepage/ChallengeJoin';
 import AdminDashBoard from './pages/AdminDashBoard';
 import WorkcationEnrollForm from './pages/workcationpage/WorkcationEnrollForm';
 
@@ -105,8 +108,11 @@ function App() {
                     <Route path="/challenge/create" element={<ChallengeCreate />} />
                     {/* 상세 챌린지 페이지 */}
                     <Route path="/challenge/:id" element={<ChallengeDetail />} />
+                    <Route path="/challenge/challengeJoin" element={<ChallengeJoin />} />
+                    <Route path="/challenge/challenge_id/:id" element={<ChallengeComplete />} />
                     {/* 내 챌린지 페이지 */}
                     <Route path="/myChallenge" element={<MyCallenge />} />
+                    <Route path="/myChallengeComplete" element={<MyChallengeComplete />} />
                     <Route path="/mypage" element={<MyPage />} />
                     <Route path="/adminattendance" element={<AdminAttendance />} />
                     {/* 직원 커뮤니티 게시판 페이지 */}
