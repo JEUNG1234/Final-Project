@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FaBriefcase, FaSuitcase, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom'; // useNavigate 임포트
+import { MdAccessTime } from 'react-icons/md';
 
 const HeaderContainer = styled.div`
   width: 100%;
@@ -63,8 +64,7 @@ const HeaderBar = ({ user, onLogout }) => {
   return (
     <HeaderContainer>
       <IconGroup>
-        <FaBriefcase title="출근/근태 현황" />
-        <FaSuitcase title="퇴근/근태 현황" />
+        <MdAccessTime title="출근/근태 현황" />
         <FaSignOutAlt title="로그아웃" onClick={handleLogoutClick} />
         <FaUserCircle
           title="마이페이지"
