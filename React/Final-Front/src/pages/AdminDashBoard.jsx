@@ -415,7 +415,7 @@ const UserInfoCard = styled(Card)`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 20px;
+  padding: 36px;
   box-sizing: border-box;
 
   .user-avatar {

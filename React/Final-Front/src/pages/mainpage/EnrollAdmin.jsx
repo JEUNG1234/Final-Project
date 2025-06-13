@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,13 @@ const EnrollAdmin = () => {
   const [companyCode, setCompanyCode] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state && location.state.companyCode) {
+      setCompanyCode(location.state.companyCode);
+    }
+  }, [location.state]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -24,11 +31,6 @@ const EnrollAdmin = () => {
     } else {
       setPasswordMismatchError(false);
     }
-
-    console.log('User ID:', userId);
-    console.log('Password:', password);
-    console.log('Email:', email);
-    console.log('User Name:', userName);
 
     alert('대표님 회원가입 성공 (실제 로직 및 백엔드 연동 필요)');
     navigate('/login');
@@ -90,6 +92,7 @@ const EnrollAdmin = () => {
               value={companyCode}
               onChange={(e) => setCompanyCode(e.target.value)}
               required
+              readOnly
             />
             <LoginButton type="submit">회원가입</LoginButton>
             <BackButton to="/login">뒤로가기</BackButton>
