@@ -4,14 +4,11 @@ import styled from 'styled-components';
 // Chart.js 및 react-chartjs-2 임포트
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
-import { Pagination, BottomBar, PageButton } from '../../styles/common/MainContentLayout';
+import { Pagination, BottomBar, PageButton, PageTitle } from '../../styles/common/MainContentLayout';
+import { FaCalendar } from 'react-icons/fa';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
-
-// =======================================================
-// 그래프 데이터 및 옵션 설정 (이전 코드와 동일)
-// =======================================================
 
 // 1. 금주 근태 비율 도넛 차트 데이터
 const donutChartData = {
@@ -130,7 +127,10 @@ const AdminAttendance = () => {
     <AttendanceManagementContainer>
       {/* 페이지 헤더 */}
       <PageHeader>
-        <h2>근태 관리</h2>
+        <PageTitle>
+          <FaCalendar />
+          근태 관리
+        </PageTitle>
         <SearchFilterArea>
           <input type="date" placeholder="날짜 검색" />
           <input type="text" placeholder="직원명 검색" />
@@ -181,6 +181,7 @@ const AdminAttendance = () => {
         <table>
           <thead>
             <tr>
+              <th>번호</th>
               <th>직원명</th>
               <th>부서/팀</th>
               <th>출근 시간</th>
@@ -188,7 +189,6 @@ const AdminAttendance = () => {
               <th>근무 시간</th>
               <th>출퇴근 여부</th>
               <th>날짜</th>
-              <th>기록 방식</th>
               <th>비고</th>
               <th>수정</th>
             </tr>
@@ -196,6 +196,7 @@ const AdminAttendance = () => {
           <tbody>
             {/* 예시 데이터 (실제로는 API 호출로 받아온 데이터를 map 함수로 렌더링) */}
             <tr>
+              <td>1</td>
               <td>김철수</td>
               <td>개발팀</td>
               <td>08:30</td>
@@ -203,13 +204,13 @@ const AdminAttendance = () => {
               <td>-</td>
               <td>미기록</td>
               <td>2025/03/01</td>
-              <td>-</td>
               <td></td>
               <td>
                 <TableActionButton>수정</TableActionButton>
               </td>
             </tr>
             <tr>
+              <td>2</td>
               <td>이영희</td>
               <td>마케팅팀</td>
               <td>08:42</td>
@@ -217,13 +218,13 @@ const AdminAttendance = () => {
               <td>9시간 28분</td>
               <td>정상 출근</td>
               <td>2025/02/29</td>
-              <td>PC</td>
               <td></td>
               <td>
                 <TableActionButton>수정</TableActionButton>
               </td>
             </tr>
             <tr>
+              <td>3</td>
               <td>박민수</td>
               <td>인사팀</td>
               <td>09:12</td>
@@ -231,13 +232,13 @@ const AdminAttendance = () => {
               <td>8시간 53분</td>
               <td>지각</td>
               <td>2025/02/28</td>
-              <td>앱</td>
               <td>교통 체증</td>
               <td>
                 <TableActionButton>수정</TableActionButton>
               </td>
             </tr>
             <tr>
+              <td>4</td>
               <td>김철수</td>
               <td>개발팀</td>
               <td>08:50</td>
@@ -245,13 +246,13 @@ const AdminAttendance = () => {
               <td>9시간 13분</td>
               <td>정상 출근</td>
               <td>2025/02/27</td>
-              <td>PC</td>
               <td></td>
               <td>
                 <TableActionButton>수정</TableActionButton>
               </td>
             </tr>
             <tr>
+              <td>5</td>
               <td>이영희</td>
               <td>마케팅팀</td>
               <td>08:52</td>
@@ -259,7 +260,6 @@ const AdminAttendance = () => {
               <td>9시간 8분</td>
               <td>정상 출근</td>
               <td>2025/02/26</td>
-              <td>PC</td>
               <td></td>
               <td>
                 <TableActionButton>수정</TableActionButton>
@@ -295,12 +295,9 @@ const PageHeader = styled.div`
   margin-bottom: 30px;
   border-bottom: 1px solid #eee;
   padding-bottom: 20px;
-
-  h2 {
-    font-size: 28px;
-    color: #333;
-    margin-bottom: 15px;
-  }
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
 `;
 
 const SearchFilterArea = styled.div`
@@ -314,6 +311,7 @@ const SearchFilterArea = styled.div`
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
   }
 
   button {
@@ -408,6 +406,7 @@ const DetailTableArea = styled.div`
     border-collapse: collapse;
     font-size: 14px;
     text-align: left;
+    margin-bottom: 20px;
   }
 
   th,
