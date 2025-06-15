@@ -41,6 +41,7 @@ import MyChallengeComplete from './pages/challengepage/MyChallengeComplete';
 import ChallengeJoin from './pages/challengepage/ChallengeJoin';
 import AdminDashBoard from './pages/AdminDashBoard';
 import WorkcationEnrollForm from './pages/workcationpage/WorkcationEnrollForm';
+import WorkcationUpdate from './pages/workcationpage/WorkcationUpdate';
 
 const AppContainer = styled.div`
   display: flex;
@@ -94,7 +95,7 @@ function App() {
                 <Layout user={user} onLogout={() => setUser(null)}>
                   <Routes>
                     {/* Layout 안에 포함될 페이지들 */}
-                    <Route path="/workcationlist" element={<WorkcationList  user={user}/>} />
+                    <Route path="/workcationlist" element={<WorkcationList user={user} />} />
                     <Route path="/votelist" element={<VoteList />} />
                     <Route path="/voteresult/:voteId" element={<VoteResult />} />
                     <Route path="/votecreate" element={<VoteCreate />} />
@@ -128,6 +129,7 @@ function App() {
                     <Route path="/workcationadmin" element={<WorkcationAdmin />} />
                     {/* 관리자 워케이션리스트 생성 페이지 */}
                     <Route path="/workcationEnrollForm" element={<WorkcationEnrollForm />} />
+                    <Route path="/WorkcationUpdate" element={<WorkcationUpdate />} />
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
                     <Route path="mentaltest" element={<MentalCareTest />} />

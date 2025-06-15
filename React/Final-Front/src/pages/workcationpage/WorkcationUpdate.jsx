@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Modal from '../../components/Modal';
 
-const WorkcationEnrollForm = () => {
+const WorkcationUpdate = () => {
   const navigate = useNavigate();
 
   // 현재 활성화된 탭 상태 관리 (예시)
@@ -412,7 +412,7 @@ const WorkcationEnrollForm = () => {
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('precautions')}>이전으로</DangerButton>
-              <PrimaryButton onClick={handleSubmit}>등록하기</PrimaryButton>
+              <PrimaryButton onClick={handleSubmit}>수정하기</PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -919,4 +919,4 @@ const DayButtonContainer = styled.div`
   justify-content: center;
   width: 80%;
 `;
-export default WorkcationEnrollForm;
+export default WorkcationUpdate;
