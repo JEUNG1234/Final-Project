@@ -9,5 +9,10 @@
         </processorPath>
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="sowm" target="17" />
+      <module name="sowm.main" target="17" />
+      <module name="sowm.test" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>
