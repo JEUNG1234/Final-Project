@@ -5,6 +5,7 @@ const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
+  withCredentials: true,
 });
 
 api.interceptors.response.use(

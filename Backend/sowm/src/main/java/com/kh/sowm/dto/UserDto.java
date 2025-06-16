@@ -30,6 +30,7 @@ public class UserDto {
                     .email(user.getEmail())
                     .userPwd(user.getUserPwd())
                     .point(user.getPoint())
+                    .jobCode(user.getJobCode())
                     .build();
         }
     }

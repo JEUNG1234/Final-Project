@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto.ResponseDto login(String userId) {
+    public UserDto.ResponseDto login(String userId, String userPwd) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디를 찾을 수 없습니다."));
         return UserDto.ResponseDto.toDto(user);

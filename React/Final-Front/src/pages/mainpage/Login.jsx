@@ -14,6 +14,7 @@ const Login = ({ setUser }) => {
 
     try {
       const user = await userService.login(userId, password);
+      console.log('로그인 응답 user:', user);
 
       if (!user) {
         alert('아이디 또는 비밀번호가 틀렸습니다.');
@@ -21,9 +22,9 @@ const Login = ({ setUser }) => {
       }
 
       setUser(user); // ✅ 상위 App 컴포넌트에서 상태 저장
-      if (user.role === 'admin') {
+      if (user.jobCode === 0) {
         navigate('/AdminDashBoard');
-      } else {
+      } else if (user.jobCode === 1) {
         navigate('/MemberDashBoard');
       }
     } catch (err) {

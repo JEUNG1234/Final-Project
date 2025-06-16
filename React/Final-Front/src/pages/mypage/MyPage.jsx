@@ -11,10 +11,14 @@ const MyPage = () => {
   useEffect(() => {
     // 예시: 로컬스토리지에 userId 저장되어 있다고 가정
     const storedUserId = localStorage.getItem('userId');
+    console.log('저장된 유저 ID:', storedUserId);
     if (storedUserId) {
       userService
         .getUserInfo(storedUserId)
-        .then((data) => setUserInfo(data))
+        .then((data) => {
+          console.log('받은 유저 정보:', data); // ✅ 여기를 꼭 찍어보세요
+          setUserInfo(data);
+        })
         .catch((err) => {
           console.error('유저 정보 가져오기 실패:', err);
           setUserInfo(null);
@@ -47,12 +51,12 @@ const MyPage = () => {
           </ProfileImageWrapper>
 
           <UserInfoSection>
-            <WelcomeMessage>{userInfo?.user_name}님, 환영합니다!</WelcomeMessage>
+            <WelcomeMessage>{userInfo?.userName}님, 환영합니다!</WelcomeMessage>
             <Divider />
 
             <UserDetailRow>
               <Label>아이디</Label>
-              <UserInfoValue>: {userInfo?.user_id}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.userId}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
