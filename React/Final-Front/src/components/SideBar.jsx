@@ -19,13 +19,10 @@ const Sidebar = ({ user }) => {
       <MenuList>
         <MenuItem
           onClick={() => {
-            if (user.role === 'admin') {
+            if (user?.jobCode === 0) {
               navigate('/admindashboard');
-            } else if (user.role === 'member') {
+            } else if (user?.jobCode === 1) {
               navigate('/memberdashboard');
-            } else {
-              alert('로그인 후 이용해주세요.');
-              navigate('/login');
             }
           }}
         >
@@ -43,13 +40,10 @@ const Sidebar = ({ user }) => {
 
         <MenuItem
           onClick={() => {
-            if (user?.role === 'admin') {
+            if (user?.jobCode === 0) {
               navigate('/adminattendance');
-            } else if (user?.role === 'member') {
+            } else if (user?.jobCode === 1) {
               navigate('/memberattendance');
-            } else {
-              alert('로그인 후 이용해주세요.');
-              navigate('/login');
             }
           }}
         >

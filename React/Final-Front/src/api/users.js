@@ -4,10 +4,10 @@ import { API_ENDPOINTS } from './config';
 export const userService = {
   login: async (userId, password) => {
     try {
-      const { data } = await api.get(API_ENDPOINTS.USERS.LOGIN(userId, password));
-      const user = data[0];
+      const { data } = await api.post(API_ENDPOINTS.USERS.LOGIN, { userId, userPwd: password });
+      const user = data;
       if (user) {
-        localStorage.setItem('userId', user.user_id); // 로그인 성공 시 userId 저장
+        localStorage.setItem('userId', user.userId); // 로그인 성공 시 userId 저장
       }
       return user;
     } catch (error) {
@@ -20,7 +20,7 @@ export const userService = {
     }
   },
   getUserInfo: async (userId) => {
-    const response = await api.get(`${API_ENDPOINTS.USERS.BASE}?user_id=${userId}`);
-    return response.data[0];
+    const response = await api.get(`${API_ENDPOINTS.USERS.BASE}?userId=${userId}`);
+    return response.data;
   },
 };
