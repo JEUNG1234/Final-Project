@@ -304,7 +304,6 @@ const SearchFilterArea = styled.div`
   display: flex;
   gap: 10px;
   align-items: center;
-
   input,
   select {
     padding: 10px 15px;
