@@ -3,8 +3,8 @@ import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components'; // styled-components는 여기서 임포트
-import ProfileImg from '../assets/ronaldo.jpg';
-import ChallangeImg from '../assets/challengeImg.jpg';
+import ProfileImg from '../../assets/ronaldo.jpg';
+import ChallangeImg from '../../assets/challengeImg.jpg';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);

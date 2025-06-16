@@ -33,7 +33,7 @@ const MyChallengeComplete = () => {
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} {mockChallengeDetails[1].title}
+        챌린지 {'>'} MY 챌린지 {'>'} {mockChallengeDetails[1].title}
       </PageTitle>
 
       <ChallengeSummarySection>

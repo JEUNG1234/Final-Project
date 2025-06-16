@@ -7,13 +7,13 @@ import Footer from './components/Footer'; // 공통 푸터 또는 각 페이지�
 import Layout from './components/Layout'; //
 import Login from './pages/mainpage/Login';
 import styled, { ThemeProvider } from 'styled-components';
-import VoteList from './pages/VoteList';
-import VoteResult from './pages/VoteResult';
-import VoteCreate from './pages/VoteCreate';
+import VoteList from './pages/vote/VoteList';
+import VoteResult from './pages/vote/VoteResult';
+import VoteCreate from './pages/vote/VoteCreate';
 import SignUp from './pages/mainpage/SignUp';
-import MyPage from './pages/MyPage';
+import MyPage from './pages/mypage/MyPage';
 import WorkcationList from './pages/workcationpage/WorkcationList';
-import MemberDashBoard from './pages/MemberDashBoard';
+import MemberDashBoard from './pages/dashboard/MemberDashBoard';
 import CommunityBoard from './pages/communitypage/CommunityBoard';
 import AddBoard from './pages/communitypage/AddBoard';
 import EditBoard from './pages/communitypage/EditBoard';
@@ -22,12 +22,12 @@ import EnrollAdmin from './pages/mainpage/EnrollAdmin';
 import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
 import Challenge from './pages/challengepage/Challenge';
 import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
-import MemberAttendance from './pages/attendancePage/MemberAttendance';
-import AdminAttendance from './pages/attendancePage/AdminAttendance';
+import MemberAttendance from './pages/attendancepage/MemberAttendance';
+import AdminAttendance from './pages/attendancepage/AdminAttendance';
 import HealthCareMain from './pages/healthcarepage/HealthCareMain';
 import ChallengeCreate from './pages/challengepage/ChallengeCreate';
-import EmployeeManagement from './pages/EmployeeManagement';
-import EmployeeApproval from './pages/EmployeeApproval';
+import EmployeeManagement from './pages/management/EmployeeManagement';
+import EmployeeApproval from './pages/management/EmployeeApproval';
 import WorkcationAdmin from './pages/workcationpage/WorkcationAdmin';
 import ChallengeDetail from './pages/challengepage/ChallengeDetail';
 import MyCallenge from './pages/challengepage/MyCallenge';
@@ -39,7 +39,8 @@ import TestResult from './pages/healthcarepage/TestResult';
 import ChallengeComplete from './pages/challengepage/ChallengeComplete';
 import MyChallengeComplete from './pages/challengepage/MyChallengeComplete';
 import ChallengeJoin from './pages/challengepage/ChallengeJoin';
-import AdminDashBoard from './pages/AdminDashBoard';
+import AdminDashBoard from './pages/dashboard/AdminDashBoard';
+import WorkcationEnrollForm from './pages/workcationpage/WorkcationEnrollForm';
 
 const AppContainer = styled.div`
   display: flex;
@@ -93,7 +94,7 @@ function App() {
                 <Layout user={user} onLogout={() => setUser(null)}>
                   <Routes>
                     {/* Layout 안에 포함될 페이지들 */}
-                    <Route path="/workcationlist" element={<WorkcationList />} />
+                    <Route path="/workcationlist" element={<WorkcationList  user={user}/>} />
                     <Route path="/votelist" element={<VoteList />} />
                     <Route path="/voteresult/:voteId" element={<VoteResult />} />
                     <Route path="/votecreate" element={<VoteCreate />} />
@@ -122,9 +123,11 @@ function App() {
                     {/* 직원 근태관리 페이지 */}
                     <Route path="/memberattendance" element={<MemberAttendance />} />
                     {/* 직원 워케이션 페이지 */}
-                    <Route path="/WorkcationDetail" element={<WorkcationDetail />} />
+                    <Route path="/workcationDetail" element={<WorkcationDetail />} />
                     {/* 관리자 워케이션승인 페이지 */}
                     <Route path="/workcationadmin" element={<WorkcationAdmin />} />
+                    {/* 관리자 워케이션리스트 생성 페이지 */}
+                    <Route path="/workcationEnrollForm" element={<WorkcationEnrollForm />} />
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
                     <Route path="mentaltest" element={<MentalCareTest />} />

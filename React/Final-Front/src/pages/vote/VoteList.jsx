@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { FaPoll } from 'react-icons/fa';
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
-import { MainContent as BaseMainContent, PageTitle } from '../styles/common/MainContentLayout';
+import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { useNavigate } from 'react-router-dom';
 
 // 컴포넌트 외부로 초기 데이터 분리

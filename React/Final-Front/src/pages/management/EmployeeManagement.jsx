@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { FaUsersCog } from 'react-icons/fa';
 // 1. useNavigate를 import 합니다.
 import { useNavigate } from 'react-router-dom';
-import { MainContent, PageTitle, PageHeader as BasePageHeader } from '../styles/common/MainContentLayout';
+import { MainContent, PageTitle, PageHeader as BasePageHeader } from '../../styles/common/MainContentLayout';
 
 // Mock 데이터
 const initialEmployees = [
