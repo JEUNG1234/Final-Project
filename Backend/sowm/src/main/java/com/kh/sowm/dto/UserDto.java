@@ -33,5 +33,20 @@ public class UserDto {
                     .jobCode(user.getJobCode())
                     .build();
         }
+
+        // 마이페이지 정보 가져오는 dto
+        public static ResponseDto getLoginUserDto(User user){
+            return ResponseDto.builder()
+                    .userId(user.getUserId())
+                    .userPwd(user.getUserPwd())
+                    .userName(user.getUserName())
+                    .email(user.getEmail())
+                    .jobCode(user.getJobCode())
+                    .deptCode(user.getDeptCode())
+                    .createdDate(user.getCreatedDate())
+                    .updatedDate(user.getUpdatedDate())
+                    .point(user.getPoint())
+                    .build();
+        }
     }
 }

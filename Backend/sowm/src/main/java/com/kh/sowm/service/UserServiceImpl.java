@@ -21,4 +21,11 @@ public class UserServiceImpl implements UserService {
         return UserDto.ResponseDto.toDto(user);
     }
 
+    @Override
+    public UserDto.ResponseDto getUserByUserId(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("아이디를 찾을 수 없습니다."));
+        return UserDto.ResponseDto.getLoginUserDto(user);
+    }
+
 }

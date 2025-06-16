@@ -5,6 +5,8 @@ import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components'; // styled-components는 여기서 임포트
 import ProfileImg from '../../assets/ronaldo.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
+import { useState, useEffect } from 'react';
+import { userService } from '../../api/users';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -55,6 +57,43 @@ const healthDoughnutOptions = {
 // 메인 대시보드 컴포넌트
 // ==========================================================
 const MemberDashBoard = () => {
+  const [userInfo, setUserInfo] = useState(null);
+
+  // 부서 코드 매핑
+  const deptMap = {
+    10: '개발팀',
+    20: '디자인팀',
+    30: '영업팀',
+    40: '인사팀',
+    50: '마케팅팀',
+  };
+
+  // 직급 코드 매핑
+  const jobMap = {
+    0: '관리자',
+    1: '직원',
+    2: '대리',
+    3: '과장',
+    4: '팀장',
+  };
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+    console.log('저장된 유저 ID:', storedUserId);
+    if (storedUserId) {
+      userService
+        .getUserInfo(storedUserId)
+        .then((data) => {
+          console.log('받은 유저 정보:', data);
+          setUserInfo(data);
+        })
+        .catch((err) => {
+          console.error('유저 정보 가져오기 실패:', err);
+          setUserInfo(null);
+        });
+    }
+  }, []);
+
   // 예시 날짜 데이터를 위해 Date 객체 사용
   const today = new Date();
   const currentMonth = today.getMonth();
@@ -154,15 +193,15 @@ const MemberDashBoard = () => {
           <div className="user-avatar">
             <img src={ProfileImg} alt="사용자 아바타" /> {/* Placeholder 이미지 */}
           </div>
-          <h2>이름: 사용자</h2>
+          <h2>이름: {userInfo?.userName}</h2>
           <div className="info-list">
             <dl>
               <dt>직급:</dt>
-              <dd>사원</dd>
+              <dd>{jobMap[userInfo?.jobCode] || '직급 정보 없음'}</dd>
             </dl>
             <dl>
               <dt>소속:</dt>
-              <dd>개발팀</dd>
+              <dd>{deptMap[userInfo?.deptCode] || '부서 정보 없음'}</dd>
             </dl>
             <dl>
               <dt>남은 연차 수:</dt>
@@ -173,7 +212,7 @@ const MemberDashBoard = () => {
             <dl>
               <dt>복지 포인트:</dt>
               <dd>
-                <span>1400점</span>(1500점 = 휴가 1일)
+                <span>{userInfo?.point}</span>(1500점 = 휴가 1일)
               </dd>
             </dl>
             <dl>
