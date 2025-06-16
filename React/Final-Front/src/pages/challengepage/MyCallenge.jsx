@@ -79,6 +79,7 @@ const MyCallenge = () => {
 
       <ChallengeSummarySection>
         <SummaryTextContent>
+          <Participate>참여중인 챌린지</Participate>
           <PeriodText>{ongoingChallengeData[1].period}</PeriodText>
           <ChallengeTitle>{ongoingChallengeData[1].title}</ChallengeTitle>
           <ProgressBarWrapper>
@@ -169,6 +170,13 @@ const SummaryTextContent = styled.div`
   gap: 10px; /* 요소 간 간격 */
   flex-grow: 1; /* 남은 공간 차지 */
   z-index: 1; /* 이미지 위에 텍스트가 오도록 */
+`;
+
+const Participate = styled.h2`
+  font-size: 28px;
+  font-weight: bold;
+  color: #5d90ff;
+  margin: 0;
 `;
 
 const PeriodText = styled.p`

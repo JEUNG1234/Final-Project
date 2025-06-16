@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { Pagination, BottomBar, PageButton, PageTitle } from '../../styles/common/MainContentLayout';
-import { FaCalendar } from 'react-icons/fa';
+import { FaCalendarAlt } from 'react-icons/fa';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -128,7 +128,7 @@ const AdminAttendance = () => {
       {/* 페이지 헤더 */}
       <PageHeader>
         <PageTitle>
-          <FaCalendar />
+          <FaCalendarAlt />
           근태 관리
         </PageTitle>
         <SearchFilterArea>
