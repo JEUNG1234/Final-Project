@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { FaUsers, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
+import { FaComments, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
 import { MainContent, Pagination, PageButton, BottomBar, SearchInput } from '../../styles/common/MainContentLayout';
 
 const CommunityBoard = () => {
@@ -20,7 +20,7 @@ const CommunityBoard = () => {
     <MainContent>
       <PageHeader>
         <PageTitle>
-          <FaUsers /> {/* React Icons 컴포넌트 사용 */}
+          <FaComments /> {/* React Icons 컴포넌트 사용 */}
           커뮤니티 게시판
         </PageTitle>
       </PageHeader>

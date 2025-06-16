@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { MdWork } from 'react-icons/md';
+import { FaClipboardCheck } from 'react-icons/fa';
 // MainContent를 BaseMainContent로 가져와서 확장합니다.
 import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
 
@@ -39,9 +39,7 @@ const WorkcationAdmin = () => {
 
   // 개별 선택/해제 핸들러
   const handleSelectSingle = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   // 승인/거부 처리 핸들러
@@ -53,28 +51,23 @@ const WorkcationAdmin = () => {
     // 실제 로직: API 호출로 선택된 ID들의 상태를 변경합니다.
     console.log(`${action}할 ID:`, selectedIds);
     // UI 업데이트 (예시)
-    setRequests((prevReqs) =>
-      prevReqs.map((req) =>
-        selectedIds.includes(req.id) ? { ...req, status: action } : req
-      )
-    );
+    setRequests((prevReqs) => prevReqs.map((req) => (selectedIds.includes(req.id) ? { ...req, status: action } : req)));
     setSelectedIds([]); // 선택 해제
     alert(`${selectedIds.length}개의 항목을 ${action} 처리했습니다.`);
   };
 
-
   return (
     <MainContent>
       <PageTitle>
-        <MdWork /> 워케이션 승인
+        <FaClipboardCheck /> 워케이션 승인
       </PageTitle>
 
       <AdminTable>
         <thead>
           <tr>
             <TableHeader>
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 onChange={handleSelectAll}
                 checked={selectedIds.length === requests.length && requests.length > 0}
               />
@@ -91,7 +84,7 @@ const WorkcationAdmin = () => {
           {requests.map((req) => (
             <TableRow key={req.id}>
               <TableCell>
-                <input 
+                <input
                   type="checkbox"
                   checked={selectedIds.includes(req.id)}
                   onChange={() => handleSelectSingle(req.id)}
@@ -111,8 +104,12 @@ const WorkcationAdmin = () => {
       </AdminTable>
 
       <ButtonContainer>
-        <ActionButton variant="reject" onClick={() => handleAction('거부')}>거부</ActionButton>
-        <ActionButton variant="approve" onClick={() => handleAction('승인')}>승인</ActionButton>
+        <ActionButton variant="reject" onClick={() => handleAction('거부')}>
+          거부
+        </ActionButton>
+        <ActionButton variant="approve" onClick={() => handleAction('승인')}>
+          승인
+        </ActionButton>
       </ButtonContainer>
     </MainContent>
   );
@@ -128,8 +125,9 @@ const AdminTable = styled.table`
   margin-top: 20px;
   font-size: 15px;
   text-align: center;
-  
-  th, td {
+
+  th,
+  td {
     padding: 12px 8px;
     border-bottom: 1px solid #eee;
   }
@@ -150,8 +148,8 @@ const TableRow = styled.tr`
 
 const TableCell = styled.td`
   color: #333;
-  
-  input[type="checkbox"] {
+
+  input[type='checkbox'] {
     cursor: pointer;
   }
 `;
@@ -162,14 +160,14 @@ const StatusBadge = styled.span`
   border-radius: 12px;
   font-weight: bold;
   font-size: 13px;
-  
+
   color: ${(props) => {
     if (props.status === '대기') return '#9A6700';
     if (props.status === '승인') return '#047857';
     if (props.status === '거부') return '#991B1B';
     return '#333';
   }};
-  
+
   background-color: ${(props) => {
     if (props.status === '대기') return '#FEF9C3';
     if (props.status === '승인') return '#D1FAE5';
