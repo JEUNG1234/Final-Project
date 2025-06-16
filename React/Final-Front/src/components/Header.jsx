@@ -43,7 +43,6 @@ const WelcomeMessage = styled.span`
 
 const HeaderBar = ({ user, onLogout }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
-  const isAdmin = user && user.role === 'admin';
 
   const handleMyPageClick = () => {
     if (!user) {
@@ -72,9 +71,7 @@ const HeaderBar = ({ user, onLogout }) => {
           style={{ cursor: 'pointer' }}
         />
         {user ? (
-          <WelcomeMessage>
-            {user.user_name}님, 환영합니다! ({isAdmin ? '관리자' : '직원'})
-          </WelcomeMessage>
+          <WelcomeMessage>{user.userName}님, 환영합니다!</WelcomeMessage>
         ) : (
           <WelcomeMessage>로그인해 주세요.</WelcomeMessage>
         )}
