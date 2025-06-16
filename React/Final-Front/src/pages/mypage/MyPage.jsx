@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import ProfileImg from '../assets/ronaldo.jpg';
-import { userService } from '../api/users';
+import ProfileImg from '../../assets/ronaldo.jpg';
+import { userService } from '../../api/users';
 
 // MyPage Component
 const MyPage = () => {

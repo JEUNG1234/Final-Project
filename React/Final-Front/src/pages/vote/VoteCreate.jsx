@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { MainContent as BaseMainContent } from '../styles/common/MainContentLayout';
+import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
 
 const VoteCreate = () => {
   const navigate = useNavigate();
