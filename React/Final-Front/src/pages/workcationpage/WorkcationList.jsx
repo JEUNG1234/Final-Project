@@ -20,8 +20,9 @@ const workcationData = [
   { id: 6, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
 ];
 
-const WorkcationList = () => {
-  const navigate = useNavigate(); //
+const WorkcationList = ({ user }) => {
+  const navigate = useNavigate();
+
   //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedPeople, setSelectedPeople] = useState('');
@@ -90,123 +91,130 @@ const WorkcationList = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+  console.log('WorkcationList user:', user);
 
   return (
+    <MainContent>
+      {/* 상단 로고 및 타이틀 */}
+      <PageTitle>
+        {/* 워케이션 아이콘 변경예정 */}
+        <MdWork /> 워케이션
+      </PageTitle>
+      {/* 필터 영역 */}
+      <Filters>
+        {/* 지역 선택 드롭다운 */}
+        <FilterWrapper ref={regionRef}>
+          <DropdownToggle type="button" onClick={() => setRegionOpen(!regionOpen)}>
+            {selectedRegion || '전체지역'}
+          </DropdownToggle>
+          {regionOpen && (
+            <DropdownMenu>
+              {regionList.map((region) => (
+                <DropdownItem
+                  key={region}
+                  onClick={() => {
+                    setSelectedRegion(region);
+                    setRegionOpen(false);
+                  }}
+                >
+                  {region}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          )}
+        </FilterWrapper>
 
-      <MainContent>
-        {/* 상단 로고 및 타이틀 */}
-        <PageTitle>
-          {/* 워케이션 아이콘 변경예정 */}
-          <MdWork /> 워케이션
-        </PageTitle>
-        {/* 필터 영역 */}
-        <Filters>
-          {/* 지역 선택 드롭다운 */}
-          <FilterWrapper ref={regionRef}>
-            <DropdownToggle type="button" onClick={() => setRegionOpen(!regionOpen)}>
-              {selectedRegion || '전체지역'}
-            </DropdownToggle>
-            {regionOpen && (
-              <DropdownMenu>
-                {regionList.map((region) => (
-                  <DropdownItem
-                    key={region}
-                    onClick={() => {
-                      setSelectedRegion(region);
-                      setRegionOpen(false);
-                    }}
-                  >
-                    {region}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            )}
-          </FilterWrapper>
+        {/* 인원 선택 드롭다운 */}
+        <FilterWrapper ref={peopleRef}>
+          <DropdownToggle type="button" onClick={() => setPeopleOpen(!peopleOpen)}>
+            {selectedPeople || '인원'}
+          </DropdownToggle>
+          {peopleOpen && (
+            <DropdownMenu>
+              {peopleList.map((people) => (
+                <DropdownItem
+                  key={people}
+                  onClick={() => {
+                    setSelectedPeople(people);
+                    setPeopleOpen(false);
+                  }}
+                >
+                  {people}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          )}
+        </FilterWrapper>
 
-          {/* 인원 선택 드롭다운 */}
-          <FilterWrapper ref={peopleRef}>
-            <DropdownToggle type="button" onClick={() => setPeopleOpen(!peopleOpen)}>
-              {selectedPeople || '인원'}
-            </DropdownToggle>
-            {peopleOpen && (
-              <DropdownMenu>
-                {peopleList.map((people) => (
-                  <DropdownItem
-                    key={people}
-                    onClick={() => {
-                      setSelectedPeople(people);
-                      setPeopleOpen(false);
-                    }}
-                  >
-                    {people}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            )}
-          </FilterWrapper>
+        {/* 날짜 선택 드롭다운 */}
+        <FilterWrapper ref={dateRef}>
+          <DropdownToggle type="button" onClick={() => setDateOpen(!dateOpen)}>
+            {/* 선택된 날짜 범위 텍스트 */}
+            {startDate && endDate ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}` : '날짜'}
+          </DropdownToggle>
+          {dateOpen && (
+            <DateMenu>
+              <DatePicker
+                selectsRange
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(update) => setDateRange(update)}
+                inline
+                calendarContainer={({ children }) => (
+                  <CalendarWrapper>
+                    {children}
+                    <ButtonWrapper>
+                      <ControlButton onClick={resetDates}>초기화</ControlButton>
+                      <ControlButton onClick={applyDates}>날짜 적용</ControlButton>
+                    </ButtonWrapper>
+                  </CalendarWrapper>
+                )}
+              />
+            </DateMenu>
+          )}
+        </FilterWrapper>
+      </Filters>
 
-          {/* 날짜 선택 드롭다운 */}
-          <FilterWrapper ref={dateRef}>
-            <DropdownToggle type="button" onClick={() => setDateOpen(!dateOpen)}>
-              {/* 선택된 날짜 범위 텍스트 */}
-              {startDate && endDate ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}` : '날짜'}
-            </DropdownToggle>
-            {dateOpen && (
-              <DateMenu>
-                <DatePicker
-                  selectsRange
-                  startDate={startDate}
-                  endDate={endDate}
-                  onChange={(update) => setDateRange(update)}
-                  inline
-                  calendarContainer={({ children }) => (
-                    <CalendarWrapper>
-                      {children}
-                      <ButtonWrapper>
-                        <ControlButton onClick={resetDates}>초기화</ControlButton>
-                        <ControlButton onClick={applyDates}>날짜 적용</ControlButton>
-                      </ButtonWrapper>
-                    </CalendarWrapper>
-                  )}
-                />
-              </DateMenu>
-            )}
-          </FilterWrapper>
-        </Filters>
+      {/* 장소 목록 섹션 */}
+      <SectionTitle>장소</SectionTitle>
 
-        {/* 장소 목록 섹션 */}
-        <SectionTitle>장소</SectionTitle>
+      <CardGrid>
+        {workcationData.map((place) => (
+          <Card key={place.id} onClick={() => navigate('/workcationDetail')}>
+            {/* 워케이션 장소 리스트 출력 */}
+            <CardImage src={image} alt={place.title} />
+            <CardTitle>{place.title}</CardTitle>
+            <CardLocationWrapper>
+              <CardLocation>
+                {place.location} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
+              </CardLocation>
+              {user && user.role === 'admin' && (
+                <>
+                  <DeleteButton>삭제</DeleteButton>
+                  <UpdateButton>수정</UpdateButton>
+                </>
+              )}
+            </CardLocationWrapper>
+          </Card>
+        ))}
+      </CardGrid>
+      <RegisterDiv>
 
-        <CardGrid>
-          {workcationData.map((place) => (
-            <Card key={place.id} onClick={() => navigate('/workcationDetail')}>
-              {/* 워케이션 장소 리스트 출력 */}
-              <CardImage src={image} alt={place.title} />
-              <CardTitle>{place.title}</CardTitle>
-              <CardLocationWrapper>
-                <CardLocation>
-                  {place.location} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
-                </CardLocation>
-              </CardLocationWrapper>
-            </Card>
+
+        {user && user.role === 'admin' && <RegisterButton onClick={() => navigate('/workcationEnrollForm')}>워케이션 장소추가</RegisterButton>}
+        {user && user.role !== 'admin' && <RegisterButton>워케이션 신청목록</RegisterButton>}
+      </RegisterDiv>
+      {/* 페이지 버튼 영역 */}
+      <BottomBar>
+        <Pagination>
+          {[1, 2, 3, 4].map((num) => (
+            <PageButton key={num}>{num}</PageButton>
           ))}
-        </CardGrid>
-        <RegisterDiv>
-          <RegisterButton>워크케이션 신청목록</RegisterButton>
-        </RegisterDiv>
-        {/* 페이지 버튼 영역 */}
-        <BottomBar>
-          <Pagination>
-            {[1, 2, 3, 4].map((num) => (
-              <PageButton key={num}>{num}</PageButton>
-            ))}
-          </Pagination>
-        </BottomBar>
-      </MainContent>
-   
+        </Pagination>
+      </BottomBar>
+    </MainContent>
   );
 };
-
 
 //검색 창
 const Filters = styled.form`
@@ -315,6 +323,7 @@ const CardGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+  place-items: center;
 `;
 
 const Card = styled.div`
@@ -323,7 +332,8 @@ const Card = styled.div`
   padding: 0.5rem;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
   background: #f0f7ff;
-
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 그림자 강화 */
+width: 70%;
   &:hover {
     transform: translateY(-5px); /* 약간 위로 떠오르는 효과 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 그림자 강화 */
@@ -336,7 +346,7 @@ const Card = styled.div`
 
 const CardImage = styled.img`
   width: 100%;
-  height: 130px;
+  height: 60%;
   object-fit: cover;
   border-radius: 8px;
 `;
@@ -372,7 +382,8 @@ const RegisterDiv = styled.div`
 
   padding-top: 20px;
 `;
-//워케이션 신청 목록 버튼
+
+
 const RegisterButton = styled.button`
   padding: 0.6rem 1rem;
   background-color: #3b82f6;
@@ -380,9 +391,42 @@ const RegisterButton = styled.button`
   border-radius: 6px;
   border: none;
   cursor: pointer;
-
+  
+  margin-left: 1rem;
+  margin-top: 5px;
   &:hover {
     background-color: #2563eb;
+  }
+`;
+//워케이션 신청 목록 버튼
+const UpdateButton = styled.button`
+  padding: 0.6rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  width: 5rem;
+  height: 2.5rem;
+  margin-left: 1rem;
+  margin-top: 5px;
+  &:hover {
+    background-color: #2563eb;
+  }
+`;
+
+const DeleteButton = styled.button`
+  padding: 0.6rem 1rem;
+  background-color: #ff5e61;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  width: 5rem;
+  height: 2.5rem;
+ margin-top: 5px;
+  &:hover {
+    background-color: #ff0004;
   }
 `;
 

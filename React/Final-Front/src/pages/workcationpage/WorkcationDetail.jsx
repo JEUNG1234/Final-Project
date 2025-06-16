@@ -43,8 +43,9 @@ const WorkcationDetail = () => {
 
   //날짜 범위 선택[시작일, 종료일]
   const [dateRange, setDateRange] = useState([null, null]);
-  const [startDate, endDate] = dateRange;
+  const [startDate, endDate] = dateRange; 
 
+  console.log(startDate, endDate);
   //날짜 초기화
   const resetDates = () => setDateRange([null, null]);
 
@@ -242,9 +243,14 @@ const WorkcationDetail = () => {
           <FormRow>
             <Label>일정</Label>
             <DateRangeWrapper>
-              <Input type="text" placeholder="시작일" />
+              <Input
+                type="text"
+                placeholder="시작일"
+                readOnly
+                value={startDate ? startDate.toLocaleDateString() : ''}
+              />
               <Tilde>~</Tilde>
-              <Input type="text" placeholder="종료일" />
+              <Input type="text" placeholder="종료일" readOnly value={endDate ? endDate.toLocaleDateString() : ''} />
             </DateRangeWrapper>
           </FormRow>
 
@@ -259,7 +265,7 @@ const WorkcationDetail = () => {
             <TextArea placeholder="사유를 입력하세요" />
           </FormRow>
 
-          <SubmitButton>워케이션 신청</SubmitButton>
+          <SubmitButton type='sumbit' >워케이션 신청</SubmitButton>
         </FormContent>
       </DateContent>
     </FullWapper>
@@ -302,7 +308,7 @@ const DateContent = styled.div`
   margin: 0 0 0 30px;
 
   border-radius: 10px;
-max-height: 80vh;
+  max-height: 80vh;
   display: flex; /* 내부 요소들을 flex로 배치 */
   flex-direction: column; /* 세로 방향으로 정렬 */
   font-family: 'Pretendard', sans-serif;
@@ -317,7 +323,7 @@ const Tabs = styled.div`
 
 const TabButton = styled.button`
   background: none;
-  border: none;
+  border-radius: 0;
   padding: 10px 15px;
   cursor: pointer;
   font-size: 16px;
@@ -345,7 +351,6 @@ const ImageSection = styled.div`
 const Title = styled.h2`
   font-size: 28px;
   color: #333;
-  
 `;
 
 const Subtitle = styled.h3`
@@ -678,7 +683,7 @@ const Input = styled.input`
   border-radius: 8px;
   font-size: 15px; /* Slightly smaller font size */
   outline: none;
-  background-color: #DBEBFF; /* Light blue background for inputs */
+  background-color: #dbebff; /* Light blue background for inputs */
   width: 100%;
 
   &::placeholder {
@@ -700,7 +705,7 @@ const TextArea = styled.textarea`
   min-height: 80px; /* Adjusted min-height to fit 400px container */
   resize: vertical; /* Allow vertical resizing */
   outline: none;
-  background-color: #DBEBFF; /* Light blue background for textarea */
+  background-color: #dbebff; /* Light blue background for textarea */
 
   &::placeholder {
     color: #a0a0a0;
