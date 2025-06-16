@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { FaUserCheck } from 'react-icons/fa';
+import { FaUsersCog } from 'react-icons/fa';
 import { MainContent, PageTitle, PageHeader as BasePageHeader } from '../../styles/common/MainContentLayout';
 
 // Mock 데이터: 승인을 기다리는 직원 목록
@@ -29,9 +29,7 @@ const EmployeeApproval = () => {
 
   // 체크박스 개별 선택/해제
   const handleSelectSingle = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   // 승인/거부 처리 핸들러
@@ -40,14 +38,12 @@ const EmployeeApproval = () => {
       alert('처리할 항목을 선택해주세요.');
       return;
     }
-    
+
     // 실제로는 여기서 API를 호출하여 서버에 상태 변경을 요청합니다.
     console.log(`선택된 ID: ${selectedIds}, 처리: ${action}`);
-    
+
     // 처리 후 목록에서 제거
-    setApprovalList((prevList) =>
-      prevList.filter((item) => !selectedIds.includes(item.id))
-    );
+    setApprovalList((prevList) => prevList.filter((item) => !selectedIds.includes(item.id)));
     setSelectedIds([]); // 선택 초기화
     alert(`${selectedIds.length}개의 계정을 ${action} 처리했습니다.`);
   };
@@ -56,7 +52,7 @@ const EmployeeApproval = () => {
     <MainContent>
       <PageHeader>
         <Title>
-          <FaUserCheck /> 직원 승인
+          <FaUsersCog /> 직원 승인
         </Title>
         <TopButton onClick={() => navigate('/employeemanagement')}>직원관리</TopButton>
       </PageHeader>
@@ -64,7 +60,13 @@ const EmployeeApproval = () => {
       <AdminTable>
         <thead>
           <tr>
-            <TableHeader><input type="checkbox" onChange={handleSelectAll} checked={selectedIds.length === approvalList.length && approvalList.length > 0}/></TableHeader>
+            <TableHeader>
+              <input
+                type="checkbox"
+                onChange={handleSelectAll}
+                checked={selectedIds.length === approvalList.length && approvalList.length > 0}
+              />
+            </TableHeader>
             <TableHeader>번호 ↓</TableHeader>
             <TableHeader>회원가입날짜</TableHeader>
             <TableHeader>이름</TableHeader>
@@ -76,7 +78,13 @@ const EmployeeApproval = () => {
         <tbody>
           {approvalList.map((req) => (
             <tr key={req.id}>
-              <TableCell><input type="checkbox" checked={selectedIds.includes(req.id)} onChange={() => handleSelectSingle(req.id)} /></TableCell>
+              <TableCell>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(req.id)}
+                  onChange={() => handleSelectSingle(req.id)}
+                />
+              </TableCell>
               <TableCell>{req.id}</TableCell>
               <TableCell>{req.joinDate}</TableCell>
               <TableCell>{req.name}</TableCell>
@@ -89,10 +97,14 @@ const EmployeeApproval = () => {
           ))}
         </tbody>
       </AdminTable>
-      
+
       <ButtonContainer>
-        <ActionButton variant="reject" onClick={() => handleAction('거부')}>거부</ActionButton>
-        <ActionButton variant="approve" onClick={() => handleAction('승인')}>승인</ActionButton>
+        <ActionButton variant="reject" onClick={() => handleAction('거부')}>
+          거부
+        </ActionButton>
+        <ActionButton variant="approve" onClick={() => handleAction('승인')}>
+          승인
+        </ActionButton>
       </ButtonContainer>
     </MainContent>
   );
@@ -119,7 +131,7 @@ const TopButton = styled.button`
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #f8f9fa;
   }
@@ -131,8 +143,9 @@ const AdminTable = styled.table`
   margin-top: 20px;
   font-size: 15px;
   text-align: center;
-  
-  th, td {
+
+  th,
+  td {
     padding: 12px 8px;
     border-bottom: 1px solid #eee;
   }
@@ -147,8 +160,8 @@ const TableHeader = styled.th`
 
 const TableCell = styled.td`
   color: #333;
-  
-  input[type="checkbox"] {
+
+  input[type='checkbox'] {
     cursor: pointer;
   }
 `;
@@ -158,8 +171,8 @@ const StatusBadge = styled.span`
   border-radius: 12px;
   font-weight: bold;
   font-size: 13px;
-  color: #9A6700;
-  background-color: #FEF9C3;
+  color: #9a6700;
+  background-color: #fef9c3;
 `;
 
 const ButtonContainer = styled.div`
