@@ -132,7 +132,7 @@ const WorkcationUpdate = () => {
             유의 사항
           </TabButton>
           <TabButton className={activeTab === 'refund' ? 'active' : ''} onClick={() => setActiveTab('refund')}>
-            환불 정책
+            오시는 길
           </TabButton>
         </Tabs>
         {/* 장소소개 탭 */}
@@ -189,33 +189,6 @@ const WorkcationUpdate = () => {
                   <InfoText>수용인원</InfoText>
                   <DetailText>최소 1명 ~ 최대 20명</DetailText>
                 </InfoBlock>
-
-                <IconGrid>
-                  <IconItem>
-                    <FaChair />
-                    의자/테이블
-                  </IconItem>
-                  <IconItem>
-                    <FaPlug />
-                    전기
-                  </IconItem>
-                  <IconItem>
-                    <FaHotTub /> {/* FaMirror 대신 FaHotTub 사용 */}
-                    전신거울
-                  </IconItem>
-                  <IconItem>
-                    <FaUtensils />
-                    음식물 반입가능
-                  </IconItem>
-                  <IconItem>
-                    <FaSmokingBan />
-                    금연
-                  </IconItem>
-                  <IconItem>
-                    <FaWifi />
-                    인터넷/WIFI
-                  </IconItem>
-                </IconGrid>
               </FacilityRightContent>
             </FacilityContent>
           </>
@@ -224,37 +197,17 @@ const WorkcationUpdate = () => {
         {activeTab === 'precautions' && (
           <>
             <Subtitle>예약시 주의사항</Subtitle>
+            <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
             <ImageSection>
               <img src={precautionImage.previewUrl} alt="유의사항이미지 미리보기" />
             </ImageSection>{' '}
-            <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
-            <PrecautionContent></PrecautionContent>
           </>
         )}
 
         {/* 위치 정보 탭 */}
         {activeTab === 'refund' && (
           <>
-            <Title>환불 정책</Title>
-
-            <RefundPolicy>
-              {`
-환불규정 안내
-
-이용당일(첫 날) 이후에 환불 관련 사항은 호스트에게 직접 문의하셔야 합니다.
-결제 후 2시간 이내에는 100% 환불이 가능합니다. (단, 이용시간 전까지만 가능)
-
-이용 8일 전        총 금액의 100% 환불
-이용 7일 전        총 금액의 100% 환불
-이용 6일 전        총 금액의 100% 환불
-이용 5일 전        총 금액의 100% 환불
-이용 4일 전        총 금액의 100% 환불
-이용 3일 전        총 금액의 100% 환불
-이용 2일 전        총 금액의 100% 환불
-이용 전날          총 금액의 50% 환불
-이용 당일          환불 불가
-  `}
-            </RefundPolicy>
+            <Title>오시는 길</Title>
           </>
         )}
       </MainContent>
@@ -403,16 +356,21 @@ const WorkcationUpdate = () => {
           <>
             <PageTitle>
               {/* 워케이션 아이콘 변경예정 */}
-              <MdWork /> 워케이션 &gt; 장소 추가 &gt; 환불 정책
+              <MdWork /> 워케이션 &gt; 장소 추가 &gt; 오시는 길
             </PageTitle>
             <FormTextareaGroup style={{ alignItems: 'flex-start', height: '40%' }}>
-              <Label htmlFor="mainFeatures">환불 정책</Label>
-              <TextArea style={{ height: '100%' }} id="mainFeatures" placeholder="주요특징을 작성해주세요." />
+              <Label htmlFor="mainFeatures">대중교통</Label>
+              <TextArea style={{ height: '30%' }} id="mainFeatures" placeholder="ex)애월항에서 도보 5분" />
+            </FormTextareaGroup>
+
+            <FormTextareaGroup style={{ alignItems: 'flex-start', height: '40%' }}>
+              <Label htmlFor="mainFeatures">주차</Label>
+              <TextArea style={{ height: '30%' }} id="mainFeatures" placeholder="ex)건물 내 주차장 이용 가능 (무료)" />
             </FormTextareaGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('precautions')}>이전으로</DangerButton>
-              <PrimaryButton onClick={handleSubmit}>수정하기</PrimaryButton>
+              <PrimaryButton onClick={handleSubmit}>등록하기</PrimaryButton>
             </ActionButtons>
           </>
         )}

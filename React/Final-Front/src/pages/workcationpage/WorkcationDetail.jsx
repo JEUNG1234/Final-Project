@@ -68,7 +68,7 @@ const WorkcationDetail = () => {
             유의 사항
           </TabButton>
           <TabButton className={activeTab === 'location' ? 'active' : ''} onClick={() => setActiveTab('location')}>
-            위치 정보
+            오시는 길
           </TabButton>
         </Tabs>
 
@@ -172,7 +172,7 @@ const WorkcationDetail = () => {
         {/* 위치 정보 탭 */}
         {activeTab === 'location' && (
           <>
-            <Title>위치 정보</Title>
+            <Title>오시는 길</Title>
             <MapContainerStyled>
               {' '}
               {/* 지도 컨테이너 */}
@@ -257,6 +257,11 @@ const WorkcationDetail = () => {
           <FormRow>
             <Label>장소</Label>
             <Input type="text" placeholder="장소를 입력하세요" />
+          </FormRow>
+
+             <FormRow>
+            <Label>최대 인원</Label>
+            <Input type="text" placeholder="최대인원" />
           </FormRow>
 
           {/* For textarea, align label to top, and ensure it doesn't push button out */}
@@ -575,7 +580,7 @@ const CalendarWrapper = styled.div`
   border-radius: 8px;
   height: 100%;
   min-height: 320px;
-  margin-bottom: 20%;
+  margin-bottom: 9%;
   .react-datepicker__day,
   .react-datepicker__day-name {
     width: 1.75vw;
@@ -654,7 +659,7 @@ const FormContent = styled.div`
   flex-direction: column; /* 세로 방향으로 정렬 */
   font-family: 'Pretendard', sans-serif;
   box-sizing: border-box;
-  padding: 30px; /* Added padding to give some space from the edges */
+  padding: 15px; /* Added padding to give some space from the edges */
   justify-content: space-between; /* Distribute space between items */
 `;
 const FormRow = styled.div`

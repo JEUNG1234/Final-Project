@@ -83,6 +83,24 @@ const WorkcationEnrollForm = () => {
     });
   };
 
+  //면적, 평수 상태
+  const [areaM2, setAreaM2] = useState('');
+  const [areaPyeong, setAreaPyeong] = useState('');
+
+  const handleAreaM2Change = (e) => {
+    const value = e.target.value;
+    setAreaM2(value);
+
+    // 숫자인지 확인하고 계산
+    const number = parseFloat(value);
+    if (!isNaN(number)) {
+      const converted = (number * 0.3025).toFixed(2); // 소수점 2자리까지
+      setAreaPyeong(converted);
+    } else {
+      setAreaPyeong('');
+    }
+  };
+
   //시설별 이미지 등록
   const [placeImage, setPlaceImage] = useState({ name: '', previewUrl: '' });
   const [facilityImage, setFacilityImage] = useState({ name: '', previewUrl: '' });
@@ -132,7 +150,7 @@ const WorkcationEnrollForm = () => {
             유의 사항
           </TabButton>
           <TabButton className={activeTab === 'refund' ? 'active' : ''} onClick={() => setActiveTab('refund')}>
-            환불 정책
+            오시는 길
           </TabButton>
         </Tabs>
         {/* 장소소개 탭 */}
@@ -224,37 +242,17 @@ const WorkcationEnrollForm = () => {
         {activeTab === 'precautions' && (
           <>
             <Subtitle>예약시 주의사항</Subtitle>
+            <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
             <ImageSection>
               <img src={precautionImage.previewUrl} alt="유의사항이미지 미리보기" />
             </ImageSection>{' '}
-            <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
-            <PrecautionContent></PrecautionContent>
           </>
         )}
 
         {/* 위치 정보 탭 */}
         {activeTab === 'refund' && (
           <>
-            <Title>환불 정책</Title>
-
-            <RefundPolicy>
-              {`
-환불규정 안내
-
-이용당일(첫 날) 이후에 환불 관련 사항은 호스트에게 직접 문의하셔야 합니다.
-결제 후 2시간 이내에는 100% 환불이 가능합니다. (단, 이용시간 전까지만 가능)
-
-이용 8일 전        총 금액의 100% 환불
-이용 7일 전        총 금액의 100% 환불
-이용 6일 전        총 금액의 100% 환불
-이용 5일 전        총 금액의 100% 환불
-이용 4일 전        총 금액의 100% 환불
-이용 3일 전        총 금액의 100% 환불
-이용 2일 전        총 금액의 100% 환불
-이용 전날          총 금액의 50% 환불
-이용 당일          환불 불가
-  `}
-            </RefundPolicy>
+            <Title>오시는 길</Title>
           </>
         )}
       </MainContent>
@@ -298,6 +296,15 @@ const WorkcationEnrollForm = () => {
               <Label htmlFor="mainFeatures">주요특징</Label>
               <TextArea id="mainFeatures" placeholder="주요특징을 작성해주세요." />
             </FormTextareaGroup>
+
+               <SpaceFormGroup>
+              <Label htmlFor="placeArea">계약기간</Label>
+              <SpaceInputGroup>
+                <SpaceInput id="placeArea" type="date"   />
+                부터
+                <SpaceInput type="date" />까지
+              </SpaceInputGroup>
+            </SpaceFormGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => navigate(-1)}>취소하기</DangerButton>
@@ -348,10 +355,11 @@ const WorkcationEnrollForm = () => {
             </FormGroup>
 
             <SpaceFormGroup>
-              <Label htmlFor="placeName">공간면적</Label>
+              <Label htmlFor="placeArea">공간면적</Label>
               <SpaceInputGroup>
-                <SpaceInput id="placeName" type="text" /> m²
-                <SpaceInput />평
+                <SpaceInput id="placeArea" type="number" value={areaM2} onChange={handleAreaM2Change} />
+                m²
+                <SpaceInput type="number" value={areaPyeong} readOnly />평
               </SpaceInputGroup>
             </SpaceFormGroup>
 
@@ -383,8 +391,8 @@ const WorkcationEnrollForm = () => {
               <MdWork /> 워케이션 &gt; 장소 추가 &gt; 유의사항
             </PageTitle>
             <FormTextareaGroup style={{ alignItems: 'flex-start' }}>
-              <Label htmlFor="mainFeatures">주요특징</Label>
-              <TextArea id="mainFeatures" placeholder="주요특징을 작성해주세요." />
+              <Label htmlFor="mainFeatures">주의사항</Label>
+              <TextArea id="mainFeatures" placeholder="주의사항을 작성해주세요." />
             </FormTextareaGroup>
             <FormGroup>
               <Label htmlFor="precautionImage">장소 이미지</Label>
@@ -403,11 +411,16 @@ const WorkcationEnrollForm = () => {
           <>
             <PageTitle>
               {/* 워케이션 아이콘 변경예정 */}
-              <MdWork /> 워케이션 &gt; 장소 추가 &gt; 환불 정책
+              <MdWork /> 워케이션 &gt; 장소 추가 &gt; 오시는 길
             </PageTitle>
             <FormTextareaGroup style={{ alignItems: 'flex-start', height: '40%' }}>
-              <Label htmlFor="mainFeatures">환불 정책</Label>
-              <TextArea style={{ height: '100%' }} id="mainFeatures" placeholder="주요특징을 작성해주세요." />
+              <Label htmlFor="mainFeatures">대중교통</Label>
+              <TextArea style={{ height: '30%' }} id="mainFeatures" placeholder="ex)애월항에서 도보 5분" />
+            </FormTextareaGroup>
+
+            <FormTextareaGroup style={{ alignItems: 'flex-start', height: '40%' }}>
+              <Label htmlFor="mainFeatures">주차</Label>
+              <TextArea style={{ height: '30%' }} id="mainFeatures" placeholder="ex)건물 내 주차장 이용 가능 (무료)" />
             </FormTextareaGroup>
 
             <ActionButtons>
@@ -755,8 +768,8 @@ const SpaceInput = styled.input`
   font-size: 15px; /* Slightly smaller font size */
   outline: none;
   background-color: #ededed; /* Light blue background for inputs */
-  width: calc(30% - 80px);
-
+  width: calc(35% - 80px);
+  min-width: 70px;
   &::placeholder {
     color: #a0a0a0;
   }
