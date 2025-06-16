@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaUserCheck } from 'react-icons/fa';
-import { MainContent, PageTitle, PageHeader as BasePageHeader } from '../styles/common/MainContentLayout';
+import { MainContent, PageTitle, PageHeader as BasePageHeader } from '../../styles/common/MainContentLayout';
 
 // Mock 데이터: 승인을 기다리는 직원 목록
 const mockApprovalList = [

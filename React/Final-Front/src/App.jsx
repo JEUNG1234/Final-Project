@@ -7,13 +7,13 @@ import Footer from './components/Footer'; // 공통 푸터 또는 각 페이지�
 import Layout from './components/Layout'; //
 import Login from './pages/mainpage/Login';
 import styled, { ThemeProvider } from 'styled-components';
-import VoteList from './pages/VoteList';
-import VoteResult from './pages/VoteResult';
-import VoteCreate from './pages/VoteCreate';
+import VoteList from './pages/vote/VoteList';
+import VoteResult from './pages/vote/VoteResult';
+import VoteCreate from './pages/vote/VoteCreate';
 import SignUp from './pages/mainpage/SignUp';
-import MyPage from './pages/MyPage';
+import MyPage from './pages/mypage/MyPage';
 import WorkcationList from './pages/workcationpage/WorkcationList';
-import MemberDashBoard from './pages/MemberDashBoard';
+import MemberDashBoard from './pages/dashboard/MemberDashBoard';
 import CommunityBoard from './pages/communitypage/CommunityBoard';
 import AddBoard from './pages/communitypage/AddBoard';
 import EditBoard from './pages/communitypage/EditBoard';
@@ -22,12 +22,12 @@ import EnrollAdmin from './pages/mainpage/EnrollAdmin';
 import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
 import Challenge from './pages/challengepage/Challenge';
 import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
-import MemberAttendance from './pages/attendancePage/MemberAttendance';
-import AdminAttendance from './pages/attendancePage/AdminAttendance';
+import MemberAttendance from './pages/attendancepage/MemberAttendance';
+import AdminAttendance from './pages/attendancepage/AdminAttendance';
 import HealthCareMain from './pages/healthcarepage/HealthCareMain';
 import ChallengeCreate from './pages/challengepage/ChallengeCreate';
-import EmployeeManagement from './pages/EmployeeManagement';
-import EmployeeApproval from './pages/EmployeeApproval';
+import EmployeeManagement from './pages/management/EmployeeManagement';
+import EmployeeApproval from './pages/management/EmployeeApproval';
 import WorkcationAdmin from './pages/workcationpage/WorkcationAdmin';
 import ChallengeDetail from './pages/challengepage/ChallengeDetail';
 import MyCallenge from './pages/challengepage/MyCallenge';
@@ -39,7 +39,7 @@ import TestResult from './pages/healthcarepage/TestResult';
 import ChallengeComplete from './pages/challengepage/ChallengeComplete';
 import MyChallengeComplete from './pages/challengepage/MyChallengeComplete';
 import ChallengeJoin from './pages/challengepage/ChallengeJoin';
-import AdminDashBoard from './pages/AdminDashBoard';
+import AdminDashBoard from './pages/dashboard/AdminDashBoard';
 import WorkcationEnrollForm from './pages/workcationpage/WorkcationEnrollForm';
 
 const AppContainer = styled.div`
