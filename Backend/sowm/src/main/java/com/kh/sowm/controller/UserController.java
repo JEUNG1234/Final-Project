@@ -1,6 +1,7 @@
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.UserDto;
+import com.kh.sowm.entity.User;
 import com.kh.sowm.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,5 +32,6 @@ public class UserController {
 
         return ResponseEntity.ok(loginUser);
     }
+
 
 }

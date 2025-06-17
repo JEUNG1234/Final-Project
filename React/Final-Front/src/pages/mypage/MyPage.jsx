@@ -90,7 +90,6 @@ const MyPage = () => {
               <Label>직급</Label>
               <UserInfoValue>: {jobMap[userInfo?.jobCode] || '미정'}</UserInfoValue>
             </UserDetailRow>
-
             <UserDetailRow>
               <Label>누적 포인트</Label>
               <UserInfoValue>: {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>

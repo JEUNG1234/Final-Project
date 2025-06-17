@@ -20,7 +20,7 @@ const Sidebar = ({ user }) => {
         <MenuItem
           onClick={() => {
             if (user?.jobCode === 'J2') {
-              console.log(user.jobCode)
+              console.log(user.jobCode);
               navigate('/admindashboard');
             } else if (user?.jobCode === 'J1') {
               navigate('/memberdashboard');
