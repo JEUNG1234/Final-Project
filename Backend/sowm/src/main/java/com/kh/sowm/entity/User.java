@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+
+import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,11 +63,13 @@ public class User {
     private String companyCode;
 
     // 상태값
+    @Column(length = 1, nullable = false)
     @Enumerated(EnumType.STRING)
     private CommonEnums.Status status;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     List<Board> boards = new ArrayList<>();
+
 
     @PrePersist
     public void prePersist() {
@@ -87,5 +92,12 @@ public class User {
             this.status = CommonEnums.Status.N;
         }
     }
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Vote> votes = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VoteUser> voteUsers = new ArrayList<>();
 
 }
