@@ -19,9 +19,9 @@ const Sidebar = ({ user }) => {
       <MenuList>
         <MenuItem
           onClick={() => {
-            if (user?.jobCode === 0) {
+            if (user?.jobCode === '0') {
               navigate('/admindashboard');
-            } else if (user?.jobCode === 1) {
+            } else if (user?.jobCode === '1') {
               navigate('/memberdashboard');
             }
           }}
@@ -40,9 +40,9 @@ const Sidebar = ({ user }) => {
 
         <MenuItem
           onClick={() => {
-            if (user?.jobCode === 0) {
+            if (user?.jobCode === '0') {
               navigate('/adminattendance');
-            } else if (user?.jobCode === 1) {
+            } else if (user?.jobCode === '1') {
               navigate('/memberattendance');
             }
           }}

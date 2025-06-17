@@ -42,10 +42,10 @@ public class User {
     private Integer point;
 
     // 직책 코드
-    private Integer jobCode;
+    private String jobCode;
 
     // 부서코드
-    private Integer deptCode;
+    private String deptCode;
 
     // 회사코드
     @Column(length = 6)
