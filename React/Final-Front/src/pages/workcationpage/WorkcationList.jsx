@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { MdWork } from 'react-icons/md';
+import { PiAirplaneTiltFill } from 'react-icons/pi';
 
 import image from '../../assets/돌하르방.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -98,7 +99,7 @@ const WorkcationList = ({ user }) => {
       {/* 상단 로고 및 타이틀 */}
       <PageTitle>
         {/* 워케이션 아이콘 변경예정 */}
-        <MdWork /> 워케이션
+        <PiAirplaneTiltFill /> 워케이션
       </PageTitle>
       {/* 필터 영역 */}
       <Filters>
@@ -210,7 +211,9 @@ const WorkcationList = ({ user }) => {
         {user && user.jobCode === 'J2' && (
           <RegisterButton onClick={() => navigate('/workcationEnrollForm')}>워케이션 장소추가</RegisterButton>
         )}
-        {user && user.jobCode !== 'J2' && <RegisterButton>워케이션 신청목록</RegisterButton>}
+        {user && user.jobCode !== 'J2' && (
+          <RegisterButton onClick={() => navigate('/myWorkation')}>워케이션 신청목록</RegisterButton>
+        )}
       </RegisterDiv>
       {/* 페이지 버튼 영역 */}
       <BottomBar>
