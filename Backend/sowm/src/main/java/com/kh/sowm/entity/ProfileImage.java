@@ -47,5 +47,5 @@ public class ProfileImage {
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
         }
-        }
+    }
 }

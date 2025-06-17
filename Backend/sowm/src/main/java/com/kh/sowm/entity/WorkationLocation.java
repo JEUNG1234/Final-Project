@@ -1,4 +1,63 @@
 package com.kh.sowm.entity;
 
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Getter
+@Entity
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Table(name = "WORKATION_LOCATION")
 public class WorkationLocation {
+
+    //장소 고유 번호
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "LOCATION_NO")
+    private Long locationNo;
+
+    //장소 소개
+    @Column(name = "PLACE_INFO", length = 500)
+    private String placeInfo;
+
+    //주소
+    @Column(name = "ADDRESS",  length = 50)
+    private String address;
+
+    //운영시간
+    @Column(name = "OPEN_HOURS",  length = 20)
+    private String openHours;
+
+    //공간 유형
+    @Column(name = "SPACE_TYPE",  length = 50)
+    private String spaceType;
+
+    //면적
+    @Column(name = "AREA")
+    private Integer area;
+
+    //특징
+    @Column(name = "FEATURE",  length = 500)
+    private String feature;
+
+    //위도
+    @Column(name = "LATITUDE")
+    private double latitude;
+
+    //경도
+    @Column(name = "LONGITUDE")
+    private double longitude;
+
+    //버스정보
+    @Column(name = "BUS_INFO", length = 100)
+    private String busInfo;
+
+    //주차정보
+    @Column(name = "PARKING_INFO",length = 100)
+    private String parkingInfo;
+
+
+
 }

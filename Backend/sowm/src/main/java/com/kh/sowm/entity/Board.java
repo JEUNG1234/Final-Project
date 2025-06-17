@@ -34,11 +34,11 @@ public class Board {
     @Lob
     private String boardContent;
 
-    @Column(name = "CREATED_DATE")
+    @Column(name = "CREATED_DATE", nullable = false)
     private LocalDate createdDate;
 
 
-    @Column(name = "UPDATED_DATE")
+    @Column(name = "UPDATED_DATE", nullable = false)
     private LocalDate updatedDate;
 
     @Column(length = 1, nullable = false)
@@ -66,6 +66,7 @@ public class Board {
         }
 
     }
+
 
 
 }

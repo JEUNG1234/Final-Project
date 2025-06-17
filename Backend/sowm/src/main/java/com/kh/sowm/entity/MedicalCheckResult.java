@@ -2,6 +2,8 @@ package com.kh.sowm.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.*;
 
@@ -13,9 +15,40 @@ import lombok.*;
 @Table(name = "MEDICAL_CHECK_RESULT")
 public class MedicalCheckResult {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "MEDICAL_CHECK_RESULT_NO")
     private Long medicalCheckResultNo;
+
+    @Column(name = "MEDIACAL_CHECK_CREATE_DATE")
     private LocalDate medicalCheckCreateDate;
-    private String userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_ID", nullable = false)
+    private User user;
+
+    @Column(name = "MEDICAL_CHECK_TOTAL_SCORE", nullable = false)
     private int medicalCheckTotalScore;
-    private int medicalCheckType;
+
+    @Column(name = "MEDICAL_CHECK_TYPE",nullable = false, length = 10)
+    @Enumerated(EnumType.STRING)
+    private Type medicalCheckType;
+//
+//    @OneToMany(mappedBy = "medicalCheckResult", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<MedicalCheckResult> medicalCheckResults = new ArrayList<>();
+
+
+
+
+    @PrePersist
+    public void prePersist(){
+        if (this.medicalCheckCreateDate == null){
+            this.medicalCheckCreateDate = LocalDate.now();
+        }
+    }
+
+    public enum Type{
+        PSYCHOLOGY, PHYSICAL;
+    }
+
+
 }
