@@ -88,6 +88,8 @@ const MyPage = () => {
 
             <UserDetailRow>
               <Label>직급</Label>
+              <UserInfoValue>: {jobMap[userInfo?.jobCode] || '미정'}</UserInfoValue>
+
             </UserDetailRow>
             <UserDetailRow>
               <Label>누적 포인트</Label>

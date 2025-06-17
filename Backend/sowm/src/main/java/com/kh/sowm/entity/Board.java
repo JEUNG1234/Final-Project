@@ -5,7 +5,7 @@ import com.kh.sowm.enums.CommonEnums;
 
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+
 
 import lombok.*;
 
@@ -54,6 +54,15 @@ public class Board {
     private User user;
 
 
+    @PrePersist
+    public void prePersist() {
+        this.createdDate = LocalDateTime.now();
+        this.updatedDate = LocalDateTime.now();
+        if(this.status == null) {
+            this.status = CommonEnums.Status.Y;
+        }
+
+    }
 
 
 }
