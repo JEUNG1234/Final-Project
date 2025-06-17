@@ -45,7 +45,6 @@ public class User {
     // 총 누적 포인트
     private Integer point;
 
-    // 직책 코드
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "JOB_CODE", nullable = false)
     private Job job;

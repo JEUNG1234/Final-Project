@@ -88,13 +88,7 @@ const MyPage = () => {
 
             <UserDetailRow>
               <Label>직급</Label>
-<<<<<<< HEAD
-              <UserInfoValue>: {userInfo?.job_code}</UserInfoValue>
-=======
-              <UserInfoValue>: {jobMap[userInfo?.jobCode] || '미정'}</UserInfoValue>
->>>>>>> 859e2f7796e527e15524fd3c6d591bad787a8f2f
             </UserDetailRow>
-
             <UserDetailRow>
               <Label>누적 포인트</Label>
               <UserInfoValue>: {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>

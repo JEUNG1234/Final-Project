@@ -33,7 +33,7 @@ public class UserDto {
                     .email(user.getEmail())
                     .userPwd(user.getUserPwd())
                     .point(user.getPoint())
-                    .jobCode(user.getJob().toString())
+                    .jobCode(user.getJob().getJobCode())
                     .build();
         }
 
@@ -44,12 +44,14 @@ public class UserDto {
                     .userPwd(user.getUserPwd())
                     .userName(user.getUserName())
                     .email(user.getEmail())
-                    .jobCode(user.toString())
-                    .deptCode(user.toString())
+                    .jobCode(user.getJob().getJobCode())
+                    .deptCode(user.getDepartment().getDeptCode())
                     .createdDate(user.getCreatedDate())
                     .updatedDate(user.getUpdatedDate())
                     .point(user.getPoint())
                     .build();
         }
+
+        // 회원가입 dto
     }
 }
