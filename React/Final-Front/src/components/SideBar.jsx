@@ -19,9 +19,10 @@ const Sidebar = ({ user }) => {
       <MenuList>
         <MenuItem
           onClick={() => {
-            if (user?.jobCode === 0) {
+            if (user?.jobCode === 'J2') {
+              console.log(user.jobCode)
               navigate('/admindashboard');
-            } else if (user?.jobCode === 1) {
+            } else if (user?.jobCode === 'J1') {
               navigate('/memberdashboard');
             }
           }}
@@ -40,9 +41,9 @@ const Sidebar = ({ user }) => {
 
         <MenuItem
           onClick={() => {
-            if (user?.jobCode === 0) {
+            if (user?.jobCode === 'J2') {
               navigate('/adminattendance');
-            } else if (user?.jobCode === 1) {
+            } else if (user?.jobCode === 'J1') {
               navigate('/memberattendance');
             }
           }}
@@ -53,7 +54,7 @@ const Sidebar = ({ user }) => {
           <FaComments /> 커뮤니티 게시판
         </MenuItem>
         {/* 관리자는 안 보이게 */}
-        {user && user.role !== 'admin' && (
+        {user && user.job_code !== 'J2' && (
           <>
             <MenuItem onClick={() => navigate('/healthcaremain')}>
               <FaHeartbeat /> 건강관리
@@ -61,7 +62,7 @@ const Sidebar = ({ user }) => {
           </>
         )}
         {/* 관리자 전용 메뉴 */}
-        {user && user.role === 'admin' && (
+        {user && user.jobCode === 'J2' && (
           <>
             <MenuItem onClick={() => navigate('/workcationadmin')}>
               <FaClipboardCheck /> 워케이션승인
