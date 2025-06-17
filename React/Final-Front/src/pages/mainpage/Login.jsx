@@ -26,6 +26,8 @@ const Login = ({ setUser }) => {
         navigate('/AdminDashBoard');
       } else if (user.jobCode === 'J1') {
         navigate('/MemberDashBoard');
+      } else if (user.jobCode === 'J0') {
+        alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
       }
     } catch (err) {
       alert('로그인 중 오류가 발생했습니다.');
