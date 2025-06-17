@@ -3,15 +3,16 @@ import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg';
 import { useNavigate } from 'react-router-dom';
+import { userService } from '../../api/users';
 
 const EnrollAdmin = () => {
   const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
+  const [userPwd, setUserPwd] = useState('');
   const [checkPassword, setCheckPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [companyCode, setCompanyCode] = useState('');
   const [userName, setUserName] = useState('');
   const [passwordMismatchError, setPasswordMismatchError] = useState(false);
-  const [companyCode, setCompanyCode] = useState('');
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,18 +23,39 @@ const EnrollAdmin = () => {
     }
   }, [location.state]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password !== checkPassword) {
+    if (userPwd !== checkPassword) {
       setPasswordMismatchError(true);
       return;
     } else {
       setPasswordMismatchError(false);
     }
 
-    alert('대표님 회원가입 성공 (실제 로직 및 백엔드 연동 필요)');
-    navigate('/login');
+    try {
+      const requestBody = {
+        userId,
+        password: userPwd,
+        checkPassword: checkPassword,
+        userName,
+        email,
+        companyCode,
+      };
+
+      const response = await userService.EnrollAdmin(requestBody);
+      console.log('회원가입 정보 : ', requestBody);
+
+      if (response.status === 200) {
+        alert('회원가입이 성공적으로 처리되었습니다. 로그인해주세요.');
+        navigate('/login');
+      } else {
+        alert('회원가입에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      alert('회원가입 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -56,8 +78,8 @@ const EnrollAdmin = () => {
               type="password"
               id="password"
               placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={userPwd}
+              onChange={(e) => setUserPwd(e.target.value)}
               required
             />
             <InputField

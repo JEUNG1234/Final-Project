@@ -3,13 +3,14 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg';
 import { useNavigate } from 'react-router-dom';
+import { companyService } from '../../api/company';
 
 const EnrollCompany = () => {
   const navigate = useNavigate();
 
-  const [userId, setUserId] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
 
   const createCompanyCode = () => {
     const letters = Array.from(
@@ -22,13 +23,29 @@ const EnrollCompany = () => {
     return letters + numbers;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const companyCode = createCompanyCode();
 
-    alert('회사신청이 성공적으로 처리되었습니다. 로그인해주세요. (실제 로직 및 백엔드 연동 필요)');
-    navigate('/enrolladmin', { state: { companyCode } });
+    try {
+      const response = await companyService.enrollCompany({
+        companyCode,
+        companyName,
+        companyPhone,
+        companyAddress,
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert('회사신청이 성공적으로 처리되었습니다. 대표님은 계정생성 해주세요.');
+        navigate('/enrolladmin', { state: { companyCode } });
+      } else {
+        alert('회사신청 실패. 다시 시도해주세요.');
+      }
+    } catch (error) {
+      console.error('회사신청 중 오류 발생:', error);
+      alert('오류가 발생했습니다. 관리자에게 문의해주세요.');
+    }
   };
 
   return (
@@ -43,24 +60,24 @@ const EnrollCompany = () => {
               type="text"
               id="companyName"
               placeholder="회사명"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
               required
             />
             <InputField
               type="text"
               id="phone"
               placeholder="전화번호"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={companyPhone}
+              onChange={(e) => setCompanyPhone(e.target.value)}
               required
             />
             <InputField
               type="textarea"
               id="address"
               placeholder="매장주소"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={companyAddress}
+              onChange={(e) => setCompanyAddress(e.target.value)}
               required
             />
             <LoginButton type="submit">신청하기</LoginButton>

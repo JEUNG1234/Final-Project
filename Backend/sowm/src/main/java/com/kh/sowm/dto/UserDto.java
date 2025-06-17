@@ -5,7 +5,7 @@ import com.kh.sowm.entity.Job;
 import com.kh.sowm.entity.User;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class UserDto {
 
@@ -19,8 +19,8 @@ public class UserDto {
         private String userPwd;
         private String userName;
         private String email;
-        private LocalDateTime createdDate;
-        private LocalDateTime updatedDate;
+        private LocalDate createdDate;
+        private LocalDate updatedDate;
         private Integer point;
 
         private String jobCode;
@@ -52,6 +52,43 @@ public class UserDto {
                     .build();
         }
 
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    // 요청 Dto
+    public static class RequestDto {
+        private String userId;
+        private String password;
+        private String checkPassword;
+        private String userName;
+        private String email;
+        private String companyCode;
+
         // 회원가입 dto
+       public User signUp() {
+           return User.builder()
+                   .userId(this.userId)
+                   .userPwd(this.password)
+                   .userName(this.userName)
+                   .email(this.email)
+                   .companyCode(this.companyCode)
+                   .job(Job.defaultJob())
+                   .build();
+       }
+
+        public User adminSignUp() {
+            return User.builder()
+                    .userId(this.userId)
+                    .userPwd(this.password)
+                    .userName(this.userName)
+                    .email(this.email)
+                    .companyCode(this.companyCode)
+                    .job(Job.adminDefaultJob())
+                    .build();
+        }
     }
 }

@@ -5,9 +5,10 @@ import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Getter
 @Entity
@@ -36,11 +37,11 @@ public class User {
 
     // 회원가입 날짜 (입사날짜)
     @Column(name = "CREATED_DATE")
-    private LocalDateTime createdDate;
+    private LocalDate createdDate;
 
     // 계정 수정 날짜
     @Column(name = "UPDATED_DATE")
-    private LocalDateTime updatedDate;
+    private LocalDate updatedDate;
 
     // 총 누적 포인트
     private Integer point;
@@ -64,5 +65,27 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     List<Board> boards = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createdDate == null) {
+            this.createdDate = LocalDate.now();
+        }
+        if (this.updatedDate == null) {
+            this.updatedDate = LocalDate.now();
+        }
+        if (this.job == null) {
+            this.job = Job.defaultJob();
+        }
+        if (this.department == null) {
+            this.department = Department.defaultDepartment();
+        }
+        if (this.point == null) {
+            this.point = 0;
+        }
+        if (this.status == null) {
+            this.status = CommonEnums.Status.N;
+        }
+    }
 
 }

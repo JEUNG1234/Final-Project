@@ -10,20 +10,20 @@ const MyPage = () => {
 
   // 부서 코드 매핑
   const deptMap = {
-    10: '개발팀',
-    20: '디자인팀',
-    30: '영업팀',
-    40: '인사팀',
-    50: '마케팅팀',
+    D1: '개발팀',
+    D2: '디자인팀',
+    D3: '영업팀',
+    D4: '인사팀',
+    D5: '마케팅팀',
   };
 
   // 직급 코드 매핑
   const jobMap = {
-    0: '관리자',
-    1: '직원',
-    2: '대리',
-    3: '과장',
-    4: '팀장',
+    J0: '외부인',
+    J1: '개발팀',
+    J2: '관리자',
+    J3: '과장',
+    J4: '팀장',
   };
 
   useEffect(() => {
@@ -83,12 +83,14 @@ const MyPage = () => {
 
             <UserDetailRow>
               <Label>부서</Label>
-              <UserInfoValue>: {deptMap[userInfo?.deptCode] || '미정'}</UserInfoValue>
+              <UserInfoValue>: {deptMap[userInfo?.deptCode] || '-'}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>직급</Label>
+              <UserInfoValue>: {jobMap[userInfo?.jobCode] || '-'}</UserInfoValue>
             </UserDetailRow>
+
             <UserDetailRow>
               <Label>누적 포인트</Label>
               <UserInfoValue>: {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>
