@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { FaBriefcase, FaSuitcase, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom'; // useNavigate 임포트
 import { MdAccessTime } from 'react-icons/md';
+import useUserStore from '../Store/useStore';
 
 const HeaderContainer = styled.div`
   width: 100%;
@@ -41,11 +42,12 @@ const WelcomeMessage = styled.span`
   margin-left: 12px;
 `;
 
-const HeaderBar = ({ user, onLogout }) => {
+const HeaderBar = ({ onLogout }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
-
+  const { user } = useUserStore();
   const handleMyPageClick = () => {
     if (!user) {
+      console.log(user);
       alert('로그인 후 마이페이지를 이용해주세요.');
       navigate('/login');
       return;
@@ -70,6 +72,7 @@ const HeaderBar = ({ user, onLogout }) => {
           onClick={handleMyPageClick} // 클릭 이벤트 추가
           style={{ cursor: 'pointer' }}
         />
+
         {user ? (
           <WelcomeMessage>{user.userName}님, 환영합니다!</WelcomeMessage>
         ) : (
