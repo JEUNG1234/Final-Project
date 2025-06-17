@@ -71,7 +71,7 @@ const MyPage = () => {
 
             <UserDetailRow>
               <Label>직급</Label>
-              <UserInfoValue>: {userInfo?.role}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.job_code}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>

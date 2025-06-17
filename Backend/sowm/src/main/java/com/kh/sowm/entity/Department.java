@@ -9,11 +9,13 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Table(name = "DEPARTMENT")
 public class Department {
 
     @Id
-    private Integer deptCode;
+    @Column(name = "DEPT_CODE")
+    private String deptCode;
 
-
+    @Column(name = "DEPT_NAME")
     private String deptName;
 }

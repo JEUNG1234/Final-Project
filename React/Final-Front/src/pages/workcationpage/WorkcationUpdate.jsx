@@ -487,12 +487,7 @@ const Description = styled.p`
   margin-bottom: 5px;
   height: 10%;
 `;
-const RefundPolicy = styled.div`
-  white-space: pre-line; /* 엔터(줄바꿈)는 살리고, 연속 공백은 무시 */
-  font-family: inherit; /* 폰트는 상속 */
-  font-size: 16px;
-  color: #444;
-`;
+
 
 const FeaturesSection = styled.div`
   display: flex;

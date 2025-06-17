@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from './config';
 export const userService = {
   login: async (userId, password) => {
     try {
+      console.log(API_ENDPOINTS.USERS.LOGIN)
       const { data } = await api.post(API_ENDPOINTS.USERS.LOGIN, { userId, userPwd: password });
       const user = data;
       if (user) {

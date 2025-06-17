@@ -188,7 +188,7 @@ const WorkcationList = ({ user }) => {
               <CardLocation>
                 {place.location} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
               </CardLocation>
-              {user && user.role === 'admin' && (
+              {user && user.jobCode === 'J2' && (
                 <>
                   <DeleteButton>삭제</DeleteButton>
                   <UpdateButton
@@ -207,10 +207,10 @@ const WorkcationList = ({ user }) => {
         ))}
       </CardGrid>
       <RegisterDiv>
-        {user && user.role === 'admin' && (
+        {user && user.jobCode === 'J2' && (
           <RegisterButton onClick={() => navigate('/workcationEnrollForm')}>워케이션 장소추가</RegisterButton>
         )}
-        {user && user.role !== 'admin' && <RegisterButton>워케이션 신청목록</RegisterButton>}
+        {user && user.jobCode !== 'J2' && <RegisterButton>워케이션 신청목록</RegisterButton>}
       </RegisterDiv>
       {/* 페이지 버튼 영역 */}
       <BottomBar>

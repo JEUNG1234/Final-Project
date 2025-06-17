@@ -297,12 +297,13 @@ const WorkcationEnrollForm = () => {
               <TextArea id="mainFeatures" placeholder="주요특징을 작성해주세요." />
             </FormTextareaGroup>
 
-               <SpaceFormGroup>
+            <SpaceFormGroup>
               <Label htmlFor="placeArea">계약기간</Label>
               <SpaceInputGroup>
-                <SpaceInput id="placeArea" type="date"   />
+                <SpaceInput id="placeArea" type="date" />
                 부터
-                <SpaceInput type="date" />까지
+                <SpaceInput type="date" />
+                까지
               </SpaceInputGroup>
             </SpaceFormGroup>
 
