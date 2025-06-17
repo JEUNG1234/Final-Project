@@ -2,7 +2,11 @@ package com.kh.sowm.entity;
 
 
 import com.kh.sowm.enums.CommonEnums;
+
+
 import jakarta.persistence.*;
+import java.time.LocalDate;
+
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,17 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Entity
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
+@Entity
 @Table(name = "BOARD")
 public class Board {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "BOARD_NO")
     private Long boardNo;
+
 
     @Column(name = "BOARD_TITLE", nullable = false, length = 50)
     private String boardTitle;

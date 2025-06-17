@@ -33,16 +33,12 @@ const EmployeeManagement = () => {
 
   // 체크박스 개별 선택/해제
   const handleSelectSingle = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   // 직급 또는 부서 변경 핸들러
   const handleFieldChange = (id, field, value) => {
-    setEmployees((prev) =>
-      prev.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp))
-    );
+    setEmployees((prev) => prev.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp)));
     // 실제 앱에서는 여기서 API를 호출하여 서버 데이터를 업데이트합니다.
   };
 
@@ -73,7 +69,13 @@ const EmployeeManagement = () => {
       <AdminTable>
         <thead>
           <tr>
-            <TableHeader><input type="checkbox" onChange={handleSelectAll} checked={selectedIds.length === employees.length && employees.length > 0} /></TableHeader>
+            <TableHeader>
+              <input
+                type="checkbox"
+                onChange={handleSelectAll}
+                checked={selectedIds.length === employees.length && employees.length > 0}
+              />
+            </TableHeader>
             <TableHeader>번호 ↓</TableHeader>
             <TableHeader>회원가입날짜</TableHeader>
             <TableHeader>이름</TableHeader>
@@ -85,19 +87,39 @@ const EmployeeManagement = () => {
         <tbody>
           {employees.map((emp) => (
             <tr key={emp.id}>
-              <TableCell><input type="checkbox" checked={selectedIds.includes(emp.id)} onChange={() => handleSelectSingle(emp.id)} /></TableCell>
+              <TableCell>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(emp.id)}
+                  onChange={() => handleSelectSingle(emp.id)}
+                />
+              </TableCell>
               <TableCell>{emp.id}</TableCell>
               <TableCell>{emp.joinDate}</TableCell>
               <TableCell>{emp.name}</TableCell>
               <TableCell>
-                <StyledSelect value={emp.position} onChange={(e) => handleFieldChange(emp.id, 'position', e.target.value)}>
-                  {positions.map(pos => <option key={pos} value={pos}>{pos}</option>)}
+                <StyledSelect
+                  value={emp.position}
+                  onChange={(e) => handleFieldChange(emp.id, 'position', e.target.value)}
+                >
+                  {positions.map((pos) => (
+                    <option key={pos} value={pos}>
+                      {pos}
+                    </option>
+                  ))}
                 </StyledSelect>
               </TableCell>
               <TableCell>
-                <StyledSelect value={emp.department} onChange={(e) => handleFieldChange(emp.id, 'department', e.target.value)}>
+                <StyledSelect
+                  value={emp.department}
+                  onChange={(e) => handleFieldChange(emp.id, 'department', e.target.value)}
+                >
                   <option value="-">-</option>
-                  {departments.map(dep => <option key={dep} value={dep}>{dep}</option>)}
+                  {departments.map((dep) => (
+                    <option key={dep} value={dep}>
+                      {dep}
+                    </option>
+                  ))}
                 </StyledSelect>
               </TableCell>
               <TableCell>{emp.email}</TableCell>
@@ -105,7 +127,7 @@ const EmployeeManagement = () => {
           ))}
         </tbody>
       </AdminTable>
-      
+
       <BottomActionContainer>
         <DeleteButton onClick={handleDelete}>계정 삭제</DeleteButton>
       </BottomActionContainer>
@@ -123,7 +145,7 @@ const PageHeader = styled(BasePageHeader)`
 `;
 
 const Title = styled(PageTitle)`
-  margin-bottom: 0; 
+  margin-bottom: 0;
 `;
 
 const TopButton = styled.button`
@@ -134,7 +156,7 @@ const TopButton = styled.button`
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #f8f9fa;
   }
@@ -143,10 +165,12 @@ const TopButton = styled.button`
 const AdminTable = styled.table`
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
   font-size: 15px;
   text-align: center;
-  
-  th, td {
+
+  th,
+  td {
     padding: 12px 8px;
     border-bottom: 1px solid #eee;
   }
@@ -161,8 +185,8 @@ const TableHeader = styled.th`
 
 const TableCell = styled.td`
   color: #333;
-  
-  input[type="checkbox"] {
+
+  input[type='checkbox'] {
     cursor: pointer;
   }
 `;

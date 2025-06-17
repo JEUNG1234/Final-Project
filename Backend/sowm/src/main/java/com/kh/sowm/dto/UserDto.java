@@ -33,7 +33,22 @@ public class UserDto {
                     .email(user.getEmail())
                     .userPwd(user.getUserPwd())
                     .point(user.getPoint())
-                    .jobCode(user.getJob().getJobCode())
+                    .jobCode(user.getJob().toString())
+                    .build();
+        }
+
+        // 마이페이지 정보 가져오는 dto
+        public static ResponseDto getLoginUserDto(User user){
+            return ResponseDto.builder()
+                    .userId(user.getUserId())
+                    .userPwd(user.getUserPwd())
+                    .userName(user.getUserName())
+                    .email(user.getEmail())
+                    .jobCode(user.toString())
+                    .deptCode(user.toString())
+                    .createdDate(user.getCreatedDate())
+                    .updatedDate(user.getUpdatedDate())
+                    .point(user.getPoint())
                     .build();
         }
     }

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FaUsers } from 'react-icons/fa';
+import { FaComments } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MainContent } from '../../styles/common/MainContentLayout';
 
@@ -9,7 +9,7 @@ const EditBoard = () => {
   return (
     <MainContent>
       <PageTitle>
-        <FaUsers />
+        <FaComments />
         커뮤니티 게시판 {'>'} 게시글 수정
       </PageTitle>
       <InputGroup>

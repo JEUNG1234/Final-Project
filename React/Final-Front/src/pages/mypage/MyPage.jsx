@@ -8,15 +8,32 @@ import { userService } from '../../api/users';
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
 
+  // 부서 코드 매핑
+  const deptMap = {
+    10: '개발팀',
+    20: '디자인팀',
+    30: '영업팀',
+    40: '인사팀',
+    50: '마케팅팀',
+  };
+
+  // 직급 코드 매핑
+  const jobMap = {
+    0: '관리자',
+    1: '직원',
+    2: '대리',
+    3: '과장',
+    4: '팀장',
+  };
+
   useEffect(() => {
-    // 예시: 로컬스토리지에 userId 저장되어 있다고 가정
     const storedUserId = localStorage.getItem('userId');
     console.log('저장된 유저 ID:', storedUserId);
     if (storedUserId) {
       userService
         .getUserInfo(storedUserId)
         .then((data) => {
-          console.log('받은 유저 정보:', data); // ✅ 여기를 꼭 찍어보세요
+          console.log('받은 유저 정보:', data);
           setUserInfo(data);
         })
         .catch((err) => {
@@ -66,17 +83,21 @@ const MyPage = () => {
 
             <UserDetailRow>
               <Label>부서</Label>
-              <UserInfoValue>: {userInfo?.department}</UserInfoValue>
+              <UserInfoValue>: {deptMap[userInfo?.deptCode] || '미정'}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>직급</Label>
+<<<<<<< HEAD
               <UserInfoValue>: {userInfo?.job_code}</UserInfoValue>
+=======
+              <UserInfoValue>: {jobMap[userInfo?.jobCode] || '미정'}</UserInfoValue>
+>>>>>>> 859e2f7796e527e15524fd3c6d591bad787a8f2f
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>누적 포인트</Label>
-              <UserInfoValue>: {userInfo?.total_point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>
+              <UserInfoValue>: {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>
             </UserDetailRow>
 
             <ActionButton onClick={handleEdit}>수정하기</ActionButton>
