@@ -3,7 +3,8 @@ import logoImg from '../assets/로고 이미지.png';
 import styled from 'styled-components';
 import { FaClipboardCheck, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat, FaUsersCog } from 'react-icons/fa';
 import { BsFire } from 'react-icons/bs';
-import { MdDashboard, MdWork } from 'react-icons/md';
+import { MdDashboard } from 'react-icons/md';
+import { PiAirplaneTiltFill } from 'react-icons/pi';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ user }) => {
@@ -36,7 +37,7 @@ const Sidebar = ({ user }) => {
           <FaPoll /> 투표
         </MenuItem>
         <MenuItem onClick={() => navigate('/workcationlist')}>
-          <MdWork /> 워케이션
+          <PiAirplaneTiltFill /> 워케이션
         </MenuItem>
 
         <MenuItem

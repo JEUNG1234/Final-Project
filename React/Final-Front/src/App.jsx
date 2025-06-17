@@ -42,6 +42,7 @@ import ChallengeJoin from './pages/challengepage/ChallengeJoin';
 import AdminDashBoard from './pages/dashboard/AdminDashBoard';
 import WorkcationEnrollForm from './pages/workcationpage/WorkcationEnrollForm';
 import WorkcationUpdate from './pages/workcationpage/WorkcationUpdate';
+import MyWorkation from './pages/workcationpage/MyWorkation';
 
 const AppContainer = styled.div`
   display: flex;
@@ -125,6 +126,7 @@ function App() {
                     <Route path="/memberattendance" element={<MemberAttendance />} />
                     {/* 직원 워케이션 페이지 */}
                     <Route path="/workcationDetail" element={<WorkcationDetail />} />
+                    <Route path="/myWorkation" element={<MyWorkation />} />
                     {/* 관리자 워케이션승인 페이지 */}
                     <Route path="/workcationadmin" element={<WorkcationAdmin />} />
                     {/* 관리자 워케이션리스트 생성 페이지 */}
