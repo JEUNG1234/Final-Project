@@ -73,6 +73,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteUser> voteUsers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProfileImage> profileImages = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
