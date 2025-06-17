@@ -3,6 +3,7 @@ import api from './axios';
 import { API_ENDPOINTS } from './config';
 
 export const userService = {
+ 
   login: async (userId, password) => {
     try {
       console.log(API_ENDPOINTS.USERS.LOGIN);
@@ -11,6 +12,8 @@ export const userService = {
       if (user) {
         localStorage.setItem('userId', user.userId); // 로그인 성공 시 userId 저장
       }
+      
+      
       return user;
     } catch (error) {
       if (error.response) {

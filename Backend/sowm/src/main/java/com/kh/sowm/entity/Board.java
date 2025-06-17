@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +35,13 @@ public class Board {
     private String boardContent;
 
     @Column(name = "CREATED_DATE")
-    private LocalDateTime createdDate;
+    private LocalDate createdDate;
 
 
     @Column(name = "UPDATED_DATE")
-    private LocalDateTime updatedDate;
+    private LocalDate updatedDate;
 
-
+    @Column(length = 1, nullable = false)
     @Enumerated(EnumType.STRING)
     private CommonEnums.Status status;
 
@@ -53,11 +54,13 @@ public class Board {
     @JoinColumn(name = "BOARD_WRITER")
     private User user;
 
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardImage> boardImages = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
-        this.createdDate = LocalDateTime.now();
-        this.updatedDate = LocalDateTime.now();
+        this.createdDate = LocalDate.now();
+        this.updatedDate = LocalDate.now();
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
         }
