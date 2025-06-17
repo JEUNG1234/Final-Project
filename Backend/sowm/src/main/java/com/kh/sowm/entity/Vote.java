@@ -48,7 +48,7 @@ public class Vote {
     @Column(name = "VOTE_END_DATE", nullable = false)
     private LocalDate voteEndDate;
 
-    @OneToMany(mappedBy = "voteNo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteContent> voteContents = new ArrayList<>();
 
     //진행상태 값
