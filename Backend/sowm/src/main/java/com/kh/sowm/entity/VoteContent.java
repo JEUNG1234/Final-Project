@@ -8,9 +8,11 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @Entity
-@Table(name = "DEPARTMENT")
-public class Department {
+@Table(name = "VOTE_CONTENT")
+public class VoteContent {
     @Id
-    private String deptCode;
-    private String deptName;
+    private Long voteContentNo;
+    private Long voteNo;
+    private String voteContent;
+    private Integer voteCount;
 }
