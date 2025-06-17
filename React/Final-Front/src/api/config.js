@@ -16,5 +16,11 @@ export const API_ENDPOINTS = {
   USERS: {
     BASE: '/users',
     LOGIN: '/users/login',
+    SIGNUP: '/users/signup',
+    ENROLLADMIN: '/users/enrolladmin',
+  },
+  COMPANY: {
+    BASE: '/company',
+    ENROLLCOMPANY: '/company/enrollcompany',
   },
 };

@@ -3,11 +3,13 @@ import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
 import { userService } from '../../api/users';
+import useUserStore from '../../Store/useStore';
 
 const Login = ({ setUser }) => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const login = useUserStore((state) => state.login);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,6 +17,13 @@ const Login = ({ setUser }) => {
     try {
       const user = await userService.login(userId, password);
       console.log('로그인 응답 user:', user);
+
+      login({
+        userId: user.userId,
+        userName: user.userName,
+        jobCode: user.jobCode,
+        deptCode: user.deptCode
+      });
 
       if (!user) {
         alert('아이디 또는 비밀번호가 틀렸습니다.');
@@ -26,6 +35,8 @@ const Login = ({ setUser }) => {
         navigate('/AdminDashBoard');
       } else if (user.jobCode === 'J1') {
         navigate('/MemberDashBoard');
+      } else if (user.jobCode === 'J0') {
+        alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
       }
     } catch (err) {
       alert('로그인 중 오류가 발생했습니다.');

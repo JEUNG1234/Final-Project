@@ -33,5 +33,18 @@ public class UserController {
         return ResponseEntity.ok(loginUser);
     }
 
+    // 직원 회원가입
+    @PostMapping("/signup")
+    public ResponseEntity<String> signUp(@RequestBody UserDto.RequestDto signUpDto) {
+        String result = userService.signUp(signUpDto);
+        return ResponseEntity.ok(result);
+    }
+
+    // 관리자 회원가입
+    @PostMapping("/enrolladmin")
+    public ResponseEntity<String> adminSignUp(@RequestBody UserDto.RequestDto signUpDto) {
+        String result = userService.adminSignUp(signUpDto);
+        return ResponseEntity.ok(result);
+    }
 
 }
