@@ -1,5 +1,7 @@
 package com.kh.sowm.dto;
 
+import com.kh.sowm.entity.Department;
+import com.kh.sowm.entity.Job;
 import com.kh.sowm.entity.User;
 import lombok.*;
 
@@ -20,6 +22,7 @@ public class UserDto {
         private LocalDateTime createdDate;
         private LocalDateTime updatedDate;
         private Integer point;
+
         private String jobCode;
         private String deptCode;
 
@@ -30,7 +33,7 @@ public class UserDto {
                     .email(user.getEmail())
                     .userPwd(user.getUserPwd())
                     .point(user.getPoint())
-                    .jobCode(user.getJobCode().toString())
+                    .jobCode(user.getJob().getJobCode())
                     .build();
         }
 
@@ -41,8 +44,8 @@ public class UserDto {
                     .userPwd(user.getUserPwd())
                     .userName(user.getUserName())
                     .email(user.getEmail())
-                    .jobCode(user.getJobCode().toString())
-                    .deptCode(user.getDeptCode().toString())
+                    .jobCode(user.getJob().getJobCode())
+                    .deptCode(user.getDepartment().getDeptCode())
                     .createdDate(user.getCreatedDate())
                     .updatedDate(user.getUpdatedDate())
                     .point(user.getPoint())

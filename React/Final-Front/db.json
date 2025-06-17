@@ -8,7 +8,7 @@
       "department": "개발팀",
       "created_date": "2025-06-12",
       "total_point": "1500",
-      "role": "member",
+      "job_code": "member",
       "status": "Y",
       "id": "d4fe"
     },
@@ -20,9 +20,10 @@
       "department": "본사",
       "created_date": "2025-06-12",
       "total_point": "1500",
-      "role": "admin",
+      "job_code": "admin",
       "status": "Y",
       "id": "e1a5"
+      
     },
     {
       "id": "0c5c"

@@ -22,9 +22,9 @@ const Login = ({ setUser }) => {
       }
 
       setUser(user); // ✅ 상위 App 컴포넌트에서 상태 저장
-      if (user.jobCode === '0') {
+      if (user.jobCode === 'J2') {
         navigate('/AdminDashBoard');
-      } else if (user.jobCode === '1') {
+      } else if (user.jobCode === 'J1') {
         navigate('/MemberDashBoard');
       }
     } catch (err) {

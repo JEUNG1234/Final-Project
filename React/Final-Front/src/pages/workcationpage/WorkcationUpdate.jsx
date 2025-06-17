@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Modal from '../../components/Modal';
 
-const WorkcationEnrollForm = () => {
+const WorkcationUpdate = () => {
   const navigate = useNavigate();
 
   // 현재 활성화된 탭 상태 관리 (예시)
@@ -81,24 +81,6 @@ const WorkcationEnrollForm = () => {
         return [...prevSelectedDays, day];
       }
     });
-  };
-
-  //면적, 평수 상태
-  const [areaM2, setAreaM2] = useState('');
-  const [areaPyeong, setAreaPyeong] = useState('');
-
-  const handleAreaM2Change = (e) => {
-    const value = e.target.value;
-    setAreaM2(value);
-
-    // 숫자인지 확인하고 계산
-    const number = parseFloat(value);
-    if (!isNaN(number)) {
-      const converted = (number * 0.3025).toFixed(2); // 소수점 2자리까지
-      setAreaPyeong(converted);
-    } else {
-      setAreaPyeong('');
-    }
   };
 
   //시설별 이미지 등록
@@ -207,33 +189,6 @@ const WorkcationEnrollForm = () => {
                   <InfoText>수용인원</InfoText>
                   <DetailText>최소 1명 ~ 최대 20명</DetailText>
                 </InfoBlock>
-
-                <IconGrid>
-                  <IconItem>
-                    <FaChair />
-                    의자/테이블
-                  </IconItem>
-                  <IconItem>
-                    <FaPlug />
-                    전기
-                  </IconItem>
-                  <IconItem>
-                    <FaHotTub /> {/* FaMirror 대신 FaHotTub 사용 */}
-                    전신거울
-                  </IconItem>
-                  <IconItem>
-                    <FaUtensils />
-                    음식물 반입가능
-                  </IconItem>
-                  <IconItem>
-                    <FaSmokingBan />
-                    금연
-                  </IconItem>
-                  <IconItem>
-                    <FaWifi />
-                    인터넷/WIFI
-                  </IconItem>
-                </IconGrid>
               </FacilityRightContent>
             </FacilityContent>
           </>
@@ -297,16 +252,6 @@ const WorkcationEnrollForm = () => {
               <TextArea id="mainFeatures" placeholder="주요특징을 작성해주세요." />
             </FormTextareaGroup>
 
-            <SpaceFormGroup>
-              <Label htmlFor="placeArea">계약기간</Label>
-              <SpaceInputGroup>
-                <SpaceInput id="placeArea" type="date" />
-                부터
-                <SpaceInput type="date" />
-                까지
-              </SpaceInputGroup>
-            </SpaceFormGroup>
-
             <ActionButtons>
               <DangerButton onClick={() => navigate(-1)}>취소하기</DangerButton>
               <PrimaryButton onClick={() => setActiveTab('facilities')}>다음으로</PrimaryButton>
@@ -356,11 +301,10 @@ const WorkcationEnrollForm = () => {
             </FormGroup>
 
             <SpaceFormGroup>
-              <Label htmlFor="placeArea">공간면적</Label>
+              <Label htmlFor="placeName">공간면적</Label>
               <SpaceInputGroup>
-                <SpaceInput id="placeArea" type="number" value={areaM2} onChange={handleAreaM2Change} />
-                m²
-                <SpaceInput type="number" value={areaPyeong} readOnly />평
+                <SpaceInput id="placeName" type="text" /> m²
+                <SpaceInput />평
               </SpaceInputGroup>
             </SpaceFormGroup>
 
@@ -392,8 +336,8 @@ const WorkcationEnrollForm = () => {
               <MdWork /> 워케이션 &gt; 장소 추가 &gt; 유의사항
             </PageTitle>
             <FormTextareaGroup style={{ alignItems: 'flex-start' }}>
-              <Label htmlFor="mainFeatures">주의사항</Label>
-              <TextArea id="mainFeatures" placeholder="주의사항을 작성해주세요." />
+              <Label htmlFor="mainFeatures">주요특징</Label>
+              <TextArea id="mainFeatures" placeholder="주요특징을 작성해주세요." />
             </FormTextareaGroup>
             <FormGroup>
               <Label htmlFor="precautionImage">장소 이미지</Label>
@@ -543,12 +487,7 @@ const Description = styled.p`
   margin-bottom: 5px;
   height: 10%;
 `;
-const RefundPolicy = styled.div`
-  white-space: pre-line; /* 엔터(줄바꿈)는 살리고, 연속 공백은 무시 */
-  font-family: inherit; /* 폰트는 상속 */
-  font-size: 16px;
-  color: #444;
-`;
+
 
 const FeaturesSection = styled.div`
   display: flex;
@@ -769,8 +708,8 @@ const SpaceInput = styled.input`
   font-size: 15px; /* Slightly smaller font size */
   outline: none;
   background-color: #ededed; /* Light blue background for inputs */
-  width: calc(35% - 80px);
-  min-width: 70px;
+  width: calc(30% - 80px);
+
   &::placeholder {
     color: #a0a0a0;
   }
@@ -933,4 +872,4 @@ const DayButtonContainer = styled.div`
   justify-content: center;
   width: 80%;
 `;
-export default WorkcationEnrollForm;
+export default WorkcationUpdate;

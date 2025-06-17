@@ -11,6 +11,9 @@ import lombok.*;
 @Table(name = "JOB")
 public class Job {
     @Id
+    @Column(name = "JOB_CODE")
     private String jobCode;
+
+    @Column(name = "JOB_NAME")
     private String jobName;
 }

@@ -188,10 +188,18 @@ const WorkcationList = ({ user }) => {
               <CardLocation>
                 {place.location} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
               </CardLocation>
-              {user && user.role === 'admin' && (
+              {user && user.jobCode === 'J2' && (
                 <>
                   <DeleteButton>삭제</DeleteButton>
-                  <UpdateButton>수정</UpdateButton>
+                  <UpdateButton
+                    key={place.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/workcationUpdate');
+                    }}
+                  >
+                    수정
+                  </UpdateButton>
                 </>
               )}
             </CardLocationWrapper>
@@ -199,10 +207,10 @@ const WorkcationList = ({ user }) => {
         ))}
       </CardGrid>
       <RegisterDiv>
-
-
-        {user && user.role === 'admin' && <RegisterButton onClick={() => navigate('/workcationEnrollForm')}>워케이션 장소추가</RegisterButton>}
-        {user && user.role !== 'admin' && <RegisterButton>워케이션 신청목록</RegisterButton>}
+        {user && user.jobCode === 'J2' && (
+          <RegisterButton onClick={() => navigate('/workcationEnrollForm')}>워케이션 장소추가</RegisterButton>
+        )}
+        {user && user.jobCode !== 'J2' && <RegisterButton>워케이션 신청목록</RegisterButton>}
       </RegisterDiv>
       {/* 페이지 버튼 영역 */}
       <BottomBar>
@@ -333,7 +341,7 @@ const Card = styled.div`
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
   background: #f0f7ff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 그림자 강화 */
-width: 70%;
+  width: 70%;
   &:hover {
     transform: translateY(-5px); /* 약간 위로 떠오르는 효과 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 그림자 강화 */
@@ -383,7 +391,6 @@ const RegisterDiv = styled.div`
   padding-top: 20px;
 `;
 
-
 const RegisterButton = styled.button`
   padding: 0.6rem 1rem;
   background-color: #3b82f6;
@@ -391,7 +398,7 @@ const RegisterButton = styled.button`
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  
+
   margin-left: 1rem;
   margin-top: 5px;
   &:hover {
@@ -424,7 +431,7 @@ const DeleteButton = styled.button`
   cursor: pointer;
   width: 5rem;
   height: 2.5rem;
- margin-top: 5px;
+  margin-top: 5px;
   &:hover {
     background-color: #ff0004;
   }

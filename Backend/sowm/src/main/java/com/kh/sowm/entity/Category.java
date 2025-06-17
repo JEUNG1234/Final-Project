@@ -12,5 +12,7 @@ import lombok.*;
 public class Category {
     @Id
     private Long categoryNo;
+
+
     private String categoryName;
 }
