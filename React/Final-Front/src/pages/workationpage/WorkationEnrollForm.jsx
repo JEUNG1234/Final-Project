@@ -16,10 +16,11 @@ import { useNavigate } from 'react-router-dom';
 
 import Modal from '../../components/Modal';
 import { workationService } from '../../api/workation';
+import useUserStore from '../../Store/useStore';
 
 const WorkationEnrollForm = () => {
   const navigate = useNavigate();
-
+const { user } = useUserStore();
   const [workationTitle, setWorkationTitle] = useState('');
   const [mainFeatures, setMainFeatures] = useState('');
   const [placeInfo, setPlaceInfo] = useState('');
@@ -134,6 +135,7 @@ const WorkationEnrollForm = () => {
 
     try {
       const location = {
+       
         placeInfo,
         address,
         openHours,
@@ -159,11 +161,12 @@ const WorkationEnrollForm = () => {
       const requestBody = {
         workation,
         location,
+        userId: user.userId,
       };
 
       console.log(requestBody);
 
-      const workResponse = await workationService.create(requestBody);
+      const workResponse = await workationService.create(requestBody, user.userId);
 
       console.log(workResponse);
     } catch (error) {

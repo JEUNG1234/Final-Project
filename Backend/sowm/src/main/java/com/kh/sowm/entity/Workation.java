@@ -96,4 +96,11 @@ public class Workation {
     }
 
 
+    public void assignUser(User user) {
+        this.user = user;
+    }
+
+    public void setWorkationLocation(WorkationLocation savedLocation) {
+        this.workationLocation = savedLocation;
+    }
 }

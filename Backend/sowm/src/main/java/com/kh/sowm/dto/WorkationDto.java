@@ -1,7 +1,10 @@
 package com.kh.sowm.dto;
 
+import com.kh.sowm.controller.UserController;
+import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
+
 import lombok.*;
 
 import java.time.LocalDate;
@@ -34,6 +37,7 @@ public class WorkationDto {
         private String parkingInfo;
         private double latitude;
         private double longitude;
+
 
         public static ResponseDto toDto(Workation workation) {
             return ResponseDto.builder()
@@ -90,6 +94,8 @@ public class WorkationDto {
     public static class WorkationCreateDto {
         private WorkationDto.WorkationsDto workation;
         private WorkationDto.LocationsDto location;
+        private String userId;
+
 
         public Workation toEntity() {
             return Workation.builder()

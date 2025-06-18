@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.stream.Location;
 
 
 @RestController
@@ -23,13 +22,17 @@ public class WorkationController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Workation> create(@RequestBody WorkationDto.WorkationCreateDto request) {
+    public ResponseEntity<WorkationDto.ResponseDto> create(@RequestBody WorkationDto.WorkationCreateDto request) {
+
+        String userId = request.getUserId();
+
+        System.out.println(userId);
 
         Workation workation = request.toEntity();
 
         WorkationLocation location = request.toLocationEntity();
 
-        workationService.enrollWorkation(workation, location);
+        Workation savedWorkation = workationService.enrollWorkation(workation, location, userId);
         System.out.println("저장완료");
         return null;
     }
