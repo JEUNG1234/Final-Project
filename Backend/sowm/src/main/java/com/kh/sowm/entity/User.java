@@ -39,11 +39,11 @@ public class User {
     private String email;
 
     // 회원가입 날짜 (입사날짜)
-    @Column(name = "CREATED_DATE")
+    @Column(name = "CREATED_DATE", nullable = false)
     private LocalDate createdDate;
 
     // 계정 수정 날짜
-    @Column(name = "UPDATED_DATE")
+    @Column(name = "UPDATED_DATE", nullable = false)
     private LocalDate updatedDate;
 
     // 총 누적 포인트
@@ -100,4 +100,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteUser> voteUsers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicalCheckResult> medicalCheckResults = new ArrayList<>();
 }
