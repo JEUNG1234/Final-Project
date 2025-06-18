@@ -34,11 +34,11 @@ public class Board {
     @Lob
     private String boardContent;
 
-    @Column(name = "CREATED_DATE")
+    @Column(name = "CREATED_DATE", nullable = false)
     private LocalDate createdDate;
 
 
-    @Column(name = "UPDATED_DATE")
+    @Column(name = "UPDATED_DATE", nullable = false)
     private LocalDate updatedDate;
 
     @Column(length = 1, nullable = false)
@@ -59,13 +59,18 @@ public class Board {
 
     @PrePersist
     public void prePersist() {
-        this.createdDate = LocalDate.now();
-        this.updatedDate = LocalDate.now();
+        if (createdDate == null) {
+            this.createdDate = LocalDate.now();
+        }
+        if (updatedDate == null) {
+            this.updatedDate = LocalDate.now();
+        }
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
         }
 
     }
+
 
 
 }

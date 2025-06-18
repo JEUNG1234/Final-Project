@@ -45,7 +45,9 @@ public class BoardImage {
 
     @PrePersist
     public void prePersist() {
-        this.uploadDate = LocalDate.now();
+        if (this.uploadDate == null) {
+            this.uploadDate = LocalDate.now();
+        }
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
         }

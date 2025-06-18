@@ -1,9 +1,6 @@
 package com.kh.sowm.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -32,4 +29,12 @@ public class Company {
 
     @Column(name = "CREATED_DATE")
     private LocalDate createdDate;
+
+
+    @PrePersist
+    public void prePersist() {
+        if (createdDate == null) {
+            createdDate = LocalDate.now();
+        }
+    }
 }
