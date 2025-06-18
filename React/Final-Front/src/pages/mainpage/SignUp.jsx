@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg';
-import { useNavigate } from 'react-router-dom';
 import { userService } from '../../api/users';
 
 const SignUp = () => {
@@ -14,30 +13,59 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [companyCode, setCompanyCode] = useState('');
   const [userName, setUserName] = useState('');
+
+  const [userIdError, setUserIdError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [passwordMismatchError, setPasswordMismatchError] = useState(false);
+
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    return regex.test(password);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setUserIdError('');
+    setEmailError('');
+    setPasswordError('');
+    setPasswordMismatchError(false);
+
     if (userPwd !== checkPassword) {
       setPasswordMismatchError(true);
       return;
-    } else {
-      setPasswordMismatchError(false);
+    }
+
+    if (!validatePassword(userPwd)) {
+      setPasswordError('비밀번호는 영문과 숫자를 포함해 8자 이상이어야 합니다.');
+      return;
+    }
+
+    const userIdExists = await userService.checkUserIdDuplicate(userId);
+    if (userIdExists.isDuplicate) {
+      setUserIdError('이미 사용 중인 아이디입니다.');
+      return;
+    }
+
+    const emailExists = await userService.checkEmailDuplicate(email);
+    if (emailExists.isDuplicate) {
+      setEmailError('이미 사용 중인 이메일입니다.');
+      return;
     }
 
     try {
       const requestBody = {
         userId,
         password: userPwd,
-        checkPassword: checkPassword,
+        checkPassword,
         userName,
         email,
         companyCode,
       };
 
       const response = await userService.signUp(requestBody);
-      console.log('회원가입 정보 : ', requestBody);
+      console.log('회원가입 정보:', requestBody);
 
       if (response.status === 200) {
         alert('회원가입이 성공적으로 처리되었습니다. 로그인해주세요.');
@@ -53,7 +81,7 @@ const SignUp = () => {
 
   return (
     <LoginPageContainer>
-      <ImageContainer bgImage={loginImage}></ImageContainer>
+      <ImageContainer bgImage={loginImage} />
       <LoginFormContainer>
         <FormCard>
           <LoginTitle>회원가입</LoginTitle>
@@ -61,15 +89,15 @@ const SignUp = () => {
           <LoginForm onSubmit={handleSubmit}>
             <InputField
               type="text"
-              id="userId"
               placeholder="아이디"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               required
             />
+            {userIdError && <ErrorMessage>{userIdError}</ErrorMessage>}
+
             <InputField
               type="password"
-              id="password"
               placeholder="비밀번호"
               value={userPwd}
               onChange={(e) => setUserPwd(e.target.value)}
@@ -77,37 +105,39 @@ const SignUp = () => {
             />
             <InputField
               type="password"
-              id="checkPassword"
               placeholder="비밀번호 확인"
               value={checkPassword}
               onChange={(e) => setCheckPassword(e.target.value)}
               required
             />
             {passwordMismatchError && <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>}
+            {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
+
             <InputField
               type="text"
-              id="userName"
               placeholder="이름"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               required
             />
+
             <InputField
               type="email"
-              id="email"
               placeholder="이메일"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
+
             <InputField
               type="text"
-              id="companyCode"
               placeholder="회사코드"
               value={companyCode}
               onChange={(e) => setCompanyCode(e.target.value)}
               required
             />
+
             <LoginButton type="submit">회원가입</LoginButton>
             <BackButton to="/login">뒤로가기</BackButton>
           </LoginForm>

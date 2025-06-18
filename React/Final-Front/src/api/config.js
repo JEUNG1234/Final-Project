@@ -18,9 +18,17 @@ export const API_ENDPOINTS = {
     LOGIN: '/users/login',
     SIGNUP: '/users/signup',
     ENROLLADMIN: '/users/enrolladmin',
+    CHECK_USER_ID: '/users/check-user-id',
+    CHECK_EMAIL: '/users/check-user-email',
   },
   COMPANY: {
     BASE: '/company',
     ENROLLCOMPANY: '/company/enrollcompany',
+  },
+  ATTENDANCE: {
+    BASE: '/attendacne',
+    CLOCK_IN: '/attendance/clock-in',
+    CLOCK_OUT: '/attendance/clock-out',
+    STATUS: '/attendance/status',
   },
 };

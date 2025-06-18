@@ -3,7 +3,6 @@ import api from './axios';
 import { API_ENDPOINTS } from './config';
 
 export const userService = {
- 
   login: async (userId, password) => {
     try {
       console.log(API_ENDPOINTS.USERS.LOGIN);
@@ -12,8 +11,7 @@ export const userService = {
       if (user) {
         localStorage.setItem('userId', user.userId); // 로그인 성공 시 userId 저장
       }
-      
-      
+
       return user;
     } catch (error) {
       if (error.response) {
@@ -24,10 +22,38 @@ export const userService = {
       throw new Error('서버 통신 불량');
     }
   },
+  checkUserIdDuplicate: async (userId) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.USERS.CHECK_USER_ID}?userId=${userId}`);
+      return response.data; // 예: { isDuplicate: true } 또는 false
+    } catch (error) {
+      console.log('아이디 중복 검사중 오류 발생', error);
+      throw new Error('아이디 중복 검사 중 오류가 발생했습니다.');
+    }
+  },
+
+  // 이메일 중복 검사
+  checkEmailDuplicate: async (email) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.USERS.CHECK_EMAIL}?email=${email}`);
+      return response.data; // 예: { isDuplicate: true } 또는 false
+    } catch (error) {
+      console.log('이메일 중복 검사중 오류 발생', error);
+      throw new Error('이메일 중복 검사 중 오류가 발생했습니다.');
+    }
+  },
+
+  // 비밀번호 유효성 검사 (규칙: 영문+숫자 조합 8~20자 등)
+  validatePassword: (password) => {
+    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/;
+    return regex.test(password);
+  },
+
   getUserInfo: async (userId) => {
     const response = await api.get(`${API_ENDPOINTS.USERS.BASE}?userId=${userId}`);
     return response.data;
   },
+
   // 회원가입에서의 입력창 값들
   signUp: async ({ userId, password, checkPassword, userName, email, companyCode }) => {
     // 비동기로 응답, 회원가입이므로 post
