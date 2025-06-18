@@ -59,8 +59,12 @@ public class Board {
 
     @PrePersist
     public void prePersist() {
-        this.createdDate = LocalDate.now();
-        this.updatedDate = LocalDate.now();
+        if (createdDate == null) {
+            this.createdDate = LocalDate.now();
+        }
+        if (updatedDate == null) {
+            this.updatedDate = LocalDate.now();
+        }
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
         }
