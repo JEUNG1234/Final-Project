@@ -16,4 +16,7 @@ public interface AttendanceRepository {
     List<Attendance> findUserAttendanceStatus(User user, LocalDateTime todayStart, LocalDateTime tomorrowStart);
 
     Optional<Attendance> findLastClockInRecord(User user, LocalDateTime todayStart, LocalDateTime tomorrowStart, CommonEnums.AttendanceStatus attendanceStatus);
+
+    List<Attendance> findByUserId(String userId);
+
 }
