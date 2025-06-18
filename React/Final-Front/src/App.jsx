@@ -12,14 +12,14 @@ import VoteResult from './pages/vote/VoteResult';
 import VoteCreate from './pages/vote/VoteCreate';
 import SignUp from './pages/mainpage/SignUp';
 import MyPage from './pages/mypage/MyPage';
-import WorkcationList from './pages/workcationpage/WorkcationList';
+import WorkationList from './pages/workationpage/WorkationList';
 import MemberDashBoard from './pages/dashboard/MemberDashBoard';
 import CommunityBoard from './pages/communitypage/CommunityBoard';
 import AddBoard from './pages/communitypage/AddBoard';
 import EditBoard from './pages/communitypage/EditBoard';
 import EnrollCompany from './pages/mainpage/EnrollCompany';
 import EnrollAdmin from './pages/mainpage/EnrollAdmin';
-import WorkcationDetail from './pages/workcationpage/WorkcationDetail';
+import WorkationDetail from './pages/workationpage/WorkationDetail';
 import Challenge from './pages/challengepage/Challenge';
 import CommunityBoardDetail from './pages/communitypage/CommunityBoardDetail';
 import MemberAttendance from './pages/attendancepage/MemberAttendance';
@@ -28,7 +28,7 @@ import HealthCareMain from './pages/healthcarepage/HealthCareMain';
 import ChallengeCreate from './pages/challengepage/ChallengeCreate';
 import EmployeeManagement from './pages/management/EmployeeManagement';
 import EmployeeApproval from './pages/management/EmployeeApproval';
-import WorkcationAdmin from './pages/workcationpage/WorkcationAdmin';
+import WorkationAdmin from './pages/workationpage/WorkationAdmin';
 import ChallengeDetail from './pages/challengepage/ChallengeDetail';
 import MyCallenge from './pages/challengepage/MyCallenge';
 import MentalCareTest from './pages/healthcarepage/MentalCareTest';
@@ -40,9 +40,9 @@ import ChallengeComplete from './pages/challengepage/ChallengeComplete';
 import MyChallengeComplete from './pages/challengepage/MyChallengeComplete';
 import ChallengeJoin from './pages/challengepage/ChallengeJoin';
 import AdminDashBoard from './pages/dashboard/AdminDashBoard';
-import WorkcationEnrollForm from './pages/workcationpage/WorkcationEnrollForm';
-import WorkcationUpdate from './pages/workcationpage/WorkcationUpdate';
-import MyWorkation from './pages/workcationpage/MyWorkation';
+import WorkationEnrollForm from './pages/workationpage/WorkationEnrollForm';
+import WorkationUpdate from './pages/workationpage/WorkationUpdate';
+import MyWorkation from './pages/workationpage/MyWorkation';
 
 const AppContainer = styled.div`
   display: flex;
@@ -96,7 +96,7 @@ function App() {
                 <Layout user={user} onLogout={() => setUser(null)}>
                   <Routes>
                     {/* Layout 안에 포함될 페이지들 */}
-                    <Route path="/workcationlist" element={<WorkcationList user={user} />} />
+                    <Route path="/workationlist" element={<WorkationList user={user} />} />
                     <Route path="/votelist" element={<VoteList />} />
                     <Route path="/voteresult/:voteId" element={<VoteResult />} />
                     <Route path="/votecreate" element={<VoteCreate />} />
@@ -125,13 +125,13 @@ function App() {
                     {/* 직원 근태관리 페이지 */}
                     <Route path="/memberattendance" element={<MemberAttendance />} />
                     {/* 직원 워케이션 페이지 */}
-                    <Route path="/workcationDetail" element={<WorkcationDetail />} />
+                    <Route path="/workationDetail" element={<WorkationDetail />} />
                     <Route path="/myWorkation" element={<MyWorkation />} />
                     {/* 관리자 워케이션승인 페이지 */}
-                    <Route path="/workcationadmin" element={<WorkcationAdmin />} />
+                    <Route path="/workationadmin" element={<WorkationAdmin />} />
                     {/* 관리자 워케이션리스트 생성 페이지 */}
-                    <Route path="/workcationEnrollForm" element={<WorkcationEnrollForm />} />
-                    <Route path="/WorkcationUpdate" element={<WorkcationUpdate />} />
+                    <Route path="/workationEnrollForm" element={<WorkationEnrollForm />} />
+                    <Route path="/WorkationUpdate" element={<WorkationUpdate />} />
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
                     <Route path="mentaltest" element={<MentalCareTest />} />

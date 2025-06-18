@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 const Sidebar = ({ user }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
 
+  console.log(user);
   return (
     <SidebarContainer>
       <LogoContainer>
@@ -36,7 +37,7 @@ const Sidebar = ({ user }) => {
         <MenuItem onClick={() => navigate('/VoteList')}>
           <FaPoll /> 투표
         </MenuItem>
-        <MenuItem onClick={() => navigate('/workcationlist')}>
+        <MenuItem onClick={() => navigate('/workationlist')}>
           <PiAirplaneTiltFill /> 워케이션
         </MenuItem>
 
@@ -55,7 +56,7 @@ const Sidebar = ({ user }) => {
           <FaComments /> 커뮤니티 게시판
         </MenuItem>
         {/* 관리자는 안 보이게 */}
-        {user && user.job_code !== 'J2' && (
+        {user && user.jobcode !== 'J2' && (
           <>
             <MenuItem onClick={() => navigate('/healthcaremain')}>
               <FaHeartbeat /> 건강관리
@@ -65,7 +66,7 @@ const Sidebar = ({ user }) => {
         {/* 관리자 전용 메뉴 */}
         {user && user.jobCode === 'J2' && (
           <>
-            <MenuItem onClick={() => navigate('/workcationadmin')}>
+            <MenuItem onClick={() => navigate('/workationadmin')}>
               <FaClipboardCheck /> 워케이션승인
             </MenuItem>
             <MenuItem onClick={() => navigate('/employeemanagement')}>
