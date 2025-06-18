@@ -10,24 +10,32 @@ import {
 } from '../../styles/common/MainContentLayout';
 import { FaCalendarAlt, FaSearch, FaSortDown } from 'react-icons/fa'; // FaSearch, FaPlus, FaSortDown 추가
 import styled from 'styled-components';
+import { useEffect } from 'react';
+import { attendanceService } from '../../api/attendance';
+import useUserStore from '../../Store/useStore';
 
 const MemberAttendance = () => {
-  // 근태 데이터 예시 (실제로는 API에서 받아옴)
-  const attendanceRecords = [
-    { id: 1, name: '사용자', date: '2025-06-10', checkIn: '09:00', checkOut: '18:00', status: '출근' },
-    { id: 2, name: '사용자', date: '2025-06-10', checkIn: '09:15', checkOut: '18:00', status: '지각' },
-    { id: 3, name: '사용자', date: '2025-06-10', checkIn: '09:00', checkOut: '17:30', status: '조퇴' },
-    { id: 4, name: '사용자', date: '2025-06-09', checkIn: '09:00', checkOut: '18:00', status: '출근' },
-    { id: 5, name: '사용자', date: '2025-06-10', checkIn: '09:00', checkOut: '18:00', status: '출근' },
-    { id: 6, name: '사용자', date: '2025-06-10', checkIn: '09:15', checkOut: '18:00', status: '지각' },
-    { id: 7, name: '사용자', date: '2025-06-10', checkIn: '09:00', checkOut: '17:30', status: '조퇴' },
-    { id: 8, name: '사용자', date: '2025-06-09', checkIn: '09:00', checkOut: '18:00', status: '출근' },
-    { id: 9, name: '사용자', date: '2025-06-10', checkIn: '09:00', checkOut: '18:00', status: '출근' },
-    { id: 10, name: '사용자', date: '2025-06-10', checkIn: '09:15', checkOut: '18:00', status: '지각' },
-  ];
+  const { user } = useUserStore();
+
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
   // 날짜 선택 상태 (날짜 검색 기능을 위한)
   const [selectedDate, setSelectedDate] = useState('');
   const [filteredRecords, setFilteredRecords] = useState(attendanceRecords);
+
+  useEffect(() => {
+    const fetchAttendanceList = async () => {
+      try {
+        const data = await attendanceService.attendanceList(user.userId, user.userName);
+        console.log('출근 데이터:', data);
+        setAttendanceRecords(data);
+        setFilteredRecords(data);
+      } catch (error) {
+        console.error('출근 리스트 불러오기 실패:', error.message);
+      }
+    };
+
+    if (user && user.userId && user.userName) fetchAttendanceList();
+  }, [user]);
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
@@ -81,11 +89,11 @@ const MemberAttendance = () => {
         <tbody>
           {filteredRecords.map((record) => (
             <AttendanceRow key={record.id}>
-              <AttendanceCell>{record.id}</AttendanceCell>
-              <AttendanceCell>{record.checkIn}</AttendanceCell>
-              <AttendanceCell>{record.checkOut}</AttendanceCell>
+              <AttendanceCell>{record.attendanceNo}</AttendanceCell>
+              <AttendanceCell>{record.attendTime}</AttendanceCell>
+              <AttendanceCell>{record.leaveTime}</AttendanceCell>
               <AttendanceCell status={record.status}>{record.status}</AttendanceCell>
-              <AttendanceCell>{record.date}</AttendanceCell>
+              <AttendanceCell>{record.attendTime}</AttendanceCell>
             </AttendanceRow>
           ))}
         </tbody>
