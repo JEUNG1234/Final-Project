@@ -1,26 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { FaComments, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa'; // Font Awesome 아이콘 (fa) 사용 예시
+import { FaComments, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa';
+import axios from 'axios';
 import { MainContent, Pagination, PageButton, BottomBar, SearchInput } from '../../styles/common/MainContentLayout';
 
 const CommunityBoard = () => {
   const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
 
-  // 예시 데이터 (실제로는 API에서 받아옴)
-  const posts = [
-    { id: 1, tag: '공지사항', title: '안녕하세요', author: '홍길동', date: '2025/03/01', views: 400 },
-    { id: 2, tag: '일반', title: '안녕하세요', author: '김철수', date: '2025/03/01', views: 200 },
-    { id: 3, tag: '일반', title: '안녕하세요', author: '이영구', date: '2025/03/01', views: 100 },
-    { id: 4, tag: '일반', title: '안녕하세요', author: '최지원', date: '2025/02/01', views: 32 },
-    { id: 5, tag: '일반', title: '안녕하세요', author: '박지원', date: '2025/02/01', views: 14 },
-  ];
+  // 게시글 데이터 가져오기
+  useEffect(() => {
+    axios
+      .get('http://localhost:8888/api/boards') // ✅ 실제 API 주소 사용
+      .then((response) => {
+        console.log('불러온 게시글:', response.data); // 🔍 데이터 확인
+        setPosts(response.data);
+      })
+      .catch((error) => {
+        console.error('게시글 불러오기 실패:', error);
+      });
+  }, []);
 
   return (
     <MainContent>
       <PageHeader>
         <PageTitle>
-          <FaComments /> {/* React Icons 컴포넌트 사용 */}
+          <FaComments />
           커뮤니티 게시판
         </PageTitle>
       </PageHeader>
@@ -40,7 +46,7 @@ const CommunityBoard = () => {
           <tr>
             <TableHeaderCell>게시글 태그</TableHeaderCell>
             <TableHeaderCell sortable>
-              제목 <FaSortDown /> {/* 정렬 아이콘 예시 */}
+              제목 <FaSortDown />
             </TableHeaderCell>
             <TableHeaderCell>작성자</TableHeaderCell>
             <TableHeaderCell sortable>
@@ -51,12 +57,12 @@ const CommunityBoard = () => {
         </thead>
         <tbody>
           {posts.map((post) => (
-            <TableRow key={post.id} onClick={() => navigate(`/communityboard/${post.id}`)}>
-              <TableCell tag={post.tag === '공지사항'}>{post.tag}</TableCell>
-              <TableCell title>{post.title}</TableCell>
-              <TableCell>{post.author}</TableCell>
-              <TableCell>{post.date}</TableCell>
-              <TableCell>{post.views}</TableCell>
+            <TableRow key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
+              <TableCell tag={post.categoryName === '공지사항'}>{post.categoryName}</TableCell>
+              <TableCell title>{post.boardTitle}</TableCell>
+              <TableCell>{post.userName}</TableCell>
+              <TableCell>{post.createdDate}</TableCell>
+              <TableCell>{post.views ?? 0}</TableCell> {/* 조회수 없으면 0 */}
             </TableRow>
           ))}
         </tbody>
