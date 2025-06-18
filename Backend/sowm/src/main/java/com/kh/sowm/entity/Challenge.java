@@ -1,5 +1,6 @@
 package com.kh.sowm.entity;
 
+import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -36,5 +37,7 @@ public class Challenge {
 
     @Column(name = "CHALLENGE_POINT")
     private int challengePoint;
+
+
 
 }

@@ -11,6 +11,10 @@ const ChallengeCreate = () => {
   const prefillData = location.state;
   const isPrefilled = !!prefillData;
 
+  const handleGoBack = () => {
+    navigate(-1); // 이전 페이지로 이동
+  };
+
   const [formData, setFormData] = useState({
     title: prefillData?.title || '',
     author: 'admin',
@@ -43,7 +47,7 @@ const ChallengeCreate = () => {
   const handleSubmit = () => {
     console.log({ ...formData, imageFile });
     alert('챌린지가 생성되었습니다.');
-    navigate('/chellenge');
+    navigate('/challenge');
   };
 
   return (
@@ -65,7 +69,7 @@ const ChallengeCreate = () => {
           <Label>작성자</Label>
           <Input name="author" value={formData.author} readOnly />
         </FormGroup>
-        
+
         {/* 이미지 첨부 필드가 나머지 공간을 차지하도록 수정 */}
         <FormGroup style={{ gridColumn: '2 / 4' }}>
           <Label>대표 이미지</Label>
@@ -79,9 +83,21 @@ const ChallengeCreate = () => {
         <FormGroup>
           <Label>기간</Label>
           <DateWrapper>
-            <Input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} readOnly={isPrefilled} />
+            <Input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleInputChange}
+              readOnly={isPrefilled}
+            />
             <span>–</span>
-            <Input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} readOnly={isPrefilled} />
+            <Input
+              type="date"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleInputChange}
+              readOnly={isPrefilled}
+            />
           </DateWrapper>
         </FormGroup>
 
@@ -89,10 +105,26 @@ const ChallengeCreate = () => {
           <Label>유형</Label>
           <RadioWrapper>
             <RadioLabel disabled={isPrefilled}>
-              <input type="radio" name="type" value="장기" checked={formData.type === '장기'} onChange={handleInputChange} disabled={isPrefilled} /> 장기
+              <input
+                type="radio"
+                name="type"
+                value="장기"
+                checked={formData.type === '장기'}
+                onChange={handleInputChange}
+                disabled={isPrefilled}
+              />{' '}
+              장기
             </RadioLabel>
             <RadioLabel disabled={isPrefilled}>
-              <input type="radio" name="type" value="단기" checked={formData.type === '단기'} onChange={handleInputChange} disabled={isPrefilled} /> 단기
+              <input
+                type="radio"
+                name="type"
+                value="단기"
+                checked={formData.type === '단기'}
+                onChange={handleInputChange}
+                disabled={isPrefilled}
+              />{' '}
+              단기
             </RadioLabel>
           </RadioWrapper>
         </FormGroup>
@@ -110,7 +142,9 @@ const ChallengeCreate = () => {
             <CardImage src={previewUrl} alt="미리보기" />
             <CardContent>
               <CardTitle>이름: {formData.title}</CardTitle>
-              <CardPeriod>기간: {formData.startDate?.replaceAll('-', '.')} - {formData.endDate?.replaceAll('-', '.')}</CardPeriod>
+              <CardPeriod>
+                기간: {formData.startDate?.replaceAll('-', '.')} - {formData.endDate?.replaceAll('-', '.')}
+              </CardPeriod>
               <CardCompletion>완료: 0</CardCompletion>
               <ProgressBarContainer>
                 <ProgressBarFill percentage={0} />
@@ -123,12 +157,11 @@ const ChallengeCreate = () => {
 
       <ActionButtons>
         <SubmitButton onClick={handleSubmit}>챌린지 생성</SubmitButton>
-        <CancelButton onClick={() => navigate('/chellenge')}>뒤로가기</CancelButton>
+        <CancelButton onClick={handleGoBack}>뒤로가기</CancelButton>
       </ActionButtons>
     </MainContent>
   );
 };
-
 
 // --- Styled Components (변경 없음) ---
 const FormGrid = styled.div`
