@@ -1,5 +1,6 @@
 package com.kh.sowm.service;
 
+import com.kh.sowm.dto.AttendanceDto;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -85,6 +87,30 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         return "퇴근 완료";
     }
+
+    @Override
+    public List<AttendanceDto.Record> getAllAttendance(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        List<Attendance> attendanceList = attendanceRepository.findByUserId(user.getUserId());
+
+        // Attendance 엔티티를 DTO로 변환
+        List<AttendanceDto.Record> dtoList = attendanceList.stream()
+                .map(a -> AttendanceDto.Record.builder()
+                        .attendanceNo(a.getAttendanceNo().intValue())
+                        .attendTime(a.getAttendTime())
+                        .leaveTime(a.getLeaveTime())
+                        .userId(a.getUser().getUserId())
+                        .workHours(a.getWorkHours())
+                        .status(a.getStatus().name()) // enum -> 문자열 변환
+                        .build())
+                .toList();
+
+        return dtoList;
+
+    }
+
 
 
     @Override

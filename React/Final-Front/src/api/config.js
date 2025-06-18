@@ -26,9 +26,10 @@ export const API_ENDPOINTS = {
     ENROLLCOMPANY: '/company/enrollcompany',
   },
   ATTENDANCE: {
-    BASE: '/attendacne',
+    BASE: '/attendance',
     CLOCK_IN: '/attendance/clock-in',
     CLOCK_OUT: '/attendance/clock-out',
     STATUS: '/attendance/status',
+    LIST: '/attendance/list',
   },
 };

@@ -72,4 +72,15 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
                 .stream()
                 .findFirst();
     }
+
+
+    @Override
+    public List<Attendance> findByUserId(String userId) {
+
+        return em.createQuery(
+                        "SELECT a FROM Attendance a WHERE a.user.userId = :userId ORDER BY a.attendTime DESC",
+                        Attendance.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 }

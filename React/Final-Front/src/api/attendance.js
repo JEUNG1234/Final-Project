@@ -34,4 +34,19 @@ export const attendanceService = {
       throw new Error('근태 상태 조회 중 오류가 발생했습니다.');
     }
   },
+
+  // 유저 아이디별 전체 출근 리스트
+  attendanceList: async (userId, userName) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.ATTENDANCE.LIST, {
+        params: {
+          userId: userId,
+          userName: userName,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('전체 출근 리스트 조회 실패', error);
+    }
+  },
 };
