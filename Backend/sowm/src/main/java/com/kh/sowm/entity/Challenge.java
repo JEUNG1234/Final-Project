@@ -1,5 +1,6 @@
 package com.kh.sowm.entity;
 
+import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -46,11 +47,6 @@ public class Challenge {
     private int challengePoint;
 
 
-    @PrePersist
-    public void prePersist() {
-        if (challengeStartDate == null) {
-            challengeStartDate = LocalDate.now();
-        }
-    }
+
 
 }

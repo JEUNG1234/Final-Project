@@ -21,7 +21,7 @@ public class Attendance {
     private Long attendanceNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_ID", nullable = false)
+    @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
     @Column(name = "ATTEND_TIME")
@@ -34,7 +34,7 @@ public class Attendance {
     //상태값
     @Column(length = 1, nullable = false)
     @Enumerated(EnumType.STRING)
-    private CommonEnums.Status status;
+    private CommonEnums.AttendanceStatus status;
 
     @Column(name = "WORK_HOURS")
     private Double workHours;
@@ -44,13 +44,17 @@ public class Attendance {
         if(attendTime == null){
             attendTime = LocalDateTime.now();
         }
-        if(leaveTime == null){
-            leaveTime = LocalDateTime.now();
-        }
         if(this.status == null) {
-            this.status = CommonEnums.Status.Y;
-
+            this.status = CommonEnums.AttendanceStatus.W;
         }
+    }
 
+    public void markClockOut() {
+        this.leaveTime = LocalDateTime.now();
+        this.status = CommonEnums.AttendanceStatus.L;
+    }
+
+    public void setWorkHours(Double workHours) {
+        this.workHours = workHours;
     }
 }

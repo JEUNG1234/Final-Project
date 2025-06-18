@@ -43,6 +43,9 @@ import AdminDashBoard from './pages/dashboard/AdminDashBoard';
 import WorkationEnrollForm from './pages/workationpage/WorkationEnrollForm';
 import WorkationUpdate from './pages/workationpage/WorkationUpdate';
 import MyWorkation from './pages/workationpage/MyWorkation';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const AppContainer = styled.div`
   display: flex;
@@ -70,6 +73,17 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <AppContainer>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           <Routes>
             {/* 1. 홈 페이지: MainHeader와 Footer만 있고 Sidebar 없음 */}
             <Route
