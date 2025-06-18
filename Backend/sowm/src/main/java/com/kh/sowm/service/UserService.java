@@ -10,4 +10,8 @@ public interface UserService {
     String signUp(UserDto.RequestDto sigunUp);
 
     String adminSignUp(UserDto.RequestDto signUp);
+
+    boolean isUserIdDuplicate(String userId);
+
+    boolean isUserEmailDuplicate(String email);
 }
