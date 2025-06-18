@@ -9,4 +9,8 @@ public interface UserRepository {
     Optional<User> findByUserId(String userId);
 
     void save(User user);
+
+    boolean existsByUserId(String userId);
+
+    boolean existsByEmail(String email);
 }

@@ -49,5 +49,15 @@ public class UserServiceImpl implements UserService {
         return user.getUserId();
     }
 
+    @Override
+    public boolean isUserIdDuplicate(String userId) {
+        return userRepository.existsByUserId(userId);
+    }
+
+    @Override
+    public boolean isUserEmailDuplicate(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
 
 }
