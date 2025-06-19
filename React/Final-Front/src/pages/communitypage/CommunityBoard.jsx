@@ -8,14 +8,23 @@ import { MainContent, Pagination, PageButton, BottomBar, SearchInput } from '../
 const CommunityBoard = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    currentPage: 0,
+    totalPage: 0,
+    totalCount: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
 
   // 게시글 데이터 가져오기
   useEffect(() => {
     axios
-      .get('http://localhost:8888/api/boards') // ✅ 실제 API 주소 사용
+      .get('http://localhost:8888/api/boards')
       .then((response) => {
-        console.log('불러온 게시글:', response.data); // 🔍 데이터 확인
-        setPosts(response.data);
+        console.log('불러온 게시글:', response.data);
+        const { content, ...meta } = response.data;
+        setPosts(content); // 게시글 리스트
+        setPageInfo(meta); // 페이지네이션 정보
       })
       .catch((error) => {
         console.error('게시글 불러오기 실패:', error);
@@ -45,11 +54,11 @@ const CommunityBoard = () => {
         <thead>
           <tr>
             <TableHeaderCell>게시글 태그</TableHeaderCell>
-            <TableHeaderCell sortable>
+            <TableHeaderCell>
               제목 <FaSortDown />
             </TableHeaderCell>
             <TableHeaderCell>작성자</TableHeaderCell>
-            <TableHeaderCell sortable>
+            <TableHeaderCell>
               작성일자 <FaSortDown />
             </TableHeaderCell>
             <TableHeaderCell>조회수</TableHeaderCell>
@@ -59,10 +68,10 @@ const CommunityBoard = () => {
           {posts.map((post) => (
             <TableRow key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
               <TableCell tag={post.categoryName === '공지사항'}>{post.categoryName}</TableCell>
-              <TableCell title>{post.boardTitle}</TableCell>
+              <TableCell>{post.boardTitle}</TableCell>
               <TableCell>{post.userName}</TableCell>
               <TableCell>{post.createdDate}</TableCell>
-              <TableCell>{post.views ?? 0}</TableCell> {/* 조회수 없으면 0 */}
+              <TableCell>{post.views}</TableCell>
             </TableRow>
           ))}
         </tbody>
@@ -70,11 +79,13 @@ const CommunityBoard = () => {
 
       <BottomBar>
         <Pagination>
-          <PageButton>&lt;</PageButton>
-          <PageButton className="active">1</PageButton>
-          <PageButton>2</PageButton>
-          <PageButton>3</PageButton>
-          <PageButton>&gt;</PageButton>
+          <PageButton disabled={!pageInfo.hasPrevious}>&lt;</PageButton>
+          {[...Array(pageInfo.totalPage)].map((_, i) => (
+            <PageButton key={i} className={pageInfo.currentPage === i ? 'active' : ''}>
+              {i + 1}
+            </PageButton>
+          ))}
+          <PageButton disabled={!pageInfo.hasNext}>&gt;</PageButton>
         </Pagination>
       </BottomBar>
     </MainContent>
