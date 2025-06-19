@@ -86,12 +86,8 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(boardNo)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
 
-
-
-
         board.changeTitle(dto.getBoardTitle());
         board.changeContent(dto.getBoardContent());
-
 
         return BoardDto.Response.fromEntity(board);
     }
