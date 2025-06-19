@@ -20,5 +20,17 @@ export const workationService = {
       console.error(' 워케이션 리스트 조회 실패:', error);
       throw error;
     }
+  },
+
+  workationInfo:   async(locationNo) =>{
+    try{
+      const response = await api.get(`${API_ENDPOINTS.WORKATION.INFO}?locationNo=${locationNo}`)
+      return response.data;
+    }catch (error) {
+      console.error('워케이션 정보를 불러오는데 실패했습니다.', error);
+      throw error;
+    }
+    
   }
+
 };

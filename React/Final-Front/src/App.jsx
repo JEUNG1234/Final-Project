@@ -139,7 +139,7 @@ function App() {
                     {/* 직원 근태관리 페이지 */}
                     <Route path="/memberattendance" element={<MemberAttendance />} />
                     {/* 직원 워케이션 페이지 */}
-                    <Route path="/workationDetail" element={<WorkationDetail />} />
+                    <Route path="/workationDetail/:no" element={<WorkationDetail />} />
                     <Route path="/myWorkation" element={<MyWorkation />} />
                     {/* 관리자 워케이션승인 페이지 */}
                     <Route path="/workationadmin" element={<WorkationAdmin />} />

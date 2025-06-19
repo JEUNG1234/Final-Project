@@ -16,5 +16,7 @@ public interface WorkationRepository {
    ResponseEntity<List<WorkationDto.WorkationBasicDto>> findByList();
 
    List<Workation> findByStatus(CommonEnums.Status status);
+
+   WorkationDto.ResponseDto findByInfo(int locationNo);
 }
 
