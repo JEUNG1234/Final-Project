@@ -3,25 +3,35 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaUsersCog } from 'react-icons/fa';
 import { MainContent, PageTitle, PageHeader as BasePageHeader } from '../../styles/common/MainContentLayout';
-
-// Mock 데이터: 승인을 기다리는 직원 목록
-const mockApprovalList = [
-  { id: 10, joinDate: '5.29', name: '최지원', companyCode: 'A001', email: 'abc@naver.com', status: '대기' },
-  { id: 9, joinDate: '5.29', name: 'alice', companyCode: 'A001', email: 'assd@naver.com', status: '대기' },
-  { id: 8, joinDate: '5.29', name: 'james', companyCode: 'A001', email: 'qwer@gmail.com', status: '대기' },
-  { id: 7, joinDate: '5.29', name: 'kim', companyCode: 'A001', email: 'qwer@gmail.com', status: '대기' },
-  { id: 6, joinDate: '5.29', name: '박지성', companyCode: 'A001', email: 'asd@naver.com', status: '대기' },
-];
+import { useEffect } from 'react';
+import { adminService } from '../../api/admin';
+import useUserStore from '../../Store/useStore';
 
 const EmployeeApproval = () => {
   const navigate = useNavigate();
-  const [approvalList, setApprovalList] = useState(mockApprovalList);
+  const [approvalList, setApprovalList] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const user = useUserStore((state) => state.user);
+  const companyCode = user?.companyCode;
+
+  // 1. 초기 승인 대기자 목록 불러오기
+  useEffect(() => {
+    const fetchPendingEmployees = async () => {
+      try {
+        const data = await adminService.getUnapprovedEmployees({ companyCode });
+        setApprovalList(data);
+      } catch (error) {
+        alert('승인 대기자 목록을 불러오는 데 실패했습니다.');
+        console.error(error);
+      }
+    };
+    fetchPendingEmployees();
+  }, [companyCode]);
 
   // 체크박스 전체 선택/해제
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(approvalList.map((req) => req.id));
+      setSelectedIds(approvalList.map((req) => req.userId));
     } else {
       setSelectedIds([]);
     }
@@ -33,19 +43,26 @@ const EmployeeApproval = () => {
   };
 
   // 승인/거부 처리 핸들러
-  const handleAction = (action) => {
+  const handleAction = async (action) => {
     if (selectedIds.length === 0) {
       alert('처리할 항목을 선택해주세요.');
       return;
     }
 
-    // 실제로는 여기서 API를 호출하여 서버에 상태 변경을 요청합니다.
-    console.log(`선택된 ID: ${selectedIds}, 처리: ${action}`);
+    try {
+      const status = action === '승인' ? 'Y' : 'N';
+      const jobCode = 'J1';
+      for (const userId of selectedIds) {
+        await adminService.approveUser(userId, status, jobCode);
+      }
+      // 처리 후 목록에서 제거
+      setApprovalList((prevList) => prevList.filter((item) => !selectedIds.includes(item.userId)));
+      setSelectedIds([]); // 선택 초기화
 
-    // 처리 후 목록에서 제거
-    setApprovalList((prevList) => prevList.filter((item) => !selectedIds.includes(item.id)));
-    setSelectedIds([]); // 선택 초기화
-    alert(`${selectedIds.length}개의 계정을 ${action} 처리했습니다.`);
+      alert(`${selectedIds.length}개의 계정을 ${action} 처리했습니다.`);
+    } catch (err) {
+      console.log('에러 발생', err);
+    }
   };
 
   return (
@@ -76,22 +93,22 @@ const EmployeeApproval = () => {
           </tr>
         </thead>
         <tbody>
-          {approvalList.map((req) => (
-            <tr key={req.id}>
+          {approvalList.map((req, index) => (
+            <tr key={req.userId}>
               <TableCell>
                 <input
                   type="checkbox"
-                  checked={selectedIds.includes(req.id)}
-                  onChange={() => handleSelectSingle(req.id)}
+                  checked={selectedIds.includes(req.userId)}
+                  onChange={() => handleSelectSingle(req.userId)}
                 />
               </TableCell>
-              <TableCell>{req.id}</TableCell>
-              <TableCell>{req.joinDate}</TableCell>
-              <TableCell>{req.name}</TableCell>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{req.createdDate}</TableCell>
+              <TableCell>{req.userName}</TableCell>
               <TableCell>{req.companyCode}</TableCell>
               <TableCell>{req.email}</TableCell>
               <TableCell>
-                <StatusBadge status={req.status}>{req.status}</StatusBadge>
+                <StatusBadge status={req.status || '대기'}>{req.status === 'N' ? '대기' : req.status}</StatusBadge>
               </TableCell>
             </tr>
           ))}

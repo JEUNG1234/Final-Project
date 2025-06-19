@@ -1,10 +1,13 @@
 package com.kh.sowm.repository;
 
+import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.entity.User;
+import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -36,6 +39,25 @@ public class UserRepositoryImpl implements UserRepository {
                 .setParameter("email", email)
                 .getSingleResult();
         return count > 0;
+    }
+
+    @Override
+    public List<User> findAllEmployees(UserDto.EmployeeSearchCondition searchCondition) {
+        String jpql = "SELECT u FROM User u WHERE u.companyCode = :companyCode AND u.status = :status";
+        return em.createQuery(jpql, User.class)
+                .setParameter("companyCode", searchCondition.getCompanyCode())
+                .setParameter("status", CommonEnums.Status.Y)// 예: 재직자만 조회
+                .getResultList();
+    }
+
+    @Override
+    public List<User> findNotApproval(UserDto.EmployeeSearchCondition searchCondition) {
+        String jpql = "SELECT u FROM User u WHERE u.companyCode = :companyCode AND u.status = :status";
+        return em.createQuery(jpql, User.class)
+                .setParameter("companyCode", searchCondition.getCompanyCode())
+                .setParameter("status", CommonEnums.Status.N)
+//                .setParameter("jobCode", searchCondition.getJobCode())
+                .getResultList();
     }
 
     // 아이디로 유저 찾기

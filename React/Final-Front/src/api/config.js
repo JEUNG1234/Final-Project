@@ -25,11 +25,24 @@ export const API_ENDPOINTS = {
     BASE: '/company',
     ENROLLCOMPANY: '/company/enrollcompany',
   },
+
+  WORKATION: {
+    BASE: '/workation',
+    CREATE: '/workation/create',
+    LIST: '/workation/list',
+  },
   ATTENDANCE: {
     BASE: '/attendance',
     CLOCK_IN: '/attendance/clock-in',
     CLOCK_OUT: '/attendance/clock-out',
     STATUS: '/attendance/status',
     LIST: '/attendance/list',
+  },
+  ADMIN: {
+    BASE: '/admin',
+    MemberManagement: '/admin/employeemanagement',
+    getUnapprovedEmployees: '/admin/employeeapproval',
+    approveUser: '/admin/',
+    UpdateMemberRole: '/admin/memberrole/',
   },
 };

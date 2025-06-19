@@ -16,30 +16,32 @@ const Login = ({ setUser }) => {
 
     try {
       const user = await userService.login(userId, password);
-      console.log('로그인 응답 user:', user);
+
+      if (!user || !user.userId) {
+        alert('아이디 또는 비밀번호가 틀렸습니다.');
+        return;
+      }
 
       login({
         userId: user.userId,
         userName: user.userName,
         jobCode: user.jobCode,
-        deptCode: user.deptCode
+        deptCode: user.deptCode,
+        companyCode: user.companyCode,
+        status: user.status,
       });
 
-      if (!user) {
-        alert('아이디 또는 비밀번호가 틀렸습니다.');
-        return;
-      }
+      setUser(user);
 
-      setUser(user); // ✅ 상위 App 컴포넌트에서 상태 저장
       if (user.jobCode === 'J2') {
         navigate('/AdminDashBoard');
-      } else if (user.jobCode === 'J1') {
+      } else if (user.jobCode === 'J1' || user.jobCode === 'J3' || user.jobCode === 'J4') {
         navigate('/MemberDashBoard');
       } else if (user.jobCode === 'J0') {
         alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
       }
     } catch (err) {
-      alert('로그인 중 오류가 발생했습니다.');
+      alert('아이디 또는 비밀번호가 틀렸습니다.');
       console.error(err);
     }
   };
