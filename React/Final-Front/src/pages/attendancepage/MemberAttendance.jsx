@@ -46,7 +46,11 @@ const MemberAttendance = () => {
     if (!selectedDate) {
       setFilteredRecords(attendanceRecords); // 선택 안 하면 전체
     } else {
-      const filtered = attendanceRecords.filter((record) => record.date === selectedDate);
+      const filtered = attendanceRecords.filter((record) => {
+        if (!record.attendTime) return false;
+        const recordDate = new Date(record.attendTime).toISOString().slice(0, 10);
+        return recordDate === selectedDate;
+      });
       setFilteredRecords(filtered);
     }
   };
@@ -90,10 +94,19 @@ const MemberAttendance = () => {
           {filteredRecords.map((record) => (
             <AttendanceRow key={record.id}>
               <AttendanceCell>{record.attendanceNo}</AttendanceCell>
-              <AttendanceCell>{record.attendTime}</AttendanceCell>
-              <AttendanceCell>{record.leaveTime}</AttendanceCell>
-              <AttendanceCell status={record.status}>{record.status}</AttendanceCell>
-              <AttendanceCell>{record.attendTime}</AttendanceCell>
+              <AttendanceCell>
+                {' '}
+                {record.attendTime && new Date(record.attendTime).toTimeString().slice(0, 5)}
+              </AttendanceCell>
+              <AttendanceCell>
+                {record.leaveTime && new Date(record.leaveTime).toTimeString().slice(0, 5)}
+              </AttendanceCell>
+              <AttendanceCell status={record.status}>
+                {record.status === 'W' ? '출근' : record.status === 'L' ? '퇴근' : record.status}
+              </AttendanceCell>
+              <AttendanceCell>
+                {record.attendTime && new Date(record.attendTime).toISOString().slice(0, 10)}
+              </AttendanceCell>
             </AttendanceRow>
           ))}
         </tbody>

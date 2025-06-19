@@ -4,28 +4,56 @@ import { FaUsersCog } from 'react-icons/fa';
 // 1. useNavigate를 import 합니다.
 import { useNavigate } from 'react-router-dom';
 import { MainContent, PageTitle, PageHeader as BasePageHeader } from '../../styles/common/MainContentLayout';
-
-// Mock 데이터
-const initialEmployees = [
-  { id: 1, joinDate: '5.29', name: '최지원', position: '대표', department: '-', email: 'nikihwangg@naver.com' },
-  { id: 2, joinDate: '5.29', name: 'alice', position: '팀장', department: '개발팀', email: 'abc@naver.com' },
-  { id: 3, joinDate: '5.29', name: 'james', position: '사원', department: '개발팀', email: 'abc@naver.com' },
-  { id: 4, joinDate: '5.29', name: 'kim', position: '사원', department: '개발팀', email: 'abc@naver.com' },
-  { id: 5, joinDate: '5.29', name: '박지성', position: '사원', department: '개발팀', email: 'abc@naver.com' },
-];
-const positions = ['대표', '팀장', '사원', '인턴'];
-const departments = ['개발팀', '기획팀', '디자인팀', '인사팀'];
+import { useEffect } from 'react';
+import { adminService } from '../../api/admin';
+import useUserStore from '../../Store/useStore';
 
 const EmployeeManagement = () => {
   // 2. useNavigate 훅을 초기화합니다.
   const navigate = useNavigate();
-  const [employees, setEmployees] = useState(initialEmployees);
+  const [employees, setEmployees] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+
+  const user = useUserStore((state) => state.user);
+  const companyCode = user?.companyCode;
+
+  // 부서 코드 매핑
+  const deptMap = {
+    D1: '개발팀',
+    D2: '디자인팀',
+    D3: '영업팀',
+    D4: '인사팀',
+    D5: '마케팅팀',
+  };
+
+  // 직급 코드 매핑
+  const jobMap = {
+    J0: '외부인',
+    J1: '사원',
+    J2: '관리자',
+    J3: '과장',
+    J4: '팀장',
+  };
+
+  useEffect(() => {
+    console.log('API 호출할 회사 코드:', companyCode);
+    const fetchEmployees = async () => {
+      try {
+        const data = await adminService.MemberManagement({ companyCode });
+        setEmployees(data);
+        console.log('현재 로그인 된 계정 정보 : ', data);
+      } catch (error) {
+        console.error('직원 정보 불러오기 실패', error);
+      }
+    };
+
+    fetchEmployees();
+  }, [companyCode]);
 
   // 체크박스 전체 선택/해제
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(employees.map((emp) => emp.id));
+      setSelectedIds(employees.map((emp) => emp.userId));
     } else {
       setSelectedIds([]);
     }
@@ -49,7 +77,7 @@ const EmployeeManagement = () => {
       return;
     }
     if (window.confirm(`${selectedIds.length}개의 계정을 정말 삭제하시겠습니까?`)) {
-      setEmployees((prev) => prev.filter((emp) => !selectedIds.includes(emp.id)));
+      setEmployees((prev) => prev.filter((emp) => !selectedIds.includes(emp.userId)));
       setSelectedIds([]);
       alert('선택한 계정이 삭제되었습니다.');
       // 실제 앱에서는 여기서 API를 호출하여 서버 데이터를 삭제합니다.
@@ -85,39 +113,39 @@ const EmployeeManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {employees.map((emp) => (
-            <tr key={emp.id}>
+          {employees.map((emp, index) => (
+            <tr key={emp.userId}>
               <TableCell>
                 <input
                   type="checkbox"
-                  checked={selectedIds.includes(emp.id)}
-                  onChange={() => handleSelectSingle(emp.id)}
+                  checked={selectedIds.includes(emp.userId)}
+                  onChange={() => handleSelectSingle(emp.userId)}
                 />
               </TableCell>
-              <TableCell>{emp.id}</TableCell>
-              <TableCell>{emp.joinDate}</TableCell>
-              <TableCell>{emp.name}</TableCell>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{emp.createdDate}</TableCell>
+              <TableCell>{emp.userName}</TableCell>
               <TableCell>
                 <StyledSelect
-                  value={emp.position}
-                  onChange={(e) => handleFieldChange(emp.id, 'position', e.target.value)}
+                  value={emp.jobCode}
+                  onChange={(e) => handleFieldChange(emp.userId, 'jobCode', e.target.value)}
                 >
-                  {positions.map((pos) => (
-                    <option key={pos} value={pos}>
-                      {pos}
+                  {Object.entries(jobMap).map(([code, label]) => (
+                    <option key={code} value={code}>
+                      {label}
                     </option>
                   ))}
                 </StyledSelect>
               </TableCell>
               <TableCell>
                 <StyledSelect
-                  value={emp.department}
-                  onChange={(e) => handleFieldChange(emp.id, 'department', e.target.value)}
+                  value={emp.deptCode}
+                  onChange={(e) => handleFieldChange(emp.userId, 'deptCode', e.target.value)}
                 >
-                  <option value="-">-</option>
-                  {departments.map((dep) => (
-                    <option key={dep} value={dep}>
-                      {dep}
+                  <option value="">-</option>
+                  {Object.entries(deptMap).map(([code, label]) => (
+                    <option key={code} value={code}>
+                      {label}
                     </option>
                   ))}
                 </StyledSelect>
