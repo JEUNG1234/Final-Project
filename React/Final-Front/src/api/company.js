@@ -1,8 +1,6 @@
 import api from './axios';
 import { API_ENDPOINTS } from './config';
-console.log('✅ 전체 API_ENDPOINTS:', API_ENDPOINTS);
-console.log('🔹 COMPANY:', API_ENDPOINTS.COMPANY);
-console.log('🔸 ENROLLCOMPANY:', API_ENDPOINTS.COMPANY?.ENROLLCOMPANY);
+
 export const companyService = {
   // 회사신청에서의 입력창 값들
   enrollCompany: async ({ companyCode, companyName, companyPhone, companyAddress }) => {
