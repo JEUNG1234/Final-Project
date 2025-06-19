@@ -12,18 +12,11 @@ import { PiAirplaneTiltFill } from 'react-icons/pi';
 import image from '../../assets/돌하르방.jpg';
 import { useNavigate } from 'react-router-dom';
 import { workationService } from '../../api/workation';
+import useUserStore from '../../Store/useStore';
 
-// const workationData = [
-//   { id: 1, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
-//   { id: 2, title: '속초 마운틴 리트릿', location: '강원도 속초', availability: 6, img: '/images/sokcho.jpg' },
-//   { id: 3, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
-//   { id: 4, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
-//   { id: 5, title: '속초 마운틴 리트릿', location: '강원도 속초', availability: 6, img: '/images/sokcho.jpg' },
-//   { id: 6, title: '제주 애월 스테이', location: '제주도', availability: 6, img: '/images/jeju.jpg' },
-// ];
-
-const WorkationList = ({ user }) => {
+const WorkationList = () => {
   const navigate = useNavigate();
+  const {user} = useUserStore(); 
 
   //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -46,24 +39,25 @@ const WorkationList = ({ user }) => {
   const peopleRef = useRef();
   const dateRef = useRef();
 
-
-
+  //워케이션 리스트 가져오기
   useEffect(() => {
-  const workationList = async () => {
-    try {
-      const data = await workationService.workationList();
-      console.log('워케이션 리스트:', data);
-      // TODO: 상태에 저장하고 싶다면 아래 코드도 추가
-      setWorkationData(data);
-    } catch (error) {
-      console.error('워케이션 리스트 불러오기 실패:', error.message);
-    }
-  };
+    const workationList = async () => {
+      try {
+        const data = await workationService.workationList();
+        console.log('워케이션 리스트:', data);
 
-  workationList(); // ✅ 호출 필요
-}, []);
+        setWorkationData(data);
+      } catch (error) {
+        console.error('워케이션 리스트 불러오기 실패:', error.message);
+      }
+    };
 
-const [workationData, setWorkationData] = useState([]);
+    workationList(); // ✅ 호출 필요
+  }, []);
+
+
+
+  const [workationData, setWorkationData] = useState([]);
 
   const regionList = [
     '전체',
@@ -201,7 +195,7 @@ const [workationData, setWorkationData] = useState([]);
 
       <CardGrid>
         {workationData.map((place) => (
-          <Card key={place.locationNo} onClick={() => navigate('/workationDetail')}>
+          <Card key={place.locationNo} onClick={() => navigate(`/workationDetail/${place.locationNo}`)}>
             {/* 워케이션 장소 리스트 출력 */}
             <CardImage src={image} alt={place.title} />
             <CardTitle>{place.workationTitle}</CardTitle>

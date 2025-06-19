@@ -47,6 +47,19 @@ public class WorkationRepositoryImpl implements WorkationRepository {
                 .getResultList();
     }
 
+    //워케이션 정보조희
+    @Override
+    public WorkationDto.ResponseDto findByInfo(int locationNo) {
+        String jpql = "SELECT w FROM Workation w " +
+                "JOIN FETCH w.workationLocation wl " +
+                "WHERE wl.locationNo = :locationNo";
+        Workation workation = em.createQuery(jpql, Workation.class)
+                .setParameter("locationNo", locationNo)
+                .getSingleResult();
+
+        return WorkationDto.ResponseDto.toDto(workation);
+    }
+
 
 //    @Override
 //    public ResponseEntity<List<WorkationDto.WorkationBasicDto>> findByList() {

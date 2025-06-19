@@ -17,4 +17,6 @@ public interface WorkationService {
     ResponseEntity<List<WorkationDto.WorkationBasicDto>> workationList();
 
     WorkationDto.ResponseDto enrollWorkation(WorkationDto.WorkationCreateDto request);
+
+    WorkationDto.ResponseDto workationInfo(int locationNo);
 }

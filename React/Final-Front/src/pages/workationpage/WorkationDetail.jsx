@@ -1,5 +1,5 @@
 // src/components/MainContent.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
 import MyLeafletMap from '../../components/MyLeafletMap';
@@ -21,35 +21,47 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-import {
-  FaSquare,
-  FaRulerCombined,
-  FaHourglassHalf,
-  FaUsers,
-  FaChair,
-  FaPlug,
-  FaHotTub, // FaMirror 대신 FaHotTub 사용
-  FaSmokingBan,
-  FaWifi,
-  FaUtensils,
-  FaSyncAlt,
-} from 'react-icons/fa';
+import { FaSquare, FaRulerCombined, FaHourglassHalf, FaUsers } from 'react-icons/fa';
 
 import image from '../../assets/돌하르방.jpg';
+import { useParams } from 'react-router-dom';
+import { workationService } from '../../api/workation';
+import useUserStore from '../../Store/useStore';
+// import { workationService } from '../../api/workation';
 
 const WorkationDetail = () => {
+  const {user} = useUserStore();
+  console.log(user)
   // 현재 활성화된 탭 상태 관리 (예시)
   const [activeTab, setActiveTab] = React.useState('intro');
 
   //날짜 범위 선택[시작일, 종료일]
   const [dateRange, setDateRange] = useState([null, null]);
-  const [startDate, endDate] = dateRange; 
+  const [startDate, endDate] = dateRange;
 
   console.log(startDate, endDate);
   //날짜 초기화
   const resetDates = () => setDateRange([null, null]);
 
-  //날짜 적용후 달력 닫기
+  //워케이션 정보 가져오기
+  const { no } = useParams();
+console.log(no)
+  useEffect(() => {
+    
+    const workationInfo = async () => {
+      try {
+        console.log(no)
+        const data = await workationService.workationInfo(no);
+        console.log('워케이션 정보: ', data);
+        setWorationInfo(data);
+      } catch (error) {
+        console.error('워케이션 리스트 불러오기 실패:', error.message);
+      }
+    };
+     workationInfo(); // ✅ 함수 호출
+}, []); // 
+ 
+const [ workationInfo, setWorationInfo] = useState([]);
 
   return (
     <FullWapper>
@@ -78,7 +90,7 @@ const WorkationDetail = () => {
               <img src={image} alt="" />
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
-            <Title>제주 애월 스테이</Title>
+            <Title>{workationInfo.workationTitle}</Title>
             <Subtitle>제주도</Subtitle>
             <Description>
               제주 서쪽 애월 해안가에 위치한 조용한 워케이션 공간입니다.
@@ -130,33 +142,6 @@ const WorkationDetail = () => {
                   <InfoText>수용인원</InfoText>
                   <DetailText>최소 1명 ~ 최대 20명</DetailText>
                 </InfoBlock>
-
-                <IconGrid>
-                  <IconItem>
-                    <FaChair />
-                    의자/테이블
-                  </IconItem>
-                  <IconItem>
-                    <FaPlug />
-                    전기
-                  </IconItem>
-                  <IconItem>
-                    <FaHotTub /> {/* FaMirror 대신 FaHotTub 사용 */}
-                    전신거울
-                  </IconItem>
-                  <IconItem>
-                    <FaUtensils />
-                    음식물 반입가능
-                  </IconItem>
-                  <IconItem>
-                    <FaSmokingBan />
-                    금연
-                  </IconItem>
-                  <IconItem>
-                    <FaWifi />
-                    인터넷/WIFI
-                  </IconItem>
-                </IconGrid>
               </FacilityRightContent>
             </FacilityContent>
           </>
@@ -259,7 +244,7 @@ const WorkationDetail = () => {
             <Input type="text" placeholder="장소를 입력하세요" />
           </FormRow>
 
-             <FormRow>
+          <FormRow>
             <Label>최대 인원</Label>
             <Input type="text" placeholder="최대인원" />
           </FormRow>
@@ -270,7 +255,7 @@ const WorkationDetail = () => {
             <TextArea placeholder="사유를 입력하세요" />
           </FormRow>
 
-          <SubmitButton type='sumbit' >워케이션 신청</SubmitButton>
+          <SubmitButton type="sumbit">워케이션 신청</SubmitButton>
         </FormContent>
       </DateContent>
     </FullWapper>

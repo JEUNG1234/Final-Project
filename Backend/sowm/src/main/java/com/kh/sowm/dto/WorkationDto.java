@@ -11,6 +11,8 @@ import java.time.LocalDate;
 
 public class WorkationDto {
 
+
+
     @Getter
     @Setter
     @AllArgsConstructor
@@ -43,6 +45,17 @@ public class WorkationDto {
         public static ResponseDto toDto(Workation workation) {
             return ResponseDto.builder()
                     .workationTitle(workation.getWorkationTitle())
+                    .address(workation.getWorkationLocation().getAddress())
+                    .feature(workation.getWorkationLocation().getFeature())
+                    .placeInfo(workation.getWorkationLocation().getPlaceInfo())
+                    .openHours(workation.getWorkationLocation().getOpenHours())
+                    .spaceType(workation.getWorkationLocation().getSpaceType())
+                    .area(workation.getWorkationLocation().getArea())
+                    .busInfo(workation.getWorkationLocation().getBusInfo())
+                    .parkingInfo(workation.getWorkationLocation().getParkingInfo())
+                    .latitude(workation.getWorkationLocation().getLatitude())
+                    .longitude(workation.getWorkationLocation().getLongitude())
+                    .userId(workation.getUser().getUserId())
                     .facilityInfo(workation.getFacilityInfo())
                     .workationStartDate(workation.getWorkationStartDate())
                     .workationEndDate(workation.getWorkationEndDate())

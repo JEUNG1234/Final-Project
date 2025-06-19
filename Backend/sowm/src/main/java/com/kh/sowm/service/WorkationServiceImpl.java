@@ -41,21 +41,7 @@ public class WorkationServiceImpl implements WorkationService {
 
         return ResponseEntity.ok(dtoList);
     }
-    //    @Override
-//    public WorkationDto.ResponseDto enrollWorkation(Workation workation, WorkationLocation location, String userId) {
-//
-//        User user = userRepositoryImpl.findByUserId(userId).orElseThrow(() ->new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
-//
-//        WorkationLocation savedLocation = workationLocationRepository.save(location);
-//
-//
-//        workation.assignUser(user);
-//        workation.setWorkationLocation(savedLocation);
-//
-//
-//        return WorkationDto.ResponseDto.toDto(workation);
-//    }
-//
+
      //워케이션 생성
     @Override
     public WorkationDto.ResponseDto enrollWorkation(WorkationDto.WorkationCreateDto request) {
@@ -75,4 +61,11 @@ public class WorkationServiceImpl implements WorkationService {
 
         return WorkationDto.ResponseDto.toDto(workation);
     }
+
+    @Override
+    public WorkationDto.ResponseDto workationInfo(int locationNo) {
+        return workationRepository.findByInfo(locationNo);
+    }
+
+
 }

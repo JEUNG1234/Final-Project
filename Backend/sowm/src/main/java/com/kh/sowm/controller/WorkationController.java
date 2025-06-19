@@ -38,7 +38,23 @@ public class WorkationController {
         return workationService.workationList();
     }
 
+    //워케이션 정보 조회
+    @GetMapping("/info")
+    public WorkationDto.ResponseDto info(@RequestParam int locationNo) {
+        System.out.println("workationService.workationInfo::::::::::::::::::::::::::"+locationNo);
 
+        WorkationDto.ResponseDto workation = workationService.workationInfo(locationNo);
+
+        System.out.println(workation.getPeopleMax());
+        System.out.println(workation.getBusInfo());
+        System.out.println(workation.getFacilityInfo());
+        System.out.println(workation.getParkingInfo());
+        System.out.println(workation.getWorkationTitle());
+
+
+
+        return workationService.workationInfo(locationNo);
+    }
 
 
 }
