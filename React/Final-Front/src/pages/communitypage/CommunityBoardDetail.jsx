@@ -1,35 +1,57 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaComments } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import { MainContent } from '../../styles/common/MainContentLayout';
+import useUserStore from '../../Store/useStore';
 
 const CommunityBoardDetail = () => {
   const navigate = useNavigate();
-  // 이부분에 로그인 유저랑 게시글 작성자랑 같은지 찾는 코드 작성해야함.
-  const loginUser = 'admin';
-  const boardWriter = 'admㄴin';
+  const { id } = useParams(); // /communityboard/:id → 게시글 ID
+  const [post, setPost] = useState(null);
+  const { user } = useUserStore(); // Zustand에서 로그인 유저 정보 가져오기
+
+  // 게시글 가져오기
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8888/api/boards/${id}`)
+      .then((res) => {
+        setPost(res.data);
+      })
+      .catch((err) => {
+        console.error('게시글 불러오기 실패:', err);
+      });
+  }, [id]);
+
+  if (!post) return <MainContent>Loading...</MainContent>;
 
   return (
     <MainContent>
       <PageTitle>
-        <FaComments />
-        커뮤니티 게시판 {'>'} 게시글 상세보기
+        <FaComments /> 커뮤니티 게시판 {'>'} 게시글 상세보기
       </PageTitle>
+
       <InputGroup>
         <PageMidTitle>제목</PageMidTitle>
-        <TitleInput type="text" placeholder="제목을 입력해주세요."></TitleInput>
+        <TitleInput type="text" value={post.boardTitle} readOnly />
+
         <PageMidTitle>작성자</PageMidTitle>
-        <WriterInput type="text" readOnly placeholder="임시 작성자 아이디"></WriterInput>
-        <PageMidTitle>사진첨부</PageMidTitle>
-        <FileInput type="file"></FileInput>
+        <WriterInput type="text" value={post.userName} readOnly />
+
+        <PageMidTitle>작성일</PageMidTitle>
+        <WriterInput type="text" value={post.createdDate} readOnly />
+
         <PageMidTitle>내용</PageMidTitle>
-        <ContentInput type="text" placeholder="내용을 입력하세요."></ContentInput>
+        <ContentInput as="textarea" value={post.boardContent} readOnly />
       </InputGroup>
+
       <ButtonGroup>
-        <ActionButton onClick={() => navigate('/communityboard')}>게시글 등록</ActionButton>
-        <ActionButton onClick={() => navigate('/communityboard')}>뒤로가기</ActionButton>
-        {/* 만약 db 의 로그인 유저랑 게시글 작성자랑 같다면 수정하기 버튼 보이게*/}
-        {loginUser === boardWriter && <ActionButton onClick={() => navigate('/editboard')}>수정하기</ActionButton>}
+        <ActionButton onClick={() => navigate('/communityboard')}>목록으로</ActionButton>
+
+        {user?.userId === post.userId && (
+          <ActionButton onClick={() => navigate(`/editboard/${post.boardNo}`)}>수정하기</ActionButton>
+        )}
       </ButtonGroup>
     </MainContent>
   );
