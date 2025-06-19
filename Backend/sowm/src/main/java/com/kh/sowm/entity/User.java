@@ -59,7 +59,11 @@ public class User {
     private Department department;
 
     // 회사코드
-    @Column(length = 6)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "COMPANY_CODE", insertable = false, updatable = false)
+    private Company company;
+
+    @Column(name = "COMPANY_CODE")
     private String companyCode;
 
     // 상태값
@@ -102,4 +106,13 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MedicalCheckResult> medicalCheckResults = new ArrayList<>();
+
+    public void updateStatus(CommonEnums.Status newStatus, Job newJob) {
+        this.status = newStatus;
+        this.updatedDate = LocalDate.now();
+        if(newJob != null) {
+            this.job = newJob;
+        }
+    }
+
 }

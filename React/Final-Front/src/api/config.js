@@ -32,4 +32,10 @@ export const API_ENDPOINTS = {
     STATUS: '/attendance/status',
     LIST: '/attendance/list',
   },
+  ADMIN: {
+    BASE: '/admin',
+    MemberManagement: '/admin/employeemanagement',
+    getUnapprovedEmployees: '/admin/employeeapproval',
+    approveUser: '/admin/',
+  },
 };

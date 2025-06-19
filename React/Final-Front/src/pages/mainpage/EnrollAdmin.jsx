@@ -69,9 +69,10 @@ const EnrollAdmin = () => {
         userName,
         email,
         companyCode,
+        jobCode: 'j2',
       };
 
-      const response = await userService.signUp(requestBody);
+      const response = await userService.EnrollAdmin(requestBody);
       console.log('회원가입 정보:', requestBody);
 
       if (response.status === 200) {
