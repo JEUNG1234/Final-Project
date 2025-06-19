@@ -57,6 +57,25 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardImage> boardImages = new ArrayList<>();
 
+    @Column(name = "VIEWS", nullable = false)
+    private int views;
+
+    public void increaseViews() {
+        this.views++;
+    }
+
+    public void changeContent(String boardContent) {
+        if(boardContent != null && !boardContent.isEmpty()) {
+            this.boardContent = boardContent;
+        }
+    }
+
+    public void changeTitle(String boardTitle) {
+        if(boardTitle != null && !boardTitle.isEmpty()) {
+            this.boardTitle = boardTitle;
+        }
+    }
+
     @PrePersist
     public void prePersist() {
         if (createdDate == null) {
@@ -67,6 +86,7 @@ public class Board {
         }
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
+            this.views = 0;
         }
 
     }
