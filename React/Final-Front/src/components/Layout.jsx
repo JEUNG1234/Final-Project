@@ -4,6 +4,7 @@ import Header from './Header'; // HeaderContainer를 사용하는 컴포넌트
 import Sidebar from './SideBar'; // SidebarContainer를 사용하는 컴포넌트
 
 const Layout = ({ children, user, onLogout }) => {
+  
   return (
     <LayoutContainer>
       <Sidebar user={user} />

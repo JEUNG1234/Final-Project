@@ -25,6 +25,12 @@ export const API_ENDPOINTS = {
     BASE: '/company',
     ENROLLCOMPANY: '/company/enrollcompany',
   },
+
+  WORKATION: {
+    BASE: '/workation',
+    CREATE: '/workation/create',
+    LIST: '/workation/list',
+  },
   ATTENDANCE: {
     BASE: '/attendance',
     CLOCK_IN: '/attendance/clock-in',
