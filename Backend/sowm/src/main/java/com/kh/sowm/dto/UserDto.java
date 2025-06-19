@@ -88,6 +88,7 @@ public class UserDto {
         private String companyCode;
         private String status;
         private String jobCode;
+        private String deptCode;
 
         // 회원가입 dto
        public User signUp() {

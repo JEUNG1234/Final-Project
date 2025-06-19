@@ -115,4 +115,13 @@ public class User {
         }
     }
 
+    // 직급 변경 메서드
+    public void changeJob(Job newJob) {
+        this.job = newJob;
+    }
+
+    public void changeDepartment(Department newDepartment) {
+        this.department = newDepartment;
+    }
+
 }

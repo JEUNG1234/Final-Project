@@ -33,6 +33,13 @@ public class AdminController {
         return ResponseEntity.ok(dtos);
     }
 
+    // 직원 관리 페이지 - 직원 직급, 부서 수정
+    @PatchMapping("/memberrole/{userId}")
+    public ResponseEntity<UserDto.ResponseDto> changeMemberStatus(@PathVariable String userId, @RequestBody UserDto.RequestDto requestDto) {
+        return ResponseEntity.ok(userService.changeMemberStatus(userId, requestDto));
+    }
+
+
     // 미승인 계정 정보 가져오는 메소드
     @GetMapping("/employeeapproval")
     public ResponseEntity<List<UserDto.ResponseDto>> getEmployeeApproval(UserDto.EmployeeSearchCondition searchCondition) {
@@ -51,6 +58,7 @@ public class AdminController {
     public ResponseEntity<UserDto.ResponseDto> changeStatus(@PathVariable String userId, @RequestBody UserDto.RequestDto requestDto) {
         return ResponseEntity.ok(userService.changeStatus(userId, requestDto));
     }
+
 
 
 }

@@ -44,5 +44,6 @@ export const API_ENDPOINTS = {
     MemberManagement: '/admin/employeemanagement',
     getUnapprovedEmployees: '/admin/employeeapproval',
     approveUser: '/admin/',
+    UpdateMemberRole: '/admin/memberrole/',
   },
 };
