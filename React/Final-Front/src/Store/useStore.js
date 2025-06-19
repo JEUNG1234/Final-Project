@@ -13,7 +13,7 @@ const useUserStore = create(
             userId: userData.userId,
             userName: userData.userName,
             jobCode: userData.jobCode?.jobCode,
-            deptCode: userData.deptCode?.deptCode
+            deptCode: userData.deptCode?.deptCode,
           },
           isAuthenticated: true,
         });

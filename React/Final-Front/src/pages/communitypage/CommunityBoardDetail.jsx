@@ -71,7 +71,7 @@ const PageTitle = styled.h2`
 `;
 
 const PageMidTitle = styled.h3`
-  font-size: 20px;
+  font-size: 18px;
   color: #000000;
   display: flex;
   margin: 5px;
@@ -87,7 +87,7 @@ const InputGroup = styled.div`
 
 const TitleInput = styled.input`
   width: 100%;
-  font-size: 20px 20px;
+  font-size: 16px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -134,7 +134,7 @@ const FileInput = styled.input`
 
 const WriterInput = styled.input`
   width: 100%;
-  font-size: 20px 20px;
+  font-size: 16px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -147,7 +147,7 @@ const WriterInput = styled.input`
 const ContentInput = styled.textarea`
   width: 100%;
   height: 350px;
-  font-size: 20px 20px;
+  font-size: 16px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -168,19 +168,23 @@ const ButtonGroup = styled.div`
 `;
 
 const ActionButton = styled.button`
-  padding: 10px 20px;
-  font-size: 15px;
-  background: #96c6fe;
+  height: 45px;
+  background-color: #4d8eff;
   color: white;
+  padding: 10px 20px;
   border: none;
+  border-radius: 15px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #a3cdfd;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(150, 198, 254, 0.5);
+    background-color: #3c75e0;
   }
 `;
 export default CommunityBoardDetail;
