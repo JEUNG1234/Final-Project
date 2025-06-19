@@ -53,13 +53,15 @@ console.log(no)
         console.log(no)
         const data = await workationService.workationInfo(no);
         console.log('워케이션 정보: ', data);
+        setWorationInfo(data);
       } catch (error) {
         console.error('워케이션 리스트 불러오기 실패:', error.message);
       }
     };
      workationInfo(); // ✅ 함수 호출
-}, [no]); // 
+}, []); // 
  
+const [ workationInfo, setWorationInfo] = useState([]);
 
   return (
     <FullWapper>
@@ -88,7 +90,7 @@ console.log(no)
               <img src={image} alt="" />
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
-            <Title>제주 애월 스테이</Title>
+            <Title>{workationInfo.workationTitle}</Title>
             <Subtitle>제주도</Subtitle>
             <Description>
               제주 서쪽 애월 해안가에 위치한 조용한 워케이션 공간입니다.

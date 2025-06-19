@@ -6,11 +6,12 @@ import { BsFire } from 'react-icons/bs';
 import { MdDashboard } from 'react-icons/md';
 import { PiAirplaneTiltFill } from 'react-icons/pi';
 import { useNavigate } from 'react-router-dom';
+import useUserStore from '../Store/useStore';
 
-const Sidebar = ({ user }) => {
+const Sidebar = () => {
   const navigate = useNavigate(); // useNavigate 훅 사용
-
-  console.log(user);
+  const {user} =useUserStore();
+  
   return (
     <SidebarContainer>
       <LogoContainer>

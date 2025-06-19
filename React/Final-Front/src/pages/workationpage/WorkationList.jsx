@@ -12,9 +12,11 @@ import { PiAirplaneTiltFill } from 'react-icons/pi';
 import image from '../../assets/돌하르방.jpg';
 import { useNavigate } from 'react-router-dom';
 import { workationService } from '../../api/workation';
+import useUserStore from '../../Store/useStore';
 
-const WorkationList = ({ user }) => {
+const WorkationList = () => {
   const navigate = useNavigate();
+  const {user} = useUserStore(); 
 
   //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');

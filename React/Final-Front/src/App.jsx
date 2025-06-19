@@ -45,6 +45,7 @@ import WorkationUpdate from './pages/workationpage/WorkationUpdate';
 import MyWorkation from './pages/workationpage/MyWorkation';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useUserStore from './Store/useStore';
 
 
 const AppContainer = styled.div`
@@ -55,7 +56,7 @@ const AppContainer = styled.div`
 
 function App() {
   const [setScrolled] = useState(false); // setScrolled를 사용하지 않는다면 제거해도 됩니다.
-  const [user, setUser] = useState(null);
+  const {user, logout} = useUserStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -96,7 +97,7 @@ function App() {
               }
             />
             {/* 2. 로그인 페이지: 헤더/사이드바 없음 (Login 컴포넌트 자체에 이미지 포함) */}
-            <Route path="/login" element={<Login setUser={setUser} />} />
+            <Route path="/login" element={<Login />} />
 
             {/* 3. 회원가입 페이지: 헤더/사이드바 없음 */}
             <Route path="/signup" element={<SignUp />} />
@@ -107,10 +108,10 @@ function App() {
             <Route
               path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
               element={
-                <Layout user={user} onLogout={() => setUser(null)}>
+                <Layout user={user} onLogout={logout}>
                   <Routes>
                     {/* Layout 안에 포함될 페이지들 */}
-                    <Route path="/workationlist" element={<WorkationList user={user} />} />
+                    <Route path="/workationlist" element={<WorkationList  />} />
                     <Route path="/votelist" element={<VoteList />} />
                     <Route path="/voteresult/:voteId" element={<VoteResult />} />
                     <Route path="/votecreate" element={<VoteCreate />} />

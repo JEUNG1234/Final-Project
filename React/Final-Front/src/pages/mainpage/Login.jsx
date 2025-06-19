@@ -5,7 +5,7 @@ import loginImage from '../../assets/메인페이지사진1.jpg'; // 상대 경�
 import { userService } from '../../api/users';
 import useUserStore from '../../Store/useStore';
 
-const Login = ({ setUser }) => {
+const Login = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const Login = ({ setUser }) => {
         status: user.status,
       });
 
-      setUser(user);
+      // setUser(user);
 
       if (user.jobCode === 'J2') {
         navigate('/AdminDashBoard');
