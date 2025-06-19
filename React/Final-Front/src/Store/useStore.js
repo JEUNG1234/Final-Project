@@ -8,12 +8,14 @@ const useUserStore = create(
       isAuthenticated: false,
 
       login: (userData) => {
+        console.log('login userData:', userData);
         set({
           user: {
             userId: userData.userId,
             userName: userData.userName,
-            jobCode: userData.jobCode?.jobCode,
-            deptCode: userData.deptCode?.deptCode
+            jobCode: userData.jobCode,
+            deptCode: userData.deptCode,
+            companyCode: userData.companyCode,
           },
           isAuthenticated: true,
         });

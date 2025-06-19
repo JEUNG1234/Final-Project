@@ -22,9 +22,10 @@ public class UserDto {
         private LocalDate createdDate;
         private LocalDate updatedDate;
         private Integer point;
-
         private String jobCode;
         private String deptCode;
+        private String companyCode;
+        private String status;
 
         public static ResponseDto toDto(User user){
             return ResponseDto.builder()
@@ -34,6 +35,11 @@ public class UserDto {
                     .userPwd(user.getUserPwd())
                     .point(user.getPoint())
                     .jobCode(user.getJob().getJobCode())
+                    .createdDate(user.getCreatedDate())
+                    .updatedDate(user.getUpdatedDate())
+                    .deptCode(user.getDepartment().getDeptCode())
+                    .companyCode(user.getCompanyCode())
+                    .status(String.valueOf(user.getStatus()))
                     .build();
         }
 
@@ -56,6 +62,19 @@ public class UserDto {
 
     @Getter
     @Setter
+    @ToString // 로깅 등을 위해 추가하면 좋습니다.
+    public class EmployeeSearchCondition {
+        private String companyCode;
+        private String createdDate;
+        private String userName;
+        private String jobCode;
+        private String deptCode;
+        private String email;
+
+    }
+
+    @Getter
+    @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
@@ -67,6 +86,8 @@ public class UserDto {
         private String userName;
         private String email;
         private String companyCode;
+        private String status;
+        private String jobCode;
 
         // 회원가입 dto
        public User signUp() {

@@ -73,7 +73,7 @@ export const userService = {
     );
     return response;
   },
-  EnrollAdmin: async ({ userId, password, checkPassword, userName, email, companyCode }) => {
+  EnrollAdmin: async ({ userId, password, checkPassword, userName, email, companyCode, jobCode }) => {
     // 비동기로 응답, 회원가입이므로 post
     const response = await api.post(
       `${API_ENDPOINTS.USERS.ENROLLADMIN}`,
@@ -84,6 +84,7 @@ export const userService = {
         userName,
         email,
         companyCode,
+        jobCode,
       },
       {
         headers: { 'Content-Type': 'application/json' },
