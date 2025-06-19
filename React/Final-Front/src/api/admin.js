@@ -17,7 +17,7 @@ export const adminService = {
     });
     return response.data;
   },
-  // 직원 승인 페이지 함수
+  // 직원 승인 페이지
   getUnapprovedEmployees: async ({ companyCode }) => {
     const response = await api.get(API_ENDPOINTS.ADMIN.getUnapprovedEmployees, {
       params: { companyCode },
@@ -25,7 +25,7 @@ export const adminService = {
     return response.data;
   },
 
-  // 직원 승인 페이지 함수
+  // 직원 승인하는  함수
   approveUser: async (userId, status = 'Y', jobCode = 'J1') => {
     const response = await api.patch(`${API_ENDPOINTS.ADMIN.approveUser}${userId}`, {
       status,
@@ -34,7 +34,13 @@ export const adminService = {
     return response.data;
   },
 
-  // 직원 거부 페이지 함수
+  // 직원 직급, 부서 변경
+  UpdateMemberRole: async (userId, payload) => {
+    const response = await api.patch(`${API_ENDPOINTS.ADMIN.UpdateMemberRole}${userId}`, payload);
+    return response.data;
+  },
+
+  // 직원 거부하는 함수
   rejectUser: async (userId) => {
     const response = await api.patch(`/api/admin/${userId}`, { status: 'N' });
     return response.data;

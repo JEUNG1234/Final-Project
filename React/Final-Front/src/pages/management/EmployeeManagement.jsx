@@ -31,8 +31,8 @@ const EmployeeManagement = () => {
     J0: '외부인',
     J1: '사원',
     J2: '관리자',
-    J3: '과장',
-    J4: '팀장',
+    J3: '팀장',
+    J4: '과장',
   };
 
   useEffect(() => {
@@ -65,9 +65,26 @@ const EmployeeManagement = () => {
   };
 
   // 직급 또는 부서 변경 핸들러
-  const handleFieldChange = (id, field, value) => {
-    setEmployees((prev) => prev.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp)));
-    // 실제 앱에서는 여기서 API를 호출하여 서버 데이터를 업데이트합니다.
+  const handleFieldChange = async (userId, field, value) => {
+    const updatedEmployee = employees.find((emp) => emp.userId === userId);
+    if (!updatedEmployee) return;
+
+    const updatedData = {
+      ...updatedEmployee,
+      [field]: value,
+    };
+
+    try {
+      await adminService.UpdateMemberRole(userId, {
+        jobCode: updatedData.jobCode,
+        deptCode: updatedData.deptCode,
+      });
+
+      setEmployees((prev) => prev.map((emp) => (emp.userId === userId ? { ...emp, [field]: value } : emp)));
+    } catch (error) {
+      console.error('직급/부서 변경 실패:', error);
+      alert('변경에 실패했습니다.');
+    }
   };
 
   // 계정 삭제 핸들러
