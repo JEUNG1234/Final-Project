@@ -24,4 +24,6 @@ public interface UserService {
     List<User> findNotApproval(UserDto.EmployeeSearchCondition searchCondition);
 
     UserDto.ResponseDto changeStatus(String userId, UserDto.RequestDto requestDto);
+
+    UserDto.ResponseDto changeMemberStatus(String userId, UserDto.RequestDto requestDto);
 }
