@@ -32,7 +32,7 @@ public class Workation {
 
     //시설안내
     @Column(name = "FACILITY_INFO",  length = 100)
-    private String faciltyInfo;
+    private String facilityInfo;
 
 
     //작성날짜

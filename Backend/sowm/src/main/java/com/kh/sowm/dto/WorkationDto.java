@@ -1,6 +1,6 @@
 package com.kh.sowm.dto;
 
-import com.kh.sowm.controller.UserController;
+
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
@@ -21,7 +21,7 @@ public class WorkationDto {
         private String placeImage;
         private String address;
         private String placeInfo;
-        private String mainFeatures;
+        private String feature;
         private LocalDate workationStartDate;
         private LocalDate workationEndDate;
         private String facilityImage;
@@ -37,12 +37,13 @@ public class WorkationDto {
         private String parkingInfo;
         private double latitude;
         private double longitude;
+        private String userId;
 
 
         public static ResponseDto toDto(Workation workation) {
             return ResponseDto.builder()
                     .workationTitle(workation.getWorkationTitle())
-                    .facilityInfo(workation.getFaciltyInfo())
+                    .facilityInfo(workation.getFacilityInfo())
                     .workationStartDate(workation.getWorkationStartDate())
                     .workationEndDate(workation.getWorkationEndDate())
                     .peopleMin(workation.getPeopleMin())
@@ -60,7 +61,6 @@ public class WorkationDto {
     @Builder
     public static class WorkationsDto {
         private String workationTitle;
-        private String mainFeatures;
         private LocalDate workationStartDate;
         private LocalDate workationEndDate;
         private String facilityInfo;
@@ -68,6 +68,7 @@ public class WorkationDto {
         private int peopleMax;
         private String url;
         private String precautions;
+        private String userId;
     }
 
     @Getter
@@ -80,6 +81,7 @@ public class WorkationDto {
         private String placeInfo;
         private String openHours;
         private String spaceType;
+        private String feature;
         private int area;
         private String busInfo;
         private String parkingInfo;
@@ -92,21 +94,22 @@ public class WorkationDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class WorkationCreateDto {
-        private WorkationDto.WorkationsDto workation;
-        private WorkationDto.LocationsDto location;
+        private WorkationsDto workation;
+        private LocationsDto location;
         private String userId;
 
 
-        public Workation toEntity() {
+        public Workation toWorkationEntity(User user) {
             return Workation.builder()
-                    .workationTitle(workation.getWorkationTitle())
-                    .faciltyInfo(workation.getFacilityInfo())
-                    .workationStartDate(workation.getWorkationStartDate())
-                    .workationEndDate(workation.getWorkationEndDate())
-                    .peopleMin(workation.getPeopleMin())
-                    .peopleMax(workation.getPeopleMax())
-                    .URL(workation.getUrl())
-                    .precautions(workation.getPrecautions())
+                    .user(user)
+                    .workationTitle(this.workation.getWorkationTitle())
+                    .facilityInfo(this.workation.getFacilityInfo())
+                    .workationStartDate(this.workation.getWorkationStartDate())
+                    .workationEndDate(this.workation.getWorkationEndDate())
+                    .peopleMin(this.workation.getPeopleMin())
+                    .peopleMax(this.workation.getPeopleMax())
+                    .URL(this.workation.getUrl())
+                    .precautions(this.workation.getPrecautions())
                     .build();
         }
 
@@ -117,6 +120,7 @@ public class WorkationDto {
                     .openHours(location.getOpenHours())
                     .spaceType(location.getSpaceType())
                     .area(location.getArea())
+                    .feature(location.getFeature())
                     .busInfo(location.getBusInfo())
                     .parkingInfo(location.getParkingInfo())
                     .latitude(location.getLatitude())
@@ -127,57 +131,23 @@ public class WorkationDto {
 
     @Getter
     @Setter
-    @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class RequestDto {
+    public static class WorkationBasicDto {
+        private Long locationNo;
         private String workationTitle;
-        private String placeImage;
         private String address;
-        private String placeInfo;
-        private String mainFeatures;
-        private LocalDate workationStartDate;
-        private LocalDate workationEndDate;
-        private String facilityImage;
-        private String facilityInfo;
-        private String openHours;
-        private String spaceType;
-        private int area;
-        private int peopleMin;
-        private int peopleMax;
-        private String url;
-        private String precautions;
-        private String busInfo;
-        private String parkingInfo;
-        private double latitude;
-        private double longitude;
+        //        private String placeImage; 이미지는 추후에 추가 예정
 
-        public Workation createDto(){
-            return Workation.builder()
-                    .workationTitle(this.workationTitle)
-                    .faciltyInfo(this.facilityInfo)
-                    .workationStartDate(this.workationStartDate)
-                    .workationEndDate(this.workationEndDate)
-                    .peopleMin(this.peopleMin)
-                    .peopleMax(this.peopleMax)
-                    .URL(this.url)
-                    .precautions(this.precautions)
-                    .build();
-        }
+        public WorkationBasicDto(Long locationNo, String address, String workationTitle) {
+            this.locationNo = locationNo;
+            this.workationTitle = workationTitle;
+            this.address = address;
 
-        public WorkationLocation locationCreateDto(){
-            return WorkationLocation.builder()
-                    .placeInfo(this.placeInfo)
-                    .address(this.address)
-                    .openHours(this.openHours)
-                    .spaceType(this.spaceType)
-                    .area(this.area)
-                    .parkingInfo(this.parkingInfo)
-                    .busInfo(this.busInfo)
-                    .latitude(this.latitude)
-                    .longitude(this.longitude)
-                    .build();
+
         }
 
     }
+
+
 }

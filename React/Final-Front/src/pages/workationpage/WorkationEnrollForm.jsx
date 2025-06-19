@@ -22,7 +22,7 @@ const WorkationEnrollForm = () => {
   const navigate = useNavigate();
 const { user } = useUserStore();
   const [workationTitle, setWorkationTitle] = useState('');
-  const [mainFeatures, setMainFeatures] = useState('');
+  const [feature, setFeature] = useState('');
   const [placeInfo, setPlaceInfo] = useState('');
   const [workationStartDate, setWorkationStartDate] = useState('');
   const [workationEndDate, setWorkationEndDate] = useState('');
@@ -140,6 +140,7 @@ const { user } = useUserStore();
         address,
         openHours,
         spaceType,
+        feature,
         area,
         busInfo,
         parkingInfo,
@@ -148,8 +149,6 @@ const { user } = useUserStore();
       };
       const workation = {
         workationTitle,
-      
-        mainFeatures,
         workationStartDate,
         workationEndDate,
         facilityInfo,
@@ -166,7 +165,7 @@ const { user } = useUserStore();
 
       console.log(requestBody);
 
-      const workResponse = await workationService.create(requestBody, user.userId);
+      const workResponse = await workationService.create(requestBody);
 
       console.log(workResponse);
     } catch (error) {
@@ -340,11 +339,11 @@ const { user } = useUserStore();
             <FormTextareaGroup style={{ alignItems: 'flex-start' }}>
               {' '}
               {/* 텍스트 영역 상단 정렬 */}
-              <Label htmlFor="mainFeatures">주요특징</Label>
+              <Label htmlFor="feature">주요특징</Label>
               <TextArea
-                id="mainFeatures"
-                value={mainFeatures}
-                onChange={(e) => setMainFeatures(e.target.value)}
+                id="feature"
+                value={feature}
+                onChange={(e) => setFeature(e.target.value)}
                 placeholder="주요특징을 작성해주세요."
               />
             </FormTextareaGroup>

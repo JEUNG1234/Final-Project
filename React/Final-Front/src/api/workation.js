@@ -1,3 +1,4 @@
+
 import api from './axios';
 import { API_ENDPOINTS } from './config';
 
@@ -11,4 +12,13 @@ export const workationService = {
       throw error;
     }
   },
+  workationList: async () => {
+    try {
+      const response = await api.get(API_ENDPOINTS.WORKATION.LIST);
+      return response.data;
+    } catch (error) {
+      console.error(' 워케이션 리스트 조회 실패:', error);
+      throw error;
+    }
+  }
 };

@@ -6,4 +6,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface WorkationLocationRepository {
     WorkationLocation save (WorkationLocation location);
+
 }

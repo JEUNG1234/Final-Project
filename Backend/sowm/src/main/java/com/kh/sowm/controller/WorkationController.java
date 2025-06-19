@@ -2,6 +2,7 @@ package com.kh.sowm.controller;
 
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.repository.WorkationRepository;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @RestController
@@ -20,22 +22,22 @@ public class WorkationController {
 
     private final WorkationService workationService;
 
-
+    //워케이션 생성
     @PostMapping("/create")
     public ResponseEntity<WorkationDto.ResponseDto> create(@RequestBody WorkationDto.WorkationCreateDto request) {
-
-        String userId = request.getUserId();
-
-        System.out.println(userId);
-
-        Workation workation = request.toEntity();
-
-        WorkationLocation location = request.toLocationEntity();
-
-        Workation savedWorkation = workationService.enrollWorkation(workation, location, userId);
+        WorkationDto.ResponseDto savedWorkation = workationService.enrollWorkation(request);
         System.out.println("저장완료");
         return null;
     }
+
+    //워케이션 리스트 조회
+    @GetMapping("/list")
+    public ResponseEntity<List<WorkationDto.WorkationBasicDto>> list(){
+
+        System.out.println("workationService.workationList();"+workationService.workationList());
+        return workationService.workationList();
+    }
+
 
 
 
