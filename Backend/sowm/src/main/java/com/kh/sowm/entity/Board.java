@@ -91,6 +91,11 @@ public class Board {
 
     }
 
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedDate = LocalDate.now(); // 👈 업데이트 시점 자동 반영
+    }
+
 
 
 }

@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { FaComments } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { MainContent } from '../../styles/common/MainContentLayout';
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
+import dayjs from 'dayjs';
 
 const CommunityBoardDetail = () => {
   const navigate = useNavigate();
@@ -40,7 +41,15 @@ const CommunityBoardDetail = () => {
         <WriterInput type="text" value={post.userName} readOnly />
 
         <PageMidTitle>작성일</PageMidTitle>
-        <WriterInput type="text" value={post.createdDate} readOnly />
+        <WriterInput
+          type="text"
+          value={
+            post.createdDate === post.updatedDate
+              ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
+              : dayjs(post.updatedDate).format('YYYY년 MM월 DD일')
+          }
+          readOnly
+        />
 
         <PageMidTitle>내용</PageMidTitle>
         <ContentInput as="textarea" value={post.boardContent} readOnly />
@@ -56,19 +65,6 @@ const CommunityBoardDetail = () => {
     </MainContent>
   );
 };
-
-const PageTitle = styled.h2`
-  font-size: 28px;
-  color: #929393;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  svg {
-    font-size: 30px; /* 아이콘 크기 */
-    color: #007bff; /* 아이콘 색상 */
-  }
-`;
 
 const PageMidTitle = styled.h3`
   font-size: 18px;

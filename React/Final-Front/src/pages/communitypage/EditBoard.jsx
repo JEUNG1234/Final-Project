@@ -1,10 +1,58 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import styled from 'styled-components';
 import { FaComments } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import { MainContent } from '../../styles/common/MainContentLayout';
+import { useNavigate, useParams } from 'react-router-dom';
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import dayjs from 'dayjs';
 
 const EditBoard = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); // /communityboard/:id → 게시글 ID
+  const [post, setPost] = useState(null);
+  // **[변경]** 수정 가능한 필드를 위한 상태 추가
+  const [boardTitle, setBoardTitle] = useState('');
+  const [boardContent, setBoardContent] = useState('');
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8888/api/boards/${id}`)
+      .then((res) => {
+        setPost(res.data);
+        // **[변경]** 불러온 데이터로 수정 가능한 상태들을 초기화
+        setBoardTitle(res.data.boardTitle);
+        setBoardContent(res.data.boardContent);
+      })
+      .catch((err) => {
+        console.error('게시글 불러오기 실패:', err);
+        alert('게시글을 불러오는 데 실패했습니다.');
+        navigate('/communityboard'); // 실패 시 게시판 목록으로 리다이렉트
+      });
+  }, [id]);
+
+  // **[추가]** 게시글 수정 처리 함수
+  const handleUpdate = () => {
+    // PATCH 요청으로 보낼 데이터 객체
+    const updatedPost = {
+      boardTitle: boardTitle,
+      boardContent: boardContent,
+      // 필요한 경우, 백엔드에서 필요한 다른 필드 (예: id)도 추가할 수 있습니다.
+      // id: id,
+    };
+
+    axios
+      .patch(`http://localhost:8888/api/boards/${id}`, updatedPost)
+      .then((res) => {
+        alert('게시글이 성공적으로 수정되었습니다!');
+        navigate(`/communityboard/${id}`); // 수정된 게시글 상세 페이지로 이동
+      })
+      .catch((err) => {
+        console.error('게시글 수정 실패:', err);
+        alert('게시글 수정에 실패했습니다. 다시 시도해주세요.');
+      });
+  };
+
+  if (!post) return <MainContent>Loading...</MainContent>;
 
   return (
     <MainContent>
@@ -14,51 +62,42 @@ const EditBoard = () => {
       </PageTitle>
       <InputGroup>
         <PageMidTitle>제목</PageMidTitle>
-        <TitleInput type="text" placeholder="제목 수정하세요."></TitleInput>
+        <TitleInput
+          type="text"
+          value={boardTitle} // **[변경]** boardTitle 상태 사용
+          onChange={(e) => setBoardTitle(e.target.value)} // **[변경]** 입력 시 boardTitle 상태 업데이트
+        />
         <PageMidTitle>작성자</PageMidTitle>
-        <WriterInput type="text" readOnly placeholder="작성자 아이디"></WriterInput>
-        <PageMidTitle>사진첨부</PageMidTitle>
-        <FileInput type="file"></FileInput>
+        <WriterInput type="text" value={post.userName} readOnly /> {/* **[변경]** 읽기 전용 */}
+        <PageMidTitle>작성일</PageMidTitle>
+        <WriterInput
+          type="text"
+          value={
+            post.createdDate === post.updatedDate
+              ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
+              : dayjs(post.updatedDate).format('YYYY년 MM월 DD일')
+          }
+          readOnly
+        />{' '}
+        {/* **[변경]** 읽기 전용 */}
         <PageMidTitle>내용</PageMidTitle>
-        <ContentInput type="text" placeholder="내용 수정하세요."></ContentInput>
+        <ContentInput
+          as="textarea"
+          value={boardContent} // **[변경]** boardContent 상태 사용
+          onChange={(e) => setBoardContent(e.target.value)} // **[변경]** 입력 시 boardContent 상태 업데이트
+        />
       </InputGroup>
       <ButtonGroup>
-        <ActionButton onClick={() => navigate('/communityboard')}>수정 완료</ActionButton>
+        {/* **[변경]** "수정 완료" 버튼 클릭 시 handleUpdate 함수 호출 */}
+        <ActionButton onClick={handleUpdate}>수정 완료</ActionButton>
         <ActionButton onClick={() => navigate('/communityboard')}>게시판으로</ActionButton>
       </ButtonGroup>
     </MainContent>
   );
 };
 
-const BoardContent = styled.div`
-  width: 90%;
-  max-width: 1200px; /* 너무 넓어지지 않도록 최대 너비 설정 */
-  min-height: 80vh; /* 최소 높이 설정 (스크롤 영역에 맞춰 유동적으로) */
-  background: white;
-  margin: 60px auto; /* 중앙 정렬 및 상하 마진 */
-  padding: 30px; /* 내부 패딩 */
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  display: flex; /* 내부 요소들을 flex로 배치 */
-  flex-direction: column; /* 세로 방향으로 정렬 */
-  font-family: 'Pretendard', sans-serif;
-`;
-
-const PageTitle = styled.h2`
-  font-size: 28px;
-  color: #929393;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  svg {
-    font-size: 30px; /* 아이콘 크기 */
-    color: #007bff; /* 아이콘 색상 */
-  }
-`;
-
 const PageMidTitle = styled.h3`
-  font-size: 20px;
+  font-size: 18px;
   color: #000000;
   display: flex;
   margin: 5px;
@@ -74,7 +113,7 @@ const InputGroup = styled.div`
 
 const TitleInput = styled.input`
   width: 100%;
-  font-size: 20px 20px;
+  font-size: 16px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -121,7 +160,7 @@ const FileInput = styled.input`
 
 const WriterInput = styled.input`
   width: 100%;
-  font-size: 20px 20px;
+  font-size: 16px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -134,7 +173,7 @@ const WriterInput = styled.input`
 const ContentInput = styled.textarea`
   width: 100%;
   height: 350px;
-  font-size: 20px 20px;
+  font-size: 16px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -155,19 +194,23 @@ const ButtonGroup = styled.div`
 `;
 
 const ActionButton = styled.button`
-  padding: 10px 20px;
-  font-size: 15px;
-  background: #96c6fe;
+  height: 45px;
+  background-color: #4d8eff;
   color: white;
+  padding: 10px 20px;
   border: none;
+  border-radius: 15px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #a3cdfd;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(150, 198, 254, 0.5);
+    background-color: #3c75e0;
   }
 `;
 export default EditBoard;

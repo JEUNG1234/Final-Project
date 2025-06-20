@@ -53,6 +53,7 @@ public class BoardDto {
         private String boardTitle;
         private String boardContent;
         private LocalDate createdDate;
+        private LocalDate updatedDate;
         private String categoryName;
         private String userId;
         private String userName;
@@ -64,6 +65,7 @@ public class BoardDto {
                     .boardTitle(board.getBoardTitle())
                     .boardContent(board.getBoardContent())
                     .createdDate(board.getCreatedDate())
+                    .updatedDate(board.getUpdatedDate())
                     .categoryName(board.getCategory().getCategoryName())
                     .userId(board.getUser().getUserId())
                     .userName(board.getUser().getUserName())

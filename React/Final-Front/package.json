@@ -17,6 +17,7 @@
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "google-map-react": "^2.2.5",
     "leaflet": "^1.9.4",
     "notyf": "^3.10.0",
