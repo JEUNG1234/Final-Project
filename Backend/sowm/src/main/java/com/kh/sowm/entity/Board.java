@@ -10,7 +10,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +75,7 @@ public class Board {
         }
     }
 
+
     @PrePersist
     public void prePersist() {
         if (createdDate == null) {
@@ -95,6 +95,13 @@ public class Board {
     public void preUpdate() {
         this.updatedDate = LocalDate.now(); // 👈 업데이트 시점 자동 반영
     }
+
+    public void setCategory(Category category) {
+        if (category != null) {
+            this.category = category;
+        }
+    }
+
 
 
 

@@ -4,12 +4,8 @@ import com.kh.sowm.entity.Board;
 import com.kh.sowm.entity.Category;
 import com.kh.sowm.entity.User;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
-
 
 public class BoardDto {
 
@@ -37,12 +33,11 @@ public class BoardDto {
         private String boardTitle;
         private String boardContent;
 
-        public Board toEntity() {
-            return Board.builder()
-                    .boardTitle(this.boardTitle)
-                    .boardContent(this.boardContent)
-                    .build();
-        }
+        // ✅ [추가] 카테고리 이름
+        private Long categoryNo;
+
+        // ⛔ 더 이상 필요 없음: toEntity() 제거
+        // 수정은 기존 엔티티 필드 수정 방식으로 처리
     }
 
     @Getter

@@ -23,6 +23,10 @@ const CommunityBoard = () => {
     hasNext: false,
     hasPrevious: false,
   });
+  const [categories, setCategories] = useState([]);
+  const [searchTitle, setSearchTitle] = useState('');
+  const [searchWriter, setSearchWriter] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
 
   // 게시글 데이터 가져오기
   useEffect(() => {
@@ -39,6 +43,32 @@ const CommunityBoard = () => {
       });
   }, []);
 
+  useEffect(() => {
+    axios
+      .get('http://localhost:8888/api/categories')
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error('카테고리 불러오기 실패:', err));
+  }, []);
+
+  const handleSearch = () => {
+    axios
+      .get('http://localhost:8888/api/boards', {
+        params: {
+          title: searchTitle,
+          writer: searchWriter,
+          category: searchCategory,
+        },
+      })
+      .then((response) => {
+        const { content, ...meta } = response.data;
+        setPosts(content);
+        setPageInfo(meta);
+      })
+      .catch((error) => {
+        console.error('게시글 검색 실패:', error);
+      });
+  };
+
   return (
     <MainContent>
       <PageTitle>
@@ -47,8 +77,18 @@ const CommunityBoard = () => {
       </PageTitle>
 
       <BoardActions>
-        <SearchInput placeholder="제목" />
-        <ActionButton primary>
+        <CategorySelect value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)}>
+          <option value="">전체</option>
+          {categories.map((cat) => (
+            <option key={cat.categoryNo} value={cat.categoryNo}>
+              {cat.categoryName}
+            </option>
+          ))}
+        </CategorySelect>
+        <SearchInput placeholder="제목" value={searchTitle} onChange={(e) => setSearchTitle(e.target.value)} />
+        <SearchInput placeholder="작성자" value={searchWriter} onChange={(e) => setSearchWriter(e.target.value)} />
+
+        <ActionButton primary onClick={handleSearch}>
           <FaSearch /> 조회
         </ActionButton>
         <ActionButton onClick={() => navigate('/addboard')}>
@@ -214,6 +254,20 @@ const TableCell = styled.td`
       text-decoration: underline;
     }
   `}
+`;
+
+const CategorySelect = styled.select`
+  padding: 10px 15px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 15px;
+  min-width: 180px;
+  font-family: 'Pretendard', sans-serif;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 export default CommunityBoard;

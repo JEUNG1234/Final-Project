@@ -5,14 +5,19 @@ import { FaComments } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import dayjs from 'dayjs';
+import useUserStore from '../../Store/useStore';
 
 const EditBoard = () => {
+  const { user } = useUserStore();
+
   const navigate = useNavigate();
   const { id } = useParams(); // /communityboard/:id → 게시글 ID
   const [post, setPost] = useState(null);
   // **[변경]** 수정 가능한 필드를 위한 상태 추가
   const [boardTitle, setBoardTitle] = useState('');
   const [boardContent, setBoardContent] = useState('');
+  const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     axios
@@ -22,6 +27,7 @@ const EditBoard = () => {
         // **[변경]** 불러온 데이터로 수정 가능한 상태들을 초기화
         setBoardTitle(res.data.boardTitle);
         setBoardContent(res.data.boardContent);
+        setCategory(res.data.categoryNo); // ✅ 카테고리 번호 저장
       })
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
@@ -30,12 +36,20 @@ const EditBoard = () => {
       });
   }, [id]);
 
+  useEffect(() => {
+    axios
+      .get('http://localhost:8888/api/categories')
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error('카테고리 불러오기 실패:', err));
+  }, []);
+
   // **[추가]** 게시글 수정 처리 함수
   const handleUpdate = () => {
     // PATCH 요청으로 보낼 데이터 객체
     const updatedPost = {
       boardTitle: boardTitle,
       boardContent: boardContent,
+      categoryNo: category,
       // 필요한 경우, 백엔드에서 필요한 다른 필드 (예: id)도 추가할 수 있습니다.
       // id: id,
     };
@@ -69,17 +83,36 @@ const EditBoard = () => {
         />
         <PageMidTitle>작성자</PageMidTitle>
         <WriterInput type="text" value={post.userName} readOnly /> {/* **[변경]** 읽기 전용 */}
-        <PageMidTitle>작성일</PageMidTitle>
-        <WriterInput
-          type="text"
-          value={
-            post.createdDate === post.updatedDate
-              ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
-              : dayjs(post.updatedDate).format('YYYY년 MM월 DD일')
-          }
-          readOnly
-        />{' '}
-        {/* **[변경]** 읽기 전용 */}
+        <FlexItem>
+          <div>
+            <PageMidTitle>작성일</PageMidTitle>
+            <WriterInput
+              type="text"
+              value={
+                post.createdDate === post.updatedDate
+                  ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
+                  : dayjs(post.updatedDate).format('YYYY년 MM월 DD일')
+              }
+              readOnly
+            />{' '}
+            {/* **[변경]** 읽기 전용 */}
+          </div>
+          <div>
+            <PageMidTitle>태그</PageMidTitle>
+            <SelectBox value={category} onChange={(e) => setCategory(e.target.value)}>
+              {categories.map((cat) => {
+                if (cat.categoryName === '공지사항' && user.jobCode !== 'J2') {
+                  return null; // 🔒 j2가 아니면 "공지사항" 표시 안 함
+                }
+                return (
+                  <option key={cat.categoryNo} value={cat.categoryNo}>
+                    {cat.categoryName}
+                  </option>
+                );
+              })}
+            </SelectBox>
+          </div>
+        </FlexItem>
         <PageMidTitle>내용</PageMidTitle>
         <ContentInput
           as="textarea"
@@ -97,9 +130,9 @@ const EditBoard = () => {
 };
 
 const PageMidTitle = styled.h3`
+  display: flex;
   font-size: 18px;
   color: #000000;
-  display: flex;
   margin: 5px;
   align-items: center;
 `;
@@ -212,5 +245,24 @@ const ActionButton = styled.button`
   &:hover {
     background-color: #3c75e0;
   }
+`;
+
+const SelectBox = styled.select`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font-size: 16px;
+  background-color: white;
+  cursor: pointer;
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(150, 198, 254, 0.5);
+  }
+`;
+
+const FlexItem = styled.div`
+  display: flex; /* 자식 요소들을 가로로 정렬 */
+  justify-content: space-between;
 `;
 export default EditBoard;
