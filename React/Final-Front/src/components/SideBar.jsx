@@ -10,8 +10,8 @@ import useUserStore from '../Store/useStore';
 
 const Sidebar = () => {
   const navigate = useNavigate(); // useNavigate 훅 사용
-  const {user} =useUserStore();
-  
+  const { user } = useUserStore();
+
   return (
     <SidebarContainer>
       <LogoContainer>

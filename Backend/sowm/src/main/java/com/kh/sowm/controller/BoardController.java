@@ -51,7 +51,7 @@ public class BoardController {
     @PatchMapping("/{id}")
     public ResponseEntity<BoardDto.Response> updateBoard(
             @PathVariable("id") Long boardNo,
-            @ModelAttribute BoardDto.Update updateBoard
+            @RequestBody BoardDto.Update updateBoard
     ) throws IOException {
         return ResponseEntity.ok(boardService.updateBoard(boardNo, updateBoard));
     }

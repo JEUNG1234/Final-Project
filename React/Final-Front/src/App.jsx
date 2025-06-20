@@ -47,7 +47,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useUserStore from './Store/useStore';
 
-
 const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -56,7 +55,7 @@ const AppContainer = styled.div`
 
 function App() {
   const [setScrolled] = useState(false); // setScrolled를 사용하지 않는다면 제거해도 됩니다.
-  const {user, logout} = useUserStore();
+  const { user, logout } = useUserStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -111,7 +110,7 @@ function App() {
                 <Layout user={user} onLogout={logout}>
                   <Routes>
                     {/* Layout 안에 포함될 페이지들 */}
-                    <Route path="/workationlist" element={<WorkationList  />} />
+                    <Route path="/workationlist" element={<WorkationList />} />
                     <Route path="/votelist" element={<VoteList />} />
                     <Route path="/voteresult/:voteId" element={<VoteResult />} />
                     <Route path="/votecreate" element={<VoteCreate />} />
@@ -136,7 +135,7 @@ function App() {
                     <Route path="/communityboard" element={<CommunityBoard />} />
                     <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
                     <Route path="/addboard" element={<AddBoard />} />
-                    <Route path="/editboard" element={<EditBoard />} />
+                    <Route path="/editboard/:id" element={<EditBoard />} />
                     {/* 직원 근태관리 페이지 */}
                     <Route path="/memberattendance" element={<MemberAttendance />} />
                     {/* 직원 워케이션 페이지 */}

@@ -3,7 +3,15 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaComments, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa';
 import axios from 'axios';
-import { MainContent, Pagination, PageButton, BottomBar, SearchInput } from '../../styles/common/MainContentLayout';
+import {
+  MainContent,
+  Pagination,
+  PageButton,
+  BottomBar,
+  SearchInput,
+  PageTitle,
+} from '../../styles/common/MainContentLayout';
+import dayjs from 'dayjs';
 
 const CommunityBoard = () => {
   const navigate = useNavigate();
@@ -15,6 +23,10 @@ const CommunityBoard = () => {
     hasNext: false,
     hasPrevious: false,
   });
+  const [categories, setCategories] = useState([]);
+  const [searchTitle, setSearchTitle] = useState('');
+  const [searchWriter, setSearchWriter] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
 
   // 게시글 데이터 가져오기
   useEffect(() => {
@@ -31,18 +43,52 @@ const CommunityBoard = () => {
       });
   }, []);
 
+  useEffect(() => {
+    axios
+      .get('http://localhost:8888/api/categories')
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error('카테고리 불러오기 실패:', err));
+  }, []);
+
+  const handleSearch = () => {
+    axios
+      .get('http://localhost:8888/api/boards', {
+        params: {
+          title: searchTitle,
+          writer: searchWriter,
+          category: searchCategory,
+        },
+      })
+      .then((response) => {
+        const { content, ...meta } = response.data;
+        setPosts(content);
+        setPageInfo(meta);
+      })
+      .catch((error) => {
+        console.error('게시글 검색 실패:', error);
+      });
+  };
+
   return (
     <MainContent>
-      <PageHeader>
-        <PageTitle>
-          <FaComments />
-          커뮤니티 게시판
-        </PageTitle>
-      </PageHeader>
+      <PageTitle>
+        <FaComments />
+        커뮤니티 게시판
+      </PageTitle>
 
       <BoardActions>
-        <SearchInput placeholder="제목" />
-        <ActionButton primary>
+        <CategorySelect value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)}>
+          <option value="">전체</option>
+          {categories.map((cat) => (
+            <option key={cat.categoryNo} value={cat.categoryNo}>
+              {cat.categoryName}
+            </option>
+          ))}
+        </CategorySelect>
+        <SearchInput placeholder="제목" value={searchTitle} onChange={(e) => setSearchTitle(e.target.value)} />
+        <SearchInput placeholder="작성자" value={searchWriter} onChange={(e) => setSearchWriter(e.target.value)} />
+
+        <ActionButton primary onClick={handleSearch}>
           <FaSearch /> 조회
         </ActionButton>
         <ActionButton onClick={() => navigate('/addboard')}>
@@ -70,7 +116,11 @@ const CommunityBoard = () => {
               <TableCell tag={post.categoryName === '공지사항'}>{post.categoryName}</TableCell>
               <TableCell>{post.boardTitle}</TableCell>
               <TableCell>{post.userName}</TableCell>
-              <TableCell>{post.createdDate}</TableCell>
+              <TableCell>
+                {post.createdDate === post.updatedDate
+                  ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
+                  : dayjs(post.updatedDate).format('YYYY년 MM월 DD일') + ' (수정됨)'}
+              </TableCell>
               <TableCell>{post.views}</TableCell>
             </TableRow>
           ))}
@@ -96,21 +146,6 @@ const PageHeader = styled.div`
   margin-bottom: 30px;
   display: flex;
   align-items: center;
-`;
-
-const PageTitle = styled.h2`
-  font-size: 28px;
-  color: #929393;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  /* React Icons는 SVG로 렌더링되므로, 직접적으로 스타일을 적용할 수 있습니다. */
-  svg {
-    /* i 태그 대신 svg 태그에 스타일 적용 */
-    font-size: 30px; /* 아이콘 크기 */
-    color: #007bff; /* 아이콘 색상 */
-  }
 `;
 
 const BoardActions = styled.div`
@@ -190,8 +225,19 @@ const TableHeaderCell = styled.th`
 `;
 
 const TableRow = styled.tr`
+  padding: 12px 0;
+  border-bottom: 1px solid #ffffff;
+  font-size: 14px;
+  color: #555;
+  align-items: center;
+  transition: background-color 0.3s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
   &:hover {
-    background-color: #fefefe; /* 마우스 오버 시 배경색 */
+    background-color: #ebebeb;
   }
 `;
 
@@ -208,6 +254,20 @@ const TableCell = styled.td`
       text-decoration: underline;
     }
   `}
+`;
+
+const CategorySelect = styled.select`
+  padding: 10px 15px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 15px;
+  min-width: 180px;
+  font-family: 'Pretendard', sans-serif;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 export default CommunityBoard;

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaComments } from 'react-icons/fa';
 import axios from 'axios';
 import useUserStore from '../../Store/useStore';
-import { MainContent } from '../../styles/common/MainContentLayout';
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 
 const AddBoard = () => {
   const navigate = useNavigate();
@@ -140,19 +140,6 @@ const AddBoard = () => {
 };
 
 // --- Styled Components ---
-
-const PageTitle = styled.h2`
-  font-size: 28px;
-  color: #929393;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  svg {
-    font-size: 30px;
-    color: #007bff;
-  }
-`;
 
 const PageMidTitle = styled.h3`
   font-size: 18px;
