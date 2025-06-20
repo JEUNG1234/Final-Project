@@ -46,4 +46,8 @@ export const API_ENDPOINTS = {
     approveUser: '/admin/',
     UpdateMemberRole: '/admin/memberrole/',
   },
+  // VOTES 객체를 추가합니다.
+  VOTES: {
+    BASE: '/votes',
+  },
 };

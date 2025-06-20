@@ -1,7 +1,9 @@
+// aotlfekdl/final-project/Final-Project-2ffaa6d4a80645a88e172a63dc0e1d6d9fbd61db/React/Final-Front/src/pages/vote/VoteCreate.jsx
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
+import { voteService } from '../../api/voteService'; // API 서비스 임포트
 
 const VoteCreate = () => {
   const navigate = useNavigate();
@@ -12,25 +14,61 @@ const VoteCreate = () => {
     { id: 3, text: '점심메뉴 다 같이 식단하기' },
     { id: 4, text: '1일 10000보 걷기' },
   ]);
-  const [isAnonymous, setIsAnonymous] = useState(true); // 익명/비익명 상태 관리
+  const [isAnonymous, setIsAnonymous] = useState(true);
+
+  // 백엔드와 데이터 연동을 위한 상태 추가
+  const [endDate, setEndDate] = useState('2025-07-04');
+  const [voteType, setVoteType] = useState('장기');
+  const [points, setPoints] = useState('300'); // 포인트 상태 추가
 
   const handleAddOption = () => {
-    const newId = options.length > 0 ? Math.max(...options.map(o => o.id)) + 1 : 1;
+    const newId = options.length > 0 ? Math.max(...options.map((o) => o.id)) + 1 : 1;
     setOptions([...options, { id: newId, text: '' }]);
   };
 
   const handleRemoveOption = (id) => {
-    setOptions(options.filter(option => option.id !== id));
+    setOptions(options.filter((option) => option.id !== id));
   };
 
   const handleOptionChange = (id, text) => {
-    setOptions(options.map(option => option.id === id ? { ...option, text } : option));
+    setOptions(options.map((option) => (option.id === id ? { ...option, text } : option)));
   };
 
-  const handleSubmit = () => {
-    console.log({ title, options, isAnonymous });
-    alert('투표가 생성되었습니다.');
-    navigate('/votelist');
+  // '투표 생성' 버튼 클릭 시 실행될 함수 (API 호출 로직으로 수정)
+  const handleSubmit = async () => {
+    // 유효성 검사
+    if (!title.trim()) {
+      alert('투표 제목을 입력해주세요.');
+      return;
+    }
+    if (options.some((opt) => !opt.text.trim())) {
+      alert('비어있는 투표 항목이 있습니다.');
+      return;
+    }
+    if (!endDate) {
+      alert('투표 종료 날짜를 선택해주세요.');
+      return;
+    }
+
+    // 백엔드로 보낼 데이터 객체 (payload) 생성
+    const payload = {
+      voteWriter: 'admin', // TODO: 실제 로그인한 사용자 ID로 교체 필요
+      voteTitle: title,
+      voteType: voteType,
+      voteEndDate: endDate,
+      options: options.map((opt) => opt.text), // 항목의 text만 추출하여 문자열 배열로 전송
+      // 포인트, 익명 여부 등 추가 데이터가 필요하다면 payload에 포함
+    };
+
+    try {
+      // voteService를 사용하여 백엔드 API 호출
+      await voteService.createVote(payload);
+      alert('투표가 성공적으로 생성되었습니다.');
+      navigate('/votelist'); // 성공 시 목록 페이지로 이동
+    } catch (error) {
+      alert('투표 생성에 실패했습니다. 서버 상태를 확인하거나 다시 시도해주세요.');
+      console.error('투표 생성 실패:', error);
+    }
   };
 
   return (
@@ -43,11 +81,7 @@ const VoteCreate = () => {
       <Form>
         <FormGroup>
           <Label>투표 제목</Label>
-          <Input 
-            type="text" 
-            value={title} 
-            onChange={(e) => setTitle(e.target.value)} 
-          />
+          <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </FormGroup>
 
         <FormGroup>
@@ -55,13 +89,27 @@ const VoteCreate = () => {
           <DateWrapper>
             <DateInput type="date" defaultValue="2025-06-05" />
             <span>–</span>
-            <DateInput type="date" defaultValue="2025-07-04" />
+            <DateInput type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             <CheckboxWrapper>
               <CheckboxLabel>
-                <input type="radio" name="voteType" defaultChecked /> 장기
+                <input
+                  type="radio"
+                  name="voteType"
+                  value="장기"
+                  checked={voteType === '장기'}
+                  onChange={(e) => setVoteType(e.target.value)}
+                />{' '}
+                장기
               </CheckboxLabel>
               <CheckboxLabel>
-                <input type="radio" name="voteType" /> 단기
+                <input
+                  type="radio"
+                  name="voteType"
+                  value="단기"
+                  checked={voteType === '단기'}
+                  onChange={(e) => setVoteType(e.target.value)}
+                />{' '}
+                단기
               </CheckboxLabel>
             </CheckboxWrapper>
           </DateWrapper>
@@ -72,8 +120,8 @@ const VoteCreate = () => {
           <OptionsList>
             {options.map((option) => (
               <OptionItem key={option.id}>
-                <Input 
-                  type="text" 
+                <Input
+                  type="text"
                   value={option.text}
                   onChange={(e) => handleOptionChange(option.id, e.target.value)}
                 />
@@ -86,18 +134,17 @@ const VoteCreate = () => {
         <BottomControlsWrapper>
           <AddButton onClick={handleAddOption}>+ 항목 추가</AddButton>
           <RightControls>
-            {/* --- 스위치 기능 구현 --- */}
             <ToggleWrapper>
-              <ToggleButton active={isAnonymous} onClick={() => setIsAnonymous(true)}>
+              <ToggleButton $active={isAnonymous} onClick={() => setIsAnonymous(true)}>
                 익명
               </ToggleButton>
-              <ToggleButton active={!isAnonymous} onClick={() => setIsAnonymous(false)}>
+              <ToggleButton $active={!isAnonymous} onClick={() => setIsAnonymous(false)}>
                 비익명
               </ToggleButton>
             </ToggleWrapper>
             <PointWrapper>
               <Label>포인트</Label>
-              <PointInput type="text" defaultValue="300" />
+              <PointInput type="text" value={points} onChange={(e) => setPoints(e.target.value)} />
             </PointWrapper>
           </RightControls>
         </BottomControlsWrapper>
@@ -230,12 +277,12 @@ const ToggleButton = styled.button`
   padding: 10px 20px;
   font-size: 15px;
   font-weight: 600;
-  border: none; /* 추가 */
-  cursor: pointer; /* 추가 */
-  transition: background-color 0.2s, color 0.2s; /* 추가 */
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
 
   ${(props) =>
-    props.active
+    props.$active // '$'를 사용하여 transient prop으로 변경
       ? css`
           background-color: #007bff;
           color: white;
