@@ -211,10 +211,10 @@ const WorkationList = () => {
                 <>
                   <DeleteButton>삭제</DeleteButton>
                   <UpdateButton
-                    key={place.id}
+                    key={place.locationNo}
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/workationUpdate');
+                      navigate(`/workationUpdate/${place.locationNo}`)
                     }}
                   >
                     수정

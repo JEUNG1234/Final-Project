@@ -43,7 +43,7 @@ const WorkationDetail = () => {
       try {
         const data = await workationService.workationInfo(no);
         console.log('워케이션 정보: ', data);
-        setWorationInfo(data);
+        setWorkationInfo(data);
       } catch (error) {
         console.error('워케이션 리스트 불러오기 실패:', error.message);
       }
@@ -51,7 +51,7 @@ const WorkationDetail = () => {
     workationInfo();
   }, []);
 
-  const [workationInfo, setWorationInfo] = useState([]);
+  const [workationInfo, setWorkationInfo] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
