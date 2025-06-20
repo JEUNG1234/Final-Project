@@ -1,9 +1,9 @@
-// aotlfekdl/final-project/Final-Project-2ffaa6d4a80645a88e172a63dc0e1d6d9fbd61db/React/Final-Front/src/pages/vote/VoteCreate.jsx
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
-import { voteService } from '../../api/voteService'; // API 서비스 임포트
+import { voteService } from '../../api/voteService';
+import useUserStore from '../../Store/useStore'; // [수정] Zustand 스토어 임포트
 
 const VoteCreate = () => {
   const navigate = useNavigate();
@@ -15,11 +15,10 @@ const VoteCreate = () => {
     { id: 4, text: '1일 10000보 걷기' },
   ]);
   const [isAnonymous, setIsAnonymous] = useState(true);
-
-  // 백엔드와 데이터 연동을 위한 상태 추가
   const [endDate, setEndDate] = useState('2025-07-04');
   const [voteType, setVoteType] = useState('장기');
-  const [points, setPoints] = useState('300'); // 포인트 상태 추가
+  const [points, setPoints] = useState('300');
+  const { user } = useUserStore(); // [수정] 스토어에서 사용자 정보 가져오기
 
   const handleAddOption = () => {
     const newId = options.length > 0 ? Math.max(...options.map((o) => o.id)) + 1 : 1;
@@ -34,9 +33,7 @@ const VoteCreate = () => {
     setOptions(options.map((option) => (option.id === id ? { ...option, text } : option)));
   };
 
-  // '투표 생성' 버튼 클릭 시 실행될 함수 (API 호출 로직으로 수정)
   const handleSubmit = async () => {
-    // 유효성 검사
     if (!title.trim()) {
       alert('투표 제목을 입력해주세요.');
       return;
@@ -49,22 +46,26 @@ const VoteCreate = () => {
       alert('투표 종료 날짜를 선택해주세요.');
       return;
     }
+    // [수정] 로그인하지 않은 사용자는 투표를 생성할 수 없도록 처리
+    if (!user?.userId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
 
-    // 백엔드로 보낼 데이터 객체 (payload) 생성
+    // [수정] 백엔드로 보낼 payload 객체
     const payload = {
-      voteWriter: 'admin', // TODO: 실제 로그인한 사용자 ID로 교체 필요
+      userId: user.userId, // 스토어에서 가져온 실제 사용자 ID
       voteTitle: title,
-      voteType: voteType,
+      voteType: voteType === '장기' ? 'LONG' : 'SHORT', // 백엔드 Enum 형식에 맞게 변환
       voteEndDate: endDate,
-      options: options.map((opt) => opt.text), // 항목의 text만 추출하여 문자열 배열로 전송
-      // 포인트, 익명 여부 등 추가 데이터가 필요하다면 payload에 포함
+      options: options.map((opt) => opt.text),
     };
 
     try {
-      // voteService를 사용하여 백엔드 API 호출
       await voteService.createVote(payload);
       alert('투표가 성공적으로 생성되었습니다.');
-      navigate('/votelist'); // 성공 시 목록 페이지로 이동
+      navigate('/votelist');
     } catch (error) {
       alert('투표 생성에 실패했습니다. 서버 상태를 확인하거나 다시 시도해주세요.');
       console.error('투표 생성 실패:', error);
@@ -77,17 +78,15 @@ const VoteCreate = () => {
         <ComponentTitle>투표 생성</ComponentTitle>
         <Line />
       </ComponentHeader>
-
       <Form>
         <FormGroup>
           <Label>투표 제목</Label>
           <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </FormGroup>
-
         <FormGroup>
           <Label>투표 기간</Label>
           <DateWrapper>
-            <DateInput type="date" defaultValue="2025-06-05" />
+            <DateInput type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
             <span>–</span>
             <DateInput type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             <CheckboxWrapper>
@@ -114,7 +113,6 @@ const VoteCreate = () => {
             </CheckboxWrapper>
           </DateWrapper>
         </FormGroup>
-
         <FormGroup>
           <Label>투표 항목</Label>
           <OptionsList>
@@ -130,7 +128,6 @@ const VoteCreate = () => {
             ))}
           </OptionsList>
         </FormGroup>
-
         <BottomControlsWrapper>
           <AddButton onClick={handleAddOption}>+ 항목 추가</AddButton>
           <RightControls>
@@ -148,7 +145,6 @@ const VoteCreate = () => {
             </PointWrapper>
           </RightControls>
         </BottomControlsWrapper>
-
         <ActionButtons>
           <SubmitButton onClick={handleSubmit}>투표 생성</SubmitButton>
           <CancelButton onClick={() => navigate(-1)}>취소하기</CancelButton>
@@ -158,13 +154,11 @@ const VoteCreate = () => {
   );
 };
 
-// --- Styled Components ---
-
+// --- Styled Components (이하 동일) ---
 const MainContent = styled(BaseMainContent)`
   margin: 30px auto;
   padding: 30px 40px;
 `;
-
 const ComponentHeader = styled.div`
   text-align: center;
   margin-bottom: 25px;
@@ -254,19 +248,16 @@ const AddButton = styled.button`
   color: white;
   border-radius: 8px;
 `;
-
 const BottomControlsWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
-
 const RightControls = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
 `;
-
 const ToggleWrapper = styled.div`
   display: flex;
   border: 1px solid #007bff;
@@ -280,9 +271,8 @@ const ToggleButton = styled.button`
   border: none;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
-
   ${(props) =>
-    props.$active // '$'를 사용하여 transient prop으로 변경
+    props.$active
       ? css`
           background-color: #007bff;
           color: white;
