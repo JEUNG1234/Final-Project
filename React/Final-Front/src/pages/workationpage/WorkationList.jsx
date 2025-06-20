@@ -39,11 +39,15 @@ const WorkationList = () => {
   const peopleRef = useRef();
   const dateRef = useRef();
 
+
+  
   //워케이션 리스트 가져오기
   useEffect(() => {
+   
+   
     const workationList = async () => {
       try {
-        const data = await workationService.workationList();
+        const data = await workationService.workationList(user.companyCode);
         console.log('워케이션 리스트:', data);
 
         setWorkationData(data);

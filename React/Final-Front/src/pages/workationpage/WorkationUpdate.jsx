@@ -9,18 +9,7 @@ import { MdWork } from 'react-icons/md';
 
 import NaverMapWithGeocoding from '../../components/NaverMapWithGeocoding';
 
-import {
-  FaSquare,
-  FaRulerCombined,
-  FaHourglassHalf,
-  FaUsers,
-  FaChair,
-  FaPlug,
-  FaHotTub,
-  FaSmokingBan,
-  FaWifi,
-  FaUtensils,
-} from 'react-icons/fa';
+import { FaSquare, FaRulerCombined, FaHourglassHalf, FaUsers } from 'react-icons/fa';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -178,11 +167,6 @@ const WorkationUpdate = () => {
                   <InfoIcon as={FaRulerCombined} /> {/* 공간면적 아이콘 (임시) */}
                   <InfoText>공간면적</InfoText>
                   <DetailText>33m²</DetailText>
-                </InfoBlock>
-                <InfoBlock>
-                  <InfoIcon as={FaHourglassHalf} /> {/* 예약시간 아이콘 (임시) */}
-                  <InfoText>예약시간</InfoText>
-                  <DetailText>최소 1시간 부터</DetailText>
                 </InfoBlock>
                 <InfoBlock>
                   <InfoIcon as={FaUsers} /> {/* 수용인원 아이콘 (임시) */}
@@ -488,7 +472,6 @@ const Description = styled.p`
   height: 10%;
 `;
 
-
 const FeaturesSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -524,6 +507,7 @@ const FacilityLeftContent = styled.div`
 const FacilityRightContent = styled.div`
   width: 50%;
   height: 100%;
+
 `;
 const InfoBlock = styled.div`
   display: flex;
@@ -551,36 +535,7 @@ const DetailText = styled.span`
   margin-left: 10px;
 `;
 
-const IconGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3열 그리드 */
-  gap: 20px; /* 아이콘 항목 간 간격 */
-  margin-top: 30px; /* 정보 블록과의 간격 */
-  padding-left: 10px; /* InfoBlock과 정렬 */
-`;
 
-const IconItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: #555;
-  text-align: center;
-
-  svg {
-    font-size: 20px; /* 아이콘 크기 */
-    color: #666;
-    margin-bottom: 8px; /* 아이콘과 텍스트 간 간격 */
-  }
-
-  ${media.md`
-      
-        gap: 10px;
-        margin-top: 0;
-        font-size: 0px;
-      `}
-`;
 
 const FaciltyLeftFirstInfo = styled.div`
   width: 100%;
