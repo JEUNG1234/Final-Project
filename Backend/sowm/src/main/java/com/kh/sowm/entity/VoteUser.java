@@ -33,4 +33,3 @@ public class VoteUser {
     private VoteContent voteContent;
 
 }
-
