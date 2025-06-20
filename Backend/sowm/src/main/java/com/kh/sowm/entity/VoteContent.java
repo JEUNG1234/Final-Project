@@ -35,4 +35,8 @@ public class VoteContent {
     public void prePersist() {
         this.voteCount = 0;
     }
+
+    public void incrementVoteCount() {
+        this.voteCount++;
+    }
 }

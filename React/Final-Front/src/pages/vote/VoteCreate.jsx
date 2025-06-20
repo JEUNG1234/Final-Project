@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
+import { voteService } from '../../api/voteService';
+import useUserStore from '../../Store/useStore'; // [수정] Zustand 스토어 임포트
 
 const VoteCreate = () => {
   const navigate = useNavigate();
@@ -12,25 +14,62 @@ const VoteCreate = () => {
     { id: 3, text: '점심메뉴 다 같이 식단하기' },
     { id: 4, text: '1일 10000보 걷기' },
   ]);
-  const [isAnonymous, setIsAnonymous] = useState(true); // 익명/비익명 상태 관리
+  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [endDate, setEndDate] = useState('2025-07-04');
+  const [voteType, setVoteType] = useState('장기');
+  const [points, setPoints] = useState('300');
+  const { user } = useUserStore(); // [수정] 스토어에서 사용자 정보 가져오기
 
   const handleAddOption = () => {
-    const newId = options.length > 0 ? Math.max(...options.map(o => o.id)) + 1 : 1;
+    const newId = options.length > 0 ? Math.max(...options.map((o) => o.id)) + 1 : 1;
     setOptions([...options, { id: newId, text: '' }]);
   };
 
   const handleRemoveOption = (id) => {
-    setOptions(options.filter(option => option.id !== id));
+    setOptions(options.filter((option) => option.id !== id));
   };
 
   const handleOptionChange = (id, text) => {
-    setOptions(options.map(option => option.id === id ? { ...option, text } : option));
+    setOptions(options.map((option) => (option.id === id ? { ...option, text } : option)));
   };
 
-  const handleSubmit = () => {
-    console.log({ title, options, isAnonymous });
-    alert('투표가 생성되었습니다.');
-    navigate('/votelist');
+  const handleSubmit = async () => {
+    if (!title.trim()) {
+      alert('투표 제목을 입력해주세요.');
+      return;
+    }
+    if (options.some((opt) => !opt.text.trim())) {
+      alert('비어있는 투표 항목이 있습니다.');
+      return;
+    }
+    if (!endDate) {
+      alert('투표 종료 날짜를 선택해주세요.');
+      return;
+    }
+    // [수정] 로그인하지 않은 사용자는 투표를 생성할 수 없도록 처리
+    if (!user?.userId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+
+    // [수정] 백엔드로 보낼 payload 객체
+    const payload = {
+      userId: user.userId, // 스토어에서 가져온 실제 사용자 ID
+      voteTitle: title,
+      voteType: voteType === '장기' ? 'LONG' : 'SHORT', // 백엔드 Enum 형식에 맞게 변환
+      voteEndDate: endDate,
+      options: options.map((opt) => opt.text),
+    };
+
+    try {
+      await voteService.createVote(payload);
+      alert('투표가 성공적으로 생성되었습니다.');
+      navigate('/votelist');
+    } catch (error) {
+      alert('투표 생성에 실패했습니다. 서버 상태를 확인하거나 다시 시도해주세요.');
+      console.error('투표 생성 실패:', error);
+    }
   };
 
   return (
@@ -39,41 +78,48 @@ const VoteCreate = () => {
         <ComponentTitle>투표 생성</ComponentTitle>
         <Line />
       </ComponentHeader>
-
       <Form>
         <FormGroup>
           <Label>투표 제목</Label>
-          <Input 
-            type="text" 
-            value={title} 
-            onChange={(e) => setTitle(e.target.value)} 
-          />
+          <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </FormGroup>
-
         <FormGroup>
           <Label>투표 기간</Label>
           <DateWrapper>
-            <DateInput type="date" defaultValue="2025-06-05" />
+            <DateInput type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
             <span>–</span>
-            <DateInput type="date" defaultValue="2025-07-04" />
+            <DateInput type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             <CheckboxWrapper>
               <CheckboxLabel>
-                <input type="radio" name="voteType" defaultChecked /> 장기
+                <input
+                  type="radio"
+                  name="voteType"
+                  value="장기"
+                  checked={voteType === '장기'}
+                  onChange={(e) => setVoteType(e.target.value)}
+                />{' '}
+                장기
               </CheckboxLabel>
               <CheckboxLabel>
-                <input type="radio" name="voteType" /> 단기
+                <input
+                  type="radio"
+                  name="voteType"
+                  value="단기"
+                  checked={voteType === '단기'}
+                  onChange={(e) => setVoteType(e.target.value)}
+                />{' '}
+                단기
               </CheckboxLabel>
             </CheckboxWrapper>
           </DateWrapper>
         </FormGroup>
-
         <FormGroup>
           <Label>투표 항목</Label>
           <OptionsList>
             {options.map((option) => (
               <OptionItem key={option.id}>
-                <Input 
-                  type="text" 
+                <Input
+                  type="text"
                   value={option.text}
                   onChange={(e) => handleOptionChange(option.id, e.target.value)}
                 />
@@ -82,26 +128,23 @@ const VoteCreate = () => {
             ))}
           </OptionsList>
         </FormGroup>
-
         <BottomControlsWrapper>
           <AddButton onClick={handleAddOption}>+ 항목 추가</AddButton>
           <RightControls>
-            {/* --- 스위치 기능 구현 --- */}
             <ToggleWrapper>
-              <ToggleButton active={isAnonymous} onClick={() => setIsAnonymous(true)}>
+              <ToggleButton $active={isAnonymous} onClick={() => setIsAnonymous(true)}>
                 익명
               </ToggleButton>
-              <ToggleButton active={!isAnonymous} onClick={() => setIsAnonymous(false)}>
+              <ToggleButton $active={!isAnonymous} onClick={() => setIsAnonymous(false)}>
                 비익명
               </ToggleButton>
             </ToggleWrapper>
             <PointWrapper>
               <Label>포인트</Label>
-              <PointInput type="text" defaultValue="300" />
+              <PointInput type="text" value={points} onChange={(e) => setPoints(e.target.value)} />
             </PointWrapper>
           </RightControls>
         </BottomControlsWrapper>
-
         <ActionButtons>
           <SubmitButton onClick={handleSubmit}>투표 생성</SubmitButton>
           <CancelButton onClick={() => navigate(-1)}>취소하기</CancelButton>
@@ -111,13 +154,11 @@ const VoteCreate = () => {
   );
 };
 
-// --- Styled Components ---
-
+// --- Styled Components (이하 동일) ---
 const MainContent = styled(BaseMainContent)`
   margin: 30px auto;
   padding: 30px 40px;
 `;
-
 const ComponentHeader = styled.div`
   text-align: center;
   margin-bottom: 25px;
@@ -207,19 +248,16 @@ const AddButton = styled.button`
   color: white;
   border-radius: 8px;
 `;
-
 const BottomControlsWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
-
 const RightControls = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
 `;
-
 const ToggleWrapper = styled.div`
   display: flex;
   border: 1px solid #007bff;
@@ -230,12 +268,11 @@ const ToggleButton = styled.button`
   padding: 10px 20px;
   font-size: 15px;
   font-weight: 600;
-  border: none; /* 추가 */
-  cursor: pointer; /* 추가 */
-  transition: background-color 0.2s, color 0.2s; /* 추가 */
-
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
   ${(props) =>
-    props.active
+    props.$active
       ? css`
           background-color: #007bff;
           color: white;

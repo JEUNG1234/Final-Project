@@ -56,6 +56,11 @@ public class Vote {
     @Enumerated(EnumType.STRING)
     private CommonEnums.Status status;
 
+
+    public void incrementTotalVotes() {
+        this.totalVotes++;
+    }
+
     @PrePersist
     public void prePersist() {
         this.voteCreatedDate = LocalDate.now();
