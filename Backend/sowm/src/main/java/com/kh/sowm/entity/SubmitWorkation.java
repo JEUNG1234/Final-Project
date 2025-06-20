@@ -36,6 +36,14 @@ public class SubmitWorkation {
     @Column(name = "LOCATION", nullable = false)
     private String location;
 
+    //최대인원
+    @Column(name = "PEOPLE_MAX", nullable = false)
+    private Integer peopleMax;
+
+    //사유
+    @Column(name = "CONTENT", nullable = false)
+    private String content;
+
 
     //승인상태 값
     @Column(length = 1, nullable = false)

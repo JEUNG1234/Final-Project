@@ -1,37 +1,26 @@
-// src/components/MainContent.jsx
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
-import MyLeafletMap from '../../components/MyLeafletMap';
 
 //달력기능
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-// GoogleMapReact 대신 Leaflet 관련 컴포넌트 임포트
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'; // Leaflet CSS 임포트
-import L from 'leaflet'; // Leaflet 자체 임포트 (마커 아이콘 깨짐 방지용)
-
-// Leaflet 기본 마커 아이콘 깨짐 방지 설정 (이거 꼭 있어야 해요!)
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-});
+// GoogleMapReact 대신 Leaflet 관련 컴포넌트 임포트 // Leaflet빼고 네이버Maps로 변경
+import NaverMapStatic from '../../components/NvaerMapStatic';
+// import DOMPurify from 'dompurify';
 
 import { FaSquare, FaRulerCombined, FaHourglassHalf, FaUsers } from 'react-icons/fa';
 
 import image from '../../assets/돌하르방.jpg';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { workationService } from '../../api/workation';
 import useUserStore from '../../Store/useStore';
 // import { workationService } from '../../api/workation';
 
 const WorkationDetail = () => {
-  const {user} = useUserStore();
-  console.log(user)
+  const { user } = useUserStore();
+  console.log(user);
   // 현재 활성화된 탭 상태 관리 (예시)
   const [activeTab, setActiveTab] = React.useState('intro');
 
@@ -39,18 +28,19 @@ const WorkationDetail = () => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
 
-  console.log(startDate, endDate);
+  const [peopleMax , setPeopleMax] = useState('');
+  const [content, setContent] = useState('');
+
+
   //날짜 초기화
   const resetDates = () => setDateRange([null, null]);
 
   //워케이션 정보 가져오기
   const { no } = useParams();
-console.log(no)
+
   useEffect(() => {
-    
     const workationInfo = async () => {
       try {
-        console.log(no)
         const data = await workationService.workationInfo(no);
         console.log('워케이션 정보: ', data);
         setWorationInfo(data);
@@ -58,10 +48,44 @@ console.log(no)
         console.error('워케이션 리스트 불러오기 실패:', error.message);
       }
     };
-     workationInfo(); // ✅ 함수 호출
-}, []); // 
- 
-const [ workationInfo, setWorationInfo] = useState([]);
+    workationInfo();
+  }, []);
+
+  const [workationInfo, setWorationInfo] = useState([]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const submitBody = {
+        peopleMax,
+        startDate,
+        endDate,
+        content,
+      }
+      const requestBody = {
+        ...submitBody,
+        userId: user.userId,
+        location: workationInfo.address,
+        workationNo: no
+      }
+
+      console.log(requestBody);
+
+      const response = await workationService.workationSubmit(requestBody);
+      
+      console.log(response);
+
+    } catch(error) {
+      console.error('워케이션 신청 에러:', error);
+      alert('워케이션 신청 중 에러가 발생했습니다.');
+    }
+    console.log({e});
+    alert('워케이션 신청되었습니다.');
+    Navigate('/workationList');
+  };
+
+
 
   return (
     <FullWapper>
@@ -91,18 +115,11 @@ const [ workationInfo, setWorationInfo] = useState([]);
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
             <Title>{workationInfo.workationTitle}</Title>
-            <Subtitle>제주도</Subtitle>
-            <Description>
-              제주 서쪽 애월 해안가에 위치한 조용한 워케이션 공간입니다.
-              <br />
-              바다를 보며 영감을 얻고 싶은 분들께 추천합니다.
-            </Description>
+            <Subtitle>{workationInfo.address}</Subtitle>
+            <Description>{workationInfo.placeInfo}</Description>
             <Subtitle>주요 특징</Subtitle>
             <FeaturesSection>
-              <FeatureItem>오션뷰 개인 작업 공간</FeatureItem>
-              <FeatureItem>고속 Wi-Fi</FeatureItem>
-              <FeatureItem>공용 라운지 및 주방</FeatureItem>
-              <FeatureItem>주변 산책로 및 카페 다수</FeatureItem>
+              <RefundPolicy>{workationInfo.feature}</RefundPolicy>
             </FeaturesSection>
           </>
         )}
@@ -114,33 +131,31 @@ const [ workationInfo, setWorationInfo] = useState([]);
               <FacilityLeftContent>
                 <FaciltyLeftFirstInfo>
                   <h2>시설안내</h2>
-                  <h3>4인용 테이블 5개</h3>
+                  <h3>{workationInfo.facilityInfo}</h3>
                 </FaciltyLeftFirstInfo>
                 <FaciltyLeftSecondInfo>
                   <h2>영업시간 | 휴무일</h2>
-                  <h3>8시 ~ 18시 | 없음</h3>
+                  <h3>{workationInfo.openHours}</h3>
                 </FaciltyLeftSecondInfo>
               </FacilityLeftContent>
               <FacilityRightContent>
                 <InfoBlock>
                   <InfoIcon as={FaSquare} /> {/* 공간유형 아이콘 (임시) */}
                   <InfoText>공간유형</InfoText>
-                  <DetailText>스터디룸</DetailText>
+                  <DetailText>{workationInfo.spaceType}</DetailText>
                 </InfoBlock>
                 <InfoBlock>
                   <InfoIcon as={FaRulerCombined} /> {/* 공간면적 아이콘 (임시) */}
                   <InfoText>공간면적</InfoText>
-                  <DetailText>33m²</DetailText>
+                  <DetailText>{workationInfo.area}m²</DetailText>
                 </InfoBlock>
-                <InfoBlock>
-                  <InfoIcon as={FaHourglassHalf} /> {/* 예약시간 아이콘 (임시) */}
-                  <InfoText>예약시간</InfoText>
-                  <DetailText>최소 1시간 부터</DetailText>
-                </InfoBlock>
+
                 <InfoBlock>
                   <InfoIcon as={FaUsers} /> {/* 수용인원 아이콘 (임시) */}
                   <InfoText>수용인원</InfoText>
-                  <DetailText>최소 1명 ~ 최대 20명</DetailText>
+                  <DetailText>
+                    {workationInfo.peopleMin}명 ~ 최대{workationInfo.peopleMax}
+                  </DetailText>
                 </InfoBlock>
               </FacilityRightContent>
             </FacilityContent>
@@ -150,7 +165,7 @@ const [ workationInfo, setWorationInfo] = useState([]);
         {activeTab === 'precautions' && (
           <>
             <Title>유의 사항</Title>
-            <PrecautionContent></PrecautionContent>
+            <PrecautionContent>{workationInfo.precautions}</PrecautionContent>
           </>
         )}
 
@@ -159,51 +174,21 @@ const [ workationInfo, setWorationInfo] = useState([]);
           <>
             <Title>오시는 길</Title>
             <MapContainerStyled>
-              {' '}
-              {/* 지도 컨테이너 */}
-              <MapContainer
-                center={MAP_CENTER} // 지도의 초기 중심점
-                zoom={MAP_ZOOM} // 초기 확대 레벨
-                scrollWheelZoom={true} // 마우스 휠로 확대/축소 가능
-                style={{ height: '100%', width: '100%' }} // 부모 컨테이너(MapContainerStyled) 크기 사용
-              >
-                {/* 맵 타일 레이어 (배경 지도) */}
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-
-                {/* 마커 추가 */}
-                <Marker position={MAP_CENTER}>
-                  {' '}
-                  {/* 워케이션 장소 마커 */}
-                  <Popup>
-                    제주 애월 스테이 <br /> (워케이션 장소)
-                  </Popup>
-                </Marker>
-
-                {/* 필요하다면 다른 마커 추가 가능 */}
-                {/* <Marker position={[33.465, 126.590]}>
-                  <Popup>
-                    근처 카페
-                  </Popup>
-                </Marker> */}
-              </MapContainer>
+              <NaverMapStatic
+                address={workationInfo.address}
+                latitude={workationInfo.latitude}
+                longitude={workationInfo.longitude}
+              />
             </MapContainerStyled>
 
             {/* 추가적인 위치 정보 (주소, 교통편 등) */}
             <Description style={{ marginTop: '20px' }}>
-              <p>주소: 제주특별자치도 제주시 애월읍 애월로 1234</p>
-              <p>대중교통: 애월항에서 도보 5분</p>
-              <p>주차: 건물 내 주차장 이용 가능 (무료)</p>
+              <p>주소: {workationInfo.address}</p>
+              <p>대중교통: {workationInfo.busInfo}</p>
+              <p>주차: {workationInfo.parkingInfo}</p>
             </Description>
           </>
         )}
-
-        {/* 다른 탭 콘텐츠는 activeTab 값에 따라 조건부 렌더링 */}
-        {/* <ContentForFacilities /> */}
-        {/* <ContentForPrecautions /> */}
-        {/* <ContentForLocation /> */}
       </MainContent>
       <DateContent>
         <DateMenu>
@@ -241,21 +226,20 @@ const [ workationInfo, setWorationInfo] = useState([]);
 
           <FormRow>
             <Label>장소</Label>
-            <Input type="text" placeholder="장소를 입력하세요" />
+            <Input type="text" value={workationInfo.address} placeholder="장소를 입력하세요" />
           </FormRow>
 
           <FormRow>
             <Label>최대 인원</Label>
-            <Input type="text" placeholder="최대인원" />
+            <Input type="text" value={peopleMax} onChange={(e) => setPeopleMax(e.target.value)} placeholder="최대인원" />
           </FormRow>
 
-          {/* For textarea, align label to top, and ensure it doesn't push button out */}
           <FormRow style={{ alignItems: 'flex-start', flexGrow: 1, marginBottom: '0' }}>
             <Label>사유</Label>
-            <TextArea placeholder="사유를 입력하세요" />
+            <TextArea value={content} onChange={(e) => setContent(e.target.value)}  placeholder="사유를 입력하세요" />
           </FormRow>
 
-          <SubmitButton type="sumbit">워케이션 신청</SubmitButton>
+          <SubmitButton onClick={handleSubmit}>워케이션 신청</SubmitButton>
         </FormContent>
       </DateContent>
     </FullWapper>
@@ -363,12 +347,7 @@ const FeaturesSection = styled.div`
   gap: 10px;
 `;
 
-const FeatureItem = styled.p`
-  font-size: 15px;
-  color: #444;
-  height: 15%;
-  /* 아이콘이 있다면 여기에 아이콘 스타일 추가 */
-`;
+
 
 //시설안내 정보 영역
 const FacilityContent = styled.div`
@@ -392,23 +371,24 @@ const FacilityLeftContent = styled.div`
   width: 50%;
   height: 100%;
 
-  ${media.md`
-    width:30%;
-  `}
-  @media (max-width: 1800px) {
-    width: 50%;
-  }
+  
 `;
 
 const FacilityRightContent = styled.div`
   width: 50%;
   height: 100%;
   ${media.md`
-    width:70%;
+    width:50%;
     font-size: ${({ theme }) => theme.fontSizes.sm};
+      display: flex;
+  flex-direction: column;
+  justify-content: center;
   `}
   @media (max-width: 1800px) {
     width: 50%;
+      display: flex;
+  flex-direction: column;
+  justify-content: center;
   }
 `;
 const InfoBlock = styled.div`
@@ -534,7 +514,7 @@ const PrecautionContent = styled.div`
 `;
 
 // 지도의 기본 중심 좌표 (예: 제주 애월)
-const MAP_CENTER = [33.4507, 126.5706]; // 위도, 경도
+// const MAP_CENTER = [{}}]; // 위도, 경도
 const MAP_ZOOM = 12; // 확대 레벨
 
 //지도 컨테이너 스타일
@@ -720,6 +700,12 @@ const Tilde = styled.span`
   color: #555;
 `;
 
+const RefundPolicy = styled.div`
+  white-space: pre-line; /* 엔터(줄바꿈)는 살리고, 연속 공백은 무시 */
+  font-family: inherit; /* 폰트는 상속 */
+  font-size: 16px;
+  color: #444;
+`;
 // Styled button
 const SubmitButton = styled.button`
   background-color: #61a5fa;
