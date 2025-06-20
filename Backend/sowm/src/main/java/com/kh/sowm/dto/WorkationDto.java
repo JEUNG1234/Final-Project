@@ -1,6 +1,7 @@
 package com.kh.sowm.dto;
 
 
+import com.kh.sowm.entity.SubmitWorkation;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
@@ -11,8 +12,17 @@ import java.time.LocalDate;
 
 public class WorkationDto {
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class UserCompanyRequest {
+        private String userCompanyCode;
 
+    }
 
+    //워케이션 디테일용 정보 전부 가져오기 dto
     @Getter
     @Setter
     @AllArgsConstructor
@@ -67,6 +77,7 @@ public class WorkationDto {
         }
     }
 
+    //워케이션 정보 생성요 dto
     @Getter
     @Setter
     @AllArgsConstructor
@@ -102,6 +113,8 @@ public class WorkationDto {
         private double longitude;
     }
 
+
+    //워케이션 정보 생성용 dto
     @Getter
     @Setter
     @NoArgsConstructor
@@ -142,6 +155,7 @@ public class WorkationDto {
         }
     }
 
+    //워케이션 리스트 카드정보용 dto
     @Getter
     @Setter
     @NoArgsConstructor
@@ -150,12 +164,44 @@ public class WorkationDto {
         private Long locationNo;
         private String workationTitle;
         private String address;
+        private String userId;
         //        private String placeImage; 이미지는 추후에 추가 예정
 
-        public WorkationBasicDto(Long locationNo, String address, String workationTitle) {
+        public WorkationBasicDto(Long locationNo, String address, String workationTitle, String userId) {
             this.locationNo = locationNo;
             this.workationTitle = workationTitle;
             this.address = address;
+            this.userId = userId;
+
+
+        }
+
+
+    }
+
+    //워케이션 신청용 dto
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class SubWorkation {
+        private Long workationNo;
+        private String location;
+        private String content;
+        private int peopleMax;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private String userId;
+
+        public SubmitWorkation subWorkationDto(User user, Workation workation) {
+            return  SubmitWorkation.builder()
+                    .workation(workation)
+                    .location(this.location)
+                    .content(this.content)
+                    .peopleMax(this.peopleMax)
+                    .startDate(this.startDate)
+                    .endDate(this.endDate)
+                    .user(user)
+                    .build();
 
 
         }

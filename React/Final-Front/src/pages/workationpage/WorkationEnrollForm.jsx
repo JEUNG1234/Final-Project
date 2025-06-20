@@ -245,11 +245,7 @@ const { user } = useUserStore();
                   <InfoText>공간면적</InfoText>
                   <DetailText>33m²</DetailText>
                 </InfoBlock>
-                <InfoBlock>
-                  <InfoIcon as={FaHourglassHalf} /> {/* 예약시간 아이콘 (임시) */}
-                  <InfoText>예약시간</InfoText>
-                  <DetailText>최소 1시간 부터</DetailText>
-                </InfoBlock>
+
                 <InfoBlock>
                   <InfoIcon as={FaUsers} /> {/* 수용인원 아이콘 (임시) */}
                   <InfoText>수용인원</InfoText>
