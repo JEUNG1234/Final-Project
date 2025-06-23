@@ -22,4 +22,9 @@ public interface WorkationService {
 
     //워케이션 신청용
     WorkationDto.SubWorkation submit(WorkationDto.SubWorkation subWork);
+
+    //워케이션 수정용
+    WorkationDto.ResponseUpdateDto updateWorkation(WorkationDto.WorkationUpdateDto request);
+
+    Workation delete(Long workationNo);
 }

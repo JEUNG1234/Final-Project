@@ -145,7 +145,7 @@ function App() {
                     <Route path="/workationadmin" element={<WorkationAdmin />} />
                     {/* 관리자 워케이션리스트 생성 페이지 */}
                     <Route path="/workationEnrollForm" element={<WorkationEnrollForm />} />
-                    <Route path="/WorkationUpdate" element={<WorkationUpdate />} />
+                    <Route path="/WorkationUpdate/:no" element={<WorkationUpdate />} />
                     {/* 건강 관리 페이지 */}
                     <Route path="healthcaremain" element={<HealthCareMain />} />
                     <Route path="mentaltest" element={<MentalCareTest />} />

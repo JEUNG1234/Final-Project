@@ -1,5 +1,6 @@
 package com.kh.sowm.entity;
 
+import com.kh.sowm.dto.WorkationDto;
 import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -94,6 +95,10 @@ public class Workation {
         }
 
     }
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedDate = LocalDate.from(LocalDate.now());
+    }
 
 
     public void assignUser(User user) {
@@ -102,5 +107,23 @@ public class Workation {
 
     public void setWorkationLocation(WorkationLocation savedLocation) {
         this.workationLocation = savedLocation;
+    }
+
+    public void updateFromDto(WorkationDto.WorkationsDto dto, User user) {
+        this.user = user;
+        this.workationTitle = dto.getWorkationTitle();
+        this.facilityInfo = dto.getFacilityInfo();
+        this.workationStartDate = dto.getWorkationStartDate();
+        this.workationEndDate = dto.getWorkationEndDate();
+        this.peopleMin = dto.getPeopleMin();
+        this.peopleMax = dto.getPeopleMax();
+        this.URL = dto.getUrl();
+        this.precautions = dto.getPrecautions();
+        // 기타 업데이트 항목들
+    }
+
+    //삭제시 상태값 변경
+    public void setStatus(CommonEnums.Status status) {
+        this.status = CommonEnums.Status.N;
     }
 }
