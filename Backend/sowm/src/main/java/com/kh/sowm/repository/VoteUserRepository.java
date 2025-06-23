@@ -1,12 +1,13 @@
 package com.kh.sowm.repository;
 
+import com.kh.sowm.entity.User;
+import com.kh.sowm.entity.Vote;
 import com.kh.sowm.entity.VoteUser;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface VoteUserRepository {
-
-    // 사용자 투표 기록 저장
-    void save(VoteUser voteUser);
-
-    // 특정 사용자가 특정 투표에 참여했는지 확인
-    boolean existsByVoteNoAndUserId(Long voteNo, String userId);
+@Repository
+public interface VoteUserRepository extends JpaRepository<VoteUser, Integer> {
+    boolean existsByVoteAndUser(Vote vote, User user);
+    boolean existsByVoteVoteNoAndUserUserId(int voteNo, String userId);
 }
