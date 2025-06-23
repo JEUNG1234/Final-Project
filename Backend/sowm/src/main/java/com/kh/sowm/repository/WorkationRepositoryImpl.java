@@ -84,6 +84,10 @@ public class WorkationRepositoryImpl implements WorkationRepository {
          return subWork;
     }
 
+    @Override
+    public void updateWorkation(Workation workation) {
+        em.merge(workation);
+    }
 
 
 }

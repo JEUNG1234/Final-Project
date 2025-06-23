@@ -208,5 +208,108 @@ public class WorkationDto {
 
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResponseUpdateDto {
+        private String workationTitle;
+        private String placeImage;
+        private String address;
+        private String placeInfo;
+        private String feature;
+        private LocalDate workationStartDate;
+        private LocalDate workationEndDate;
+        private String facilityImage;
+        private String facilityInfo;
+        private String openHours;
+        private String spaceType;
+        private int area;
+        private int peopleMin;
+        private int peopleMax;
+        private String url;
+        private String precautions;
+        private String busInfo;
+        private String parkingInfo;
+        private double latitude;
+        private double longitude;
+        private String userId;
+        private Long locationNo;
+        private Long workationNo;
+
+        public static ResponseUpdateDto toDto(Workation workation) {
+            return ResponseUpdateDto.builder()
+                    .workationTitle(workation.getWorkationTitle())
+                    .address(workation.getWorkationLocation().getAddress())
+                    .feature(workation.getWorkationLocation().getFeature())
+                    .placeInfo(workation.getWorkationLocation().getPlaceInfo())
+                    .openHours(workation.getWorkationLocation().getOpenHours())
+                    .spaceType(workation.getWorkationLocation().getSpaceType())
+                    .area(workation.getWorkationLocation().getArea())
+                    .busInfo(workation.getWorkationLocation().getBusInfo())
+                    .parkingInfo(workation.getWorkationLocation().getParkingInfo())
+                    .latitude(workation.getWorkationLocation().getLatitude())
+                    .longitude(workation.getWorkationLocation().getLongitude())
+                    .userId(workation.getUser().getUserId())
+                    .facilityInfo(workation.getFacilityInfo())
+                    .workationStartDate(workation.getWorkationStartDate())
+                    .workationEndDate(workation.getWorkationEndDate())
+                    .peopleMin(workation.getPeopleMin())
+                    .peopleMax(workation.getPeopleMax())
+                    .url(workation.getURL())
+                    .precautions(workation.getPrecautions())
+                    .locationNo(workation.getWorkationNo())
+                    .workationNo(workation.getWorkationNo())
+                    .build();
+        }
+    }
+    //워케이션 정보 생성용 dto
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkationUpdateDto {
+        private WorkationsDto workation;
+        private LocationsDto location;
+        private String userId;
+        private Long locationNo;
+        private Long workationNo;
+
+
+        public void applyToWorkation(Workation Workation) {
+            Workation.updateWorkationDetails(
+                    this.workation.getWorkationTitle(),
+                    this.workation.getFacilityInfo(),
+                    this.workation.getWorkationStartDate(),
+                    this.workation.getWorkationEndDate(),
+                    this.workation.getPeopleMin(),
+                    this.workation.getPeopleMax(),
+                    this.workation.getUrl(),
+                    this.workation.getPrecautions()
+            );
+        }
+
+        /**
+         * 이 DTO의 데이터를 기존 WorkationLocation 엔티티에 적용합니다.
+         * 엔티티의 비즈니스 로직 메서드를 호출하여 필드를 업데이트합니다.
+         * @param location 업데이트할 기존 WorkationLocation 엔티티
+         */
+        public void applyToLocation(WorkationLocation location) {
+            location.updateLocationDetails(
+                    this.location.getPlaceInfo(),
+                    this.location.getAddress(),
+                    this.location.getOpenHours(),
+                    this.location.getSpaceType(),
+                    this.location.getArea(),
+                    this.location.getFeature(),
+                    this.location.getLatitude(),
+                    this.location.getLongitude(),
+                    this.location.getBusInfo(),
+                    this.location.getParkingInfo()
+            );
+        }
+    }
+
 
 }

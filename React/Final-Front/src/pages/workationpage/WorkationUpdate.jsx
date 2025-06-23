@@ -1,8 +1,6 @@
-// src/components/MainContent.jsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
-// import useUserStore from '../../Store/useStore';
 
 import { PageTitle, PageButton } from '../../styles/common/MainContentLayout';
 
@@ -18,14 +16,14 @@ import Modal from '../../components/Modal';
 import { workationService } from '../../api/workation';
 import useUserStore from '../../Store/useStore';
 
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
 const WorkationUpdate = () => {
   const navigate = useNavigate();
-const { user } = useUserStore();
-  const [workationTitle, setWorkationTitle] = useState('');
+  const { user } = useUserStore();
   const [feature, setFeature] = useState('');
   const [placeInfo, setPlaceInfo] = useState('');
-  const [workationStartDate, setWorkationStartDate] = useState('');
-  const [workationEndDate, setWorkationEndDate] = useState('');
   const [facilityInfo, setFacilityInfo] = useState('');
   const [spaceType, setSpaceType] = useState('');
   const [peopleMin, setPeopleMin] = useState('');
@@ -34,7 +32,42 @@ const { user } = useUserStore();
   const [precautions, setPrecautions] = useState('');
   const [parkingInfo, setParkingInfo] = useState('');
   const [busInfo, setBusInfo] = useState('');
-  const [openHours, setOpenHours] = useState('');
+
+  //유효성 검사
+  const schema = yup.object().shape({
+    workationTitle: yup.string().required('제목은 필수입니다.'),
+    workationStartDate: yup.string().required('계약기간은 필수입니다.'),
+    workationEndDate: yup.string().required('계약기간은 필수입니다.'),
+    openHours: yup.string().required('운영시간은 필수입니다.'),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    shouldFocusError: true,
+  });
+
+  //유효성검사 탭 이동시
+  const handleNextFromIntro = async () => {
+    const valid = await trigger(['workationTitle', 'workationStartDate', 'workationEndDate', 'address']);
+    if (valid) {
+      setActiveTab('facilities');
+    }
+    // 포커스는 shouldFocusError: true 옵션으로 자동 이동됨
+  };
+
+  //유효성검사 탭 이동시
+  const handleNextFromFacilities = async () => {
+    const valid = await trigger(['openHours']);
+    if (valid) {
+      setActiveTab('precautions');
+    }
+  };
 
   // 현재 활성화된 탭 상태 관리 (예시)
   const [activeTab, setActiveTab] = React.useState('intro');
@@ -47,11 +80,6 @@ const { user } = useUserStore();
   const [selectedCoords, setSelectedCoords] = useState({ lat: null, lng: null });
 
   // ... (기존 날짜, 파일 업로드 관련 상태 및 핸들러) ...
-
-  // '주소등록' 버튼 클릭 시 모달 열기
-  const handleOpenMapModal = () => {
-    setIsMapModalOpen(true);
-  };
 
   // 모달 닫기
   const handleCloseMapModal = () => {
@@ -81,21 +109,40 @@ const { user } = useUserStore();
   //워케이션 정보 가져오기
   const { no } = useParams();
 
-
-useEffect(() => {
+  useEffect(() => {
     const workationInfo = async () => {
-      console.log(no)
+      console.log(no);
       try {
         const data = await workationService.workationInfo(no);
         console.log('워케이션 정보: ', data);
+        reset({
+          workationTitle: data.workationTitle,
+          workationStartDate: data.workationStartDate,
+          workationEndDate: data.workationEndDate,
+          openHours: data.openHours,
+          // address는 useState로 관리되므로 별도로 설정
+          // placeInfo, feature 등 useState로 관리되는 필드는 set 함수로 업데이트
+        });
         setWorkationInfo(data);
+        setAddress(data.address);
+        setPlaceInfo(data.placeInfo);
+        setFeature(data.feature);
+        setFacilityInfo(data.facilityInfo);
+        setSpaceType(data.spaceType);
+        setPeopleMin(data.peopleMin);
+        setPeopleMax(data.peopleMax);
+        setUrl(data.url);
+        setPrecautions(data.precautions);
+        setParkingInfo(data.parkingInfo);
+        setBusInfo(data.busInfo);
+        setArea(data.area);
       } catch (error) {
         console.error('워케이션 리스트 불러오기 실패:', error.message);
       }
     };
     workationInfo();
   }, []);
-    const [workationInfo, setWorkationInfo] = useState([]);
+  const [workationInfo, setWorkationInfo] = useState([]);
 
   const handleDayToggle = (day) => {
     setSelectedDays((prevSelectedDays) => {
@@ -149,15 +196,12 @@ useEffect(() => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     try {
       const location = {
-       
         placeInfo,
         address,
-        openHours,
+        openHours: data.openHours,
         spaceType,
         feature,
         area,
@@ -167,9 +211,9 @@ useEffect(() => {
         longitude: selectedCoords.lng,
       };
       const workation = {
-        workationTitle,
-        workationStartDate,
-        workationEndDate,
+        workationTitle: data.workationTitle,
+        workationStartDate: data.workationStartDate,
+        workationEndDate: data.workationEndDate,
         facilityInfo,
         peopleMin,
         peopleMax,
@@ -180,25 +224,23 @@ useEffect(() => {
         workation,
         location,
         userId: user.userId,
+        locationNo: no,
+        workationNo: no,
       };
 
       console.log(requestBody);
 
-      const workResponse = await workationService.create(requestBody);
+      const workResponse = await workationService.update(requestBody);
 
       console.log(workResponse);
     } catch (error) {
       console.error('워케이션 생성 에러:', error);
       alert('워케이션 정보 등록 중 에러가 발생했습니다.');
     }
-    console.log({ e });
+    console.log({ data });
     alert('워케이션정보가 등록되었습니다.');
     navigate('/workationList');
   };
-
-  //날짜 초기화
-
-  //날짜 적용후 달력 닫기
 
   return (
     <FullWapper>
@@ -224,7 +266,7 @@ useEffect(() => {
         {activeTab === 'intro' && (
           <>
             <ImageSection>
-              <img src={placeImage.previewUrl} alt="장소 이미지 미리보기" />
+              <img src={placeImage.previewUrl || null} alt="장소 이미지 미리보기" />
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
             <Title>제주 애월 스테이</Title>
@@ -240,7 +282,7 @@ useEffect(() => {
         {activeTab === 'facilities' && (
           <>
             <ImageSection>
-              <img src={facilityImage.previewUrl} alt="시설 미리보기" />
+              <img src={facilityImage.previewUrl || null} alt="시설 미리보기" />
             </ImageSection>{' '}
             <FacilityContent>
               <FacilityLeftContent>
@@ -280,7 +322,7 @@ useEffect(() => {
             <Subtitle>예약시 주의사항</Subtitle>
             <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
             <ImageSection>
-              <img src={precautionImage.previewUrl} alt="유의사항이미지 미리보기" />
+              <img src={precautionImage.previewUrl || null} alt="유의사항이미지 미리보기" />
             </ImageSection>{' '}
           </>
         )}
@@ -292,7 +334,7 @@ useEffect(() => {
           </>
         )}
       </MainContent>
-      <DateContent>
+      <DateContent onSubmit={handleSubmit(onSubmit)}>
         {/* 장소소개 탭 */}
         {activeTab === 'intro' && (
           <>
@@ -305,11 +347,11 @@ useEffect(() => {
               <Label htmlFor="workationTitle">워케이션제목</Label>
               <Input
                 id="workationTitle"
-                onChange={(e) => setWorkationTitle(e.target.value)}
-                value={workationTitle}
                 type="text"
                 placeholder={workationInfo.workationTitle}
+                {...register('workationTitle')}
               />
+              {errors.workationTitle && <ErrorMessage>{errors.workationTitle.message}</ErrorMessage>}
             </FormGroup>
 
             <FormGroup>
@@ -335,7 +377,6 @@ useEffect(() => {
                 onChange={(e) => setAddress(e.target.value)}
                 readOnly
               />
-              <StyledUploadButton onClick={handleOpenMapModal}>주소등록</StyledUploadButton>
             </FormGroup>
 
             {showMap && <NaverMapWithGeocoding />}
@@ -366,28 +407,19 @@ useEffect(() => {
             <SpaceFormGroup>
               <Label htmlFor="workationStartDate">계약기간</Label>
               <SpaceInputGroup>
-                <SpaceInput
-                  id="workationStartDate"
-                  type="date"
-                  value={workationStartDate}
-                  onChange={(e) => setWorkationStartDate(e.target.value)}
-                  placeholder={workationInfo.workationStartDate}
-                />
+                <SpaceInput id="workationStartDate" type="date" {...register('workationStartDate')} />
                 부터
-                <SpaceInput
-                  id="workationEndDate"
-                  type="date"
-                  value={workationEndDate}
-                  onChange={(e) => setWorkationEndDate(e.target.value)}
-                  placeholder={workationInfo.workationEndDate}
-                />
+                <SpaceInput id="workationEndDate" type="date" {...register('workationEndDate')} />
                 까지
+                {errors.workationStartDate && <ErrorMessage>{errors.workationStartDate.message}</ErrorMessage>}
               </SpaceInputGroup>
             </SpaceFormGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => navigate(-1)}>취소하기</DangerButton>
-              <PrimaryButton onClick={() => setActiveTab('facilities')}>다음으로</PrimaryButton>
+              <PrimaryButton type="button" onClick={handleNextFromIntro}>
+                다음으로
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -426,13 +458,8 @@ useEffect(() => {
 
             <FormGroup>
               <Label htmlFor="openHours">영업시간</Label>
-              <Input
-                id="openHours"
-                type="text"
-                onChange={(e) => setOpenHours(e.target.value)}
-                value={openHours}
-                placeholder={workationInfo.openHours}
-              />
+              <Input id="openHours" type="text" {...register('openHours')} placeholder="ex)08시 ~ 18시" />
+              {errors.openHours && <ErrorMessage>{errors.openHours.message}</ErrorMessage>}
             </FormGroup>
 
             <FormGroup>
@@ -465,7 +492,13 @@ useEffect(() => {
             <SpaceFormGroup>
               <Label htmlFor="area">공간면적</Label>
               <SpaceInputGroup>
-                <SpaceInput id="area" type="number" value={area} onChange={handleAreaChange} placeholder={workationInfo.area}/>
+                <SpaceInput
+                  id="area"
+                  type="number"
+                  value={area}
+                  onChange={handleAreaChange}
+                  placeholder={workationInfo.area}
+                />
                 m²
                 <SpaceInput type="number" value={areaPyeong} readOnly />평
               </SpaceInputGroup>
@@ -495,12 +528,20 @@ useEffect(() => {
 
             <FormGroup>
               <Label htmlFor="url">URL</Label>
-              <Input id="url" type="text" onChange={(e) => setUrl(e.target.value)} value={url} placeholder={workationInfo.url}/>
+              <Input
+                id="url"
+                type="text"
+                onChange={(e) => setUrl(e.target.value)}
+                value={url}
+                placeholder={workationInfo.url}
+              />
             </FormGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('intro')}>이전으로</DangerButton>
-              <PrimaryButton onClick={() => setActiveTab('precautions')}>다음으로</PrimaryButton>
+              <PrimaryButton type="button" onClick={handleNextFromFacilities}>
+                다음으로
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -569,7 +610,7 @@ useEffect(() => {
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('precautions')}>이전으로</DangerButton>
-              <PrimaryButton onClick={handleSubmit}>등록하기</PrimaryButton>
+              <PrimaryButton type="submit">등록하기</PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -1075,5 +1116,15 @@ const DayButtonContainer = styled.div`
   flex-grow: 1; /* 가능한 공간을 차지하도록 */
   justify-content: center;
   width: 80%;
+`;
+
+//에러메시지
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  text-align: left;
+  width: 100%;
 `;
 export default WorkationUpdate;

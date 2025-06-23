@@ -85,5 +85,32 @@ public class WorkationServiceImpl implements WorkationService {
         return subWork;
     }
 
+    @Override
+    public WorkationDto.ResponseDto updateWorkation(WorkationDto.WorkationUpdateDto request) {
+        String userId = request.getUserId();
+        //유저 조회
+        User user = userRepository.findByUserId(userId).orElseThrow(() ->new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
+        System.out.println(userId);
+
+        Long workationNo = request.getWorkationNo();
+        Workation original = workationRepository.findByWorkationNo(workationNo).orElseThrow(() ->new EntityNotFoundException("워케이션 정보를 찾을 수 없습니다."));
+
+        //DTO -> Entity로 변환
+        Workation workation = request.toWorkationEntity(user);
+        workation.setCreatedDate(original.getCreatedDate());
+        workation.setStatus(original.getStatus());
+        WorkationLocation location = request.toLocationEntity();
+
+        WorkationLocation savedLocation = workationLocationRepository.updateLocation(location);
+        workation.setWorkationLocation(savedLocation);
+        workationRepository.updateWorkation(workation);
+
+
+
+
+        return WorkationDto.ResponseDto.toDto(workation);
+    }
+
+
 
 }

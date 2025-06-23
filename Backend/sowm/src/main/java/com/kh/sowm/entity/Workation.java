@@ -94,6 +94,10 @@ public class Workation {
         }
 
     }
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedDate = LocalDate.from(LocalDate.now());
+    }
 
 
     public void assignUser(User user) {
@@ -103,4 +107,6 @@ public class Workation {
     public void setWorkationLocation(WorkationLocation savedLocation) {
         this.workationLocation = savedLocation;
     }
+
+
 }

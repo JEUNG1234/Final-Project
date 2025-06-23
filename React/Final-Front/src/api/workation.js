@@ -12,6 +12,15 @@ export const workationService = {
       throw error;
     }
   },
+  update: async (requestBody) => {
+    try {
+      const response = await api.patch(API_ENDPOINTS.WORKATION.UPDATE, requestBody);
+      return response.data;
+    } catch (error) {
+      console.error('워케이션 수정 실패', error);
+      throw error;
+    }
+  },
   workationList: async (companyCode) => {
     try {
       console.log(companyCode);

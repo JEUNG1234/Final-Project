@@ -16,4 +16,10 @@ public class WorkationLocationRepositoryImpl implements WorkationLocationReposit
         em.persist(location);
         return location;
     }
+
+    @Override
+    public WorkationLocation updateLocation(WorkationLocation location) {
+        em.merge(location);
+        return location;
+    }
 }

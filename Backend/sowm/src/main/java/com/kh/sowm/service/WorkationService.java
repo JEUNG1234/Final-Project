@@ -22,4 +22,6 @@ public interface WorkationService {
 
     //워케이션 신청용
     WorkationDto.SubWorkation submit(WorkationDto.SubWorkation subWork);
+
+    WorkationDto.ResponseDto updateWorkation(WorkationDto.WorkationUpdateDto request);
 }

@@ -3,7 +3,6 @@ package com.kh.sowm.repository;
 import com.kh.sowm.dto.WorkationDto;
 import com.kh.sowm.entity.SubmitWorkation;
 import com.kh.sowm.entity.Workation;
-import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
 import org.springframework.http.ResponseEntity;
 
@@ -30,5 +29,7 @@ public interface WorkationRepository {
 
    //워케이션 신청
    SubmitWorkation save(SubmitWorkation subWork);
+
+   void updateWorkation(Workation workation);
 }
 
