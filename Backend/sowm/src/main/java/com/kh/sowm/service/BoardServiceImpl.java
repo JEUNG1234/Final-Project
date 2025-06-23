@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -88,6 +89,13 @@ public class BoardServiceImpl implements BoardService {
 
         board.changeTitle(dto.getBoardTitle());
         board.changeContent(dto.getBoardContent());
+
+        // ✅ categoryName으로 category 조회 및 변경
+        if (dto.getCategoryNo() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryNo())
+                    .orElseThrow(() -> new RuntimeException("카테고리가 존재하지 않습니다"));
+            board.setCategory(category);
+        }
 
         return BoardDto.Response.fromEntity(board);
     }
