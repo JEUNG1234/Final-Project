@@ -6,35 +6,53 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import dayjs from 'dayjs';
 import useUserStore from '../../Store/useStore';
+import { BounceLoader } from 'react-spinners';
 
 const EditBoard = () => {
   const { user } = useUserStore();
-
   const navigate = useNavigate();
-  const { id } = useParams(); // /communityboard/:id → 게시글 ID
+  const { id } = useParams();
   const [post, setPost] = useState(null);
-  // **[변경]** 수정 가능한 필드를 위한 상태 추가
   const [boardTitle, setBoardTitle] = useState('');
   const [boardContent, setBoardContent] = useState('');
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const MIN_LOADING_TIME = 500; // 500ms (0.5초) 최소 로딩 시간 설정
 
   useEffect(() => {
+    setLoading(true); // 데이터 요청 시작 시 로딩 상태 true
+    const startTime = Date.now(); // 요청 시작 시간 기록
+
     axios
       .get(`http://localhost:8888/api/boards/${id}`)
       .then((res) => {
         setPost(res.data);
-        // **[변경]** 불러온 데이터로 수정 가능한 상태들을 초기화
         setBoardTitle(res.data.boardTitle);
         setBoardContent(res.data.boardContent);
-        setCategory(res.data.categoryNo); // ✅ 카테고리 번호 저장
+        setCategory(res.data.categoryNo);
+        console.log(res.data);
       })
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
         alert('게시글을 불러오는 데 실패했습니다.');
-        navigate('/communityboard'); // 실패 시 게시판 목록으로 리다이렉트
+        navigate('/communityboard');
+      })
+      .finally(() => {
+        const elapsedTime = Date.now() - startTime; // 경과 시간 계산
+        const remainingTime = MIN_LOADING_TIME - elapsedTime; // 남은 시간 계산
+
+        if (remainingTime > 0) {
+          // 최소 로딩 시간보다 적게 걸렸다면 남은 시간만큼 대기
+          setTimeout(() => {
+            setLoading(false);
+          }, remainingTime);
+        } else {
+          // 최소 로딩 시간을 초과했다면 바로 로딩 상태 false
+          setLoading(false);
+        }
       });
-  }, [id]);
+  }, [id, navigate]);
 
   useEffect(() => {
     axios
@@ -43,22 +61,23 @@ const EditBoard = () => {
       .catch((err) => console.error('카테고리 불러오기 실패:', err));
   }, []);
 
-  // **[추가]** 게시글 수정 처리 함수
   const handleUpdate = () => {
-    // PATCH 요청으로 보낼 데이터 객체
     const updatedPost = {
       boardTitle: boardTitle,
       boardContent: boardContent,
       categoryNo: category,
-      // 필요한 경우, 백엔드에서 필요한 다른 필드 (예: id)도 추가할 수 있습니다.
-      // id: id,
     };
 
     axios
       .patch(`http://localhost:8888/api/boards/${id}`, updatedPost)
       .then((res) => {
+        setPost(res.data);
+        setBoardTitle(res.data.boardTitle);
+        setBoardContent(res.data.boardContent);
+        setCategory(res.data.categoryNo);
+        console.log(res.data);
         alert('게시글이 성공적으로 수정되었습니다!');
-        navigate(`/communityboard/${id}`); // 수정된 게시글 상세 페이지로 이동
+        navigate(`/communityboard`);
       })
       .catch((err) => {
         console.error('게시글 수정 실패:', err);
@@ -66,7 +85,20 @@ const EditBoard = () => {
       });
   };
 
-  if (!post) return <MainContent>Loading...</MainContent>;
+  if (loading) {
+    return (
+      <MainContent>
+        <LoaderArea>
+          <BounceLoader color="#4d8eff" />
+          Loading.. {/* 폰트 색상 변경경 */}
+        </LoaderArea>
+      </MainContent>
+    );
+  }
+
+  if (!post) {
+    return <MainContent>게시글을 찾을 수 없습니다.</MainContent>;
+  }
 
   return (
     <MainContent>
@@ -76,13 +108,9 @@ const EditBoard = () => {
       </PageTitle>
       <InputGroup>
         <PageMidTitle>제목</PageMidTitle>
-        <TitleInput
-          type="text"
-          value={boardTitle} // **[변경]** boardTitle 상태 사용
-          onChange={(e) => setBoardTitle(e.target.value)} // **[변경]** 입력 시 boardTitle 상태 업데이트
-        />
+        <TitleInput type="text" value={boardTitle} onChange={(e) => setBoardTitle(e.target.value)} />
         <PageMidTitle>작성자</PageMidTitle>
-        <WriterInput type="text" value={post.userName} readOnly /> {/* **[변경]** 읽기 전용 */}
+        <WriterInput type="text" value={post.userName} readOnly />
         <FlexItem>
           <div>
             <PageMidTitle>작성일</PageMidTitle>
@@ -94,15 +122,14 @@ const EditBoard = () => {
                   : dayjs(post.updatedDate).format('YYYY년 MM월 DD일')
               }
               readOnly
-            />{' '}
-            {/* **[변경]** 읽기 전용 */}
+            />
           </div>
           <div>
             <PageMidTitle>태그</PageMidTitle>
             <SelectBox value={category} onChange={(e) => setCategory(e.target.value)}>
               {categories.map((cat) => {
                 if (cat.categoryName === '공지사항' && user.jobCode !== 'J2') {
-                  return null; // 🔒 j2가 아니면 "공지사항" 표시 안 함
+                  return null;
                 }
                 return (
                   <option key={cat.categoryNo} value={cat.categoryNo}>
@@ -114,21 +141,15 @@ const EditBoard = () => {
           </div>
         </FlexItem>
         <PageMidTitle>내용</PageMidTitle>
-        <ContentInput
-          as="textarea"
-          value={boardContent} // **[변경]** boardContent 상태 사용
-          onChange={(e) => setBoardContent(e.target.value)} // **[변경]** 입력 시 boardContent 상태 업데이트
-        />
+        <ContentInput as="textarea" value={boardContent} onChange={(e) => setBoardContent(e.target.value)} />
       </InputGroup>
       <ButtonGroup>
-        {/* **[변경]** "수정 완료" 버튼 클릭 시 handleUpdate 함수 호출 */}
-        <ActionButton onClick={handleUpdate}>수정 완료</ActionButton>
-        <ActionButton onClick={() => navigate('/communityboard')}>게시판으로</ActionButton>
+        <ActionButton onClick={handleUpdate}>수정완료</ActionButton>
+        <ActionButton onClick={() => navigate(-1)}>뒤로가기</ActionButton>
       </ButtonGroup>
     </MainContent>
   );
 };
-
 const PageMidTitle = styled.h3`
   display: flex;
   font-size: 18px;
@@ -264,5 +285,14 @@ const SelectBox = styled.select`
 const FlexItem = styled.div`
   display: flex; /* 자식 요소들을 가로로 정렬 */
   justify-content: space-between;
+`;
+
+const LoaderArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-weight: 500;
 `;
 export default EditBoard;

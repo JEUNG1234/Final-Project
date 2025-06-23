@@ -7,12 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,15 +20,24 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+
     /*
-    page 보고자하는 페이지 번호
-    size 몇개씩 가지고 올것인지
-    sort 정렬 기준 : 속성, 방향 (boardTitle,desc)
+    page: 보고자 하는 페이지 번호 (0부터 시작)
+    size: 한 페이지당 몇 개씩 가지고 올 것인지
+    sort: 정렬 기준 (예: "createdDate,desc")
+    title: 검색할 게시글 제목
+    writer: 검색할 작성자 이름
+    categoryNo: 검색할 카테고리 번호
      */
     @GetMapping
     public ResponseEntity<PageResponse<BoardDto.Response>> getBoards(
-            @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(new PageResponse<>(boardService.getBoardList(pageable)));
+            @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable, // sort 필드명 'createdDate'로 수정
+            @RequestParam(required = false) String title, // 검색 조건: 제목
+            @RequestParam(required = false) String writer, // 검색 조건: 작성자
+            @RequestParam(required = false) Long categoryNo // 검색 조건: 카테고리 번호
+    ) {
+        // BoardService의 getBoardList 메서드에 검색 조건 파라미터 전달
+        return ResponseEntity.ok(new PageResponse<>(boardService.getBoardList(pageable, title, writer, categoryNo)));
     }
 
     @GetMapping("/{id}")
@@ -54,5 +62,15 @@ public class BoardController {
             @RequestBody BoardDto.Update updateBoard
     ) throws IOException {
         return ResponseEntity.ok(boardService.updateBoard(boardNo, updateBoard));
+    }
+
+    @PatchMapping("/{id}/views")
+    public ResponseEntity<Void> increaseBoardViewCount(@PathVariable Long id) {
+        boolean success = boardService.increaseViewCount(id);
+        if (success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }
