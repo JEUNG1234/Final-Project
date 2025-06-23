@@ -7,9 +7,11 @@ import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -88,6 +90,16 @@ public class WorkationRepositoryImpl implements WorkationRepository {
     @Override
     public void updateWorkation(Workation workation) {
         em.merge(workation);
+    }
+
+    @Override
+    @Transactional
+    public Workation updateWorkationStatus(Long workationNo) {
+        Workation workation = em.find(Workation.class, workationNo);
+        if (workation == null) throw new EntityNotFoundException("Workation not found");
+        workation.setStatus(CommonEnums.Status.N); // 상태만 'N'으로 바꿈
+        em.merge(workation);
+        return workation;
     }
 
 

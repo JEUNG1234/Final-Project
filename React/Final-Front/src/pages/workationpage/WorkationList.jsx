@@ -16,7 +16,7 @@ import useUserStore from '../../Store/useStore';
 
 const WorkationList = () => {
   const navigate = useNavigate();
-  const {user} = useUserStore(); 
+  const { user } = useUserStore();
 
   //필터(지역, 인원, 날짜) 상태 관리
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -39,12 +39,8 @@ const WorkationList = () => {
   const peopleRef = useRef();
   const dateRef = useRef();
 
-
-  
   //워케이션 리스트 가져오기
   useEffect(() => {
-   
-   
     const workationList = async () => {
       try {
         const data = await workationService.workationList(user.companyCode);
@@ -58,8 +54,6 @@ const WorkationList = () => {
 
     workationList(); // ✅ 호출 필요
   }, []);
-
-
 
   const [workationData, setWorkationData] = useState([]);
 
@@ -111,6 +105,27 @@ const WorkationList = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   console.log('WorkationList user:', user);
+
+  const handleDeleteWorkation = async (e, locationNo) => {
+    e.stopPropagation(); 
+
+    if (!window.confirm('정말 이 워케이션 장소를 삭제하시겠습니까?')) {
+      return; 
+    }
+    try {
+      const response = await workationService.delete(locationNo);
+      console.log('워케이션 삭제 성공:', response);
+
+
+      setWorkationData((prevData) => prevData.filter((item) => item.locationNo !== locationNo));
+
+      alert('워케이션 장소가 삭제되었습니다.');
+    } catch (error) {
+      console.error('워케이션 삭제 실패:', error.message);
+      alert('워케이션 장소 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
 
   return (
     <MainContent>
@@ -209,12 +224,17 @@ const WorkationList = () => {
               </CardLocation>
               {user && user.jobCode === 'J2' && (
                 <>
-                  <DeleteButton>삭제</DeleteButton>
+                  <DeleteButton
+                    type="button"
+                    onClick={(e) => handleDeleteWorkation(e, place.locationNo)} // Call the new handler
+                  >
+                    삭제
+                  </DeleteButton>
                   <UpdateButton
                     key={place.locationNo}
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/workationUpdate/${place.locationNo}`)
+                      navigate(`/workationUpdate/${place.locationNo}`);
                     }}
                   >
                     수정

@@ -332,7 +332,14 @@ public class WorkationDto {
                     .longitude(updatedWorkationDto.getLongitude())
                     .userId(updatedWorkationDto.getUserId());
         }
-
+    }
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class WorkationNoDto {
+        private Long workationNo;
 
     }
 

@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
     INFO: '/workation/info',
     SUBMIT: '/workation/submit',
     UPDATE: '/workation/update',
+    DELETE: '/workation/delete',
   },
   ATTENDANCE: {
     BASE: '/attendance',
