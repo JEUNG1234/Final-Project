@@ -1,6 +1,7 @@
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.entity.Workation;
 import com.kh.sowm.service.WorkationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -44,5 +45,12 @@ public class WorkationController {
     public WorkationDto.SubWorkation submit(@RequestBody WorkationDto.SubWorkation subWork) {
 
         return workationService.submit(subWork);
+    }
+
+    //워케이션 수정기능
+    @PatchMapping("/update")
+    public ResponseEntity<WorkationDto.ResponseUpdateDto> update(@RequestBody WorkationDto.WorkationUpdateDto request) {
+        WorkationDto.ResponseUpdateDto updated = workationService.updateWorkation(request);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 }

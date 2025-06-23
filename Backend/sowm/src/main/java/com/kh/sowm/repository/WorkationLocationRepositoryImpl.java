@@ -12,8 +12,15 @@ public class WorkationLocationRepositoryImpl implements WorkationLocationReposit
     private EntityManager em;
 
     @Override
+    //워케이션 생성용
     public WorkationLocation save(WorkationLocation location) {
         em.persist(location);
+        return location;
+    }
+
+    @Override
+    public WorkationLocation updateLocation(WorkationLocation location) {
+        em.merge(location);
         return location;
     }
 }

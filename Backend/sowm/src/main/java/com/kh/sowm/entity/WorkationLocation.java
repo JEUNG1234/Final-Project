@@ -1,6 +1,7 @@
 package com.kh.sowm.entity;
 
 
+import com.kh.sowm.dto.WorkationDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,11 +24,11 @@ public class WorkationLocation {
     private String placeInfo;
 
     //주소
-    @Column(name = "ADDRESS",  length = 50)
+    @Column(name = "ADDRESS",  length = 50, nullable = false)
     private String address;
 
     //운영시간
-    @Column(name = "OPEN_HOURS",  length = 20)
+    @Column(name = "OPEN_HOURS",  length = 20, nullable = false)
     private String openHours;
 
     //공간 유형
@@ -43,11 +44,11 @@ public class WorkationLocation {
     private String feature;
 
     //위도
-    @Column(name = "LATITUDE")
+    @Column(name = "LATITUDE", nullable = false)
     private double latitude;
 
     //경도
-    @Column(name = "LONGITUDE")
+    @Column(name = "LONGITUDE", nullable = false)
     private double longitude;
 
     //버스정보
@@ -58,6 +59,17 @@ public class WorkationLocation {
     @Column(name = "PARKING_INFO",length = 100)
     private String parkingInfo;
 
-
+    public void updateFromDto(WorkationDto.LocationsDto dto) {
+        this.placeInfo = dto.getPlaceInfo();
+        this.address = dto.getAddress();
+        this.openHours = dto.getOpenHours();
+        this.spaceType = dto.getSpaceType();
+        this.area = dto.getArea();
+        this.feature = dto.getFeature();
+        this.busInfo = dto.getBusInfo();
+        this.parkingInfo = dto.getParkingInfo();
+        this.latitude = dto.getLatitude();
+        this.longitude = dto.getLongitude();
+    }
 
 }
