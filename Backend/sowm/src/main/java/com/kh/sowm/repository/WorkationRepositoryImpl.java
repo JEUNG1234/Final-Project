@@ -33,7 +33,7 @@ public class WorkationRepositoryImpl implements WorkationRepository {
     @Override
     public ResponseEntity<List<WorkationDto.WorkationBasicDto>> findByList(String companyCode) {
         String jpql = "SELECT new com.kh.sowm.dto.WorkationDto.WorkationBasicDto(" +
-                "wl.locationNo, wl.address, w.workationTitle, u.userId) " +
+                "wl.locationNo, wl.address, w.workationTitle, u.userId, w.peopleMin, w.peopleMax, w.workationStartDate, w.workationEndDate) " +
                 "FROM Workation w " +
                 "JOIN w.workationLocation wl " +
                 "JOIN w.user u " +
