@@ -424,7 +424,7 @@ const AdminAttendance = () => {
                       '-'
                     )}
                   </td>
-                  <td>{item.workHours.toFixed(1)}시간</td>
+                  <td>{item.workHours?.toFixed(1) ?? '-'}</td>
                   <td>{item.status === 'L' ? '퇴근' : item.status === 'W' ? '출근' : '-'}</td>
                   <td>{item.attendTime ? new Date(item.attendTime).toLocaleDateString('ko-KR') : '-'}</td>
                   <td>
