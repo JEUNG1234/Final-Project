@@ -31,8 +31,7 @@ export const API_ENDPOINTS = {
     CREATE: '/workation/create',
     LIST: '/workation/list',
     INFO: '/workation/info',
-    SUBMIT: '/workation/submit'
-
+    SUBMIT: '/workation/submit',
   },
   ATTENDANCE: {
     BASE: '/attendance',
@@ -47,6 +46,9 @@ export const API_ENDPOINTS = {
     getUnapprovedEmployees: '/admin/employeeapproval',
     approveUser: '/admin/',
     UpdateMemberRole: '/admin/memberrole/',
+    getAllAttendanceByCompanyCode: '/admin/adminattendance',
+    getTodayAttendance: '/admin/adminattendance/today',
+    updateAttendTime: '/admin/adminattendance',
   },
   // VOTES 객체를 추가합니다.
   VOTES: {
