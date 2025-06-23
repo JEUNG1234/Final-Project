@@ -165,14 +165,21 @@ public class WorkationDto {
         private String workationTitle;
         private String address;
         private String userId;
+        private int peopleMin;
+        private int peopleMax;
+        private LocalDate workationStartDate;
+        private LocalDate workationEndDate;
         //        private String placeImage; 이미지는 추후에 추가 예정
 
-        public WorkationBasicDto(Long locationNo, String address, String workationTitle, String userId) {
+        public WorkationBasicDto(Long locationNo, String address, String workationTitle, String userId, int peopleMin, int peopleMax, LocalDate workationStartDate, LocalDate workationEndDate) {
             this.locationNo = locationNo;
             this.workationTitle = workationTitle;
             this.address = address;
             this.userId = userId;
-
+            this.peopleMin = peopleMin;
+            this.peopleMax = peopleMax;
+            this.workationStartDate = workationStartDate;
+            this.workationEndDate = workationEndDate;
 
         }
 

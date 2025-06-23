@@ -37,7 +37,11 @@ public class WorkationServiceImpl implements WorkationService {
                         w.getWorkationLocation().getLocationNo(),
                         w.getWorkationLocation().getAddress(),
                         w.getWorkationTitle(),
-                        w.getUser().getUserId()
+                        w.getUser().getUserId(),
+                        w.getPeopleMin(),
+                        w.getPeopleMax(),
+                        w.getWorkationStartDate(),
+                        w.getWorkationEndDate()
                 ))
                 .toList();
 
