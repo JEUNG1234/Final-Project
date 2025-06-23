@@ -56,4 +56,18 @@ export const API_ENDPOINTS = {
   VOTES: {
     BASE: '/votes',
   },
+
+  BOARD: {
+    BASE: '/boards',
+    DETAIL: (id) => `/boards/${id}`,
+    CREATE: '/boards',
+    UPDATE: (id) => `/boards/${id}`,
+    DELETE: (id) => `/boards/${id}`,
+    INCREASE_VIEW: (id) => `/boards/${id}/views`,
+  },
+
+  CATEGORY: {
+    BASE: '/categories',
+    DETAIL: (id) => `/categories/${id}`,
+  },
 };

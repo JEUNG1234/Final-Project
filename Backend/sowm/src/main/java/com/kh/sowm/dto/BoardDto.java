@@ -6,6 +6,7 @@ import com.kh.sowm.entity.User;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class BoardDto {
 
@@ -35,7 +36,6 @@ public class BoardDto {
 
         // ✅ [추가] 카테고리 이름
         private Long categoryNo;
-
         // ⛔ 더 이상 필요 없음: toEntity() 제거
         // 수정은 기존 엔티티 필드 수정 방식으로 처리
     }
@@ -47,12 +47,15 @@ public class BoardDto {
         private Long boardNo;
         private String boardTitle;
         private String boardContent;
-        private LocalDate createdDate;
-        private LocalDate updatedDate;
+        private LocalDateTime createdDate;
+        private LocalDateTime updatedDate;
+        private Long categoryNo;
         private String categoryName;
         private String userId;
         private String userName;
         private int views;
+
+        private boolean isUpdated;
 
         public static Response fromEntity(Board board) {
             return Response.builder()
@@ -61,10 +64,12 @@ public class BoardDto {
                     .boardContent(board.getBoardContent())
                     .createdDate(board.getCreatedDate())
                     .updatedDate(board.getUpdatedDate())
+                    .categoryNo(board.getCategory().getCategoryNo())
                     .categoryName(board.getCategory().getCategoryName())
                     .userId(board.getUser().getUserId())
                     .userName(board.getUser().getUserName())
                     .views(board.getViews())
+                    .isUpdated(!board.getCreatedDate().equals(board.getUpdatedDate())) // ✅ 작성일과 수정일이 다르면 true
                     .build();
         }
     }

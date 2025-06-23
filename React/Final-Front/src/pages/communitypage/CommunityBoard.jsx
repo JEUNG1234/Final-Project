@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaComments, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa';
 import axios from 'axios';
 import {
@@ -12,9 +12,11 @@ import {
   PageTitle,
 } from '../../styles/common/MainContentLayout';
 import dayjs from 'dayjs';
+import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
 
 const CommunityBoard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [posts, setPosts] = useState([]);
   const [pageInfo, setPageInfo] = useState({
     currentPage: 0,
@@ -28,45 +30,65 @@ const CommunityBoard = () => {
   const [searchWriter, setSearchWriter] = useState('');
   const [searchCategory, setSearchCategory] = useState('');
 
-  // 게시글 데이터 가져오기
-  useEffect(() => {
-    axios
-      .get('http://localhost:8888/api/boards')
-      .then((response) => {
+  // fetchPosts 함수를 useCallback으로 감싸서 함수 재생성을 최적화합니다.
+  // 이 함수는 항상 최신 상태 값을 파라미터로 명시적으로 받아 사용하도록 합니다.
+  const fetchPosts = useCallback(
+    async (page, title, writer, categoryNo) => {
+      try {
+        const response = await axios.get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.BASE}`, {
+          params: {
+            page: page,
+            size: 10,
+            sort: 'createdDate,desc',
+            title: title,
+            writer: writer,
+            categoryNo: categoryNo,
+          },
+        });
         console.log('불러온 게시글:', response.data);
-        const { content, ...meta } = response.data;
-        setPosts(content); // 게시글 리스트
-        setPageInfo(meta); // 페이지네이션 정보
-      })
-      .catch((error) => {
+        const { content, currentPage, totalCount, hasNext, hasPrevious, totalPage } = response.data;
+        setPosts(content);
+        setPageInfo({
+          currentPage: currentPage,
+          totalPage: totalPage,
+          totalCount: totalCount,
+          hasNext: hasNext,
+          hasPrevious: hasPrevious,
+        });
+      } catch (error) {
         console.error('게시글 불러오기 실패:', error);
-      });
-  }, []);
+      }
+    },
+    [setPosts, setPageInfo] // fetchPosts는 setPosts, setPageInfo setter 함수에만 의존합니다.
+  );
 
+  // 게시글 데이터를 불러오는 useEffect:
+  // pageInfo.currentPage, searchTitle, searchWriter, searchCategory, fetchPosts가 변경될 때마다 실행
+  useEffect(() => {
+    // fetchPosts의 인자로 현재의 상태값을 전달합니다.
+    fetchPosts(pageInfo.currentPage, searchTitle, searchWriter, searchCategory);
+  }, [fetchPosts, pageInfo.currentPage, searchTitle, searchWriter, searchCategory, location.state?.refreshBoardList]);
+
+  // 카테고리 데이터 가져오기 (컴포넌트 마운트 시 1회만)
   useEffect(() => {
     axios
-      .get('http://localhost:8888/api/categories')
+      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CATEGORY.BASE}`)
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('카테고리 불러오기 실패:', err));
   }, []);
 
+  // 검색 버튼 클릭 핸들러
   const handleSearch = () => {
-    axios
-      .get('http://localhost:8888/api/boards', {
-        params: {
-          title: searchTitle,
-          writer: searchWriter,
-          category: searchCategory,
-        },
-      })
-      .then((response) => {
-        const { content, ...meta } = response.data;
-        setPosts(content);
-        setPageInfo(meta);
-      })
-      .catch((error) => {
-        console.error('게시글 검색 실패:', error);
-      });
+    // currentPage를 0으로 설정하면 위의 useEffect가 변경을 감지하여 fetchPosts를 호출합니다.
+    setPageInfo((prev) => ({ ...prev, currentPage: 0 }));
+    // ⚠️ 이전 코드: fetchPosts(0, searchTitle, searchWriter, searchCategory); // 이 줄을 제거했습니다.
+  };
+
+  // 페이지 버튼 클릭 핸들러
+  const handlePageChange = (page) => {
+    // currentPage를 변경하면 위의 useEffect가 변경을 감지하여 fetchPosts를 호출합니다.
+    setPageInfo((prev) => ({ ...prev, currentPage: page }));
+    // ⚠️ 이전 코드: fetchPosts(page, searchTitle, searchWriter, searchCategory); // 이 줄을 제거했습니다.
   };
 
   return (
@@ -129,19 +151,27 @@ const CommunityBoard = () => {
 
       <BottomBar>
         <Pagination>
-          <PageButton disabled={!pageInfo.hasPrevious}>&lt;</PageButton>
+          <PageButton disabled={!pageInfo.hasPrevious} onClick={() => handlePageChange(pageInfo.currentPage - 1)}>
+            &lt;
+          </PageButton>
+          {/* totalPage를 사용하여 페이지 버튼을 렌더링합니다. */}
           {[...Array(pageInfo.totalPage)].map((_, i) => (
-            <PageButton key={i} className={pageInfo.currentPage === i ? 'active' : ''}>
+            <PageButton
+              key={i}
+              className={pageInfo.currentPage === i ? 'active' : ''}
+              onClick={() => handlePageChange(i)}
+            >
               {i + 1}
             </PageButton>
           ))}
-          <PageButton disabled={!pageInfo.hasNext}>&gt;</PageButton>
+          <PageButton disabled={!pageInfo.hasNext} onClick={() => handlePageChange(pageInfo.currentPage + 1)}>
+            &gt;
+          </PageButton>
         </Pagination>
       </BottomBar>
     </MainContent>
   );
 };
-
 const PageHeader = styled.div`
   margin-bottom: 30px;
   display: flex;
@@ -165,7 +195,7 @@ const ActionButton = styled.button`
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background-color: ${(props) => (props.primary ? '#007bff' : '#6c757d')}; /* 파란색 또는 회색 */
+  background-color: ${(props) => (props.primary ? '#4e94fd' : '#6c757d')}; /* 파란색 또는 회색 */
   color: white;
   font-size: 15px;
   cursor: pointer;
@@ -175,7 +205,7 @@ const ActionButton = styled.button`
   white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
 
   &:hover {
-    background-color: ${(props) => (props.primary ? '#0056b3' : '#5a6268')};
+    background-color: ${(props) => (props.primary ? '#4984dd' : '#5a6268')};
   }
 
   /* React Icons는 SVG로 렌더링되므로, svg 태그에 스타일 적용 */
