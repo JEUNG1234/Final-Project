@@ -25,4 +25,6 @@ public interface WorkationService {
 
     //워케이션 수정용
     WorkationDto.ResponseUpdateDto updateWorkation(WorkationDto.WorkationUpdateDto request);
+
+    Workation delete(Long workationNo);
 }

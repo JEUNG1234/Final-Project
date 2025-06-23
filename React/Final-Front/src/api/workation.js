@@ -21,6 +21,16 @@ export const workationService = {
       throw error;
     }
   },
+  delete: async (workationNo) => {
+    try { 
+       console.log("::worationNo",workationNo);
+      const response = await api.patch(API_ENDPOINTS.WORKATION.DELETE,{ workationNo } )
+      return response.data;
+    } catch (error) {
+      console.error('워케이션 삭제 실패', error)
+      throw error;
+    }
+  },
   workationList: async (companyCode) => {
     try {
       console.log(companyCode);

@@ -109,6 +109,10 @@ public class WorkationServiceImpl implements WorkationService {
         return WorkationDto.ResponseUpdateDto.toDto(workation);
     }
 
+    @Override
+    public Workation delete(Long workationNo) {
+        return workationRepository.updateWorkationStatus(workationNo);
+    }
 
 
 }

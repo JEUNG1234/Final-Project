@@ -121,4 +121,9 @@ public class Workation {
         this.precautions = dto.getPrecautions();
         // 기타 업데이트 항목들
     }
+
+    //삭제시 상태값 변경
+    public void setStatus(CommonEnums.Status status) {
+        this.status = CommonEnums.Status.N;
+    }
 }
