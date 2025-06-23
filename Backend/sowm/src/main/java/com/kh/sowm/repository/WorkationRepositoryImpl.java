@@ -7,9 +7,11 @@ import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +33,7 @@ public class WorkationRepositoryImpl implements WorkationRepository {
     @Override
     public ResponseEntity<List<WorkationDto.WorkationBasicDto>> findByList(String companyCode) {
         String jpql = "SELECT new com.kh.sowm.dto.WorkationDto.WorkationBasicDto(" +
-                "wl.locationNo, wl.address, w.workationTitle, u.userId) " +
+                "wl.locationNo, wl.address, w.workationTitle, u.userId, w.peopleMin, w.peopleMax, w.workationStartDate, w.workationEndDate) " +
                 "FROM Workation w " +
                 "JOIN w.workationLocation wl " +
                 "JOIN w.user u " +
@@ -84,6 +86,21 @@ public class WorkationRepositoryImpl implements WorkationRepository {
          return subWork;
     }
 
+    //워케이션 수정용
+    @Override
+    public void updateWorkation(Workation workation) {
+        em.merge(workation);
+    }
+
+    @Override
+    @Transactional
+    public Workation updateWorkationStatus(Long workationNo) {
+        Workation workation = em.find(Workation.class, workationNo);
+        if (workation == null) throw new EntityNotFoundException("Workation not found");
+        workation.setStatus(CommonEnums.Status.N); // 상태만 'N'으로 바꿈
+        em.merge(workation);
+        return workation;
+    }
 
 
 }

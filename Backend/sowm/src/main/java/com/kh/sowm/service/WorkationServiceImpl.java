@@ -37,7 +37,11 @@ public class WorkationServiceImpl implements WorkationService {
                         w.getWorkationLocation().getLocationNo(),
                         w.getWorkationLocation().getAddress(),
                         w.getWorkationTitle(),
-                        w.getUser().getUserId()
+                        w.getUser().getUserId(),
+                        w.getPeopleMin(),
+                        w.getPeopleMax(),
+                        w.getWorkationStartDate(),
+                        w.getWorkationEndDate()
                 ))
                 .toList();
 
@@ -83,6 +87,35 @@ public class WorkationServiceImpl implements WorkationService {
         workationRepository.save(entity);
 
         return subWork;
+    }
+
+
+    //워케이션 수정용
+    @Override
+    public WorkationDto.ResponseUpdateDto updateWorkation(WorkationDto.WorkationUpdateDto  request) {
+        User user = userRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
+
+        Workation workation = workationRepository.findByWorkationNo(request.getWorkationNo())
+                .orElseThrow(() -> new EntityNotFoundException("워케이션 정보를 찾을 수 없습니다."));
+
+        workation.updateFromDto(request.getWorkation(), user);
+
+        // 4. 워케이션로케이션 조회 및 수정
+        WorkationLocation location = workation.getWorkationLocation();
+        location.updateFromDto(request.getLocation());
+
+        //merge
+        workationRepository.updateWorkation(workation);
+        workationLocationRepository.updateLocation(location);
+
+        // 6. ResponseUpdateDto로 변환
+        return WorkationDto.ResponseUpdateDto.toDto(workation);
+    }
+
+    @Override
+    public Workation delete(Long workationNo) {
+        return workationRepository.updateWorkationStatus(workationNo);
     }
 
 

@@ -27,6 +27,9 @@ public class Attendance {
     @Column(name = "ATTEND_TIME")
     private LocalDateTime attendTime;
 
+    @ManyToOne
+    @JoinColumn(name = "COMPANY_CODE", insertable = false, updatable = false)
+    private Company company;
 
     @Column(name = "LEAVE_TIME")
     private LocalDateTime leaveTime;
@@ -56,5 +59,11 @@ public class Attendance {
 
     public void setWorkHours(Double workHours) {
         this.workHours = workHours;
+    }
+
+    public void updateAttendance(LocalDateTime attendTime, LocalDateTime leaveTime) {
+        this.attendTime = attendTime;
+        this.leaveTime = leaveTime;
+        this.status = (attendTime != null && leaveTime != null) ? CommonEnums.AttendanceStatus.L : CommonEnums.AttendanceStatus.W;
     }
 }

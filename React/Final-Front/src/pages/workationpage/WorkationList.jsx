@@ -16,11 +16,11 @@ import useUserStore from '../../Store/useStore';
 
 const WorkationList = () => {
   const navigate = useNavigate();
-  const {user} = useUserStore(); 
+  const { user } = useUserStore();
 
   //필터(지역, 인원, 날짜) 상태 관리
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedPeople, setSelectedPeople] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('전체');
+  const [selectedPeople, setSelectedPeople] = useState('전체');
 
   //날짜 범위 선택[시작일, 종료일]
   const [dateRange, setDateRange] = useState([null, null]);
@@ -39,12 +39,8 @@ const WorkationList = () => {
   const peopleRef = useRef();
   const dateRef = useRef();
 
-
-  
   //워케이션 리스트 가져오기
   useEffect(() => {
-   
-   
     const workationList = async () => {
       try {
         const data = await workationService.workationList(user.companyCode);
@@ -56,10 +52,8 @@ const WorkationList = () => {
       }
     };
 
-    workationList(); // ✅ 호출 필요
+    workationList();
   }, []);
-
-
 
   const [workationData, setWorkationData] = useState([]);
 
@@ -83,7 +77,7 @@ const WorkationList = () => {
     '세종',
     '충북',
   ];
-  const peopleList = ['1명', '2명', '3명', '4명 이상'];
+  const peopleList = ['전체','1명', '2명', '3명', '4명 이상'];
 
   //날짜 적용후 달력 닫기
   const applyDates = () => {
@@ -110,7 +104,47 @@ const WorkationList = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  console.log('WorkationList user:', user);
+
+  const handleDeleteWorkation = async (e, locationNo) => {
+    e.stopPropagation();
+
+    if (!window.confirm('정말 이 워케이션 장소를 삭제하시겠습니까?')) {
+      return;
+    }
+    try {
+      const response = await workationService.delete(locationNo);
+      console.log('워케이션 삭제 성공:', response);
+
+      setWorkationData((prevData) => prevData.filter((item) => item.locationNo !== locationNo));
+
+      alert('워케이션 장소가 삭제되었습니다.');
+    } catch (error) {
+      console.error('워케이션 삭제 실패:', error.message);
+      alert('워케이션 장소 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const filteredData = workationData.filter((item) => {
+    const regionMatch = !selectedRegion || selectedRegion === '전체' ? true : item.address.includes(selectedRegion);
+
+    let peopleMatch = true;
+    if (selectedPeople !== '전체') {
+      if (selectedPeople === '1명') peopleMatch = item.peopleMin <= 1 && item.peopleMax >= 1;
+      else if (selectedPeople === '2명') peopleMatch = item.peopleMin <= 2 && item.peopleMax >= 2;
+      else if (selectedPeople === '3명') peopleMatch = item.peopleMin <= 3 && item.peopleMax >= 3;
+      else if (selectedPeople === '4명 이상') peopleMatch = item.peopleMax >= 4;
+    }
+
+    let dateMatch = true;
+  if (startDate && endDate) {
+    const itemStart = new Date(item.workationStartDate); 
+    const itemEnd = new Date(item.workationEndDate);
+
+    dateMatch = !(itemEnd < startDate || itemStart > endDate);
+  }
+
+  return regionMatch && peopleMatch && dateMatch;
+  });
 
   return (
     <MainContent>
@@ -198,32 +232,38 @@ const WorkationList = () => {
       <SectionTitle>장소</SectionTitle>
 
       <CardGrid>
-        {workationData.map((place) => (
-          <Card key={place.locationNo} onClick={() => navigate(`/workationDetail/${place.locationNo}`)}>
-            {/* 워케이션 장소 리스트 출력 */}
-            <CardImage src={image} alt={place.title} />
-            <CardTitle>{place.workationTitle}</CardTitle>
-            <CardLocationWrapper>
-              <CardLocation>
-                {place.address} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
-              </CardLocation>
-              {user && user.jobCode === 'J2' && (
-                <>
-                  <DeleteButton>삭제</DeleteButton>
-                  <UpdateButton
-                    key={place.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate('/workationUpdate');
-                    }}
-                  >
-                    수정
-                  </UpdateButton>
-                </>
-              )}
-            </CardLocationWrapper>
-          </Card>
-        ))}
+        {filteredData.length === 0 ? (
+          <div>검색 결과가 없습니다.</div>
+        ) : (
+          filteredData.map((place) => (
+            <Card key={place.locationNo} onClick={() => navigate(`/workationDetail/${place.locationNo}`)}>
+              {/* 워케이션 장소 리스트 출력 */}
+              <CardImage src={image} alt={place.title} />
+              <CardTitle>{place.workationTitle}</CardTitle>
+              <CardLocationWrapper>
+                <CardLocation>
+                  {place.address} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
+                </CardLocation>
+                {user && user.jobCode === 'J2' && (
+                  <>
+                    <DeleteButton type="button" onClick={(e) => handleDeleteWorkation(e, place.locationNo)}>
+                      삭제
+                    </DeleteButton>
+                    <UpdateButton
+                      key={place.locationNo}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/workationUpdate/${place.locationNo}`);
+                      }}
+                    >
+                      수정
+                    </UpdateButton>
+                  </>
+                )}
+              </CardLocationWrapper>
+            </Card>
+          ))
+        )}
       </CardGrid>
       <RegisterDiv>
         {user && user.jobCode === 'J2' && (

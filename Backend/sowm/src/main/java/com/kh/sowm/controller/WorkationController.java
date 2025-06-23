@@ -1,8 +1,10 @@
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.entity.Workation;
 import com.kh.sowm.service.WorkationService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.jdbc.Work;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,5 +46,21 @@ public class WorkationController {
     public WorkationDto.SubWorkation submit(@RequestBody WorkationDto.SubWorkation subWork) {
 
         return workationService.submit(subWork);
+    }
+
+    //워케이션 수정기능
+    @PatchMapping("/update")
+    public ResponseEntity<WorkationDto.ResponseUpdateDto> update(@RequestBody WorkationDto.WorkationUpdateDto request) {
+        WorkationDto.ResponseUpdateDto updated = workationService.updateWorkation(request);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
+    }
+
+    //워케이션 삭제 기능
+    @PatchMapping("/delete")
+    public WorkationDto.ResponseDto delete(@RequestBody WorkationDto.WorkationNoDto workNo) {
+        System.out.println(workNo.getWorkationNo());
+        Long workationNo = workNo.getWorkationNo();
+        Workation deleted = workationService.delete(workationNo);
+        return WorkationDto.ResponseDto.toDto(deleted);
     }
 }

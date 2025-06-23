@@ -1,8 +1,8 @@
-// src/components/MainContent.jsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
-// import useUserStore from '../../Store/useStore';
+
+import * as yup from 'yup';
 
 import { PageTitle, PageButton } from '../../styles/common/MainContentLayout';
 
@@ -10,22 +10,22 @@ import { MdWork } from 'react-icons/md';
 
 import NaverMapWithGeocoding from '../../components/NaverMapWithGeocoding';
 
-import { FaSquare, FaRulerCombined, FaHourglassHalf, FaUsers } from 'react-icons/fa';
+import { FaSquare, FaRulerCombined, FaUsers } from 'react-icons/fa';
 
 import { useNavigate } from 'react-router-dom';
 
 import Modal from '../../components/Modal';
 import { workationService } from '../../api/workation';
 import useUserStore from '../../Store/useStore';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 const WorkationEnrollForm = () => {
   const navigate = useNavigate();
-const { user } = useUserStore();
-  const [workationTitle, setWorkationTitle] = useState('');
+  const { user } = useUserStore();
+
   const [feature, setFeature] = useState('');
   const [placeInfo, setPlaceInfo] = useState('');
-  const [workationStartDate, setWorkationStartDate] = useState('');
-  const [workationEndDate, setWorkationEndDate] = useState('');
   const [facilityInfo, setFacilityInfo] = useState('');
   const [spaceType, setSpaceType] = useState('');
   const [peopleMin, setPeopleMin] = useState('');
@@ -34,25 +34,56 @@ const { user } = useUserStore();
   const [precautions, setPrecautions] = useState('');
   const [parkingInfo, setParkingInfo] = useState('');
   const [busInfo, setBusInfo] = useState('');
-  const [openHours, setOpenHours] = useState('');
-  // const { user } = useUserStore();
-  // 현재 활성화된 탭 상태 관리 (예시)
+
   const [activeTab, setActiveTab] = React.useState('intro');
 
   const [showMap] = useState(false); //지도 표시 여부 상태
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  // 선택된 주소와 좌표를 저장할 상태 (NaverMapWithGeocoding에서 받아올 값)
-  const [address, setAddress] = useState('');
+
   const [selectedCoords, setSelectedCoords] = useState({ lat: null, lng: null });
 
-  // ... (기존 날짜, 파일 업로드 관련 상태 및 핸들러) ...
+  //유효성 검사
+  const schema = yup.object().shape({
+    workationTitle: yup.string().required('제목은 필수입니다.'),
+    workationStartDate: yup.string().required('계약기간은 필수입니다.'),
+    workationEndDate: yup.string().required('계약기간은 필수입니다.'),
+    openHours: yup.string().required('운영시간은 필수입니다.'),
+    address: yup.string().required('주소는 필수입니다.'),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    shouldFocusError: true,
+  });
+
+  //유효성검사 탭 이동시
+  const handleNextFromIntro = async () => {
+    const valid = await trigger(['workationTitle', 'workationStartDate', 'workationEndDate', 'address']);
+    if (valid) {
+      setActiveTab('facilities');
+    }
+
+  };
+
+  //유효성검사 탭 이동시
+  const handleNextFromFacilities = async () => {
+    const valid = await trigger(['openHours']);
+    if (valid) {
+      setActiveTab('precautions');
+    }
+  };
 
   // '주소등록' 버튼 클릭 시 모달 열기
   const handleOpenMapModal = () => {
     setIsMapModalOpen(true);
   };
-
   // 모달 닫기
   const handleCloseMapModal = () => {
     setIsMapModalOpen(false);
@@ -64,14 +95,11 @@ const { user } = useUserStore();
     }
   }, [selectedCoords]);
 
-  // NaverMapWithGeocoding에서 주소와 좌표를 선택했을 때 호출될 함수
-  // 이 함수를 NaverMapWithGeocoding 컴포넌트에 props로 전달할 것임.
   const handleAddressSelect = (address, lat, lng) => {
-    setAddress(address); // 메인 폼의 주소 input에 설정
+    setValue('address', address); // 메인 폼의 주소 input에 설정
     setSelectedCoords({ lat, lng }); // 위도/경도 저장
     setIsMapModalOpen(false); // 모달 닫기
-    // 필요한 경우, 여기서 address와 lat, lng를 다른 폼 데이터와 함께 관리하는 상태에 업데이트.
-    // 예를 들어, 장소 정보 객체에 address와 coords를 추가하는 식으로.]
+
     console.log(selectedCoords);
   };
 
@@ -113,7 +141,6 @@ const { user } = useUserStore();
   const [facilityImage, setFacilityImage] = useState({ name: '', previewUrl: '' });
   const [precautionImage, setPrecautionImage] = useState({ name: '', previewUrl: '' });
 
-  // 파일 선택 시 동작 (선택된 파일 정보 콘솔에 출력 예시)
   const handleImageUpload = (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -130,15 +157,12 @@ const { user } = useUserStore();
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     try {
       const location = {
-       
         placeInfo,
-        address,
-        openHours,
+        address: data.address,
+        openHours: data.openHours,
         spaceType,
         feature,
         area,
@@ -148,9 +172,9 @@ const { user } = useUserStore();
         longitude: selectedCoords.lng,
       };
       const workation = {
-        workationTitle,
-        workationStartDate,
-        workationEndDate,
+        workationTitle: data.workationTitle,
+        workationStartDate: data.workationStartDate,
+        workationEndDate: data.workationEndDate,
         facilityInfo,
         peopleMin,
         peopleMax,
@@ -172,14 +196,10 @@ const { user } = useUserStore();
       console.error('워케이션 생성 에러:', error);
       alert('워케이션 정보 등록 중 에러가 발생했습니다.');
     }
-    console.log({ e });
+    console.log({ data });
     alert('워케이션정보가 등록되었습니다.');
     navigate('/workationList');
   };
-
-  //날짜 초기화
-
-  //날짜 적용후 달력 닫기
 
   return (
     <FullWapper>
@@ -273,7 +293,7 @@ const { user } = useUserStore();
           </>
         )}
       </MainContent>
-      <DateContent>
+      <DateContent onSubmit={handleSubmit(onSubmit)}>
         {/* 장소소개 탭 */}
         {activeTab === 'intro' && (
           <>
@@ -286,11 +306,11 @@ const { user } = useUserStore();
               <Label htmlFor="workationTitle">워케이션제목</Label>
               <Input
                 id="workationTitle"
-                onChange={(e) => setWorkationTitle(e.target.value)}
-                value={workationTitle}
                 type="text"
                 placeholder="워케이션 제목 입력"
+                {...register('workationTitle')}
               />
+              {errors.workationTitle && <ErrorMessage>{errors.workationTitle.message}</ErrorMessage>}
             </FormGroup>
 
             <FormGroup>
@@ -308,14 +328,9 @@ const { user } = useUserStore();
 
             <FormGroup>
               <Label htmlFor="address">주소(위치)</Label>
-              <Input
-                id="address"
-                type="text"
-                placeholder="주소검색"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                readOnly
-              />
+              <Input id="address" type="text" placeholder="주소검색" {...register('address')} readOnly />
+              {errors.address && <ErrorMessage>{errors.address.message}</ErrorMessage>}
+
               <StyledUploadButton onClick={handleOpenMapModal}>주소등록</StyledUploadButton>
             </FormGroup>
 
@@ -347,26 +362,19 @@ const { user } = useUserStore();
             <SpaceFormGroup>
               <Label htmlFor="workationStartDate">계약기간</Label>
               <SpaceInputGroup>
-                <SpaceInput
-                  id="workationStartDate"
-                  type="date"
-                  value={workationStartDate}
-                  onChange={(e) => setWorkationStartDate(e.target.value)}
-                />
+                <SpaceInput id="workationStartDate" type="date" {...register('workationStartDate')} />
                 부터
-                <SpaceInput
-                  id="workationEndDate"
-                  type="date"
-                  value={workationEndDate}
-                  onChange={(e) => setWorkationEndDate(e.target.value)}
-                />
+                <SpaceInput id="workationEndDate" type="date" {...register('workationEndDate')} />
                 까지
+                {errors.workationStartDate && <ErrorMessage>{errors.workationStartDate.message}</ErrorMessage>}
               </SpaceInputGroup>
             </SpaceFormGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => navigate(-1)}>취소하기</DangerButton>
-              <PrimaryButton onClick={() => setActiveTab('facilities')}>다음으로</PrimaryButton>
+              <PrimaryButton type="button" onClick={handleNextFromIntro}>
+                다음으로
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -405,13 +413,8 @@ const { user } = useUserStore();
 
             <FormGroup>
               <Label htmlFor="openHours">영업시간</Label>
-              <Input
-                id="openHours"
-                type="text"
-                onChange={(e) => setOpenHours(e.target.value)}
-                value={openHours}
-                placeholder="ex)08시 ~ 18시"
-              />
+              <Input id="openHours" type="text" {...register('openHours')} placeholder="ex)08시 ~ 18시" />
+              {errors.openHours && <ErrorMessage>{errors.openHours.message}</ErrorMessage>}
             </FormGroup>
 
             <FormGroup>
@@ -477,7 +480,9 @@ const { user } = useUserStore();
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('intro')}>이전으로</DangerButton>
-              <PrimaryButton onClick={() => setActiveTab('precautions')}>다음으로</PrimaryButton>
+              <PrimaryButton type="button" onClick={handleNextFromFacilities}>
+                다음으로
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -546,13 +551,12 @@ const { user } = useUserStore();
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('precautions')}>이전으로</DangerButton>
-              <PrimaryButton onClick={handleSubmit}>등록하기</PrimaryButton>
+              <PrimaryButton type="submit">등록하기</PrimaryButton>
             </ActionButtons>
           </>
         )}
         <Modal isOpen={isMapModalOpen} onClose={handleCloseMapModal} title="장소 주소 검색(정확한 주소를 입력해주세요)">
           <p>ex)서울특별시 강남구 테헤란로 130 남도빌딩</p>
-          {/* onAddressSelect 프롭스를 NaverMapWithGeocoding에 전달 */}
           <NaverMapWithGeocoding onAddressSelect={handleAddressSelect} />
         </Modal>
       </DateContent>
@@ -1052,5 +1056,15 @@ const DayButtonContainer = styled.div`
   flex-grow: 1; /* 가능한 공간을 차지하도록 */
   justify-content: center;
   width: 80%;
+`;
+
+//에러메시지
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  text-align: left;
+  width: 100%;
 `;
 export default WorkationEnrollForm;
