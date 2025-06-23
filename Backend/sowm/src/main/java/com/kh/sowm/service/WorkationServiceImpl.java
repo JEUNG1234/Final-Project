@@ -85,30 +85,28 @@ public class WorkationServiceImpl implements WorkationService {
         return subWork;
     }
 
+
+    //워케이션 수정용
     @Override
-    public WorkationDto.ResponseDto updateWorkation(WorkationDto.WorkationUpdateDto request) {
-        String userId = request.getUserId();
-        //유저 조회
-        User user = userRepository.findByUserId(userId).orElseThrow(() ->new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
-        System.out.println(userId);
+    public WorkationDto.ResponseUpdateDto updateWorkation(WorkationDto.WorkationUpdateDto  request) {
+        User user = userRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
 
-        Long workationNo = request.getWorkationNo();
-        Workation original = workationRepository.findByWorkationNo(workationNo).orElseThrow(() ->new EntityNotFoundException("워케이션 정보를 찾을 수 없습니다."));
+        Workation workation = workationRepository.findByWorkationNo(request.getWorkationNo())
+                .orElseThrow(() -> new EntityNotFoundException("워케이션 정보를 찾을 수 없습니다."));
 
-        //DTO -> Entity로 변환
-        Workation workation = request.toWorkationEntity(user);
-        workation.setCreatedDate(original.getCreatedDate());
-        workation.setStatus(original.getStatus());
-        WorkationLocation location = request.toLocationEntity();
+        workation.updateFromDto(request.getWorkation(), user);
 
-        WorkationLocation savedLocation = workationLocationRepository.updateLocation(location);
-        workation.setWorkationLocation(savedLocation);
+        // 4. 워케이션로케이션 조회 및 수정
+        WorkationLocation location = workation.getWorkationLocation();
+        location.updateFromDto(request.getLocation());
+
+        //merge
         workationRepository.updateWorkation(workation);
+        workationLocationRepository.updateLocation(location);
 
-
-
-
-        return WorkationDto.ResponseDto.toDto(workation);
+        // 6. ResponseUpdateDto로 변환
+        return WorkationDto.ResponseUpdateDto.toDto(workation);
     }
 
 

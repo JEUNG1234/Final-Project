@@ -30,6 +30,7 @@ public interface WorkationRepository {
    //워케이션 신청
    SubmitWorkation save(SubmitWorkation subWork);
 
+   //워케이션 수정용
    void updateWorkation(Workation workation);
 }
 

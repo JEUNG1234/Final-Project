@@ -47,47 +47,10 @@ public class WorkationController {
         return workationService.submit(subWork);
     }
 
+    //워케이션 수정기능
     @PatchMapping("/update")
     public ResponseEntity<WorkationDto.ResponseUpdateDto> update(@RequestBody WorkationDto.WorkationUpdateDto request) {
-        WorkationDto.ResponseDto updatedWorkationDto  = workationService.updateWorkation(request);
-
-
-        // workationService.updateWorkation()은 WorkationDto.ResponseDto를 반환하므로,
-        // 이를 WorkationDto.ResponseUpdateDto로 변환해야 합니다.
-
-
-        // ResponseDto에서 ResponseUpdateDto로 변환하는 정적 메서드를 WorkationDto.ResponseUpdateDto 내에 추가하면 편리합니다.
-        // 현재 ResponseUpdateDto.toDto는 Workation 엔티티를 받으므로, WorkationDto.ResponseDto를 받는 메서드를 추가하거나
-        // Service에서 Workation 엔티티를 반환하도록 변경하는 것을 고려할 수 있습니다.
-        // 일단은 WorkationDto.ResponseDto의 필드를 직접 복사하여 WorkationDto.ResponseUpdateDto를 생성하겠습니다.
-        WorkationDto.ResponseUpdateDto responseUpdateDto = WorkationDto.ResponseUpdateDto.builder()
-                .workationTitle(updatedWorkationDto.getWorkationTitle())
-                .placeImage(updatedWorkationDto.getPlaceImage())
-                .address(updatedWorkationDto.getAddress())
-                .placeInfo(updatedWorkationDto.getPlaceInfo())
-                .feature(updatedWorkationDto.getFeature())
-                .workationStartDate(updatedWorkationDto.getWorkationStartDate())
-                .workationEndDate(updatedWorkationDto.getWorkationEndDate())
-                .facilityImage(updatedWorkationDto.getFacilityImage())
-                .facilityInfo(updatedWorkationDto.getFacilityInfo())
-                .openHours(updatedWorkationDto.getOpenHours())
-                .spaceType(updatedWorkationDto.getSpaceType())
-                .area(updatedWorkationDto.getArea())
-                .peopleMin(updatedWorkationDto.getPeopleMin())
-                .peopleMax(updatedWorkationDto.getPeopleMax())
-                .url(updatedWorkationDto.getUrl())
-                .precautions(updatedWorkationDto.getPrecautions())
-                .busInfo(updatedWorkationDto.getBusInfo())
-                .parkingInfo(updatedWorkationDto.getParkingInfo())
-                .latitude(updatedWorkationDto.getLatitude())
-                .longitude(updatedWorkationDto.getLongitude())
-                .userId(updatedWorkationDto.getUserId())
-                // locationNo와 workationNo는 ResponseDto에 없으므로, 원래 DTO에서 가져와야 합니다.
-                // 이 부분을 위해 service의 updateWorkation이 Workation 엔티티를 반환하고,
-                // 컨트롤러에서 그 엔티티로 ResponseUpdateDto를 만드는 것이 더 깔끔할 수 있습니다.
-                // 또는 ResponseDto에 이 필드들을 추가하는 것도 방법입니다.
-                // 일단은 ResponseUpdateDto의 toDto 메서드를 활용하기 위해 Service 메서드 반환 타입을 변경하는 것을 권장합니다.
-                .build();
-        return new ResponseEntity<>(responseUpdateDto, HttpStatus.OK);
+        WorkationDto.ResponseUpdateDto updated = workationService.updateWorkation(request);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 }

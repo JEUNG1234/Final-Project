@@ -1,6 +1,7 @@
 package com.kh.sowm.entity;
 
 
+import com.kh.sowm.dto.WorkationDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -58,6 +59,17 @@ public class WorkationLocation {
     @Column(name = "PARKING_INFO",length = 100)
     private String parkingInfo;
 
+    public void updateFromDto(WorkationDto.LocationsDto dto) {
+        this.placeInfo = dto.getPlaceInfo();
+        this.address = dto.getAddress();
+        this.openHours = dto.getOpenHours();
+        this.spaceType = dto.getSpaceType();
+        this.area = dto.getArea();
+        this.feature = dto.getFeature();
+        this.busInfo = dto.getBusInfo();
+        this.parkingInfo = dto.getParkingInfo();
+        this.latitude = dto.getLatitude();
+        this.longitude = dto.getLongitude();
+    }
 
-   
 }
