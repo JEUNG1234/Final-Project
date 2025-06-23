@@ -1,12 +1,15 @@
 package com.kh.sowm.repository;
 
+import com.kh.sowm.dto.AttendanceDto;
 import com.kh.sowm.entity.Attendance;
+import com.kh.sowm.entity.Company;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -83,4 +86,53 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    @Override
+    public List<AttendanceDto.Record> getAllAttendanceByCompany(String companyCode) {
+
+        List<Attendance> list = em.createQuery(
+                        "SELECT a FROM Attendance a "
+                                + "JOIN a.user u "
+                                + "JOIN u.company c "
+                                + "WHERE c.companyCode = :companyCode", Attendance.class)
+                .setParameter("companyCode", companyCode)
+                .getResultList();
+
+        return AttendanceDto.Record.toEntity(list);
+    }
+
+    @Override
+    public List<AttendanceDto.Record> getTodayAttendance(String companyCode) {
+
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();             // 오늘 00:00:00
+        LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay(); // 내일 00:00:00
+
+        List<Attendance> list = em.createQuery(
+                        "SELECT a FROM Attendance a " +
+                                "JOIN a.user u " +
+                                "JOIN u.company c " +
+                                "WHERE c.companyCode = :companyCode " +
+                                "AND a.attendTime >= :startOfDay " +
+                                "AND a.attendTime < :startOfTomorrow", Attendance.class)
+                .setParameter("companyCode", companyCode)
+                .setParameter("startOfDay", startOfDay)
+                .setParameter("startOfTomorrow", startOfTomorrow)
+                .getResultList();
+
+        return AttendanceDto.Record.toEntity(list);
+    }
+
+    @Override
+    public Optional<Attendance> findById(Long attendanceNo) {
+        Attendance attendance = em.find(Attendance.class, attendanceNo);
+        return Optional.ofNullable(attendance);
+    }
+// 조건으로 직원 출퇴근 정보 확인 , 개발중
+//    @Override
+//    public List<Attendance> findByFilters(String userName, String deptName, LocalDate date) {
+//        return List.of();
+//    }
+
+
 }

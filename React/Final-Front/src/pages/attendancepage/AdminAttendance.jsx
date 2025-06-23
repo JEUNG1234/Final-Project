@@ -1,26 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-
-// Chart.js 및 react-chartjs-2 임포트
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { Pagination, BottomBar, PageButton, PageTitle } from '../../styles/common/MainContentLayout';
 import { FaCalendarAlt } from 'react-icons/fa';
+import { useEffect } from 'react';
+import { adminService } from '../../api/admin';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
-// 1. 금주 근태 비율 도넛 차트 데이터
-const donutChartData = {
-  labels: ['정상', '지각', '결근', '조퇴'],
-  datasets: [
-    {
-      data: [85, 10, 3, 2], // 예시 비율
-      backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#FF9800'], // 녹색, 노랑, 빨강, 주황
-      borderColor: ['#ffffff'],
-      borderWidth: 2,
-    },
-  ],
+// =============================================================================================================================
+
+// 도넛 차트 데이터 계산 함수
+const getDonutChartData = (attendanceList) => {
+  if (!Array.isArray(attendanceList)) attendanceList = [];
+  let normal = 0;
+  let late = 0;
+  let absent = 0;
+  let earlyLeave = 0;
+
+  attendanceList.forEach((item) => {
+    if (item.status === 'W' && item.attendTime) {
+      const attendTime = new Date(item.attendTime);
+      const nineAM = new Date(attendTime);
+      nineAM.setHours(9, 0, 0, 0);
+      if (attendTime <= nineAM) {
+        normal++;
+      } else {
+        late++;
+      }
+    } else if (item.status === 'L') {
+      // 퇴근한 경우는 이미 출근한 것으로 간주
+      normal++;
+    } else {
+      // 어떤 상태도 없는 경우만 결근 처리
+      absent++;
+    }
+  });
+
+  return {
+    labels: ['정상', '지각', '결근'],
+    datasets: [
+      {
+        data: [normal, late, absent, earlyLeave],
+        backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
+        borderColor: ['#ffffff'],
+        borderWidth: 2,
+      },
+    ],
+  };
 };
 
 const donutChartOptions = {
@@ -52,6 +81,7 @@ const donutChartOptions = {
   cutout: '60%', // 도넛 차트의 가운데 구멍 크기
 };
 
+// =============================================================================================================================
 // 2. 주간/월간 근태 분포 누적 막대 그래프 데이터 (예시: 지난 7일)
 const barChartData = {
   labels: ['월', '화', '수', '목', '금', '토', '일'],
@@ -72,14 +102,9 @@ const barChartData = {
       backgroundColor: '#F44336', // 빨강
     },
     {
-      label: '휴가/연차',
+      label: '휴가/워케이션',
       data: [0, 0, 0, 0, 0, 15, 18], // 월별 휴가/연차 인원 (주말 반영)
       backgroundColor: '#2196F3', // 파랑
-    },
-    {
-      label: '미기록',
-      data: [0, 0, 0, 0, 0, 0, 0], // 월별 미기록 인원
-      backgroundColor: '#9E9E9E', // 회색
     },
   ],
 };
@@ -122,7 +147,176 @@ const barChartOptions = {
   },
 };
 
+// =============================================================================================================================
+
 const AdminAttendance = () => {
+  // 당일 근무 시간 함수 모음
+  const [attendanceList, setAttendanceList] = useState([]);
+
+  const isToday = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  };
+
+  const normal = attendanceList.filter((item) => {
+    if (item.status !== 'W' || !item.attendTime) return false;
+    const attendDate = new Date(item.attendTime);
+    const nineAM = new Date(attendDate);
+    nineAM.setHours(9, 0, 0, 0);
+    return attendDate <= nineAM; // 9시 이전 출근 정상
+  }).length;
+
+  const late = attendanceList.filter((item) => {
+    if (item.status !== 'W' || !item.attendTime) return false;
+    const attendDate = new Date(item.attendTime);
+    const nineAM = new Date(attendDate);
+    nineAM.setHours(9, 0, 0, 0);
+    return attendDate > nineAM; // 9시 이후 출근 지각
+  }).length;
+
+  const notCome = attendanceList.filter((item) => item.status == null).length;
+
+  const total = attendanceList.filter((item) => {
+    return item.attendTime && isToday(item.attendTime);
+  }).length;
+
+  const leave = attendanceList.filter((item) => item.status === 'L' && isToday(item.leaveTime)).length;
+
+  const getTodayStatusChart = () => ({
+    labels: ['정상', '지각', '결근', '퇴근'],
+    datasets: [
+      {
+        data: [normal, late, notCome, leave],
+        backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#2196F3'],
+        borderColor: ['#ffffff'],
+        borderWidth: 2,
+      },
+    ],
+  });
+
+  // =============================================================================================================================
+
+  // 평균 근무 시간 계산 (주간, 월간) 함수 모음
+  const calcAverageWorkHours = (list, daysAgo) => {
+    const now = new Date();
+    const filtered = list.filter((item) => {
+      if (!item.attendTime || item.workHours == null) return false;
+      const attendDate = new Date(item.attendTime);
+      return attendDate >= new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+    });
+    if (filtered.length === 0) return 0;
+    const totalHours = filtered.reduce((acc, cur) => acc + (cur.workHours || 0), 0);
+    return (totalHours / filtered.length).toFixed(1);
+  };
+  // 금주 근태 비율 함수 모음
+  const weeklyAvg = calcAverageWorkHours(attendanceList, 7);
+
+  // 월별 근태 비율 함수 모음 (도넛 차트용)
+  const monthlyAvg = calcAverageWorkHours(attendanceList, 30);
+
+  const getAvgWorkHourDonutData = (weeklyAvg, monthlyAvg) => {
+    return {
+      labels: ['주간 평균', '월간 평균'],
+      datasets: [
+        {
+          data: [Number(weeklyAvg), Number(monthlyAvg)],
+          backgroundColor: ['#42A5F5', '#66BB6A'],
+          borderColor: ['#fff', '#fff'],
+          borderWidth: 2,
+        },
+      ],
+    };
+  };
+
+  // =============================================================================================================================
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    const date = new Date(timeString);
+    if (isNaN(date)) return '';
+    // 시:분까지만 반환 (HH:mm)
+    return date.toLocaleTimeString('en-GB', { hour12: false }).slice(0, 5);
+  };
+
+  const combineDateAndTime = (dateTimeString, timeString) => {
+    if (!dateTimeString) return null;
+    // dateTimeString 예: "2025-06-23T09:00:00"
+    const datePart = dateTimeString.split('T')[0]; // "2025-06-23"
+    return `${datePart}T${timeString}:00`; // "2025-06-23T15:30:00"
+  };
+
+  // 출근 시간, 퇴근 시간으로 근무 시간(소수점 시간) 계산
+  const calculateWorkHours = (attendDateTimeStr, leaveDateTimeStr) => {
+    if (!attendDateTimeStr || !leaveDateTimeStr) return 0;
+    const attend = new Date(attendDateTimeStr);
+    const leave = new Date(leaveDateTimeStr);
+    const diffMs = leave - attend;
+    return diffMs > 0 ? +(diffMs / (1000 * 60 * 60)).toFixed(2) : 0; // 시간 단위, 소수점 2자리 숫자 반환
+  };
+
+  // 츨퇴근 수정 함수
+  const handleUpdateAttendTime = async (item) => {
+    try {
+      const workHours = calculateWorkHours(item.attendTime, item.leaveTime);
+
+      const updateData = {
+        attendanceNo: item.attendanceNo,
+        attendTime: item.attendTime,
+        leaveTime: item.leaveTime,
+        workHours: workHours,
+      };
+
+      const response = await adminService.updateAttendTime(updateData);
+      console.log('수정 성공:', response.data);
+
+      // UI에서도 반영
+      setAttendanceList((prev) =>
+        prev.map((el) => (el.attendanceNo === item.attendanceNo ? { ...el, workHours: workHours } : el))
+      );
+    } catch (err) {
+      console.error('수정 실패:', err);
+    }
+  };
+
+  const handleAttendTimeChange = (attendanceNo, newTime) => {
+    setAttendanceList((prev) =>
+      prev.map((item) =>
+        item.attendanceNo === attendanceNo
+          ? { ...item, attendTime: combineDateAndTime(item.attendTime, newTime) }
+          : item
+      )
+    );
+  };
+
+  const handleLeaveTimeChange = (attendanceNo, newTime) => {
+    setAttendanceList((prev) =>
+      prev.map((item) =>
+        item.attendanceNo === attendanceNo ? { ...item, leaveTime: combineDateAndTime(item.leaveTime, newTime) } : item
+      )
+    );
+  };
+
+  // =============================================================================================================================
+
+  useEffect(() => {
+    const getAttendanceList = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await adminService.getAllAttendanceByCompanyCode(userId);
+        console.log('출퇴근 데이터', response);
+        setAttendanceList(response);
+      } catch (err) {
+        console.error('출퇴근 데이터 에러', err);
+      }
+    };
+    getAttendanceList();
+  }, []);
+
   return (
     <AttendanceManagementContainer>
       {/* 페이지 헤더 */}
@@ -147,22 +341,31 @@ const AdminAttendance = () => {
       {/* 상단 요약/대시보드 영역 */}
       <SummaryDashboard>
         <SummaryCard>
-          <h3>오늘 근태 현황</h3>
-          <p>총 20명 | 정상 18명 | 지각 2명 | 결근 5명 | 휴가 5명</p>
-          {/* 실제 데이터와 아이콘은 추후 동적으로 바인딩 */}
+          <h3>오늘 근태 현황</h3>{' '}
+          <ChartContainer height="120px">
+            <Doughnut data={getTodayStatusChart()} options={donutChartOptions} />
+          </ChartContainer>
+          <p>
+            총 {total}명 | 정상 출근 {normal}명 | 결근 {notCome}명 | 지각 {late} 명 | 퇴근 {leave} 명
+          </p>
         </SummaryCard>
         <SummaryCard>
           <h3>평균 근무 시간</h3>
-          <p>주간: 8.5시간 (↑0.2h) | 월간: 8.2시간 (↓0.1h)</p>
-          {/* 실제 데이터와 아이콘은 추후 동적으로 바인딩 */}
+          <ChartContainer>
+            <Doughnut data={getAvgWorkHourDonutData(weeklyAvg, monthlyAvg)} options={donutChartOptions} />
+          </ChartContainer>
+          <p>
+            주간: {weeklyAvg}시간 | 월간: {monthlyAvg}시간
+          </p>
         </SummaryCard>
         <SummaryCard>
           <h3>금주 근태 비율</h3>
           <ChartContainer>
-            {/* ChartPlaceholder 대신 Doughnut 차트 렌더링 */}
-            <Doughnut data={donutChartData} options={donutChartOptions} />
+            <Doughnut data={getDonutChartData(attendanceList)} options={donutChartOptions} />
           </ChartContainer>
-          {/* ChartLegend는 Doughnut options에서 범례를 관리하므로 제거합니다. */}
+          <p>
+            정상 {normal}명 | 지각 {late}명 | 결근 {notCome}명
+          </p>
         </SummaryCard>
       </SummaryDashboard>
 
@@ -189,83 +392,53 @@ const AdminAttendance = () => {
               <th>근무 시간</th>
               <th>출퇴근 여부</th>
               <th>날짜</th>
-              <th>비고</th>
               <th>수정</th>
             </tr>
           </thead>
           <tbody>
-            {/* 예시 데이터 (실제로는 API 호출로 받아온 데이터를 map 함수로 렌더링) */}
-            <tr>
-              <td>1</td>
-              <td>김철수</td>
-              <td>개발팀</td>
-              <td>08:30</td>
-              <td>-</td>
-              <td>-</td>
-              <td>미기록</td>
-              <td>2025/03/01</td>
-              <td></td>
-              <td>
-                <TableActionButton>수정</TableActionButton>
-              </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>이영희</td>
-              <td>마케팅팀</td>
-              <td>08:42</td>
-              <td>18:10</td>
-              <td>9시간 28분</td>
-              <td>정상 출근</td>
-              <td>2025/02/29</td>
-              <td></td>
-              <td>
-                <TableActionButton>수정</TableActionButton>
-              </td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>박민수</td>
-              <td>인사팀</td>
-              <td>09:12</td>
-              <td>18:05</td>
-              <td>8시간 53분</td>
-              <td>지각</td>
-              <td>2025/02/28</td>
-              <td>교통 체증</td>
-              <td>
-                <TableActionButton>수정</TableActionButton>
-              </td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td>김철수</td>
-              <td>개발팀</td>
-              <td>08:50</td>
-              <td>18:03</td>
-              <td>9시간 13분</td>
-              <td>정상 출근</td>
-              <td>2025/02/27</td>
-              <td></td>
-              <td>
-                <TableActionButton>수정</TableActionButton>
-              </td>
-            </tr>
-            <tr>
-              <td>5</td>
-              <td>이영희</td>
-              <td>마케팅팀</td>
-              <td>08:52</td>
-              <td>18:00</td>
-              <td>9시간 8분</td>
-              <td>정상 출근</td>
-              <td>2025/02/26</td>
-              <td></td>
-              <td>
-                <TableActionButton>수정</TableActionButton>
-              </td>
-            </tr>
-            {/* 더 많은 데이터 */}
+            {Array.isArray(attendanceList) && attendanceList.length > 0 ? (
+              attendanceList.map((item, index) => (
+                <tr key={item.attendanceNo}>
+                  <td>{index + 1}</td>
+                  <td>{item.userName}</td>
+                  <td>{item.deptName}</td>
+                  <td>
+                    {item.attendTime ? (
+                      <TimeInput
+                        type="time"
+                        value={formatTime(item.attendTime)} // value로 변경
+                        onChange={(e) => handleAttendTimeChange(item.attendanceNo, e.target.value)}
+                      />
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td>
+                    {item.leaveTime ? (
+                      <TimeInput
+                        type="time"
+                        value={formatTime(item.leaveTime)}
+                        onChange={(e) => handleLeaveTimeChange(item.attendanceNo, e.target.value)}
+                      />
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td>{item.workHours.toFixed(1)}시간</td>
+                  <td>{item.status === 'L' ? '퇴근' : item.status === 'W' ? '출근' : '-'}</td>
+                  <td>{item.attendTime ? new Date(item.attendTime).toLocaleDateString('ko-KR') : '-'}</td>
+                  <td>
+                    <TableActionButton onClick={() => handleUpdateAttendTime(item)}>수정</TableActionButton>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="10" style={{ textAlign: 'center' }}>
+                  출퇴근 기록이 없습니다.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
         {/* 페이지네이션 */}
@@ -437,6 +610,27 @@ const TableActionButton = styled.button`
 
   &:hover {
     background-color: #5a6268;
+  }
+`;
+
+const TimeInput = styled.input.attrs({ type: 'time' })`
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.25s ease;
+
+  &:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.6);
+  }
+
+  /* 크로스 브라우저 기본 내장 시계 아이콘 간격 맞추기 */
+  &::-webkit-inner-spin-button,
+  &::-webkit-clear-button {
+    display: none;
   }
 `;
 
