@@ -112,13 +112,13 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
         return board.getBoardNo();
     }
 
-    @Override
-    public void delete(Board board) {
-        // 영속성 컨텍스트에 없는 엔티티를 삭제하려 하면 예외 발생
-        // merge를 통해 영속성 컨텍스트에 엔티티를 로드한 후 삭제
-        Board managedBoard = em.merge(board);
-        em.remove(managedBoard);
-    }
+//    @Override
+//    public void delete(Board board) {
+//        // 영속성 컨텍스트에 없는 엔티티를 삭제하려 하면 예외 발생
+//        // merge를 통해 영속성 컨텍스트에 엔티티를 로드한 후 삭제
+//        Board managedBoard = em.merge(board);
+//        em.remove(managedBoard);
+//    }
 
     @Override
     public int increaseViewCount(Long boardId) {
