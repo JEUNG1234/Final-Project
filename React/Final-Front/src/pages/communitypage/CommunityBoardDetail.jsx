@@ -18,7 +18,7 @@ const CommunityBoardDetail = () => {
   useEffect(() => {
     // 1. 게시글 상세 정보 불러오기
     axios
-      .get(`http://localhost:8888/api/boards/${id}`)
+      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.DETAIL(id)}`)
       .then((res) => {
         setPost(res.data);
       })
@@ -32,7 +32,7 @@ const CommunityBoardDetail = () => {
     // 이 요청은 게시글 상세 페이지에 처음 진입할 때만 발생합니다.
     // 백엔드에서 /api/boards/{id}/views 라는 PATCH 엔드포인트를 구현했다고 가정합니다.
     axios
-      .patch(`http://localhost:8888/api/boards/${id}/views`)
+      .patch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.INCREASE_VIEW(id)}`)
       .then(() => {
         console.log(`게시글 ${id}의 조회수가 성공적으로 1 증가했습니다.`);
         // 필요하다면, 프론트엔드에서 즉시 조회수를 업데이트하여 화면에 반영할 수 있습니다.
@@ -51,7 +51,7 @@ const CommunityBoardDetail = () => {
   const handleDelete = () => {
     if (window.confirm('정말 이 게시글을 삭제하시겠습니까?')) {
       axios
-        .delete(`http://localhost:8888/api/boards/${id}`)
+        .delete(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.DELETE(id)}`)
         .then(() => {
           alert('게시글이 성공적으로 삭제되었습니다.');
           navigate('/communityboard'); // 삭제 후 게시판 목록으로 이동

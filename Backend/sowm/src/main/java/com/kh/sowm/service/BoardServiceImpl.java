@@ -61,7 +61,8 @@ public class BoardServiceImpl implements BoardService {
     public void deleteBoard(Long boardNo) {
         Board board = boardRepository.findById(boardNo)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
-        boardRepository.delete(board); // BoardRepositoryImpl의 delete 메서드 호출
+        board.deletedBoard(); // 상태를 'N'으로 변경
+        boardRepository.save(board);
     }
 
     @Transactional

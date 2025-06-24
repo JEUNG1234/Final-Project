@@ -20,7 +20,7 @@ public interface BoardRepository {
     Long save(Board board);
 
     // 게시글 삭제
-    void delete(Board board);
+//    void delete(Board board);
 
     // 조회수 증가
     int increaseViewCount(Long boardId);

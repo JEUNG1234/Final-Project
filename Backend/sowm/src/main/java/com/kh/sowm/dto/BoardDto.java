@@ -40,6 +40,7 @@ public class BoardDto {
         // 수정은 기존 엔티티 필드 수정 방식으로 처리
     }
 
+
     @Getter
     @Builder
     @AllArgsConstructor
