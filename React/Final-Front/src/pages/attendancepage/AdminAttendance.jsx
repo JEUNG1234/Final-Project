@@ -6,6 +6,7 @@ import { Pagination, BottomBar, PageButton, PageTitle } from '../../styles/commo
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useEffect } from 'react';
 import { adminService } from '../../api/admin';
+import { departmentService } from '../../api/department';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -302,20 +303,89 @@ const AdminAttendance = () => {
   };
 
   // =============================================================================================================================
+  // 페이징처리
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPage, setTotalPage] = useState(0);
+
+  // =============================================================================================================================
+
+  // 조건 처리 함수
+  const [searchDate, setSearchDate] = useState('');
+  const [userName, setUserName] = useState('');
+  const [deptCode, setDeptCode] = useState('');
+  const [attendances, setAttendances] = useState([]);
+
+  const handleSearch = async () => {
+    try {
+      const res = await adminService.getMemberAttendance({
+        userName,
+        date: searchDate,
+        deptName: deptCode,
+        page: 0,
+        size: 10,
+        sort: 'attendTime,desc',
+      });
+      if (res && res.content) {
+        setAttendances(res.content);
+        console.log('현재 상세 근태 데이터 : ', attendances);
+      } else {
+        console.warn('데이터가 없습니다.');
+        setAttendances([]); // 빈 배열로 초기화
+      }
+    } catch (err) {
+      console.error('조회 실패:', err);
+    }
+  };
+
+  // =============================================================================================================================
+  // 부서 가져오기
+  const [departments, setDepartments] = useState([]);
 
   useEffect(() => {
-    const getAttendanceList = async () => {
+    async function fetchDepartments() {
       try {
-        const userId = localStorage.getItem('userId');
-        const response = await adminService.getAllAttendanceByCompanyCode(userId);
-        console.log('출퇴근 데이터', response);
-        setAttendanceList(response);
-      } catch (err) {
-        console.error('출퇴근 데이터 에러', err);
+        const data = await departmentService.getDepartments();
+        setDepartments(data);
+        console.log('현재 부서 목록 : ', data);
+      } catch (error) {
+        console.error('부서 목록 불러오기 실패:', error);
       }
-    };
-    getAttendanceList();
+    }
+    fetchDepartments();
   }, []);
+
+  // =============================================================================================================================
+
+  const getAttendanceList = async (page = 0) => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await adminService.getAllAttendanceByCompanyCode(userId, page, 5);
+      if (response && Array.isArray(response.content)) {
+        setAttendanceList(response.content);
+        setCurrentPage(response.currentPage);
+        setTotalPage(response.totalPage);
+      } else if (Array.isArray(response)) {
+        setAttendanceList(response);
+      } else {
+        setAttendanceList([]);
+      }
+      console.log('출퇴근 데이터', response);
+    } catch (err) {
+      console.error('출퇴근 데이터 에러', err);
+    }
+  };
+
+  // useEffect 내부에서는 초기 호출만
+  useEffect(() => {
+    getAttendanceList(0);
+  }, []);
+
+  // 페이지 변경 시 호출 가능
+  const handlePageChange = (page) => {
+    if (page >= 0 && page < totalPage) {
+      getAttendanceList(page);
+    }
+  };
 
   return (
     <AttendanceManagementContainer>
@@ -326,16 +396,49 @@ const AdminAttendance = () => {
           근태 관리
         </PageTitle>
         <SearchFilterArea>
-          <input type="date" placeholder="날짜 검색" />
-          <input type="text" placeholder="직원명 검색" />
-          <select>
+          <input
+            type="date"
+            value={searchDate}
+            onChange={(e) => setSearchDate(e.target.value)}
+            placeholder="날짜 검색"
+          />
+          <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} placeholder="직원명 검색" />
+          <select value={deptCode} onChange={(e) => setDeptCode(e.target.value)}>
             <option value="">부서/팀 선택</option>
-            <option value="development">개발팀</option>
-            <option value="marketing">마케팅팀</option>
-            <option value="hr">인사팀</option>
+            {departments.map((dept) => (
+              <option key={dept.deptName} value={dept.deptName}>
+                {dept.deptName}
+              </option>
+            ))}
           </select>
-          <button>조회</button>
+          <button onClick={handleSearch}>조회</button>
         </SearchFilterArea>
+        {attendances.length > 0 && (
+          <SummaryCard>
+            <SummaryTable>
+              <thead>
+                <tr>
+                  <th>직원명</th>
+                  <th>부서명</th>
+                  <th>출근 시간</th>
+                  <th>퇴근 시간</th>
+                  <th>근무 시간</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendances.map((att) => (
+                  <tr key={att.attendanceNo}>
+                    <td>{att.userName}</td>
+                    <td>{att.deptName}</td>
+                    <td>{new Date(att.attendTime).toLocaleString()}</td>
+                    <td>{att.leaveTime ? new Date(att.leaveTime).toLocaleString() : '-'}</td>
+                    <td>{att.workHours ? att.workHours.toFixed(2) + '시간' : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </SummaryTable>
+          </SummaryCard>
+        )}
       </PageHeader>
 
       {/* 상단 요약/대시보드 영역 */}
@@ -444,12 +547,21 @@ const AdminAttendance = () => {
         {/* 페이지네이션 */}
         <BottomBar>
           <Pagination>
-            <PageButton>&lt;</PageButton>
-            <PageButton className="active">1</PageButton>
-            <PageButton>2</PageButton>
-            <PageButton>3</PageButton>
-            <PageButton>4</PageButton>
-            <PageButton>&gt;</PageButton>
+            <PageButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
+              &lt;
+            </PageButton>
+            {Array.from({ length: totalPage }, (_, idx) => (
+              <PageButton
+                key={idx}
+                onClick={() => handlePageChange(idx)}
+                className={currentPage === idx ? 'active' : ''}
+              >
+                {idx + 1}
+              </PageButton>
+            ))}
+            <PageButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage + 1 === totalPage}>
+              &gt;
+            </PageButton>
           </Pagination>
         </BottomBar>
       </DetailTableArea>
@@ -631,6 +743,25 @@ const TimeInput = styled.input.attrs({ type: 'time' })`
   &::-webkit-inner-spin-button,
   &::-webkit-clear-button {
     display: none;
+  }
+`;
+
+const SummaryTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  thead tr {
+    border-bottom: 2px solid #ccc;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 8px;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #eee;
   }
 `;
 

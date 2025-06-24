@@ -47,9 +47,11 @@ export const adminService = {
   },
 
   // 회사별로 직원 근태 정보 가져오기
-  getAllAttendanceByCompanyCode: async (userId) => {
+  getAllAttendanceByCompanyCode: async (userId, page = 0, size = 5, sort = 'attendTime,desc') => {
     try {
-      const response = await api.get(`${API_ENDPOINTS.ADMIN.getAllAttendanceByCompanyCode}?userId=${userId}`);
+      const response = await api.get(`${API_ENDPOINTS.ADMIN.getAllAttendanceByCompanyCode}`, {
+        params: { userId, page, size, sort },
+      });
       return response.data;
     } catch (err) {
       console.log('에러', err);
@@ -74,6 +76,17 @@ export const adminService = {
       return response.data;
     } catch (err) {
       console.log('에러 발생', err);
+    }
+  },
+
+  getMemberAttendance: async ({ userName, date, deptName, page = 0, size = 5, sort = 'attendTime,desc' }) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.ADMIN.getMemberAttendance}`, {
+        params: { userName, date, deptName, page, size, sort },
+      });
+      return response.data;
+    } catch (err) {
+      console.log('에러', err);
     }
   },
 };
