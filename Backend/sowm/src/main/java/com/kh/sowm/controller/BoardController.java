@@ -51,9 +51,9 @@ public class BoardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable("id") Long boardNo) {
+    public ResponseEntity<String> deleteBoard(@PathVariable("id") Long boardNo) {
         boardService.deleteBoard(boardNo);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("게시글이 삭제되었습니다.");
     }
 
     @PatchMapping("/{id}")

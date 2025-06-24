@@ -5,6 +5,7 @@ import { FaComments } from 'react-icons/fa';
 import axios from 'axios';
 import useUserStore from '../../Store/useStore';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
 
 const AddBoard = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const AddBoard = () => {
   // 🔹 카테고리 목록 로딩
   useEffect(() => {
     axios
-      .get('http://localhost:8888/api/categories')
+      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CATEGORY.BASE}`)
       .then((res) => {
         setCategories(res.data);
       })
@@ -59,7 +60,7 @@ const AddBoard = () => {
     // if (file) formData.append('file', file);
 
     try {
-      await axios.post('http://localhost:8888/api/boards', formData, {
+      await axios.post(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.CREATE}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

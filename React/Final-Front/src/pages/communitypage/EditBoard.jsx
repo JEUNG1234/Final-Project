@@ -7,6 +7,7 @@ import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import dayjs from 'dayjs';
 import useUserStore from '../../Store/useStore';
 import { BounceLoader } from 'react-spinners';
+import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
 
 const EditBoard = () => {
   const { user } = useUserStore();
@@ -25,7 +26,7 @@ const EditBoard = () => {
     const startTime = Date.now(); // 요청 시작 시간 기록
 
     axios
-      .get(`http://localhost:8888/api/boards/${id}`)
+      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.DETAIL(id)}`)
       .then((res) => {
         setPost(res.data);
         setBoardTitle(res.data.boardTitle);
@@ -56,7 +57,7 @@ const EditBoard = () => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:8888/api/categories')
+      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CATEGORY.BASE}`)
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('카테고리 불러오기 실패:', err));
   }, []);
@@ -69,7 +70,7 @@ const EditBoard = () => {
     };
 
     axios
-      .patch(`http://localhost:8888/api/boards/${id}`, updatedPost)
+      .patch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.UPDATE(id)}`, updatedPost)
       .then((res) => {
         setPost(res.data);
         setBoardTitle(res.data.boardTitle);
