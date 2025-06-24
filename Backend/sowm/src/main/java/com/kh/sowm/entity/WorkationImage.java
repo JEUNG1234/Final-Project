@@ -23,7 +23,7 @@ public class WorkationImage {
     //워케이션 고유 번호
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "WORKATION_NO", nullable = false)
-    private Board workation;
+    private Workation workation;
 
     //원본 파일명
     @Column(name = "ORIGINAL_NAME", nullable = false, length = 255)
@@ -56,9 +56,9 @@ public class WorkationImage {
     private Tab tab;
 
 
-    //PLACE = 장소 이미지, FACILTY= 시설이미지, PRECAUTIONS=유의사항 이미지
+    //PLACE = 장소 이미지, FACIILTY= 시설이미지, PRECAUTIONS=유의사항 이미지
     public enum Tab{
-        PLACE, FACILTY, PRECAUTIONS
+        PLACE, FACILITY, PRECAUTIONS
 
     }
 

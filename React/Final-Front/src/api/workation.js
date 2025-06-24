@@ -23,7 +23,6 @@ export const workationService = {
   },
   delete: async (workationNo) => {
     try { 
-       console.log("::worationNo",workationNo);
       const response = await api.patch(API_ENDPOINTS.WORKATION.DELETE,{ workationNo } )
       return response.data;
     } catch (error) {
@@ -33,7 +32,6 @@ export const workationService = {
   },
   workationList: async (companyCode) => {
     try {
-      console.log(companyCode);
       const response = await api.get(`${API_ENDPOINTS.WORKATION.LIST}?companyCode=${companyCode}`);
       return response.data;
     } catch (error) {

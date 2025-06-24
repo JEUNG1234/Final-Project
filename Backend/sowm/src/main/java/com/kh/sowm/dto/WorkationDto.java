@@ -6,6 +6,7 @@ import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
 
+import java.util.List;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -113,6 +114,20 @@ public class WorkationDto {
         private double longitude;
     }
 
+    //이미지용 dto
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class WorkationImageDto{
+        private String originalName;
+        private String changedName;
+        private String path;
+        private Long size;
+        private String tab;
+    }
+
 
     //워케이션 정보 생성용 dto
     @Getter
@@ -123,6 +138,8 @@ public class WorkationDto {
         private WorkationsDto workation;
         private LocationsDto location;
         private String userId;
+        private List<WorkationImageDto> images;
+
 
 
         public Workation toWorkationEntity(User user) {
