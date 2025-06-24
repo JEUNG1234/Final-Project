@@ -1,3 +1,5 @@
+// api/voteService.js
+
 import api from './axios';
 import { API_ENDPOINTS } from './config';
 
@@ -27,9 +29,9 @@ export const voteService = {
    */
   getAllVotes: async (userId) => {
     try {
-      const response = await api.get(API_ENDPOINTS.VOTES.BASE, {
-        params: { userId },
-      });
+      const response = await api.get(
+        `${API_ENDPOINTS.VOTES.BASE}?userId=${userId}&_=${new Date().getTime()}`
+      );
       return response.data;
     } catch (error) {
       console.error('투표 목록 조회 API 호출 중 오류 발생:', error);
@@ -54,20 +56,38 @@ export const voteService = {
 
   /**
    * 사용자가 특정 항목에 투표합니다.
-   * @param {number} voteNo - 참여할 투표의 ID
+   * @param {number} voteId - 참여할 투표의 ID
    * @param {number} voteContentNo - 선택한 항목의 ID
    * @param {string} userId - 투표하는 사용자의 ID
    * @returns {Promise<any>}
    */
-  castVote: async (voteNo, voteContentNo, userId) => {
+  castVote: async (voteId, voteContentNo, userId) => {
     try {
-      const response = await api.post(`${API_ENDPOINTS.VOTES.BASE}/${voteNo}/cast`, {
+      const response = await api.post(`${API_ENDPOINTS.VOTES.BASE}/${voteId}/cast`, {
         voteContentNo,
         userId,
       });
       return response.data;
     } catch (error) {
       console.error('투표하기 API 호출 중 오류 발생:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * 투표를 삭제합니다. (관리자용)
+   * @param {number} voteId - 삭제할 투표의 ID
+   * @param {string} userId - 요청하는 사용자의 ID (권한 확인용)
+   * @returns {Promise<any>}
+   */
+  deleteVote: async (voteId, userId) => {
+    try {
+      const response = await api.delete(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`, {
+        params: { userId },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('투표 삭제 API 호출 중 오류 발생:', error);
       throw error;
     }
   },

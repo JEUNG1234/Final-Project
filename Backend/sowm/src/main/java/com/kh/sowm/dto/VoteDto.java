@@ -1,5 +1,6 @@
 package com.kh.sowm.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Vote;
 import com.kh.sowm.entity.VoteContent;
@@ -58,7 +59,10 @@ public class VoteDto {
         private String voteType;
         private LocalDate voteEndDate;
         private int totalVotes;
+
+        @JsonProperty("isVoted") // ✅ 이 어노테이션을 추가하여 JSON 변환 시 반드시 포함하도록 지정
         private boolean isVoted; // 현재 사용자가 투표했는지 여부
+
         private List<OptionResponse> options;
 
         public static ListResponse fromEntity(Vote vote, boolean isVoted) {

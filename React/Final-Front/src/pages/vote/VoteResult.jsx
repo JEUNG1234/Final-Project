@@ -1,21 +1,24 @@
+// pages/vote/VoteResult.jsx
+
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
 import { voteService } from '../../api/voteService';
+import useUserStore from '../../Store/useStore'; 
 
 const VoteResult = () => {
   const navigate = useNavigate();
-  const { voteId } = useParams(); // URL 파라미터에서 voteId 가져오기
+  const { voteId } = useParams();
   const [resultData, setResultData] = useState(null);
   const [winningOption, setWinningOption] = useState(null);
+  const { user } = useUserStore(); //user 정보 가져오기
 
   useEffect(() => {
     const fetchVoteResult = async () => {
       try {
         const data = await voteService.getVoteDetails(voteId);
         setResultData(data);
-        // 1등 항목 찾기
         if (data && data.options.length > 0) {
           const winner = data.options.reduce((prev, current) =>
             prev.voteCount > current.voteCount ? prev : current
@@ -35,130 +38,160 @@ const VoteResult = () => {
     navigate('/challenge/create', {
       state: {
         title: winningOption.voteContent,
+        startDate: resultData.voteCreatedDate,
         endDate: resultData.voteEndDate,
         type: resultData.voteType,
-        // points: resultData.points, // 포인트 정보가 API에 있다면 추가
       },
     });
   };
 
   if (!resultData) {
-    return <MainContent>결과를 불러오는 중입니다...</MainContent>;
+    return <MainContent>결과를 불러오는 중...</MainContent>;
   }
 
   return (
     <MainContent>
-      <ResultHeader>
+      <Header>
+        <TypeBadge $type={resultData.voteType}>{resultData.voteType === 'LONG' ? '장기' : '단기'}</TypeBadge>
         <Title>{resultData.voteTitle}</Title>
-        <DateRange>~ {resultData.voteEndDate}</DateRange>
-        <TagWrapper>
-          <Tag type={resultData.voteType}>{resultData.voteType === 'LONG' ? '장기' : '단기'}</Tag>
-          {/* <Tag type={resultData.voteType}>{resultData.points}P</Tag> */}
-        </TagWrapper>
-      </ResultHeader>
+        <Info>
+          <span>
+            <strong>마감일:</strong> {resultData.voteEndDate}
+          </span>
+          <span>
+            <strong>총 참여자:</strong> {resultData.totalVotes}명
+          </span>
+        </Info>
+      </Header>
+
       <ResultList>
-        {resultData.options.map((option, index) => {
-          const percentage = resultData.totalVotes > 0 ? (option.voteCount / resultData.totalVotes) * 100 : 0;
-          return (
-            <ResultItem key={index}>
-              <TitleWrapper>
-                <OptionTitle>{option.voteContent}</OptionTitle>
-                <VoteCount>({option.voteCount}표)</VoteCount>
-              </TitleWrapper>
-              <ProgressBar>
-                <ProgressFill percentage={percentage} />
-              </ProgressBar>
-            </ResultItem>
-          );
-        })}
+        {resultData.options
+          .sort((a, b) => b.voteCount - a.voteCount)
+          .map((option, index) => {
+            const percentage = resultData.totalVotes > 0 ? (option.voteCount / resultData.totalVotes) * 100 : 0;
+            return (
+              <ResultItem key={option.voteContentNo} $isWinner={option.voteContentNo === winningOption?.voteContentNo}>
+                <Rank>{index + 1}위</Rank>
+                <OptionText>{option.voteContent}</OptionText>
+                <ResultInfo>
+                  <ProgressBar>
+                    <ProgressFill percentage={percentage} />
+                  </ProgressBar>
+                  <Count>
+                    {option.voteCount}표 ({percentage.toFixed(1)}%)
+                  </Count>
+                </ResultInfo>
+              </ResultItem>
+            );
+          })}
       </ResultList>
+
       <Footer>
-        {winningOption && (
-          <SummaryBox>
-            <p>
-              이번 투표에서 가장 많은 표를 얻은 것은 <strong>{winningOption.voteContent}</strong>였습니다!
-            </p>
-            <ButtonWrapper>
-              <ActionButton onClick={() => navigate('/votelist')}>투표 목록으로</ActionButton>
-              <ActionButton primary onClick={handleCreateChallenge}>
+        <SummaryBox>
+          <p>
+            총 <strong>{resultData.totalVotes}</strong>명이 참여한 투표에서 '
+            <strong>{winningOption?.voteContent || '결과 없음'}</strong>' 항목이{' '}
+            <strong>{winningOption?.voteCount || 0}</strong>표를 얻어 1위로 선정되었습니다.
+          </p>
+          <ButtonWrapper>
+            {user?.jobCode === 'J2' && (
+              <ActionButton onClick={handleCreateChallenge} $primary>
                 챌린지 생성
               </ActionButton>
-            </ButtonWrapper>
-          </SummaryBox>
-        )}
-        <TotalParticipants>총 {resultData.totalVotes}명 참여</TotalParticipants>
+            )}
+            <ActionButton onClick={() => navigate('/votelist')}>목록으로</ActionButton>
+          </ButtonWrapper>
+        </SummaryBox>
       </Footer>
     </MainContent>
   );
 };
 
-// --- Styled Components (이하 동일) ---
 const MainContent = styled(BaseMainContent)`
-  margin: 30px auto;
-  padding: 30px 40px;
+  max-width: 900px;
+  margin: 40px auto;
+  background-color: #f9fbfc;
 `;
-const ResultHeader = styled.div`
+const Header = styled.div`
   text-align: center;
   margin-bottom: 30px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 20px;
+`;
+const TypeBadge = styled.span`
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  background-color: ${(props) => (props.$type === 'LONG' ? '#20c997' : '#ff922b')};
 `;
 const Title = styled.h2`
   font-size: 28px;
   font-weight: 700;
   color: #333;
+  margin-bottom: 10px;
 `;
-const DateRange = styled.p`
-  font-size: 16px;
-  color: #888;
-  margin: 8px 0;
-`;
-const TagWrapper = styled.div`
+const Info = styled.div`
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-`;
-const Tag = styled.span`
-  padding: 4px 12px;
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 700;
-  ${(props) =>
-    (props.type === 'LONG' &&
-      css`
-        background-color: #e7f5ee;
-        color: #28a745;
-      `) ||
-    (props.type === 'SHORT' &&
-      css`
-        background-color: #fff8e1;
-        color: #f59e0b;
-      `)}
+  gap: 20px;
+  font-size: 15px;
+  color: #666;
+  strong {
+    font-weight: 600;
+  }
 `;
 const ResultList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 `;
-const ResultItem = styled.div``;
-const TitleWrapper = styled.div`
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 10px;
+const ResultItem = styled.div`
+  display: grid;
+  grid-template-columns: 60px 1fr 200px;
+  align-items: center;
+  padding: 16px;
+  background-color: white;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s;
+  ${(props) =>
+    props.$isWinner &&
+    css`
+      border-color: #007bff;
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.1);
+      transform: scale(1.02);
+    `}
 `;
-const OptionTitle = styled.h3`
+const Rank = styled.span`
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
+  color: #007bff;
+  text-align: center;
+`;
+const OptionText = styled.span`
+  font-size: 17px;
+  font-weight: 500;
   color: #444;
 `;
-const VoteCount = styled.span`
-  font-size: 16px;
-  font-weight: 500;
-  color: #888;
+const ResultInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+const Count = styled.span`
+  font-size: 15px;
+  font-weight: 600;
+  color: #555;
+  width: 90px;
+  text-align: right;
 `;
 const ProgressBar = styled.div`
-  width: 100%;
-  height: 28px;
+  flex-grow: 1;
+  height: 12px;
   background-color: #e9ecef;
   border-radius: 8px;
   overflow: hidden;
@@ -199,33 +232,16 @@ const ActionButton = styled.button`
   font-size: 15px;
   font-weight: 600;
   border-radius: 8px;
-  border: 1px solid #007bff;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  ${(props) =>
-    props.primary
-      ? css`
-          background-color: #007bff;
-          color: white;
-          &:hover {
-            background-color: #0056b3;
-          }
-        `
-      : css`
-          background-color: white;
-          color: #007bff;
-          &:hover {
-            background-color: #f0f8ff;
-          }
-        `}
-`;
-const TotalParticipants = styled.p`
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #555;
+  transition: all 0.2s;
+  background-color: ${(props) => (props.$primary ? '#007bff' : '#f8f9fa')};
+  color: ${(props) => (props.$primary ? 'white' : '#333')};
+  border: 1px solid ${(props) => (props.$primary ? 'transparent' : '#ddd')};
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 export default VoteResult;

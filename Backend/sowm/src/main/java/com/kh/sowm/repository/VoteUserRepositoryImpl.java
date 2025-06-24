@@ -6,6 +6,9 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Repository
 @RequiredArgsConstructor
 public class VoteUserRepositoryImpl implements VoteUserRepository {
@@ -16,6 +19,7 @@ public class VoteUserRepositoryImpl implements VoteUserRepository {
     @Override
     public void save(VoteUser voteUser) {
         em.persist(voteUser);
+        // em.flush(); // ✅ 이전에 추가했던 flush() 제거
     }
 
     @Override
@@ -26,5 +30,13 @@ public class VoteUserRepositoryImpl implements VoteUserRepository {
                 .setParameter("userId", userId)
                 .getSingleResult();
         return count > 0;
+    }
+
+    @Override
+    public Set<Long> findVotedVoteNosByUserId(String userId) {
+        return new HashSet<>(em.createQuery(
+                        "SELECT vu.vote.voteNo FROM VoteUser vu WHERE vu.user.userId = :userId", Long.class)
+                .setParameter("userId", userId)
+                .getResultList());
     }
 }

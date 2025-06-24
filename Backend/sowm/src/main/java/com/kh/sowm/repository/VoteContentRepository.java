@@ -6,6 +6,9 @@ import java.util.Optional;
 
 public interface VoteContentRepository {
 
+    // 투표 항목 저장 또는 수정
+    VoteContent save(VoteContent voteContent);
+
     // 투표 항목 여러 개 일괄 저장
     void saveAll(List<VoteContent> voteContents);
 

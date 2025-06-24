@@ -1,3 +1,5 @@
+// src/main/java/com/kh/sowm/service/VoteService.java
+
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.VoteDto;
@@ -17,4 +19,6 @@ public interface VoteService {
 
     // 투표하기
     void castVote(Long voteNo, Long voteContentNo, String userId);
+
+    void deleteVote(Long voteNo, String userId);
 }

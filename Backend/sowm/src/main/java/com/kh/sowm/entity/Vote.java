@@ -51,6 +51,10 @@ public class Vote {
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteContent> voteContents = new ArrayList<>();
 
+
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VoteUser> voteUsers = new ArrayList<>();
+
     //진행상태 값
     @Column(length = 1, nullable = false)
     @Enumerated(EnumType.STRING)
@@ -60,6 +64,12 @@ public class Vote {
     public void incrementTotalVotes() {
         this.totalVotes++;
     }
+
+    public void addVoteUser(VoteUser voteUser) {
+        this.voteUsers.add(voteUser);
+        // voteUser.setVote(this);
+    }
+
 
     @PrePersist
     public void prePersist() {
@@ -71,10 +81,8 @@ public class Vote {
         }
     }
 
+
     public enum Type{
         SHORT, LONG;
     }
-
-
-
 }

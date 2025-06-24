@@ -22,12 +22,12 @@ public class VoteUser {
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
-    //투표 항목 번호
+    //투표 번호
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VOTE_NO", nullable = false)
     private Vote vote;
 
-    //투표 번호
+    //투표 항목 번호
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VOTE_CONTENT_NO", nullable = false)
     private VoteContent voteContent;

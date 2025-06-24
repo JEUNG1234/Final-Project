@@ -1,3 +1,5 @@
+// src/main/java/com/kh/sowm/controller/VoteController.java
+
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.VoteDto;
@@ -23,7 +25,6 @@ public class VoteController {
      */
     @PostMapping
     public ResponseEntity<Long> createVote(@RequestBody VoteDto.CreateRequest createRequest) {
-        // DTO에 포함된 userId를 서비스 계층으로 전달
         Long voteId = voteService.createVote(createRequest, createRequest.getUserId());
         return ResponseEntity.ok(voteId);
     }
@@ -35,7 +36,6 @@ public class VoteController {
      */
     @GetMapping
     public ResponseEntity<List<VoteDto.ListResponse>> getAllVotes(@RequestParam String userId) {
-        // 쿼리 파라미터로 받은 userId를 서비스 계층으로 전달
         List<VoteDto.ListResponse> votes = voteService.getAllVotes(userId);
         return ResponseEntity.ok(votes);
     }
@@ -60,8 +60,19 @@ public class VoteController {
     @PostMapping("/{voteNo}/cast")
     public ResponseEntity<Void> castVote(@PathVariable Long voteNo,
                                          @RequestBody VoteDto.CastRequest castRequest) {
-        // DTO에 포함된 userId를 서비스 계층으로 전달
         voteService.castVote(voteNo, castRequest.getVoteContentNo(), castRequest.getUserId());
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     *  투표 삭제 API
+     * @param voteNo 삭제할 투표의 ID
+     * @param userId 요청한 사용자의 ID (권한 확인용)
+     * @return 성공 응답
+     */
+    @DeleteMapping("/{voteNo}")
+    public ResponseEntity<Void> deleteVote(@PathVariable Long voteNo, @RequestParam String userId) {
+        voteService.deleteVote(voteNo, userId);
+        return ResponseEntity.noContent().build();
     }
 }
