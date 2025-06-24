@@ -51,6 +51,7 @@ export const API_ENDPOINTS = {
     getAllAttendanceByCompanyCode: '/admin/adminattendance',
     getTodayAttendance: '/admin/adminattendance/today',
     updateAttendTime: '/admin/adminattendance',
+    getMemberAttendance: '/admin/adminattendance/filter',
   },
   // VOTES 객체를 추가합니다.
   VOTES: {
@@ -69,5 +70,10 @@ export const API_ENDPOINTS = {
   CATEGORY: {
     BASE: '/categories',
     DETAIL: (id) => `/categories/${id}`,
+  },
+
+  DEPARTMENT: {
+    BASE: '/department',
+    getDepartments: '/department',
   },
 };

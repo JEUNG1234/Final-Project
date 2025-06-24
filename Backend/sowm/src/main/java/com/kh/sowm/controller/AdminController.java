@@ -1,6 +1,7 @@
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.AttendanceDto;
+import com.kh.sowm.dto.PageResponse;
 import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.service.AdminService;
@@ -9,6 +10,10 @@ import com.kh.sowm.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -68,11 +73,9 @@ public class AdminController {
 
     // 회사별 전체 출퇴근 기록 조회
     @GetMapping("/adminattendance")
-    public ResponseEntity<List<AttendanceDto.Record>> getAllAttendance(@RequestParam String userId){
-
-        List<AttendanceDto.Record> attendanceList = adminService.getAllAttendanceByCompany(userId);
-
-        return ResponseEntity.ok(attendanceList);
+    public ResponseEntity<PageResponse<AttendanceDto.Record>> getAllAttendance(@RequestParam String userId, Pageable pageable){
+        PageResponse<AttendanceDto.Record> attendanceList = adminService.getAllAttendanceByCompany(userId, pageable);
+        return ResponseEntity.ok((attendanceList));
     }
 
     // 당일 출퇴근 기록 조회
@@ -91,18 +94,16 @@ public class AdminController {
         return ResponseEntity.ok(updated);
     }
 
-    // 조건으로 직원 출퇴근 정보 확인 , 개발중
-//    @GetMapping("/adminattendance")
-//    public ResponseEntity<List<AttendanceDto.Record>> getMemberAttendance(
-//            @RequestParam(required = false) String userName,
-//            @RequestParam(required = false) String deptName,
-//            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-//    ) {
-//        List<AttendanceDto.Record> attendanceList = adminService.getAttendances(userName, deptName, date);
-//        return ResponseEntity.ok(attendanceList);
-//    }
-
-
-
+    // 조건으로 직원 출퇴근 정보 확인
+    @GetMapping("/adminattendance/filter")
+    public ResponseEntity<PageResponse<AttendanceDto.Record>> getMemberAttendance(
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String deptName,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            Pageable pageable
+    ) {
+        PageResponse<AttendanceDto.Record> attendanceList = adminService.getAttendances(userName, deptName, date, pageable);
+        return ResponseEntity.ok(attendanceList);
+    }
 
 }
