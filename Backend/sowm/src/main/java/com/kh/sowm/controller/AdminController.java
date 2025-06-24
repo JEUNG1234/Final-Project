@@ -97,12 +97,13 @@ public class AdminController {
     // 조건으로 직원 출퇴근 정보 확인
     @GetMapping("/adminattendance/filter")
     public ResponseEntity<PageResponse<AttendanceDto.Record>> getMemberAttendance(
+            @RequestParam String companyCode,
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String deptName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             Pageable pageable
     ) {
-        PageResponse<AttendanceDto.Record> attendanceList = adminService.getAttendances(userName, deptName, date, pageable);
+        PageResponse<AttendanceDto.Record> attendanceList = adminService.getAttendances(companyCode, userName, deptName, date, pageable);
         return ResponseEntity.ok(attendanceList);
     }
 

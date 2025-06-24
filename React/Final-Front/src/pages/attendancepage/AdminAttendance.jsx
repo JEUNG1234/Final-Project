@@ -7,6 +7,7 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import { useEffect } from 'react';
 import { adminService } from '../../api/admin';
 import { departmentService } from '../../api/department';
+import useUserStore from '../../Store/useStore';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -314,10 +315,12 @@ const AdminAttendance = () => {
   const [userName, setUserName] = useState('');
   const [deptCode, setDeptCode] = useState('');
   const [attendances, setAttendances] = useState([]);
+  const { companyCode } = useUserStore((state) => state.user);
 
   const handleSearch = async () => {
     try {
       const res = await adminService.getMemberAttendance({
+        companyCode,
         userName,
         date: searchDate,
         deptName: deptCode,

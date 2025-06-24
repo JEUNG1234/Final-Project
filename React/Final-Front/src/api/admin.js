@@ -79,10 +79,19 @@ export const adminService = {
     }
   },
 
-  getMemberAttendance: async ({ userName, date, deptName, page = 0, size = 5, sort = 'attendTime,desc' }) => {
+  // 조건으로 직원 근태 정보 가져오기
+  getMemberAttendance: async ({
+    companyCode,
+    userName,
+    date,
+    deptName,
+    page = 0,
+    size = 5,
+    sort = 'attendTime,desc',
+  }) => {
     try {
       const response = await api.get(`${API_ENDPOINTS.ADMIN.getMemberAttendance}`, {
-        params: { userName, date, deptName, page, size, sort },
+        params: { companyCode, userName, date, deptName, page, size, sort },
       });
       return response.data;
     } catch (err) {

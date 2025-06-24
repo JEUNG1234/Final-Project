@@ -33,6 +33,6 @@ public interface AttendanceRepository {
 
     Page<Attendance> findByCompanyCode(String companyCode, Pageable pageable);
 
-    Page<Attendance> findByFilter(String userName, String deptName, LocalDate date, Pageable pageable);
+    Page<Attendance> findByFilter(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable);
 
 }
