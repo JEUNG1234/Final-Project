@@ -15,5 +15,5 @@ public interface AdminService {
 
     AttendanceDto.Record updateAttendance(AttendanceDto.UpdateRequest request);
 
-    PageResponse<AttendanceDto.Record> getAttendances(String userName, String deptName, LocalDate date, Pageable pageable);
+    PageResponse<AttendanceDto.Record> getAttendances(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable);
 }

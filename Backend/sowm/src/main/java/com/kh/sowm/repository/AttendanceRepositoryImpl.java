@@ -163,7 +163,7 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
     }
 
     @Override
-    public Page<Attendance> findByFilter(String userName, String deptName, LocalDate date, Pageable pageable) {
+    public Page<Attendance> findByFilter(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable) {
 
         /*
         개발 편의성이나 짧은 코드라면 String으로도 충분히 작성 가능
@@ -173,11 +173,12 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
         */
 
         // 1. JPQL 시작
-        StringBuilder jpql = new StringBuilder("SELECT a FROM Attendance a JOIN a.user u WHERE 1=1 ");
-        StringBuilder countJpql = new StringBuilder("SELECT COUNT(a) FROM Attendance a JOIN a.user u WHERE 1=1 ");
+        StringBuilder jpql = new StringBuilder("SELECT a FROM Attendance a JOIN a.user u WHERE u.company.companyCode = :companyCode ");
+        StringBuilder countJpql = new StringBuilder("SELECT COUNT(a) FROM Attendance a JOIN a.user u WHERE u.company.companyCode = :companyCode ");
 
         // 2. 조건이 있을 때마다 쿼리문에 추가
         Map<String, Object> params = new HashMap<>();
+        params.put("companyCode", companyCode);
 
         if (userName != null) {
             userName = userName.trim();

@@ -74,10 +74,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public PageResponse<AttendanceDto.Record> getAttendances(String userName, String deptName, LocalDate date, Pageable pageable) {
+    public PageResponse<AttendanceDto.Record> getAttendances(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable) {
 
         // 1. 조건으로 페이징 된 Attendance 리스트 가져오기
-        Page<Attendance> attendances = attendanceRepository.findByFilter(userName, deptName, date, pageable);
+        Page<Attendance> attendances = attendanceRepository.findByFilter(companyCode, userName, deptName, date, pageable);
 
         // 2. Attendance 는 엔티티이므로 AttendanceDto.Record DTO로 변환
         Page<AttendanceDto.Record> dtoPage = attendances.map(AttendanceDto.Record::pageDto);
