@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +35,11 @@ public class Board {
     private String boardContent;
 
     @Column(name = "CREATED_DATE", nullable = false)
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
 
     @Column(name = "UPDATED_DATE", nullable = false)
-    private LocalDate updatedDate;
+    private LocalDateTime updatedDate;
 
     @Column(length = 1, nullable = false)
     @Enumerated(EnumType.STRING)
@@ -78,13 +79,10 @@ public class Board {
 
     @PrePersist
     public void prePersist() {
-        if (createdDate == null) {
-            this.createdDate = LocalDate.now();
-        }
-        if (updatedDate == null) {
-            this.updatedDate = LocalDate.now();
-        }
-        if(this.status == null) {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdDate = now;
+        this.updatedDate = now; // 생성 시점에도 초기화 필요
+        if (this.status == null) {
             this.status = CommonEnums.Status.Y;
             this.views = 0;
         }
@@ -93,7 +91,7 @@ public class Board {
 
     @PreUpdate
     public void preUpdate() {
-        this.updatedDate = LocalDate.now(); // 👈 업데이트 시점 자동 반영
+        this.updatedDate = LocalDateTime.now(); // 👈 업데이트 시점 자동 반영
     }
 
     public void setCategory(Category category) {

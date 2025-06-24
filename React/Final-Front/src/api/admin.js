@@ -45,4 +45,35 @@ export const adminService = {
     const response = await api.patch(`/api/admin/${userId}`, { status: 'N' });
     return response.data;
   },
+
+  // 회사별로 직원 근태 정보 가져오기
+  getAllAttendanceByCompanyCode: async (userId) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.ADMIN.getAllAttendanceByCompanyCode}?userId=${userId}`);
+      return response.data;
+    } catch (err) {
+      console.log('에러', err);
+    }
+  },
+
+  // 당일 회사별 직원 근태 정보 가져오기
+  getTodayAttendance: async (userId) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.ADMIN.getTodayAttendance}?userId=${userId}`);
+      return response.data;
+    } catch (err) {
+      console.log('에러', err);
+    }
+  },
+
+  // 근태 정보 수정하기
+  updateAttendTime: async (updateData) => {
+    try {
+      const response = await api.patch(`${API_ENDPOINTS.ADMIN.updateAttendTime}`, updateData);
+      console.log('현재 출퇴근 데이터', response.data);
+      return response.data;
+    } catch (err) {
+      console.log('에러 발생', err);
+    }
+  },
 };

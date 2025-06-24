@@ -31,8 +31,9 @@ export const API_ENDPOINTS = {
     CREATE: '/workation/create',
     LIST: '/workation/list',
     INFO: '/workation/info',
-    SUBMIT: '/workation/submit'
-
+    SUBMIT: '/workation/submit',
+    UPDATE: '/workation/update',
+    DELETE: '/workation/delete',
   },
   ATTENDANCE: {
     BASE: '/attendance',
@@ -47,10 +48,27 @@ export const API_ENDPOINTS = {
     getUnapprovedEmployees: '/admin/employeeapproval',
     approveUser: '/admin/',
     UpdateMemberRole: '/admin/memberrole/',
+    getAllAttendanceByCompanyCode: '/admin/adminattendance',
+    getTodayAttendance: '/admin/adminattendance/today',
+    updateAttendTime: '/admin/adminattendance',
   },
    VOTES: {
     BASE: '/votes',
     // 투표자 목록 조회 엔드포인트
     GET_VOTERS: (voteNo, voteContentNo) => `/votes/${voteNo}/options/${voteContentNo}/voters`,
+  },
+
+  BOARD: {
+    BASE: '/boards',
+    DETAIL: (id) => `/boards/${id}`,
+    CREATE: '/boards',
+    UPDATE: (id) => `/boards/${id}`,
+    DELETE: (id) => `/boards/${id}`,
+    INCREASE_VIEW: (id) => `/boards/${id}/views`,
+  },
+
+  CATEGORY: {
+    BASE: '/categories',
+    DETAIL: (id) => `/categories/${id}`,
   },
 };

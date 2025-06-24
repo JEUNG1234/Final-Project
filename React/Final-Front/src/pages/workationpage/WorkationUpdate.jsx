@@ -1,4 +1,3 @@
-// src/components/MainContent.jsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
@@ -9,14 +8,66 @@ import { MdWork } from 'react-icons/md';
 
 import NaverMapWithGeocoding from '../../components/NaverMapWithGeocoding';
 
-import { FaSquare, FaRulerCombined, FaHourglassHalf, FaUsers } from 'react-icons/fa';
+import { FaSquare, FaRulerCombined, FaUsers } from 'react-icons/fa';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import Modal from '../../components/Modal';
+import { workationService } from '../../api/workation';
+import useUserStore from '../../Store/useStore';
 
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
 const WorkationUpdate = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
+  const [feature, setFeature] = useState('');
+  const [placeInfo, setPlaceInfo] = useState('');
+  const [facilityInfo, setFacilityInfo] = useState('');
+  const [spaceType, setSpaceType] = useState('');
+  const [peopleMin, setPeopleMin] = useState('');
+  const [peopleMax, setPeopleMax] = useState('');
+  const [url, setUrl] = useState('');
+  const [precautions, setPrecautions] = useState('');
+  const [parkingInfo, setParkingInfo] = useState('');
+  const [busInfo, setBusInfo] = useState('');
+
+  //유효성 검사
+  const schema = yup.object().shape({
+    workationTitle: yup.string().required('제목은 필수입니다.'),
+    workationStartDate: yup.string().required('계약기간은 필수입니다.'),
+    workationEndDate: yup.string().required('계약기간은 필수입니다.'),
+    openHours: yup.string().required('운영시간은 필수입니다.'),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    shouldFocusError: true,
+  });
+
+  //유효성검사 탭 이동시
+  const handleNextFromIntro = async () => {
+    const valid = await trigger(['workationTitle', 'workationStartDate', 'workationEndDate', 'address']);
+    if (valid) {
+      setActiveTab('facilities');
+    }
+    // 포커스는 shouldFocusError: true 옵션으로 자동 이동됨
+  };
+
+  //유효성검사 탭 이동시
+  const handleNextFromFacilities = async () => {
+    const valid = await trigger(['openHours']);
+    if (valid) {
+      setActiveTab('precautions');
+    }
+  };
 
   // 현재 활성화된 탭 상태 관리 (예시)
   const [activeTab, setActiveTab] = React.useState('intro');
@@ -25,15 +76,10 @@ const WorkationUpdate = () => {
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   // 선택된 주소와 좌표를 저장할 상태 (NaverMapWithGeocoding에서 받아올 값)
-  const [selectedAddress, setSelectedAddress] = useState('');
+  const [address, setAddress] = useState('');
   const [selectedCoords, setSelectedCoords] = useState({ lat: null, lng: null });
 
   // ... (기존 날짜, 파일 업로드 관련 상태 및 핸들러) ...
-
-  // '주소등록' 버튼 클릭 시 모달 열기
-  const handleOpenMapModal = () => {
-    setIsMapModalOpen(true);
-  };
 
   // 모달 닫기
   const handleCloseMapModal = () => {
@@ -49,7 +95,7 @@ const WorkationUpdate = () => {
   // NaverMapWithGeocoding에서 주소와 좌표를 선택했을 때 호출될 함수
   // 이 함수를 NaverMapWithGeocoding 컴포넌트에 props로 전달할 것임.
   const handleAddressSelect = (address, lat, lng) => {
-    setSelectedAddress(address); // 메인 폼의 주소 input에 설정
+    setAddress(address); // 메인 폼의 주소 input에 설정
     setSelectedCoords({ lat, lng }); // 위도/경도 저장
     setIsMapModalOpen(false); // 모달 닫기
     // 필요한 경우, 여기서 address와 lat, lng를 다른 폼 데이터와 함께 관리하는 상태에 업데이트.
@@ -59,6 +105,44 @@ const WorkationUpdate = () => {
 
   const allDays = ['월', '화', '수', '목', '금', '토', '일'];
   const [selectedDays, setSelectedDays] = useState([]); // 선택된 요일들을 배열로 관리
+
+  //워케이션 정보 가져오기
+  const { no } = useParams();
+
+  useEffect(() => {
+    const workationInfo = async () => {
+      console.log(no);
+      try {
+        const data = await workationService.workationInfo(no);
+        console.log('워케이션 정보: ', data);
+        reset({
+          workationTitle: data.workationTitle,
+          workationStartDate: data.workationStartDate,
+          workationEndDate: data.workationEndDate,
+          openHours: data.openHours,
+          // address는 useState로 관리되므로 별도로 설정
+          // placeInfo, feature 등 useState로 관리되는 필드는 set 함수로 업데이트
+        });
+        setWorkationInfo(data);
+        setAddress(data.address);
+        setPlaceInfo(data.placeInfo);
+        setFeature(data.feature);
+        setFacilityInfo(data.facilityInfo);
+        setSpaceType(data.spaceType);
+        setPeopleMin(data.peopleMin);
+        setPeopleMax(data.peopleMax);
+        setUrl(data.url);
+        setPrecautions(data.precautions);
+        setParkingInfo(data.parkingInfo);
+        setBusInfo(data.busInfo);
+        setArea(data.area);
+      } catch (error) {
+        console.error('워케이션 리스트 불러오기 실패:', error.message);
+      }
+    };
+    workationInfo();
+  }, []);
+  const [workationInfo, setWorkationInfo] = useState([]);
 
   const handleDayToggle = (day) => {
     setSelectedDays((prevSelectedDays) => {
@@ -70,6 +154,24 @@ const WorkationUpdate = () => {
         return [...prevSelectedDays, day];
       }
     });
+  };
+
+  //면적, 평수 상태
+  const [area, setArea] = useState('');
+  const [areaPyeong, setAreaPyeong] = useState('');
+
+  const handleAreaChange = (e) => {
+    const value = e.target.value;
+    setArea(value);
+
+    // 숫자인지 확인하고 계산
+    const number = parseFloat(value);
+    if (!isNaN(number)) {
+      const converted = (number * 0.3025).toFixed(2); // 소수점 2자리까지
+      setAreaPyeong(converted);
+    } else {
+      setAreaPyeong('');
+    }
   };
 
   //시설별 이미지 등록
@@ -94,15 +196,51 @@ const WorkationUpdate = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log({});
+  const onSubmit = async (data) => {
+    try {
+      const location = {
+        placeInfo,
+        address,
+        openHours: data.openHours,
+        spaceType,
+        feature,
+        area,
+        busInfo,
+        parkingInfo,
+        latitude: selectedCoords.lat,
+        longitude: selectedCoords.lng,
+      };
+      const workation = {
+        workationTitle: data.workationTitle,
+        workationStartDate: data.workationStartDate,
+        workationEndDate: data.workationEndDate,
+        facilityInfo,
+        peopleMin,
+        peopleMax,
+        url,
+        precautions,
+      };
+      const requestBody = {
+        workation,
+        location,
+        userId: user.userId,
+        locationNo: no,
+        workationNo: no,
+      };
+
+      console.log(requestBody);
+
+      const workResponse = await workationService.update(requestBody);
+
+      console.log(workResponse);
+    } catch (error) {
+      console.error('워케이션 생성 에러:', error);
+      alert('워케이션 정보 등록 중 에러가 발생했습니다.');
+    }
+    console.log({ data });
     alert('워케이션정보가 등록되었습니다.');
     navigate('/workationList');
   };
-
-  //날짜 초기화
-
-  //날짜 적용후 달력 닫기
 
   return (
     <FullWapper>
@@ -128,7 +266,7 @@ const WorkationUpdate = () => {
         {activeTab === 'intro' && (
           <>
             <ImageSection>
-              <img src={placeImage.previewUrl} alt="장소 이미지 미리보기" />
+              <img src={placeImage.previewUrl || null} alt="장소 이미지 미리보기" />
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
             <Title>제주 애월 스테이</Title>
@@ -144,7 +282,7 @@ const WorkationUpdate = () => {
         {activeTab === 'facilities' && (
           <>
             <ImageSection>
-              <img src={facilityImage.previewUrl} alt="시설 미리보기" />
+              <img src={facilityImage.previewUrl || null} alt="시설 미리보기" />
             </ImageSection>{' '}
             <FacilityContent>
               <FacilityLeftContent>
@@ -168,6 +306,7 @@ const WorkationUpdate = () => {
                   <InfoText>공간면적</InfoText>
                   <DetailText>33m²</DetailText>
                 </InfoBlock>
+
                 <InfoBlock>
                   <InfoIcon as={FaUsers} /> {/* 수용인원 아이콘 (임시) */}
                   <InfoText>수용인원</InfoText>
@@ -183,7 +322,7 @@ const WorkationUpdate = () => {
             <Subtitle>예약시 주의사항</Subtitle>
             <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
             <ImageSection>
-              <img src={precautionImage.previewUrl} alt="유의사항이미지 미리보기" />
+              <img src={precautionImage.previewUrl || null} alt="유의사항이미지 미리보기" />
             </ImageSection>{' '}
           </>
         )}
@@ -195,7 +334,7 @@ const WorkationUpdate = () => {
           </>
         )}
       </MainContent>
-      <DateContent>
+      <DateContent onSubmit={handleSubmit(onSubmit)}>
         {/* 장소소개 탭 */}
         {activeTab === 'intro' && (
           <>
@@ -205,40 +344,82 @@ const WorkationUpdate = () => {
             </PageTitle>
 
             <FormGroup>
-              <Label htmlFor="placeName">장소명</Label>
-              <Input id="placeName" type="text" placeholder="고유 장소명 입력" />
+              <Label htmlFor="workationTitle">워케이션제목</Label>
+              <Input
+                id="workationTitle"
+                type="text"
+                placeholder={workationInfo.workationTitle}
+                {...register('workationTitle')}
+              />
+              {errors.workationTitle && <ErrorMessage>{errors.workationTitle.message}</ErrorMessage>}
             </FormGroup>
 
             <FormGroup>
               <Label htmlFor="placeImage">장소 이미지</Label>
-              <Input id="placeImage" type="text" value={placeImage.name} readOnly />
+              <Input
+                id="placeImage"
+                onChange={(e) => setPlaceImage(e.target.value)}
+                type="text"
+                value={placeImage.name}
+                readOnly
+              />
               <HiddenFileInput id="placeUpload" type="file" onChange={(e) => handleImageUpload(e, 'place')} />
               <StyledUploadButton htmlFor="placeUpload">이미지등록</StyledUploadButton>
             </FormGroup>
 
             <FormGroup>
               <Label htmlFor="address">주소(위치)</Label>
-              <Input id="address" type="text" placeholder="주소검색" value={selectedAddress} />
-              <StyledUploadButton onClick={handleOpenMapModal}>주소등록</StyledUploadButton>
+              <Input
+                id="address"
+                type="text"
+                placeholder={workationInfo.address}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                readOnly
+              />
             </FormGroup>
+
             {showMap && <NaverMapWithGeocoding />}
             <FormTextareaGroup style={{ alignItems: 'flex-start' }}>
               {' '}
               {/* 텍스트 영역 상단 정렬 */}
-              <Label htmlFor="placeIntro">장소소개</Label>
-              <TextArea id="placeIntro" placeholder="장소정보를 상세하게 소개해주세요" />
+              <Label htmlFor="placeInfo">장소소개</Label>
+              <TextArea
+                id="placeInfo"
+                value={placeInfo}
+                onChange={(e) => setPlaceInfo(e.target.value)}
+                placeholder={workationInfo.placeInfo}
+              />
             </FormTextareaGroup>
 
             <FormTextareaGroup style={{ alignItems: 'flex-start' }}>
               {' '}
               {/* 텍스트 영역 상단 정렬 */}
-              <Label htmlFor="mainFeatures">주요특징</Label>
-              <TextArea id="mainFeatures" placeholder="주요특징을 작성해주세요." />
+              <Label htmlFor="feature">주요특징</Label>
+              <TextArea
+                id="feature"
+                value={feature}
+                onChange={(e) => setFeature(e.target.value)}
+                placeholder={workationInfo.feature}
+              />
             </FormTextareaGroup>
+
+            <SpaceFormGroup>
+              <Label htmlFor="workationStartDate">계약기간</Label>
+              <SpaceInputGroup>
+                <SpaceInput id="workationStartDate" type="date" {...register('workationStartDate')} />
+                부터
+                <SpaceInput id="workationEndDate" type="date" {...register('workationEndDate')} />
+                까지
+                {errors.workationStartDate && <ErrorMessage>{errors.workationStartDate.message}</ErrorMessage>}
+              </SpaceInputGroup>
+            </SpaceFormGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => navigate(-1)}>취소하기</DangerButton>
-              <PrimaryButton onClick={() => setActiveTab('facilities')}>다음으로</PrimaryButton>
+              <PrimaryButton type="button" onClick={handleNextFromIntro}>
+                다음으로
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -253,26 +434,44 @@ const WorkationUpdate = () => {
 
             <FormGroup>
               <Label htmlFor="facilityImage">이미지</Label>
-              <Input id="facilityImage" type="text" value={facilityImage.name} readOnly />
+              <Input
+                id="facilityImage"
+                type="text"
+                onChange={(e) => setFacilityImage(e.target.value)}
+                value={facilityImage.name}
+                readOnly
+              />
               <HiddenFileInput id="facilityUpload" type="file" onChange={(e) => handleImageUpload(e, 'facility')} />
               <StyledUploadButton htmlFor="facilityUpload">이미지등록</StyledUploadButton>
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="placeName">시설안내</Label>
-              <Input id="placeName" type="text" placeholder="ex)4인용 테이블 5개" />
+              <Label htmlFor="facilityInfo">시설안내</Label>
+              <Input
+                id="facilityInfo"
+                type="text"
+                onChange={(e) => setFacilityInfo(e.target.value)}
+                value={facilityInfo}
+                placeholder={workationInfo.facilityInfo}
+              />
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="placeName">영업시간</Label>
-              <Input id="placeName" type="text" placeholder="ex)08시 ~ 18시" />
+              <Label htmlFor="openHours">영업시간</Label>
+              <Input id="openHours" type="text" {...register('openHours')} placeholder="ex)08시 ~ 18시" />
+              {errors.openHours && <ErrorMessage>{errors.openHours.message}</ErrorMessage>}
             </FormGroup>
 
             <FormGroup>
               <Label>휴무일</Label>
               <DayButtonContainer>
                 {allDays.map((day) => (
-                  <DayButton key={day} onClick={() => handleDayToggle(day)} isSelected={selectedDays.includes(day)}>
+                  <DayButton
+                    type="button"
+                    key={day}
+                    onClick={() => handleDayToggle(day)}
+                    isSelected={selectedDays.includes(day)}
+                  >
                     {day}
                   </DayButton>
                 ))}
@@ -280,35 +479,69 @@ const WorkationUpdate = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="placeName">공간유형</Label>
-              <Input id="placeName" type="text" placeholder="ex)스터디움" />
+              <Label htmlFor="spaceType">공간유형</Label>
+              <Input
+                id="spaceType"
+                type="text"
+                onChange={(e) => setSpaceType(e.target.value)}
+                value={spaceType}
+                placeholder={workationInfo.spaceType}
+              />
             </FormGroup>
 
             <SpaceFormGroup>
-              <Label htmlFor="placeName">공간면적</Label>
+              <Label htmlFor="area">공간면적</Label>
               <SpaceInputGroup>
-                <SpaceInput id="placeName" type="text" /> m²
-                <SpaceInput />평
+                <SpaceInput
+                  id="area"
+                  type="number"
+                  value={area}
+                  onChange={handleAreaChange}
+                  placeholder={workationInfo.area}
+                />
+                m²
+                <SpaceInput type="number" value={areaPyeong} readOnly />평
               </SpaceInputGroup>
             </SpaceFormGroup>
 
             <SpaceFormGroup>
-              <Label htmlFor="placeName">수용인원</Label>
+              <Label htmlFor="people">수용인원</Label>
               <SpaceInputGroup>
-                최소 <SpaceInput id="placeName" type="text" />
+                최소
+                <SpaceInput
+                  id="peopleMin"
+                  type="text"
+                  onChange={(e) => setPeopleMin(e.target.value)}
+                  value={peopleMin}
+                  placeholder={workationInfo.peopleMin}
+                />
                 최대
-                <SpaceInput />
+                <SpaceInput
+                  id="peopleMax"
+                  type="text"
+                  onChange={(e) => setPeopleMax(e.target.value)}
+                  value={peopleMax}
+                  placeholder={workationInfo.peopleMax}
+                />
               </SpaceInputGroup>
             </SpaceFormGroup>
 
             <FormGroup>
-              <Label htmlFor="placeName">URL</Label>
-              <Input id="placeName" type="text" placeholder="ex)08시 ~ 18시" />
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                type="text"
+                onChange={(e) => setUrl(e.target.value)}
+                value={url}
+                placeholder={workationInfo.url}
+              />
             </FormGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('intro')}>이전으로</DangerButton>
-              <PrimaryButton onClick={() => setActiveTab('precautions')}>다음으로</PrimaryButton>
+              <PrimaryButton type="button" onClick={handleNextFromFacilities}>
+                다음으로
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -320,12 +553,23 @@ const WorkationUpdate = () => {
               <MdWork /> 워케이션 &gt; 장소 추가 &gt; 유의사항
             </PageTitle>
             <FormTextareaGroup style={{ alignItems: 'flex-start' }}>
-              <Label htmlFor="mainFeatures">주요특징</Label>
-              <TextArea id="mainFeatures" placeholder="주요특징을 작성해주세요." />
+              <Label htmlFor="precautions">유의사항</Label>
+              <TextArea
+                id="precautions"
+                onChange={(e) => setPrecautions(e.target.value)}
+                value={precautions}
+                placeholder={workationInfo.precautions}
+              />
             </FormTextareaGroup>
             <FormGroup>
-              <Label htmlFor="precautionImage">장소 이미지</Label>
-              <Input id="placeprecautionImageImage" type="text" value={precautionImage.name} readOnly />
+              <Label htmlFor="precautionImage">이미지</Label>
+              <Input
+                id="precautionImage"
+                type="text"
+                onChange={(e) => setPrecautionImage(e.target.value)}
+                value={precautionImage.name}
+                readOnly
+              />
               <HiddenFileInput id="precautionUpload" type="file" onChange={(e) => handleImageUpload(e, 'precaution')} />
               <StyledUploadButton htmlFor="precautionUpload">이미지등록</StyledUploadButton>
             </FormGroup>
@@ -343,18 +587,30 @@ const WorkationUpdate = () => {
               <MdWork /> 워케이션 &gt; 장소 추가 &gt; 오시는 길
             </PageTitle>
             <FormTextareaGroup style={{ alignItems: 'flex-start', height: '40%' }}>
-              <Label htmlFor="mainFeatures">대중교통</Label>
-              <TextArea style={{ height: '30%' }} id="mainFeatures" placeholder="ex)애월항에서 도보 5분" />
+              <Label htmlFor="busInfo">대중교통</Label>
+              <TextArea
+                style={{ height: '30%' }}
+                id="busInfo"
+                onChange={(e) => setBusInfo(e.target.value)}
+                value={busInfo}
+                placeholder={workationInfo.busInfo}
+              />
             </FormTextareaGroup>
 
             <FormTextareaGroup style={{ alignItems: 'flex-start', height: '40%' }}>
-              <Label htmlFor="mainFeatures">주차</Label>
-              <TextArea style={{ height: '30%' }} id="mainFeatures" placeholder="ex)건물 내 주차장 이용 가능 (무료)" />
+              <Label htmlFor="parkingInfo">주차</Label>
+              <TextArea
+                style={{ height: '30%' }}
+                id="parkingInfo"
+                onChange={(e) => setParkingInfo(e.target.value)}
+                value={parkingInfo}
+                placeholder={workationInfo.parkingInfo}
+              />
             </FormTextareaGroup>
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('precautions')}>이전으로</DangerButton>
-              <PrimaryButton onClick={handleSubmit}>등록하기</PrimaryButton>
+              <PrimaryButton type="submit">등록하기</PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -471,6 +727,12 @@ const Description = styled.p`
   margin-bottom: 5px;
   height: 10%;
 `;
+const RefundPolicy = styled.div`
+  white-space: pre-line; /* 엔터(줄바꿈)는 살리고, 연속 공백은 무시 */
+  font-family: inherit; /* 폰트는 상속 */
+  font-size: 16px;
+  color: #444;
+`;
 
 const FeaturesSection = styled.div`
   display: flex;
@@ -507,7 +769,6 @@ const FacilityLeftContent = styled.div`
 const FacilityRightContent = styled.div`
   width: 50%;
   height: 100%;
-
 `;
 const InfoBlock = styled.div`
   display: flex;
@@ -535,7 +796,36 @@ const DetailText = styled.span`
   margin-left: 10px;
 `;
 
+const IconGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3열 그리드 */
+  gap: 20px; /* 아이콘 항목 간 간격 */
+  margin-top: 30px; /* 정보 블록과의 간격 */
+  padding-left: 10px; /* InfoBlock과 정렬 */
+`;
 
+const IconItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+
+  svg {
+    font-size: 20px; /* 아이콘 크기 */
+    color: #666;
+    margin-bottom: 8px; /* 아이콘과 텍스트 간 간격 */
+  }
+
+  ${media.md`
+      
+        gap: 10px;
+        margin-top: 0;
+        font-size: 0px;
+      `}
+`;
 
 const FaciltyLeftFirstInfo = styled.div`
   width: 100%;
@@ -623,7 +913,7 @@ const Label = styled.span`
   font-size: 16px; /* Slightly smaller font size for compactness */
   font-weight: bold;
   color: #333;
-  width: 80px; /* Adjust label width as needed for fixed container */
+  width: 90px; /* Adjust label width as needed for fixed container */
   flex-shrink: 0; /* Prevent label from shrinking */
 `;
 
@@ -663,8 +953,8 @@ const SpaceInput = styled.input`
   font-size: 15px; /* Slightly smaller font size */
   outline: none;
   background-color: #ededed; /* Light blue background for inputs */
-  width: calc(30% - 80px);
-
+  width: calc(35% - 80px);
+  min-width: 70px;
   &::placeholder {
     color: #a0a0a0;
   }
@@ -826,5 +1116,15 @@ const DayButtonContainer = styled.div`
   flex-grow: 1; /* 가능한 공간을 차지하도록 */
   justify-content: center;
   width: 80%;
+`;
+
+//에러메시지
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  text-align: left;
+  width: 100%;
 `;
 export default WorkationUpdate;

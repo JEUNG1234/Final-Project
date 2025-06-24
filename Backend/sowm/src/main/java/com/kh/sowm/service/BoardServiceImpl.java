@@ -1,3 +1,4 @@
+// BoardServiceImpl.java
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.BoardDto;
@@ -14,12 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,21 +24,15 @@ import java.util.UUID;
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
-    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository; // User 엔티티 조회용
+    private final CategoryRepository categoryRepository; // Category 엔티티 조회용
 
 
     @Override
-    public Page<BoardDto.Response> getBoardList(Pageable pageable) {
-        /*
-            getContent() 실제 데이터 리스트 반환
-            getTotalPages() 전체 페이지 개수
-            getTotalelements() 전체 데이터 수
-            getSize() 페이지당 데이터 수
-            ...
-         */
-        Page<Board> page = boardRepository.findByStatus(CommonEnums.Status.Y, pageable);
-
+    // 검색 조건 추가: title, writer, categoryNo
+    public Page<BoardDto.Response> getBoardList(Pageable pageable, String title, String writer, Long categoryNo) {
+        // BoardRepositoryImpl의 findBoardsByFilters 메서드 호출
+        Page<Board> page = boardRepository.findBoardsByFilters(pageable, title, writer, categoryNo, CommonEnums.Status.Y);
         return page.map(BoardDto.Response::fromEntity);
     }
 
@@ -50,25 +41,19 @@ public class BoardServiceImpl implements BoardService {
     public BoardDto.Response getBoardDetail(Long boardNo) {
         Board board = boardRepository.findById(boardNo)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
-        board.increaseViews();
         return BoardDto.Response.fromEntity(board);
     }
 
     @Transactional
     @Override
     public Long createBoard(BoardDto.Create dto) throws IOException {
-        User user = userRepository.findByUserId(dto.getUserId())
+        User user = userRepository.findByUserId(dto.getUserId()) // userRepository는 JpaRepository를 사용한다고 가정
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
-        Category category = categoryRepository.findById(dto.getCategoryNo())
+        Category category = categoryRepository.findById(dto.getCategoryNo()) // categoryRepository는 JpaRepository를 사용한다고 가정
                 .orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
 
-
-
         Board board = dto.toEntity(category, user);
-
-
-        boardRepository.save(board);
-        return board.getBoardNo();
+        return boardRepository.save(board); // BoardRepositoryImpl의 save 메서드 호출
     }
 
     @Transactional
@@ -76,9 +61,7 @@ public class BoardServiceImpl implements BoardService {
     public void deleteBoard(Long boardNo) {
         Board board = boardRepository.findById(boardNo)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
-
-
-        boardRepository.delete(board);
+        boardRepository.delete(board); // BoardRepositoryImpl의 delete 메서드 호출
     }
 
     @Transactional
@@ -90,13 +73,21 @@ public class BoardServiceImpl implements BoardService {
         board.changeTitle(dto.getBoardTitle());
         board.changeContent(dto.getBoardContent());
 
-        // ✅ categoryName으로 category 조회 및 변경
+        // categoryNo로 category 조회 및 변경
         if (dto.getCategoryNo() != null) {
             Category category = categoryRepository.findById(dto.getCategoryNo())
                     .orElseThrow(() -> new RuntimeException("카테고리가 존재하지 않습니다"));
             board.setCategory(category);
         }
-
+        // save 호출하여 변경 사항을 영속성 컨텍스트에 반영하고 DB에 동기화
+        boardRepository.save(board);
         return BoardDto.Response.fromEntity(board);
+    }
+
+    @Override
+    @Transactional
+    public boolean increaseViewCount(Long boardId) {
+        int updatedRows = boardRepository.increaseViewCount(boardId);
+        return updatedRows > 0;
     }
 }
