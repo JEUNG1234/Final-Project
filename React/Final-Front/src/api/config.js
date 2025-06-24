@@ -50,5 +50,7 @@ export const API_ENDPOINTS = {
   },
    VOTES: {
     BASE: '/votes',
+    // 투표자 목록 조회 엔드포인트
+    GET_VOTERS: (voteNo, voteContentNo) => `/votes/${voteNo}/options/${voteContentNo}/voters`,
   },
 };

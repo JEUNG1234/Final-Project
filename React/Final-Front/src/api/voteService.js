@@ -91,4 +91,23 @@ export const voteService = {
       throw error;
     }
   },
+
+
+
+   /**
+   * 특정 항목에 투표한 사용자 목록을 가져옵니다.
+   * @param {number} voteNo - 해당 항목이 속한 투표의 ID
+   * @param {number} voteContentNo - 조회할 투표 항목의 ID
+   * @returns {Promise<any>} - 투표자 목록
+   */
+  getVotersForOption: async (voteNo, voteContentNo) => {
+    try {
+      const url = API_ENDPOINTS.VOTES.GET_VOTERS(voteNo, voteContentNo);
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('투표자 목록 조회 API 호출 중 오류 발생:', error);
+      throw error;
+    }
+  },
 };

@@ -14,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,12 +56,18 @@ public class VoteServiceImpl implements VoteService {
     @Transactional(readOnly = true)
     public List<VoteDto.ListResponse> getAllVotes(String userId) {
         List<Vote> votes = voteRepository.findAll();
-        Set<Long> votedVoteNos = voteUserRepository.findVotedVoteNosByUserId(userId);
+
+        // 사용자의 모든 투표 기록(VoteUser)을 가져와 Map으로 변환
+        Map<Long, Long> userVoteMap = voteUserRepository.findVoteUsersByUserId(userId).stream()
+                .collect(Collectors.toMap(
+                        voteUser -> voteUser.getVote().getVoteNo(),      // Key: 투표 ID
+                        voteUser -> voteUser.getVoteContent().getVoteContentNo() // Value: 선택한 항목 ID
+                ));
 
         return votes.stream()
                 .map(vote -> {
-                    boolean isVoted = votedVoteNos.contains(vote.getVoteNo());
-                    return VoteDto.ListResponse.fromEntity(vote, isVoted);
+                    Long votedOptionNo = userVoteMap.get(vote.getVoteNo());
+                    return VoteDto.ListResponse.fromEntity(vote, votedOptionNo);
                 })
                 .collect(Collectors.toList());
     }
@@ -118,5 +126,14 @@ public class VoteServiceImpl implements VoteService {
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
         voteRepository.delete(vote);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VoteDto.VoterResponse> getVotersForOption(Long voteContentNo) {
+        List<User> voters = voteUserRepository.findVotersByVoteContentNo(voteContentNo);
+        return voters.stream()
+                .map(VoteDto.VoterResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 }

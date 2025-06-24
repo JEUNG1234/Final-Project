@@ -5,6 +5,7 @@ package com.kh.sowm.controller;
 import com.kh.sowm.dto.VoteDto;
 import com.kh.sowm.service.VoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +66,7 @@ public class VoteController {
     }
 
     /**
-     *  투표 삭제 API
+     * 투표 삭제 API
      * @param voteNo 삭제할 투표의 ID
      * @param userId 요청한 사용자의 ID (권한 확인용)
      * @return 성공 응답
@@ -74,5 +75,28 @@ public class VoteController {
     public ResponseEntity<Void> deleteVote(@PathVariable Long voteNo, @RequestParam String userId) {
         voteService.deleteVote(voteNo, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * ✅ [수정] 특정 투표 항목에 투표한 사용자 목록을 조회하는 API
+     * @param voteNo        (경로 변수)
+     * @param voteContentNo 조회할 투표 항목의 ID
+     * @return 투표자 목록 (userId, userName) 또는 403 Forbidden 에러
+     */
+    @GetMapping("/{voteNo}/options/{voteContentNo}/voters")
+    public ResponseEntity<?> getVotersForOption(
+            @PathVariable Long voteNo,
+            @PathVariable Long voteContentNo) {
+
+        // 익명 투표인지 먼저 확인
+        VoteDto.DetailResponse voteDetails = voteService.getVoteDetails(voteNo);
+        if (voteDetails.isAnonymous()) {
+            // 익명 투표일 경우, 403 Forbidden 에러와 함께 메시지 반환
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("익명 투표의 참여자 목록은 볼 수 없습니다.");
+        }
+
+        // 비익명 투표일 경우에만 투표자 목록 반환
+        List<VoteDto.VoterResponse> voters = voteService.getVotersForOption(voteContentNo);
+        return ResponseEntity.ok(voters);
     }
 }

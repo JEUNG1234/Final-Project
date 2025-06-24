@@ -35,10 +35,18 @@ public class Vote {
     @Column(name = "TOTAL_VOTES", nullable = false)
     private int totalVotes;
 
+    // 포인트 필드
+    @Column(name = "POINTS")
+    private Integer points;
+
     //투표 유형(장기, 단기)
     @Column(name = "VOTE_TYPE",nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private Type voteType;
+
+    // IS_ANONYMOUS 컬럼에 기본값 설정 추가
+    @Column(name = "IS_ANONYMOUS", nullable = false, columnDefinition = "boolean default true")
+    private boolean anonymous;
 
     //시작날짜 AND 생성날짜
     @Column(name = "VOTE_CREATED_DATE", nullable = false)
@@ -67,16 +75,19 @@ public class Vote {
 
     public void addVoteUser(VoteUser voteUser) {
         this.voteUsers.add(voteUser);
-        // voteUser.setVote(this);
     }
-
 
     @PrePersist
     public void prePersist() {
         this.voteCreatedDate = LocalDate.now();
-        this.voteType = Type.SHORT;
         this.totalVotes = 0;
-        if(this.status == null) {
+        if (this.voteType == null) { // voteType이 설정되지 않았을 경우에만 기본값 설정
+            this.voteType = Type.SHORT;
+        }
+        if (this.points == null) { // points가 설정되지 않았을 경우에만 기본값 설정
+            this.points = 0;
+        }
+        if (this.status == null) {
             this.status = CommonEnums.Status.Y;
         }
     }

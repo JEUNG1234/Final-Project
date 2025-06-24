@@ -23,15 +23,6 @@ const VoteList = () => {
     setIsLoading(true);
     try {
       const data = await voteService.getAllVotes(user.userId);
-      
-      // ✅ [추가] API 응답 데이터 전체를 콘솔에 출력합니다.
-      console.log('API에서 받아온 전체 투표 목록:', data);
-      
-      // ✅ [추가] 각 투표 항목의 isVoted 값을 개별적으로 확인합니다.
-      data.forEach(vote => {
-        console.log(`Vote #${vote.voteNo} (${vote.voteTitle}): isVoted = ${vote.isVoted}`);
-      });
-      
       setVoteList(data);
     } catch (error) {
       console.error('투표 목록 조회 실패:', error);
@@ -64,7 +55,7 @@ const VoteList = () => {
     try {
       await voteService.castVote(voteNo, selectedOptionNo, user.userId);
       alert('투표가 완료되었습니다!');
-      fetchVotes(); 
+      fetchVotes();
     } catch (error) {
       alert(error.response?.data?.message || '투표 처리 중 오류가 발생했습니다.');
       console.error('투표 실패:', error);
@@ -106,6 +97,7 @@ const VoteList = () => {
         {voteList.map((vote) => {
           const dDay = calculateDday(vote.voteEndDate);
           const isFinished = dDay < 0;
+          const hasVoted = !!vote.votedOptionNo; // votedOptionNo의 존재 여부로 투표 상태 확인
 
           return (
             <VoteItem key={vote.voteNo}>
@@ -113,7 +105,11 @@ const VoteList = () => {
                 <VoteTitleWrapper>
                   <VoteNumber>{vote.voteNo}</VoteNumber>
                   <VoteTitle>{vote.voteTitle}</VoteTitle>
-                  <Tag type={vote.voteType}>{vote.voteType === 'LONG' ? '장기' : '단기'}</Tag>
+                  <TagGroup>
+                    <Tag tagType="type" type={vote.voteType}>{vote.voteType === 'LONG' ? '장기' : '단기'}</Tag>
+                    <Tag tagType="points">{vote.points}P</Tag>
+                    <Tag tagType="privacy">{vote.isAnonymous ? '익명' : '비익명'}</Tag>
+                  </TagGroup>
                 </VoteTitleWrapper>
                 <ActionWrapper>
                   <ResultButton
@@ -135,15 +131,21 @@ const VoteList = () => {
                       type="radio"
                       name={`vote_option_${vote.voteNo}`}
                       value={option.voteContentNo}
-                      checked={selectedOptions[vote.voteNo] === option.voteContentNo}
+                      // ✅ 로직 변경
+                      checked={
+                        hasVoted
+                          ? vote.votedOptionNo === option.voteContentNo // 이미 투표했다면, 저장된 선택 항목 ID와 비교
+                          : selectedOptions[vote.voteNo] === option.voteContentNo // 아니면, 현재 선택한 항목과 비교
+                      }
                       onChange={() => handleOptionChange(vote.voteNo, option.voteContentNo)}
-                      disabled={vote.isVoted || isFinished}
+                      disabled={hasVoted || isFinished}
                     />
-                    {option.voteContent} ({option.voteCount}표)
+                    {option.voteContent}
                   </OptionLabel>
                 ))}
-                <SubmitButton onClick={() => handleVote(vote.voteNo)} disabled={vote.isVoted || isFinished}>
-                  {isFinished ? '투표 종료' : vote.isVoted ? '투표 완료' : '투표하기'}
+                {/* ✅ 버튼의 disabled 및 텍스트 로직 변경 */}
+                <SubmitButton onClick={() => handleVote(vote.voteNo)} disabled={hasVoted || isFinished}>
+                  {isFinished ? '투표 종료' : hasVoted ? '투표 완료' : '투표하기'}
                 </SubmitButton>
               </OptionContainer>
             </VoteItem>
@@ -232,7 +234,9 @@ const VoteHeader = styled.div`
 const VoteTitleWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  flex-grow: 1;
+  flex-wrap: wrap;
 `;
 const VoteNumber = styled.span`
   font-size: 18px;
@@ -245,23 +249,44 @@ const VoteTitle = styled.span`
   font-weight: 600;
   color: #333;
 `;
+const TagGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
 const Tag = styled.span`
-  padding: 3px 10px;
-  border-radius: 12px;
+  padding: 4px 12px;
+  border-radius: 14px;
   font-size: 12px;
   font-weight: 700;
-  ${(props) =>
-    props.type === 'LONG' &&
-    css`
-      background-color: #e7f5ee;
-      color: #28a745;
-    `}
-  ${(props) =>
-    props.type === 'SHORT' &&
-    css`
-      background-color: #fff8e1;
-      color: #f59e0b;
-    `}
+  white-space: nowrap;
+
+  ${({ tagType, type }) => {
+    switch (tagType) {
+      case 'type':
+        return type === 'LONG'
+          ? css`
+              background-color: #e7f5ee;
+              color: #28a745;
+            `
+          : css`
+              background-color: #fff8e1;
+              color: #f59e0b;
+            `;
+      case 'points':
+        return css`
+          background-color: #e0f2ff;
+          color: #007bff;
+        `;
+      case 'privacy':
+        return css`
+          background-color: #f3f4f6;
+          color: #6b7280;
+        `;
+      default:
+        return '';
+    }
+  }}
 `;
 const ActionWrapper = styled.div`
   display: flex;

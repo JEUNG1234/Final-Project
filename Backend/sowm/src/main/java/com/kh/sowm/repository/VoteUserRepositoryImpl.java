@@ -1,5 +1,6 @@
 package com.kh.sowm.repository;
 
+import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.VoteUser;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Repository
@@ -19,7 +21,6 @@ public class VoteUserRepositoryImpl implements VoteUserRepository {
     @Override
     public void save(VoteUser voteUser) {
         em.persist(voteUser);
-        // em.flush(); // ✅ 이전에 추가했던 flush() 제거
     }
 
     @Override
@@ -33,10 +34,17 @@ public class VoteUserRepositoryImpl implements VoteUserRepository {
     }
 
     @Override
-    public Set<Long> findVotedVoteNosByUserId(String userId) {
-        return new HashSet<>(em.createQuery(
-                        "SELECT vu.vote.voteNo FROM VoteUser vu WHERE vu.user.userId = :userId", Long.class)
+    public List<VoteUser> findVoteUsersByUserId(String userId) {
+        return em.createQuery("SELECT vu FROM VoteUser vu WHERE vu.user.userId = :userId", VoteUser.class)
                 .setParameter("userId", userId)
-                .getResultList());
+                .getResultList();
+    }
+
+    @Override
+    public List<User> findVotersByVoteContentNo(Long voteContentNo) {
+        return em.createQuery(
+                        "SELECT vu.user FROM VoteUser vu WHERE vu.voteContent.voteContentNo = :voteContentNo", User.class)
+                .setParameter("voteContentNo", voteContentNo)
+                .getResultList();
     }
 }
