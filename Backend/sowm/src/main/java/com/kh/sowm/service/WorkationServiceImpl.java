@@ -5,9 +5,12 @@ import com.kh.sowm.dto.WorkationDto;
 import com.kh.sowm.entity.SubmitWorkation;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
+import com.kh.sowm.entity.WorkationImage;
+import com.kh.sowm.entity.WorkationImage.Tab;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
 import com.kh.sowm.repository.UserRepository;
+import com.kh.sowm.repository.WorkationImageRepository;
 import com.kh.sowm.repository.WorkationLocationRepository;
 import com.kh.sowm.repository.WorkationRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +29,7 @@ public class WorkationServiceImpl implements WorkationService {
     private final WorkationRepository workationRepository;
     private final UserRepository userRepository;
     private final WorkationLocationRepository workationLocationRepository;
+    private final WorkationImageRepository workationImageRepository;
 
     //워케이션 리스트 조회용
     @Override
@@ -53,7 +57,8 @@ public class WorkationServiceImpl implements WorkationService {
     public WorkationDto.ResponseDto enrollWorkation(WorkationDto.WorkationCreateDto request) {
         String userId = request.getUserId();
         //유저 조회
-        User user = userRepository.findByUserId(userId).orElseThrow(() ->new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
         System.out.println(userId);
 
         //DTO -> Entity로 변환
@@ -62,10 +67,27 @@ public class WorkationServiceImpl implements WorkationService {
 
         WorkationLocation savedLocation = workationLocationRepository.save(location);
         workation.setWorkationLocation(savedLocation);
-        workationRepository.save(workation);
-        workationLocationRepository.save(location);
+        Workation savedWorkation = workationRepository.save(workation);
 
-        return WorkationDto.ResponseDto.toDto(workation);
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            for (WorkationDto.WorkationImageDto imageDto : request.getImages()) {
+                // (Entity 변환 과정 필요: WorkationImage entity 생성)
+                WorkationImage image = WorkationImage.builder()
+                        .workation(savedWorkation)
+                        .originalName(imageDto.getOriginalName())
+                        .changedName(imageDto.getChangedName())
+                        .path(imageDto.getPath())
+                        .size(imageDto.getSize())
+                        .tab(Tab.valueOf(imageDto.getTab()))
+                        .build();
+
+                workationImageRepository.save(image);
+            }
+            }
+//        workationLocationRepository.save(location);
+
+            return WorkationDto.ResponseDto.toDto(workation);
+
     }
 
     //워케이션 정보 디테일
