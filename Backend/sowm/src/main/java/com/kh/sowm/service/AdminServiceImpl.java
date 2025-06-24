@@ -1,11 +1,14 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.AttendanceDto;
+import com.kh.sowm.dto.PageResponse;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.repository.AttendanceRepository;
 import com.kh.sowm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +27,17 @@ public class AdminServiceImpl implements AdminService {
 
 
     @Override
-    public List<AttendanceDto.Record> getAllAttendanceByCompany(String userId) {
+    public PageResponse<AttendanceDto.Record> getAllAttendanceByCompany(String userId, Pageable pageable) {
 
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 존재하지 않습니다."));
 
         // 회사코드
         String companyCode = user.getCompany().getCompanyCode();
+        Page<Attendance> page = attendanceRepository.findByCompanyCode(companyCode, pageable);
+        Page<AttendanceDto.Record> dtoPage = page.map(AttendanceDto.Record::pageDto);
 
-        return attendanceRepository.getAllAttendanceByCompany(companyCode);
+        return new PageResponse<>(dtoPage);
     }
 
     @Override
@@ -56,6 +61,8 @@ public class AdminServiceImpl implements AdminService {
         attendance.updateAttendance(request.getAttendTime(), request.getLeaveTime());
 
         // 근무 시간 계산 및 설정
+        // Duration 은 시간 간격을 나타내는 클래스
+        // LocalDateTime 같은 시점 간 차이를 계산할 때 사용함
         if (attendance.getAttendTime() != null && attendance.getLeaveTime() != null) {
             Duration duration = Duration.between(attendance.getAttendTime(), attendance.getLeaveTime());
             double hours = duration.toMinutes() / 60.0;
@@ -63,20 +70,20 @@ public class AdminServiceImpl implements AdminService {
         } else {
             attendance.setWorkHours(0.0);
         }
-
         return AttendanceDto.Record.toDto(attendance);
     }
 
-    // 조건으로 직원 출퇴근 정보 확인 , 개발중
-//    @Override
-//    public List<AttendanceDto.Record> getAttendances(String userName, String deptName, LocalDate date) {
-//
-//        List<Attendance> attendances = attendanceRepository.findByFilters(userName, deptName, date);
-//        return attendances.stream()
-//                .map(AttendanceDto.Record::toDto)
-//                .collect(Collectors.toList());
-//
-//
-//    }
+    @Override
+    public PageResponse<AttendanceDto.Record> getAttendances(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable) {
+
+        // 1. 조건으로 페이징 된 Attendance 리스트 가져오기
+        Page<Attendance> attendances = attendanceRepository.findByFilter(companyCode, userName, deptName, date, pageable);
+
+        // 2. Attendance 는 엔티티이므로 AttendanceDto.Record DTO로 변환
+        Page<AttendanceDto.Record> dtoPage = attendances.map(AttendanceDto.Record::pageDto);
+
+        // 3. Page → PageResponse 로 감싸서 반환
+        return new PageResponse<>(dtoPage);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.kh.sowm.dto;
 
 import com.kh.sowm.entity.Attendance;
+import com.kh.sowm.entity.Company;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class AttendanceDto {
         private Integer attendanceNo;
         private LocalDateTime attendTime;  // 출근 시간
         private LocalDateTime leaveTime;   // 퇴근 시간
+        private String companyCode;
         private String userId;
         private String userName;
         private String deptName;
@@ -66,6 +68,19 @@ public class AttendanceDto {
                     .build();
         }
 
+        public static Record pageDto(Attendance attendance) {
+            return Record.builder()
+                    .attendanceNo(attendance.getAttendanceNo().intValue())
+                    .attendTime(attendance.getAttendTime())
+                    .leaveTime(attendance.getLeaveTime())
+                    .deptName(attendance.getUser().getDepartment().getDeptName())
+                    .companyCode(attendance.getUser().getCompany().getCompanyCode())
+                    .userName(attendance.getUser().getUserName())
+                    .userId(attendance.getUser().getUserId())
+                    .workHours(attendance.getWorkHours())
+                    .status(attendance.getStatus().name())
+                    .build();
+        }
     }
 
     @Getter
