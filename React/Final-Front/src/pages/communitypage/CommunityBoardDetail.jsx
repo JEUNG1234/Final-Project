@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
 import dayjs from 'dayjs';
-import { getBoardDetail, increaseViewCount, deleteBoard } from '../../api/board';
+import BoardAPI from '../../api/board';
 
 const CommunityBoardDetail = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const CommunityBoardDetail = () => {
 
   // 게시글 가져오기 및 조회수 증가
   useEffect(() => {
-    getBoardDetail(id)
+    BoardAPI.getBoardDetail(id)
       .then((res) => setPost(res.data))
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
@@ -26,7 +26,7 @@ const CommunityBoardDetail = () => {
     // 2. ✨ 게시글 조회수 증가 API 호출 ✨
     // 이 요청은 게시글 상세 페이지에 처음 진입할 때만 발생합니다.
     // 백엔드에서 /api/boards/{id}/views 라는 PATCH 엔드포인트를 구현했다고 가정합니다.
-    increaseViewCount(id)
+    BoardAPI.increaseViewCount(id)
       .then(() => {
         console.log(`게시글 ${id} 조회수 1 증가`);
       })
@@ -38,7 +38,7 @@ const CommunityBoardDetail = () => {
   // --- 게시글 삭제 함수 ---
   const handleDelete = () => {
     if (window.confirm('정말 삭제할까요?')) {
-      deleteBoard(id)
+      BoardAPI.deleteBoard(id)
         .then(() => {
           alert('삭제 성공');
           navigate('/communityboard');
