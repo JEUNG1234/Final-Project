@@ -319,6 +319,6 @@ const CardCompletion = styled.p`
   color: #666;
   margin: 0;
 `;
-
+  
 
 export default ChallengeCreate;
