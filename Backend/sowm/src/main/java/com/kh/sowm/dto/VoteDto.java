@@ -1,5 +1,6 @@
 package com.kh.sowm.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Vote;
 import com.kh.sowm.entity.VoteContent;
@@ -11,6 +12,20 @@ import java.util.stream.Collectors;
 
 public class VoteDto {
 
+    @Getter
+    @Builder
+    public static class VoterResponse {
+        private String userId;
+        private String userName;
+
+        public static VoterResponse fromEntity(User user) {
+            return VoterResponse.builder()
+                    .userId(user.getUserId())
+                    .userName(user.getUserName())
+                    .build();
+        }
+    }
+
     /**
      * 투표 생성을 위한 요청 DTO
      * 프론트엔드에서 userId를 포함하여 전송합니다.
@@ -20,10 +35,12 @@ public class VoteDto {
     @AllArgsConstructor
     public static class CreateRequest {
         private String voteTitle;
-        private String voteType; // "LONG" 또는 "SHORT"
+        private String voteType;
         private LocalDate voteEndDate;
         private List<String> options;
-        private String userId; // 요청을 보낸 사용자의 ID
+        private String userId;
+        private boolean anonymous;
+        private Integer points;
 
         public Vote toVoteEntity(User writer) {
             return Vote.builder()
@@ -31,9 +48,12 @@ public class VoteDto {
                     .voteType(Vote.Type.valueOf(this.voteType.toUpperCase()))
                     .voteEndDate(this.voteEndDate)
                     .writer(writer)
+                    .anonymous(this.anonymous)
+                    .points(this.points)
                     .build();
         }
     }
+
 
     /**
      * 투표하기 요청 DTO
@@ -58,17 +78,25 @@ public class VoteDto {
         private String voteType;
         private LocalDate voteEndDate;
         private int totalVotes;
-        private boolean isVoted; // 현재 사용자가 투표했는지 여부
+        private Integer points;
+
+        private Long votedOptionNo; // 사용자가 투표한 항목 ID, 없으면 null
+
+        @JsonProperty("isAnonymous")
+        private boolean isAnonymous;
+
         private List<OptionResponse> options;
 
-        public static ListResponse fromEntity(Vote vote, boolean isVoted) {
+        public static ListResponse fromEntity(Vote vote, Long votedOptionNo) {
             return ListResponse.builder()
                     .voteNo(vote.getVoteNo())
                     .voteTitle(vote.getVoteTitle())
                     .voteType(vote.getVoteType().name())
                     .voteEndDate(vote.getVoteEndDate())
                     .totalVotes(vote.getTotalVotes())
-                    .isVoted(isVoted)
+                    .points(vote.getPoints())
+                    .votedOptionNo(votedOptionNo)
+                    .isAnonymous(vote.isAnonymous())
                     .options(vote.getVoteContents().stream()
                             .map(OptionResponse::fromEntity)
                             .collect(Collectors.toList()))
@@ -87,6 +115,11 @@ public class VoteDto {
         private String voteType;
         private LocalDate voteEndDate;
         private int totalVotes;
+        private Integer points;
+
+        @JsonProperty("isAnonymous")
+        private boolean isAnonymous;
+
         private List<OptionResponse> options;
 
         public static DetailResponse fromEntity(Vote vote) {
@@ -96,6 +129,8 @@ public class VoteDto {
                     .voteType(vote.getVoteType().name())
                     .voteEndDate(vote.getVoteEndDate())
                     .totalVotes(vote.getTotalVotes())
+                    .points(vote.getPoints())
+                    .isAnonymous(vote.isAnonymous())
                     .options(vote.getVoteContents().stream()
                             .map(OptionResponse::fromEntity)
                             .collect(Collectors.toList()))

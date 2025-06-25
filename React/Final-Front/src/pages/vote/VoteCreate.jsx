@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { voteService } from '../../api/voteService';
-import useUserStore from '../../Store/useStore'; // [수정] Zustand 스토어 임포트
+import useUserStore from '../../Store/useStore';
 
 const VoteCreate = () => {
   const navigate = useNavigate();
-  const [title, setTitle] = useState('이벤트달 건강 챌린지 투표');
+  const location = useLocation();
+  const prefillData = location.state;
+  const isPrefilled = !!prefillData;
+
+  const [title, setTitle] = useState(prefillData?.title || '이벤트달 건강 챌린지 투표');
   const [options, setOptions] = useState([
     { id: 1, text: '헬스장 매일 가기' },
     { id: 2, text: '주말마다 등산 가기' },
@@ -15,10 +19,10 @@ const VoteCreate = () => {
     { id: 4, text: '1일 10000보 걷기' },
   ]);
   const [isAnonymous, setIsAnonymous] = useState(true);
-  const [endDate, setEndDate] = useState('2025-07-04');
-  const [voteType, setVoteType] = useState('장기');
-  const [points, setPoints] = useState('300');
-  const { user } = useUserStore(); // [수정] 스토어에서 사용자 정보 가져오기
+  const [endDate, setEndDate] = useState(prefillData?.endDate || '2025-07-04');
+  const [voteType, setVoteType] = useState(prefillData?.type === 'LONG' ? '장기' : '단기');
+  const [points, setPoints] = useState(prefillData?.points || '300');
+  const { user } = useUserStore();
 
   const handleAddOption = () => {
     const newId = options.length > 0 ? Math.max(...options.map((o) => o.id)) + 1 : 1;
@@ -34,32 +38,28 @@ const VoteCreate = () => {
   };
 
   const handleSubmit = async () => {
-    if (!title.trim()) {
-      alert('투표 제목을 입력해주세요.');
+    if (!title.trim() || !endDate) {
+      alert('제목과 종료 날짜를 모두 입력해주세요.');
       return;
     }
     if (options.some((opt) => !opt.text.trim())) {
       alert('비어있는 투표 항목이 있습니다.');
       return;
     }
-    if (!endDate) {
-      alert('투표 종료 날짜를 선택해주세요.');
-      return;
-    }
-    // [수정] 로그인하지 않은 사용자는 투표를 생성할 수 없도록 처리
     if (!user?.userId) {
       alert('로그인이 필요합니다.');
       navigate('/login');
       return;
     }
 
-    // [수정] 백엔드로 보낼 payload 객체
     const payload = {
-      userId: user.userId, // 스토어에서 가져온 실제 사용자 ID
+      userId: user.userId,
       voteTitle: title,
-      voteType: voteType === '장기' ? 'LONG' : 'SHORT', // 백엔드 Enum 형식에 맞게 변환
+      voteType: voteType === '장기' ? 'LONG' : 'SHORT',
       voteEndDate: endDate,
       options: options.map((opt) => opt.text),
+      anonymous: isAnonymous,
+      points: parseInt(points, 10) || 0, 
     };
 
     try {
@@ -86,27 +86,29 @@ const VoteCreate = () => {
         <FormGroup>
           <Label>투표 기간</Label>
           <DateWrapper>
-            <DateInput type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
+            <DateInput type="date" defaultValue={new Date().toISOString().slice(0, 10)} readOnly={isPrefilled} />
             <span>–</span>
-            <DateInput type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            <DateInput type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} readOnly={isPrefilled} />
             <CheckboxWrapper>
-              <CheckboxLabel>
+              <CheckboxLabel disabled={isPrefilled}>
                 <input
                   type="radio"
                   name="voteType"
                   value="장기"
                   checked={voteType === '장기'}
                   onChange={(e) => setVoteType(e.target.value)}
+                  disabled={isPrefilled}
                 />{' '}
                 장기
               </CheckboxLabel>
-              <CheckboxLabel>
+              <CheckboxLabel disabled={isPrefilled}>
                 <input
                   type="radio"
                   name="voteType"
                   value="단기"
                   checked={voteType === '단기'}
                   onChange={(e) => setVoteType(e.target.value)}
+                  disabled={isPrefilled}
                 />{' '}
                 단기
               </CheckboxLabel>
@@ -141,7 +143,7 @@ const VoteCreate = () => {
             </ToggleWrapper>
             <PointWrapper>
               <Label>포인트</Label>
-              <PointInput type="text" value={points} onChange={(e) => setPoints(e.target.value)} />
+              <PointInput type="number" value={points} onChange={(e) => setPoints(e.target.value)} />
             </PointWrapper>
           </RightControls>
         </BottomControlsWrapper>
@@ -154,7 +156,6 @@ const VoteCreate = () => {
   );
 };
 
-// --- Styled Components (이하 동일) ---
 const MainContent = styled(BaseMainContent)`
   margin: 30px auto;
   padding: 30px 40px;
@@ -218,6 +219,8 @@ const CheckboxLabel = styled.label`
   align-items: center;
   font-size: 16px;
   gap: 5px;
+  color: ${(props) => (props.disabled ? '#aaa' : 'inherit')};
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'default')};
 `;
 const OptionsList = styled.div`
   display: flex;

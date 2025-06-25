@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface VoteRepository {
 
-    // 투표 저장
+    // 투표 저장 또는 수정
     Vote save(Vote vote);
 
     // 모든 투표 조회
@@ -14,4 +14,7 @@ public interface VoteRepository {
 
     // ID로 투표 조회
     Optional<Vote> findById(Long voteNo);
+
+    // 투표 삭제
+    void delete(Vote vote);
 }

@@ -31,12 +31,13 @@ export const PageTitle = styled.h2`
   }
 `;
 
-/* 페이징 바 영역 */
+/* 페이징 바 영역 수정 */
 export const BottomBar = styled.div`
+  margin-top: auto; /* 이 속성을 추가하여 BottomBar를 컨테이너 하단으로 밀어냅니다. */
+  padding-top: 20px; /* 내용과 페이지 버튼 사이의 여백 추가 */
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center; /* 페이지네이션을 중앙에 배치 */
+  width: 100%;
 `;
 
 export const Pagination = styled.div`
@@ -58,6 +59,17 @@ export const PageButton = styled.button`
 
   &:hover {
     background: #2563eb;
+  }
+
+  /* 활성화된 페이지 버튼 스타일 추가 */
+  &.active {
+    background-color: #1d4ed8;
+    font-weight: bold;
+  }
+
+  &:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
   }
 `;
 

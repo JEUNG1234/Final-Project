@@ -30,9 +30,9 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     // 검색 조건 추가: title, writer, categoryNo
-    public Page<BoardDto.Response> getBoardList(Pageable pageable, String title, String writer, Long categoryNo) {
+    public Page<BoardDto.Response> getBoardList(Pageable pageable, String title, String writer, Long categoryNo, String companyCode) {
         // BoardRepositoryImpl의 findBoardsByFilters 메서드 호출
-        Page<Board> page = boardRepository.findBoardsByFilters(pageable, title, writer, categoryNo, CommonEnums.Status.Y);
+        Page<Board> page = boardRepository.findBoardsByFilters(pageable, title, writer, categoryNo, companyCode, CommonEnums.Status.Y);
         return page.map(BoardDto.Response::fromEntity);
     }
 

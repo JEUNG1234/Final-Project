@@ -53,9 +53,14 @@ export const API_ENDPOINTS = {
     updateAttendTime: '/admin/adminattendance',
     getMemberAttendance: '/admin/adminattendance/filter',
   },
-  // VOTES 객체를 추가합니다.
-  VOTES: {
+   VOTES: {
     BASE: '/votes',
+    // 투표자 목록 조회 엔드포인트
+    GET_VOTERS: (voteNo, voteContentNo) => `/votes/${voteNo}/options/${voteContentNo}/voters`,
+  },
+
+  CHALLENGE: {
+    BASE: '/challenges',
   },
 
   BOARD: {

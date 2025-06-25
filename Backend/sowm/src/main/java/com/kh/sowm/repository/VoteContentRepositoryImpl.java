@@ -17,6 +17,16 @@ public class VoteContentRepositoryImpl implements VoteContentRepository {
     private final EntityManager em;
 
     @Override
+    public VoteContent save(VoteContent voteContent) {
+        if (voteContent.getVoteContentNo() == null) {
+            em.persist(voteContent);
+            return voteContent;
+        } else {
+            return em.merge(voteContent);
+        }
+    }
+
+    @Override
     public void saveAll(List<VoteContent> voteContents) {
         for (VoteContent content : voteContents) {
             em.persist(content);
