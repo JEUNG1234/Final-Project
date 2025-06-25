@@ -1,8 +1,11 @@
+// src/main/java/com/kh/sowm/controller/VoteController.java
+
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.VoteDto;
 import com.kh.sowm.service.VoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +26,6 @@ public class VoteController {
      */
     @PostMapping
     public ResponseEntity<Long> createVote(@RequestBody VoteDto.CreateRequest createRequest) {
-        // DTO에 포함된 userId를 서비스 계층으로 전달
         Long voteId = voteService.createVote(createRequest, createRequest.getUserId());
         return ResponseEntity.ok(voteId);
     }
@@ -35,7 +37,6 @@ public class VoteController {
      */
     @GetMapping
     public ResponseEntity<List<VoteDto.ListResponse>> getAllVotes(@RequestParam String userId) {
-        // 쿼리 파라미터로 받은 userId를 서비스 계층으로 전달
         List<VoteDto.ListResponse> votes = voteService.getAllVotes(userId);
         return ResponseEntity.ok(votes);
     }
@@ -60,8 +61,42 @@ public class VoteController {
     @PostMapping("/{voteNo}/cast")
     public ResponseEntity<Void> castVote(@PathVariable Long voteNo,
                                          @RequestBody VoteDto.CastRequest castRequest) {
-        // DTO에 포함된 userId를 서비스 계층으로 전달
         voteService.castVote(voteNo, castRequest.getVoteContentNo(), castRequest.getUserId());
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 투표 삭제 API
+     * @param voteNo 삭제할 투표의 ID
+     * @param userId 요청한 사용자의 ID (권한 확인용)
+     * @return 성공 응답
+     */
+    @DeleteMapping("/{voteNo}")
+    public ResponseEntity<Void> deleteVote(@PathVariable Long voteNo, @RequestParam String userId) {
+        voteService.deleteVote(voteNo, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * ✅ [수정] 특정 투표 항목에 투표한 사용자 목록을 조회하는 API
+     * @param voteNo        (경로 변수)
+     * @param voteContentNo 조회할 투표 항목의 ID
+     * @return 투표자 목록 (userId, userName) 또는 403 Forbidden 에러
+     */
+    @GetMapping("/{voteNo}/options/{voteContentNo}/voters")
+    public ResponseEntity<?> getVotersForOption(
+            @PathVariable Long voteNo,
+            @PathVariable Long voteContentNo) {
+
+        // 익명 투표인지 먼저 확인
+        VoteDto.DetailResponse voteDetails = voteService.getVoteDetails(voteNo);
+        if (voteDetails.isAnonymous()) {
+            // 익명 투표일 경우, 403 Forbidden 에러와 함께 메시지 반환
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("익명 투표의 참여자 목록은 볼 수 없습니다.");
+        }
+
+        // 비익명 투표일 경우에만 투표자 목록 반환
+        List<VoteDto.VoterResponse> voters = voteService.getVotersForOption(voteContentNo);
+        return ResponseEntity.ok(voters);
     }
 }

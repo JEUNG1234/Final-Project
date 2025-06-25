@@ -17,4 +17,10 @@ public interface VoteService {
 
     // 투표하기
     void castVote(Long voteNo, Long voteContentNo, String userId);
+
+    // 투표 삭제
+    void deleteVote(Long voteNo, String userId);
+
+    //  특정 항목의 투표자 목록 조회
+    List<VoteDto.VoterResponse> getVotersForOption(Long voteContentNo);
 }

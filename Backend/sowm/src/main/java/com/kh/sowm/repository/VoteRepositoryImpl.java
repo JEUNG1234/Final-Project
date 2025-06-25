@@ -18,8 +18,12 @@ public class VoteRepositoryImpl implements VoteRepository {
 
     @Override
     public Vote save(Vote vote) {
-        em.persist(vote);
-        return vote;
+        if (vote.getVoteNo() == null) {
+            em.persist(vote);
+            return vote;
+        } else {
+            return em.merge(vote);
+        }
     }
 
     @Override
@@ -32,5 +36,10 @@ public class VoteRepositoryImpl implements VoteRepository {
     public Optional<Vote> findById(Long voteNo) {
         Vote vote = em.find(Vote.class, voteNo);
         return Optional.ofNullable(vote);
+    }
+
+    @Override
+    public void delete(Vote vote) {
+        em.remove(vote);
     }
 }

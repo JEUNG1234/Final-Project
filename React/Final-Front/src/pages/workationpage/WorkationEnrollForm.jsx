@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
-
+// import { v4 as uuidv4 } from 'uuid';
+// import axios from 'axios';
 import * as yup from 'yup';
 
 import { PageTitle, PageButton } from '../../styles/common/MainContentLayout';
@@ -16,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Modal from '../../components/Modal';
 import { workationService } from '../../api/workation';
+import { fileupload } from '../../api/fileupload';
 import useUserStore from '../../Store/useStore';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -69,7 +71,6 @@ const WorkationEnrollForm = () => {
     if (valid) {
       setActiveTab('facilities');
     }
-
   };
 
   //유효성검사 탭 이동시
@@ -137,16 +138,16 @@ const WorkationEnrollForm = () => {
   };
 
   //시설별 이미지 등록
-  const [placeImage, setPlaceImage] = useState({ name: '', previewUrl: '' });
-  const [facilityImage, setFacilityImage] = useState({ name: '', previewUrl: '' });
-  const [precautionImage, setPrecautionImage] = useState({ name: '', previewUrl: '' });
+  const [placeImage, setPlaceImage] = useState({ name: '', previewUrl: '', file: null });
+  const [facilityImage, setFacilityImage] = useState({ name: '', previewUrl: '', file: null });
+  const [precautionImage, setPrecautionImage] = useState({ name: '', previewUrl: '', file: null });
 
   const handleImageUpload = (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
-    const imageInfo = { name: file.name, previewUrl };
+    const imageInfo = { name: file.name, previewUrl, file };
 
     if (type === 'place') {
       setPlaceImage(imageInfo);
@@ -157,8 +158,48 @@ const WorkationEnrollForm = () => {
     }
   };
 
+ 
+  // placeImage: placeImgInfo ? placeImgInfo.filename : '',
+  // facilityImage: facilityImgInfo ? facilityImgInfo.filename : '',
+  // precautionImage: precautionImgInfo ? precautionImgInfo.filename : '',
+
   const onSubmit = async (data) => {
     try {
+      const placeImgInfo = await fileupload.uploadImageToS3(placeImage.file, 'workation/');
+      const facilityImgInfo = await fileupload.uploadImageToS3(facilityImage.file, 'workation/');
+      const precautionImgInfo = await fileupload.uploadImageToS3(precautionImage.file, 'workation/');
+
+      console.log(placeImgInfo);
+      console.log(placeImgInfo.filename);
+      console.log(facilityImgInfo.filename);
+      console.log(precautionImgInfo.filename);
+
+      const images = [
+  {
+    originalName: placeImage.file.name,
+    changedName: placeImgInfo.filename,   // S3에 저장된 uuid.jpg
+    path: placeImgInfo.url,               // S3 URL
+    size: placeImage.file.size,
+    tab: "PLACE",                             // 대표
+              // 방금 등록한 워케이션 PK
+  },
+  {
+    originalName: facilityImage.file.name,
+    changedName: facilityImgInfo.filename,
+    path: facilityImgInfo.url,
+    size: facilityImage.file.size,
+    tab: "FACILITY", // 시설
+  
+  },
+  {
+    originalName: precautionImage.file.name,
+    changedName: precautionImgInfo.filename,
+    path: precautionImgInfo.url,
+    size: precautionImage.file.size,
+    tab: "PRECAUTIONS", // 유의사항
+    
+  }
+];
       const location = {
         placeInfo,
         address: data.address,
@@ -185,6 +226,7 @@ const WorkationEnrollForm = () => {
         workation,
         location,
         userId: user.userId,
+        images: images,
       };
 
       console.log(requestBody);
@@ -304,12 +346,7 @@ const WorkationEnrollForm = () => {
 
             <FormGroup>
               <Label htmlFor="workationTitle">워케이션제목</Label>
-              <Input
-                id="workationTitle"
-                type="text"
-                placeholder="워케이션 제목 입력"
-                {...register('workationTitle')}
-              />
+              <Input id="workationTitle" type="text" placeholder="워케이션 제목 입력" {...register('workationTitle')} />
               {errors.workationTitle && <ErrorMessage>{errors.workationTitle.message}</ErrorMessage>}
             </FormGroup>
 
