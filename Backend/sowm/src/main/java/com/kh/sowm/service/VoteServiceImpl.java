@@ -1,24 +1,22 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.VoteDto;
+import com.kh.sowm.entity.Challenge;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Vote;
 import com.kh.sowm.entity.VoteContent;
 import com.kh.sowm.entity.VoteUser;
-import com.kh.sowm.repository.UserRepository;
-import com.kh.sowm.repository.VoteContentRepository;
-import com.kh.sowm.repository.VoteRepository;
-import com.kh.sowm.repository.VoteUserRepository;
+import com.kh.sowm.repository.*; // ✅ 와일드카드로 변경
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,8 +28,8 @@ public class VoteServiceImpl implements VoteService {
     private final VoteContentRepository voteContentRepository;
     private final UserRepository userRepository;
     private final VoteUserRepository voteUserRepository;
+    private final ChallengeRepository challengeRepository; // ✅ ChallengeRepository 주입
 
-    // createVote, getAllVotes, getVoteDetails 메서드는 변경 없습니다.
     @Override
     public Long createVote(VoteDto.CreateRequest createRequest, String userId) {
         User writer = userRepository.findByUserId(userId)
@@ -57,11 +55,10 @@ public class VoteServiceImpl implements VoteService {
     public List<VoteDto.ListResponse> getAllVotes(String userId) {
         List<Vote> votes = voteRepository.findAll();
 
-        // 사용자의 모든 투표 기록(VoteUser)을 가져와 Map으로 변환
         Map<Long, Long> userVoteMap = voteUserRepository.findVoteUsersByUserId(userId).stream()
                 .collect(Collectors.toMap(
-                        voteUser -> voteUser.getVote().getVoteNo(),      // Key: 투표 ID
-                        voteUser -> voteUser.getVoteContent().getVoteContentNo() // Value: 선택한 항목 ID
+                        voteUser -> voteUser.getVote().getVoteNo(),
+                        voteUser -> voteUser.getVoteContent().getVoteContentNo()
                 ));
 
         return votes.stream()
@@ -125,6 +122,12 @@ public class VoteServiceImpl implements VoteService {
 
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
+
+        // 연관된 Challenge를 먼저 찾아서 삭제하는 로직
+        challengeRepository.findByVote(vote).ifPresent(challenge -> {
+            challengeRepository.delete(challenge);
+        });
+
         voteRepository.delete(vote);
     }
 

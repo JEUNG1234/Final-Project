@@ -58,6 +58,10 @@ export const API_ENDPOINTS = {
     GET_VOTERS: (voteNo, voteContentNo) => `/votes/${voteNo}/options/${voteContentNo}/voters`,
   },
 
+  CHALLENGE: {
+    BASE: '/challenges',
+  },
+
   BOARD: {
     BASE: '/boards',
     DETAIL: (id) => `/boards/${id}`,

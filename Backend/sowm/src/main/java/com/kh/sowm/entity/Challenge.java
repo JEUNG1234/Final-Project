@@ -15,9 +15,13 @@ import lombok.*;
 public class Challenge {
     //챌린지No
     @Id
-    @Column(name = "CHALLENGE_NO", length = 30, unique = true, nullable = false)
+    @Column(name = "CHALLENGE_NO")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long challengeNo;
+
+    // 챌린지 제목
+    @Column(name = "CHALLENGE_TITLE", nullable = false)
+    private String challengeTitle;
 
     //직원아이디
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,8 +49,4 @@ public class Challenge {
     //포인트
     @Column(name = "CHALLENGE_POINT")
     private int challengePoint;
-
-
-
-
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { FaPoll } from 'react-icons/fa';
+import { FaPoll, FaTrashAlt } from 'react-icons/fa'; // FaTrashAlt 아이콘 추가
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
 import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { useNavigate } from 'react-router-dom';
@@ -61,6 +61,20 @@ const VoteList = () => {
       console.error('투표 실패:', error);
     }
   };
+  
+  // ✅ [추가] 투표 삭제 핸들러 함수
+  const handleDeleteVote = async (voteNo) => {
+    if (window.confirm(`정말로 ${voteNo}번 투표를 삭제하시겠습니까?`)) {
+      try {
+        await voteService.deleteVote(voteNo, user.userId);
+        alert('투표가 삭제되었습니다.');
+        fetchVotes(); // 목록 새로고침
+      } catch (error) {
+        alert(error.response?.data?.message || '투표 삭제 중 오류가 발생했습니다.');
+        console.error('투표 삭제 실패:', error);
+      }
+    }
+  };
 
   const calculateDday = (endDate) => {
     const end = new Date(endDate);
@@ -91,13 +105,14 @@ const VoteList = () => {
         <Description>모든 응답은 익명으로 처리됩니다. 마음 편히 의견을 들려주세요.</Description>
       </ComponentHeader>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate('/votecreate')}>투표 생성</CreateButton>
+        {/* ✅ [수정] 관리자일 때만 투표 생성 버튼이 보이도록 변경 */}
+        {user?.jobCode === 'J2' && <CreateButton onClick={() => navigate('/votecreate')}>투표 생성</CreateButton>}
       </ButtonContainer>
       <VoteListWrapper>
         {voteList.map((vote) => {
           const dDay = calculateDday(vote.voteEndDate);
           const isFinished = dDay < 0;
-          const hasVoted = !!vote.votedOptionNo; // votedOptionNo의 존재 여부로 투표 상태 확인
+          const hasVoted = !!vote.votedOptionNo;
 
           return (
             <VoteItem key={vote.voteNo}>
@@ -120,6 +135,19 @@ const VoteList = () => {
                   >
                     결과보기
                   </ResultButton>
+                  
+                  {/* ✅ [추가] 관리자일 때만 삭제 버튼 렌더링 */}
+                  {user?.jobCode === 'J2' && (
+                    <DeleteButton
+                      onClick={(e) => {
+                        e.stopPropagation(); // 이벤트 버블링 방지
+                        handleDeleteVote(vote.voteNo);
+                      }}
+                    >
+                      <FaTrashAlt />
+                    </DeleteButton>
+                  )}
+
                   <Dday>{isFinished ? '종료' : `D-${dDay}`}</Dday>
                   {openId === vote.voteNo ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
                 </ActionWrapper>
@@ -131,11 +159,10 @@ const VoteList = () => {
                       type="radio"
                       name={`vote_option_${vote.voteNo}`}
                       value={option.voteContentNo}
-                      // ✅ 로직 변경
                       checked={
                         hasVoted
-                          ? vote.votedOptionNo === option.voteContentNo // 이미 투표했다면, 저장된 선택 항목 ID와 비교
-                          : selectedOptions[vote.voteNo] === option.voteContentNo // 아니면, 현재 선택한 항목과 비교
+                          ? vote.votedOptionNo === option.voteContentNo
+                          : selectedOptions[vote.voteNo] === option.voteContentNo
                       }
                       onChange={() => handleOptionChange(vote.voteNo, option.voteContentNo)}
                       disabled={hasVoted || isFinished}
@@ -143,7 +170,6 @@ const VoteList = () => {
                     {option.voteContent}
                   </OptionLabel>
                 ))}
-                {/* ✅ 버튼의 disabled 및 텍스트 로직 변경 */}
                 <SubmitButton onClick={() => handleVote(vote.voteNo)} disabled={hasVoted || isFinished}>
                   {isFinished ? '투표 종료' : hasVoted ? '투표 완료' : '투표하기'}
                 </SubmitButton>
@@ -157,6 +183,28 @@ const VoteList = () => {
 };
 
 // --- Styled Components ---
+
+// ... (기존 Styled Components는 변경 없음) ...
+
+// ✅ [추가] 삭제 버튼 스타일
+const DeleteButton = styled.button`
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+`;
+
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -291,7 +339,7 @@ const Tag = styled.span`
 const ActionWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px; /* 삭제 버튼 공간 확보를 위해 간격 조정 */
 `;
 const ResultButton = styled.button`
   background-color: #4d8eff;

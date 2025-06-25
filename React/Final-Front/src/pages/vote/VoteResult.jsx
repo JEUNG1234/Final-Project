@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
 import { voteService } from '../../api/voteService';
-import useUserStore from '../../Store/useStore';
+import useUserStore from '../../Store/useStore'; 
 import Modal from '../../components/Modal';
 
 const VoteResult = () => {
@@ -13,7 +13,6 @@ const VoteResult = () => {
   const [winningOption, setWinningOption] = useState(null);
   const { user } = useUserStore();
 
-  // 모달 상태 및 데이터 관리
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [voters, setVoters] = useState([]);
   const [selectedOptionTitle, setSelectedOptionTitle] = useState('');
@@ -40,18 +39,20 @@ const VoteResult = () => {
 
   const handleCreateChallenge = () => {
     if (!resultData || !winningOption) return;
+    
+    //  챌린지 생성 페이지로 넘겨줄 데이터에 ID값들 추가
     navigate('/challenge/create', {
       state: {
+        voteNo: voteId,
+        voteContentNo: winningOption.voteContentNo,
         title: winningOption.voteContent,
-        startDate: resultData.voteCreatedDate,
-        endDate: resultData.voteEndDate,
-        type: resultData.voteType,
+        startDate: resultData.voteEndDate, // 투표 종료일을 챌린지 시작일로 제안
+        endDate: resultData.voteEndDate,   // 임시로 시작일과 동일하게 설정
         points: resultData.points,
       },
     });
   };
 
-  // 모달 열기 핸들러
   const handleOpenVotersModal = async (voteContentNo, optionText) => {
     if (resultData.isAnonymous) {
       alert('익명 투표는 참여자 정보를 볼 수 없습니다.');
@@ -72,7 +73,6 @@ const VoteResult = () => {
     }
   };
 
-  // 모달 닫기 핸들러
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setVoters([]);

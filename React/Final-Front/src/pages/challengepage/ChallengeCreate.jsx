@@ -4,24 +4,22 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { FaClipboardList } from 'react-icons/fa';
 import defaultChallengeImg from '../../assets/challengeImg.jpg';
+import useUserStore from '../../Store/useStore';
+import { challengeService } from '../../api/challengeService';
 
 const ChallengeCreate = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useUserStore();
   const prefillData = location.state;
-  const isPrefilled = !!prefillData;
-
-  const handleGoBack = () => {
-    navigate(-1); // 이전 페이지로 이동
-  };
+  // const isPrefilled = !!prefillData; // ✅ 이 라인을 삭제합니다.
 
   const [formData, setFormData] = useState({
-    title: prefillData?.title || '',
-    author: 'admin',
-    startDate: prefillData?.startDate || '',
-    endDate: prefillData?.endDate || '',
-    type: prefillData?.type || '장기',
-    points: prefillData?.points || '',
+    challengeTitle: prefillData?.title || '',
+    author: user?.userName || '관리자',
+    challengeStartDate: prefillData?.startDate || '',
+    challengeEndDate: prefillData?.endDate || '',
+    challengePoint: prefillData?.points || 0,
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -44,33 +42,52 @@ const ChallengeCreate = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log({ ...formData, imageFile });
-    alert('챌린지가 생성되었습니다.');
-    navigate('/challenge');
+  const handleSubmit = async () => {
+    if (!user?.userId) {
+      alert('관리자 로그인이 필요합니다.');
+      return;
+    }
+
+    const payload = {
+      userId: user.userId,
+      voteNo: prefillData.voteNo,
+      voteContentNo: prefillData.voteContentNo,
+      challengeTitle: formData.challengeTitle,
+      challengeStartDate: formData.challengeStartDate,
+      challengeEndDate: formData.challengeEndDate,
+      challengePoint: parseInt(formData.challengePoint, 10),
+    };
+    
+    try {
+      await challengeService.createChallenge(payload);
+      alert('챌린지가 성공적으로 생성되었습니다.');
+      navigate('/challenge');
+    } catch (error) {
+      alert('챌린지 생성에 실패했습니다.');
+    }
   };
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+  
   return (
     <MainContent>
       <PageTitle>
         <FaClipboardList /> 챌린지 생성
       </PageTitle>
 
-      {/* --- FormGrid 레이아웃 수정 --- */}
       <FormGrid>
-        {/* 제목 필드가 한 줄을 모두 차지하도록 수정 */}
         <FormGroup style={{ gridColumn: '1 / -1' }}>
           <Label>제목</Label>
-          <Input name="title" value={formData.title} onChange={handleInputChange} />
+          <Input name="challengeTitle" value={formData.challengeTitle} onChange={handleInputChange} />
         </FormGroup>
 
-        {/* 작성자 필드 */}
         <FormGroup>
           <Label>작성자</Label>
           <Input name="author" value={formData.author} readOnly />
         </FormGroup>
 
-        {/* 이미지 첨부 필드가 나머지 공간을 차지하도록 수정 */}
         <FormGroup style={{ gridColumn: '2 / 4' }}>
           <Label>대표 이미지</Label>
           <FileWrapper>
@@ -85,53 +102,23 @@ const ChallengeCreate = () => {
           <DateWrapper>
             <Input
               type="date"
-              name="startDate"
-              value={formData.startDate}
+              name="challengeStartDate"
+              value={formData.challengeStartDate}
               onChange={handleInputChange}
-              readOnly={isPrefilled}
             />
             <span>–</span>
             <Input
               type="date"
-              name="endDate"
-              value={formData.endDate}
+              name="challengeEndDate"
+              value={formData.challengeEndDate}
               onChange={handleInputChange}
-              readOnly={isPrefilled}
             />
           </DateWrapper>
         </FormGroup>
 
         <FormGroup>
-          <Label>유형</Label>
-          <RadioWrapper>
-            <RadioLabel disabled={isPrefilled}>
-              <input
-                type="radio"
-                name="type"
-                value="장기"
-                checked={formData.type === '장기'}
-                onChange={handleInputChange}
-                disabled={isPrefilled}
-              />{' '}
-              장기
-            </RadioLabel>
-            <RadioLabel disabled={isPrefilled}>
-              <input
-                type="radio"
-                name="type"
-                value="단기"
-                checked={formData.type === '단기'}
-                onChange={handleInputChange}
-                disabled={isPrefilled}
-              />{' '}
-              단기
-            </RadioLabel>
-          </RadioWrapper>
-        </FormGroup>
-
-        <FormGroup>
           <Label>포인트</Label>
-          <Input name="points" value={formData.points} onChange={handleInputChange} readOnly={isPrefilled} />
+          <Input name="challengePoint" type="number" value={formData.challengePoint} onChange={handleInputChange} />
         </FormGroup>
       </FormGrid>
 
@@ -141,9 +128,9 @@ const ChallengeCreate = () => {
           <ChellengeCard>
             <CardImage src={previewUrl} alt="미리보기" />
             <CardContent>
-              <CardTitle>이름: {formData.title}</CardTitle>
+              <CardTitle>이름: {formData.challengeTitle}</CardTitle>
               <CardPeriod>
-                기간: {formData.startDate?.replaceAll('-', '.')} - {formData.endDate?.replaceAll('-', '.')}
+                기간: {formData.challengeStartDate?.replaceAll('-', '.')} - {formData.challengeEndDate?.replaceAll('-', '.')}
               </CardPeriod>
               <CardCompletion>완료: 0</CardCompletion>
               <ProgressBarContainer>
@@ -163,7 +150,7 @@ const ChallengeCreate = () => {
   );
 };
 
-// --- Styled Components (변경 없음) ---
+// --- Styled Components ---
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -215,19 +202,7 @@ const DateWrapper = styled.div`
   align-items: center;
   gap: 10px;
 `;
-const RadioWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  height: 41px;
-`;
-const RadioLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: ${(props) => (props.disabled ? '#aaa' : 'inherit')};
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'default')};
-`;
+
 const PreviewSection = styled.div`
   margin-top: 40px;
 `;
