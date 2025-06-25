@@ -57,4 +57,14 @@ export const workationService = {
       throw error;
     }
   },
+
+  workationSubList: async(companyCode) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.WORKATION.SUBLIST}?companyCode=${companyCode}`);
+      return response.data;
+    } catch (error) {
+      console.error(' 워케이션 리스트 조회 실패:', error);
+      throw error;
+    }
+  }
 };

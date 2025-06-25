@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaClipboardCheck } from 'react-icons/fa';
 // MainContent를 BaseMainContent로 가져와서 확장합니다.
 import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import useUserStore from '../../Store/useStore';
+import { workationService } from '../../api/workation';
 
 // 1. 스크롤 제거를 위해 기존 MainContent를 확장하고 min-height를 auto로 변경
 const MainContent = styled(BaseMainContent)`
@@ -24,6 +26,7 @@ const mockData = [
 ];
 
 const WorkationAdmin = () => {
+  const { user } = useUserStore();
   const [requests, setRequests] = useState(mockData);
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -36,6 +39,22 @@ const WorkationAdmin = () => {
       setSelectedIds([]);
     }
   };
+
+  const [workationData, setWorkationData] = useState([]);
+  useEffect(() => {
+    const workationSubList = async () => {
+      try {
+        const data = await workationService.workationSubList(user.companyCode);
+        console.log('워케이션 신청 리스트:', data);
+
+        setWorkationData(data);
+      } catch (error) {
+        console.error('워케이션 신청 리스트 불러오기 실패:', error.message);
+      }
+    };
+    workationSubList;
+    console.log(workationData);
+  }, []);
 
   // 개별 선택/해제 핸들러
   const handleSelectSingle = (id) => {
@@ -75,7 +94,7 @@ const WorkationAdmin = () => {
             <TableHeader>번호 ↓</TableHeader>
             <TableHeader>일정</TableHeader>
             <TableHeader>이름</TableHeader>
-            <TableHeader>장소</TableHeader>
+            <TableHeader>제목</TableHeader>
             <TableHeader>사유</TableHeader>
             <TableHeader>상태 ↓</TableHeader>
           </tr>

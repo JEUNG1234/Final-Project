@@ -4,6 +4,7 @@ package com.kh.sowm.dto;
 import com.kh.sowm.entity.SubmitWorkation;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
+import com.kh.sowm.entity.WorkationImage;
 import com.kh.sowm.entity.WorkationLocation;
 
 import java.util.List;
@@ -23,6 +24,17 @@ public class WorkationDto {
 
     }
 
+    //이미지 디테일용  dto
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class WorkationImgDto{
+        private String changedName;
+        private String tab;
+    }
+
     //워케이션 디테일용 정보 전부 가져오기 dto
     @Getter
     @Setter
@@ -31,13 +43,11 @@ public class WorkationDto {
     @Builder
     public static class ResponseDto {
         private String workationTitle;
-        private String placeImage;
         private String address;
         private String placeInfo;
         private String feature;
         private LocalDate workationStartDate;
         private LocalDate workationEndDate;
-        private String facilityImage;
         private String facilityInfo;
         private String openHours;
         private String spaceType;
@@ -51,6 +61,10 @@ public class WorkationDto {
         private double latitude;
         private double longitude;
         private String userId;
+        private String changeName;
+        private String tab;
+        private List<WorkationImgDto> workationImages;
+
 
 
         public static ResponseDto toDto(Workation workation) {
@@ -74,11 +88,16 @@ public class WorkationDto {
                     .peopleMax(workation.getPeopleMax())
                     .url(workation.getURL())
                     .precautions(workation.getPrecautions())
+                    .workationImages(
+                            workation.getWorkationImages().stream()
+                                    .map(img -> new WorkationImgDto(img.getChangedName(), img.getTab().name()))
+                                    .toList()
+                    )
                     .build();
         }
     }
 
-    //워케이션 정보 생성요 dto
+    //워케이션 정보 생성용 dto
     @Getter
     @Setter
     @AllArgsConstructor
@@ -128,7 +147,6 @@ public class WorkationDto {
         private String tab;
     }
 
-
     //워케이션 정보 생성용 dto
     @Getter
     @Setter
@@ -139,8 +157,7 @@ public class WorkationDto {
         private LocationsDto location;
         private String userId;
         private List<WorkationImageDto> images;
-
-
+        private List<String> selectedDays;
 
         public Workation toWorkationEntity(User user) {
             return Workation.builder()
@@ -186,9 +203,12 @@ public class WorkationDto {
         private int peopleMax;
         private LocalDate workationStartDate;
         private LocalDate workationEndDate;
+        private String placeImage;
         //        private String placeImage; 이미지는 추후에 추가 예정
 
-        public WorkationBasicDto(Long locationNo, String address, String workationTitle, String userId, int peopleMin, int peopleMax, LocalDate workationStartDate, LocalDate workationEndDate) {
+        public WorkationBasicDto(Long locationNo, String address, String workationTitle, String userId, int peopleMin,
+                                 int peopleMax, LocalDate workationStartDate, LocalDate workationEndDate,
+                                 String placeImage) {
             this.locationNo = locationNo;
             this.workationTitle = workationTitle;
             this.address = address;
@@ -197,10 +217,30 @@ public class WorkationDto {
             this.peopleMax = peopleMax;
             this.workationStartDate = workationStartDate;
             this.workationEndDate = workationEndDate;
+            this.placeImage = placeImage;
 
         }
 
+        public static WorkationBasicDto from(Workation workation) {
+            // PLACE 타입의 이미지 중 첫 번째 이미지 가져오기
+            String placeImage = workation.getWorkationImages().stream()
+                    .filter(img -> img.getTab() == WorkationImage.Tab.PLACE)
+                    .map(WorkationImage::getChangedName) // 또는 getPath 등 경로/URL로
+                    .findFirst()
+                    .orElse(null);
 
+            return WorkationBasicDto.builder()
+                    .locationNo(workation.getWorkationLocation().getLocationNo())
+                    .workationTitle(workation.getWorkationTitle())
+                    .address(workation.getWorkationLocation().getAddress())
+                    .userId(workation.getUser().getUserId())
+                    .peopleMin(workation.getPeopleMin())
+                    .peopleMax(workation.getPeopleMax())
+                    .workationStartDate(workation.getWorkationStartDate())
+                    .workationEndDate(workation.getWorkationEndDate())
+                    .placeImage(placeImage)
+                    .build();
+        }
     }
 
     //워케이션 신청용 dto
@@ -226,10 +266,7 @@ public class WorkationDto {
                     .endDate(this.endDate)
                     .user(user)
                     .build();
-
-
         }
-
     }
 
     @Getter
@@ -364,6 +401,38 @@ public class WorkationDto {
     @Builder
     public static class WorkationNoDto {
         private Long workationNo;
+
+    }
+
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class WorkationSubListDto {
+        private Long workationNo;
+        private String workationTitle;
+        private String userId;
+        private int peopleMax;
+        private LocalDate workationStartDate;
+        private LocalDate workationEndDate;
+        private String content;
+        private String status;
+
+        public static WorkationSubListDto dto(SubmitWorkation workation) {
+            return WorkationSubListDto.builder()
+                    .workationNo(workation.getWorkationSubNo())
+                    .workationTitle(workation.getWorkation().getWorkationTitle())
+                    .userId(workation.getUser().getUserId())
+                    .workationStartDate(workation.getStartDate())
+                    .workationEndDate(workation.getEndDate())
+                    .peopleMax(workation.getPeopleMax())
+                    .content(workation.getContent())
+                    .status(workation.getStatus().toString())
+                    .build();
+        }
+
 
     }
 

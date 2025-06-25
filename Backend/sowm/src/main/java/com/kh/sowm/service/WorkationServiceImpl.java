@@ -2,6 +2,7 @@ package com.kh.sowm.service;
 
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.entity.DayOff;
 import com.kh.sowm.entity.SubmitWorkation;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
@@ -9,6 +10,7 @@ import com.kh.sowm.entity.WorkationImage;
 import com.kh.sowm.entity.WorkationImage.Tab;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
+import com.kh.sowm.repository.DayOffRepository;
 import com.kh.sowm.repository.UserRepository;
 import com.kh.sowm.repository.WorkationImageRepository;
 import com.kh.sowm.repository.WorkationLocationRepository;
@@ -30,6 +32,7 @@ public class WorkationServiceImpl implements WorkationService {
     private final UserRepository userRepository;
     private final WorkationLocationRepository workationLocationRepository;
     private final WorkationImageRepository workationImageRepository;
+    private final DayOffRepository dayOffRepository;
 
     //워케이션 리스트 조회용
     @Override
@@ -37,16 +40,25 @@ public class WorkationServiceImpl implements WorkationService {
         List<Workation> workations = workationRepository.findByStatus(CommonEnums.Status.Y, companyCode);
 
         List<WorkationDto.WorkationBasicDto> dtoList = workations.stream()
-                .map(w -> new WorkationDto.WorkationBasicDto(
-                        w.getWorkationLocation().getLocationNo(),
-                        w.getWorkationLocation().getAddress(),
-                        w.getWorkationTitle(),
-                        w.getUser().getUserId(),
-                        w.getPeopleMin(),
-                        w.getPeopleMax(),
-                        w.getWorkationStartDate(),
-                        w.getWorkationEndDate()
-                ))
+                .map(w -> {
+                    String placeImage = w.getWorkationImages().stream()
+                            .filter(img -> img.getTab() == WorkationImage.Tab.PLACE)
+                            .map(WorkationImage::getChangedName)
+                            .findFirst()
+                            .orElse(null);
+
+                    return new WorkationDto.WorkationBasicDto(
+                            w.getWorkationLocation().getLocationNo(),
+                            w.getWorkationLocation().getAddress(),
+                            w.getWorkationTitle(),
+                            w.getUser().getUserId(),
+                            w.getPeopleMin(),
+                            w.getPeopleMax(),
+                            w.getWorkationStartDate(),
+                            w.getWorkationEndDate(),
+                            placeImage
+                    );
+                })
                 .toList();
 
         return ResponseEntity.ok(dtoList);
@@ -68,6 +80,15 @@ public class WorkationServiceImpl implements WorkationService {
         WorkationLocation savedLocation = workationLocationRepository.save(location);
         workation.setWorkationLocation(savedLocation);
         Workation savedWorkation = workationRepository.save(workation);
+        if (request.getSelectedDays() != null) {
+            for (String day : request.getSelectedDays()) {
+                DayOff dayOff = DayOff.builder()
+                        .dayOff(day)
+                        .workation(savedWorkation)
+                        .build();
+                dayOffRepository.save(dayOff);
+            }
+        }
 
         if (request.getImages() != null && !request.getImages().isEmpty()) {
             for (WorkationDto.WorkationImageDto imageDto : request.getImages()) {
@@ -86,7 +107,7 @@ public class WorkationServiceImpl implements WorkationService {
             }
 //        workationLocationRepository.save(location);
 
-            return WorkationDto.ResponseDto.toDto(workation);
+            return WorkationDto.ResponseDto.toDto(savedWorkation);
 
     }
 

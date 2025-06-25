@@ -63,4 +63,14 @@ public class WorkationController {
         Workation deleted = workationService.delete(workationNo);
         return WorkationDto.ResponseDto.toDto(deleted);
     }
+
+    //워케이션 리스트 조회
+    @GetMapping("/sublist")
+    public ResponseEntity<List<WorkationDto.WorkationBasicDto>> list(@RequestParam String companyCode) {
+
+        return workationService.workationList(companyCode);
+    }
+
+
+
 }

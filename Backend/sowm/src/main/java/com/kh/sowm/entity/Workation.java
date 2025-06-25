@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 
 @Getter
@@ -78,6 +80,14 @@ public class Workation {
     @OneToOne
     @JoinColumn(name = "LOCATION_NO")
     private WorkationLocation workationLocation;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "workation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<WorkationImage> workationImages = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "workation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DayOff> dayOffs = new ArrayList<>();
 
 
 
