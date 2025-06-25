@@ -13,14 +13,17 @@ import {
   PageTitle,
 } from '../../styles/common/MainContentLayout';
 import dayjs from 'dayjs';
-import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
 import useUserStore from '../../Store/useStore';
 
 const CommunityBoard = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
   const location = useLocation();
+
+  // 실제 게시글 리스트
   const [posts, setPosts] = useState([]);
+
+  // 페이징 정보
   const [pageInfo, setPageInfo] = useState({
     currentPage: 0,
     totalPage: 0,
@@ -28,13 +31,20 @@ const CommunityBoard = () => {
     hasNext: false,
     hasPrevious: false,
   });
+
+  // 카테고리 목록
   const [categories, setCategories] = useState([]);
+
+  // **입력용 상태 (검색 input과 바인딩)**
+  const [inputTitle, setInputTitle] = useState('');
+  const [inputWriter, setInputWriter] = useState('');
+  const [inputCategory, setInputCategory] = useState('');
+
+  // **실제 검색 조건 상태 (API 호출용)**
   const [searchTitle, setSearchTitle] = useState('');
   const [searchWriter, setSearchWriter] = useState('');
   const [searchCategory, setSearchCategory] = useState('');
 
-  // fetchPosts 함수를 useCallback으로 감싸서 함수 재생성을 최적화합니다.
-  // 이 함수는 항상 최신 상태 값을 파라미터로 명시적으로 받아 사용하도록 합니다.
   const fetchPosts = useCallback(
     async (page, title, writer, categoryNo) => {
       try {
@@ -47,32 +57,28 @@ const CommunityBoard = () => {
           categoryNo: categoryNo,
           companyCode: user.companyCode,
         });
-        console.log('불러온 게시글:', response.data);
         const { content, currentPage, totalCount, hasNext, hasPrevious, totalPage } = response.data;
         setPosts(content);
         setPageInfo({
-          currentPage: currentPage,
-          totalPage: totalPage,
-          totalCount: totalCount,
-          hasNext: hasNext,
-          hasPrevious: hasPrevious,
+          currentPage,
+          totalPage,
+          totalCount,
+          hasNext,
+          hasPrevious,
         });
       } catch (error) {
         console.error('게시글 불러오기 실패:', error);
       }
     },
-    [setPosts, setPageInfo] // fetchPosts는 setPosts, setPageInfo setter 함수에만 의존합니다.
+    [user.companyCode]
   );
 
-  // 게시글 데이터를 불러오는 useEffect:
-  // pageInfo.currentPage, searchTitle, searchWriter, searchCategory, fetchPosts가 변경될 때마다 실행
+  // 검색 조건, 페이지 변경 시 게시글 재조회
   useEffect(() => {
-    // fetchPosts의 인자로 현재의 상태값을 전달합니다.
     fetchPosts(pageInfo.currentPage, searchTitle, searchWriter, searchCategory);
   }, [fetchPosts, pageInfo.currentPage, searchTitle, searchWriter, searchCategory, location.state?.refreshBoardList]);
 
-  // 카테고리 데이터 가져오기 (컴포넌트 마운트 시 1회만)
-
+  // 카테고리 목록 1회 조회
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -82,22 +88,20 @@ const CommunityBoard = () => {
         console.error('카테고리 불러오기 실패:', err);
       }
     };
-
     fetchCategories();
   }, []);
 
-  // 검색 버튼 클릭 핸들러
+  // 검색 버튼 클릭 시 실제 검색 조건을 업데이트하여 검색 실행
   const handleSearch = () => {
-    // currentPage를 0으로 설정하면 위의 useEffect가 변경을 감지하여 fetchPosts를 호출합니다.
+    setSearchTitle(inputTitle);
+    setSearchWriter(inputWriter);
+    setSearchCategory(inputCategory);
     setPageInfo((prev) => ({ ...prev, currentPage: 0 }));
-    // ⚠️ 이전 코드: fetchPosts(0, searchTitle, searchWriter, searchCategory); // 이 줄을 제거했습니다.
   };
 
-  // 페이지 버튼 클릭 핸들러
+  // 페이지 버튼 클릭 시 페이지 변경
   const handlePageChange = (page) => {
-    // currentPage를 변경하면 위의 useEffect가 변경을 감지하여 fetchPosts를 호출합니다.
     setPageInfo((prev) => ({ ...prev, currentPage: page }));
-    // ⚠️ 이전 코드: fetchPosts(page, searchTitle, searchWriter, searchCategory); // 이 줄을 제거했습니다.
   };
 
   return (
@@ -108,7 +112,7 @@ const CommunityBoard = () => {
       </PageTitle>
 
       <BoardActions>
-        <CategorySelect value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)}>
+        <CategorySelect value={inputCategory} onChange={(e) => setInputCategory(e.target.value)}>
           <option value="">전체</option>
           {categories.map((cat) => (
             <option key={cat.categoryNo} value={cat.categoryNo}>
@@ -116,12 +120,15 @@ const CommunityBoard = () => {
             </option>
           ))}
         </CategorySelect>
-        <SearchInput placeholder="제목" value={searchTitle} onChange={(e) => setSearchTitle(e.target.value)} />
-        <SearchInput placeholder="작성자" value={searchWriter} onChange={(e) => setSearchWriter(e.target.value)} />
+
+        <SearchInput placeholder="제목" value={inputTitle} onChange={(e) => setInputTitle(e.target.value)} />
+
+        <SearchInput placeholder="작성자" value={inputWriter} onChange={(e) => setInputWriter(e.target.value)} />
 
         <ActionButton primary onClick={handleSearch}>
           <FaSearch /> 조회
         </ActionButton>
+
         <ActionButton onClick={() => navigate('/addboard')}>
           <FaPlus /> 게시글 작성
         </ActionButton>
@@ -169,7 +176,6 @@ const CommunityBoard = () => {
           <PageButton disabled={!pageInfo.hasPrevious} onClick={() => handlePageChange(pageInfo.currentPage - 1)}>
             &lt;
           </PageButton>
-          {/* totalPage를 사용하여 페이지 버튼을 렌더링합니다. */}
           {[...Array(pageInfo.totalPage)].map((_, i) => (
             <PageButton
               key={i}

@@ -47,7 +47,7 @@ public class BoardController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> createBoard(@ModelAttribute BoardDto.Create boardCreate) throws IOException {
+    public ResponseEntity<Long> createBoard(@RequestBody BoardDto.Create boardCreate) throws IOException {
         return ResponseEntity.ok(boardService.createBoard(boardCreate));
     }
 
