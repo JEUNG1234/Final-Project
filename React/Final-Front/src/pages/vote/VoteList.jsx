@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { FaPoll } from 'react-icons/fa';
+import { FaPoll, FaTrashAlt } from 'react-icons/fa'; // FaTrashAlt 아이콘 추가
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
 import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { useNavigate } from 'react-router-dom';
 import { voteService } from '../../api/voteService';
 import useUserStore from '../../Store/useStore';
+import { ClipLoader } from 'react-spinners';
 
 const VoteList = () => {
   const [voteList, setVoteList] = useState([]);
@@ -13,24 +14,29 @@ const VoteList = () => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const navigate = useNavigate();
   const { user } = useUserStore();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchVotes = async () => {
+    if (!user?.userId) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const data = await voteService.getAllVotes(user.userId);
+      setVoteList(data);
+    } catch (error) {
+      console.error('투표 목록 조회 실패:', error);
+      alert('투표 목록을 불러오는 데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchVotes = async () => {
-      if (!user?.userId) {
-        // alert('로그인이 필요합니다.');
-        // navigate('/login');
-        return;
-      }
-      try {
-        const data = await voteService.getAllVotes(user.userId);
-        setVoteList(data);
-      } catch (error) {
-        console.error('투표 목록 조회 실패:', error);
-        alert('투표 목록을 불러오는 데 실패했습니다.');
-      }
-    };
-    fetchVotes();
-  }, [user, navigate]);
+    if (user?.userId) {
+      fetchVotes();
+    }
+  }, [user?.userId]);
 
   const handleToggle = (id) => {
     setOpenId(openId === id ? null : id);
@@ -49,36 +55,45 @@ const VoteList = () => {
     try {
       await voteService.castVote(voteNo, selectedOptionNo, user.userId);
       alert('투표가 완료되었습니다!');
-      // Optimistic UI Update: 서버를 기다리지 않고 UI를 먼저 업데이트
-      setVoteList((prevList) =>
-        prevList.map((vote) =>
-          vote.voteNo === voteNo
-            ? {
-                ...vote,
-                isVoted: true,
-                totalVotes: vote.totalVotes + 1,
-                options: vote.options.map((opt) =>
-                  opt.voteContentNo === selectedOptionNo ? { ...opt, voteCount: opt.voteCount + 1 } : opt
-                ),
-              }
-            : vote
-        )
-      );
+      fetchVotes();
     } catch (error) {
       alert(error.response?.data?.message || '투표 처리 중 오류가 발생했습니다.');
       console.error('투표 실패:', error);
     }
   };
+  
+  // ✅ [추가] 투표 삭제 핸들러 함수
+  const handleDeleteVote = async (voteNo) => {
+    if (window.confirm(`정말로 ${voteNo}번 투표를 삭제하시겠습니까?`)) {
+      try {
+        await voteService.deleteVote(voteNo, user.userId);
+        alert('투표가 삭제되었습니다.');
+        fetchVotes(); // 목록 새로고침
+      } catch (error) {
+        alert(error.response?.data?.message || '투표 삭제 중 오류가 발생했습니다.');
+        console.error('투표 삭제 실패:', error);
+      }
+    }
+  };
 
-  // D-day 계산 함수
   const calculateDday = (endDate) => {
     const end = new Date(endDate);
-    const now = new Date();
-    const diff = end.getTime() - now.getTime();
-    if (diff < 0) return '종료';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = end.getTime() - today.getTime();
     const dDay = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return `D-${dDay}`;
+    return dDay;
   };
+
+  if (isLoading) {
+    return (
+      <MainContent>
+        <LoadingContainer>
+          <ClipLoader color="#007bff" size={50} />
+        </LoadingContainer>
+      </MainContent>
+    );
+  }
 
   return (
     <MainContent>
@@ -90,56 +105,113 @@ const VoteList = () => {
         <Description>모든 응답은 익명으로 처리됩니다. 마음 편히 의견을 들려주세요.</Description>
       </ComponentHeader>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate('/votecreate')}>투표 생성</CreateButton>
+        {/* ✅ [수정] 관리자일 때만 투표 생성 버튼이 보이도록 변경 */}
+        {user?.jobCode === 'J2' && <CreateButton onClick={() => navigate('/votecreate')}>투표 생성</CreateButton>}
       </ButtonContainer>
       <VoteListWrapper>
-        {voteList.map((vote) => (
-          <VoteItem key={vote.voteNo}>
-            <VoteHeader onClick={() => handleToggle(vote.voteNo)}>
-              <VoteTitleWrapper>
-                <VoteNumber>{vote.voteNo}</VoteNumber>
-                <VoteTitle>{vote.voteTitle}</VoteTitle>
-                <Tag type={vote.voteType}>{vote.voteType === 'LONG' ? '장기' : '단기'}</Tag>
-              </VoteTitleWrapper>
-              <ActionWrapper>
-                <ResultButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/voteresult/${vote.voteNo}`);
-                  }}
-                >
-                  결과보기
-                </ResultButton>
-                <Dday>{calculateDday(vote.voteEndDate)}</Dday>
-                {openId === vote.voteNo ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
-              </ActionWrapper>
-            </VoteHeader>
-            <OptionContainer isOpen={openId === vote.voteNo}>
-              {vote.options.map((option, index) => (
-                <OptionLabel key={index}>
-                  <input
-                    type="radio"
-                    name={`vote_option_${vote.voteNo}`}
-                    value={option.voteContentNo}
-                    checked={selectedOptions[vote.voteNo] === option.voteContentNo}
-                    onChange={() => handleOptionChange(vote.voteNo, option.voteContentNo)}
-                    disabled={vote.isVoted}
-                  />
-                  {option.voteContent} ({option.voteCount}표)
-                </OptionLabel>
-              ))}
-              <SubmitButton onClick={() => handleVote(vote.voteNo)} disabled={vote.isVoted}>
-                {vote.isVoted ? '투표 완료' : '투표하기'}
-              </SubmitButton>
-            </OptionContainer>
-          </VoteItem>
-        ))}
+        {voteList.map((vote) => {
+          const dDay = calculateDday(vote.voteEndDate);
+          const isFinished = dDay < 0;
+          const hasVoted = !!vote.votedOptionNo;
+
+          return (
+            <VoteItem key={vote.voteNo}>
+              <VoteHeader onClick={() => handleToggle(vote.voteNo)}>
+                <VoteTitleWrapper>
+                  <VoteNumber>{vote.voteNo}</VoteNumber>
+                  <VoteTitle>{vote.voteTitle}</VoteTitle>
+                  <TagGroup>
+                    <Tag tagType="type" type={vote.voteType}>{vote.voteType === 'LONG' ? '장기' : '단기'}</Tag>
+                    <Tag tagType="points">{vote.points}P</Tag>
+                    <Tag tagType="privacy">{vote.isAnonymous ? '익명' : '비익명'}</Tag>
+                  </TagGroup>
+                </VoteTitleWrapper>
+                <ActionWrapper>
+                  <ResultButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/voteresult/${vote.voteNo}`);
+                    }}
+                  >
+                    결과보기
+                  </ResultButton>
+                  
+                  {/* ✅ [추가] 관리자일 때만 삭제 버튼 렌더링 */}
+                  {user?.jobCode === 'J2' && (
+                    <DeleteButton
+                      onClick={(e) => {
+                        e.stopPropagation(); // 이벤트 버블링 방지
+                        handleDeleteVote(vote.voteNo);
+                      }}
+                    >
+                      <FaTrashAlt />
+                    </DeleteButton>
+                  )}
+
+                  <Dday>{isFinished ? '종료' : `D-${dDay}`}</Dday>
+                  {openId === vote.voteNo ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
+                </ActionWrapper>
+              </VoteHeader>
+              <OptionContainer $isOpen={openId === vote.voteNo}>
+                {vote.options.map((option, index) => (
+                  <OptionLabel key={index}>
+                    <input
+                      type="radio"
+                      name={`vote_option_${vote.voteNo}`}
+                      value={option.voteContentNo}
+                      checked={
+                        hasVoted
+                          ? vote.votedOptionNo === option.voteContentNo
+                          : selectedOptions[vote.voteNo] === option.voteContentNo
+                      }
+                      onChange={() => handleOptionChange(vote.voteNo, option.voteContentNo)}
+                      disabled={hasVoted || isFinished}
+                    />
+                    {option.voteContent}
+                  </OptionLabel>
+                ))}
+                <SubmitButton onClick={() => handleVote(vote.voteNo)} disabled={hasVoted || isFinished}>
+                  {isFinished ? '투표 종료' : hasVoted ? '투표 완료' : '투표하기'}
+                </SubmitButton>
+              </OptionContainer>
+            </VoteItem>
+          );
+        })}
       </VoteListWrapper>
     </MainContent>
   );
 };
 
-// --- Styled Components (이하 동일) ---
+// --- Styled Components ---
+
+// ... (기존 Styled Components는 변경 없음) ...
+
+// ✅ [추가] 삭제 버튼 스타일
+const DeleteButton = styled.button`
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+`;
+
 const MainContent = styled(BaseMainContent)`
   margin: 30px auto;
 `;
@@ -210,7 +282,9 @@ const VoteHeader = styled.div`
 const VoteTitleWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  flex-grow: 1;
+  flex-wrap: wrap;
 `;
 const VoteNumber = styled.span`
   font-size: 18px;
@@ -223,28 +297,49 @@ const VoteTitle = styled.span`
   font-weight: 600;
   color: #333;
 `;
+const TagGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
 const Tag = styled.span`
-  padding: 3px 10px;
-  border-radius: 12px;
+  padding: 4px 12px;
+  border-radius: 14px;
   font-size: 12px;
   font-weight: 700;
-  ${(props) =>
-    props.type === 'LONG' &&
-    css`
-      background-color: #e7f5ee;
-      color: #28a745;
-    `}
-  ${(props) =>
-    props.type === 'SHORT' &&
-    css`
-      background-color: #fff8e1;
-      color: #f59e0b;
-    `}
+  white-space: nowrap;
+
+  ${({ tagType, type }) => {
+    switch (tagType) {
+      case 'type':
+        return type === 'LONG'
+          ? css`
+              background-color: #e7f5ee;
+              color: #28a745;
+            `
+          : css`
+              background-color: #fff8e1;
+              color: #f59e0b;
+            `;
+      case 'points':
+        return css`
+          background-color: #e0f2ff;
+          color: #007bff;
+        `;
+      case 'privacy':
+        return css`
+          background-color: #f3f4f6;
+          color: #6b7280;
+        `;
+      default:
+        return '';
+    }
+  }}
 `;
 const ActionWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px; /* 삭제 버튼 공간 확보를 위해 간격 조정 */
 `;
 const ResultButton = styled.button`
   background-color: #4d8eff;
@@ -266,11 +361,11 @@ const Dday = styled.span`
   color: #333;
 `;
 const OptionContainer = styled.div`
-  padding: ${(props) => (props.isOpen ? '20px 20px 20px 52px' : '0 20px 0 52px')};
+  padding: ${(props) => (props.$isOpen ? '20px 20px 20px 52px' : '0 20px 0 52px')};
   background-color: #f7faff;
   border-top: 1px solid #e9e9e9;
-  max-height: ${(props) => (props.isOpen ? '500px' : '0')};
-  opacity: ${(props) => (props.isOpen ? 1 : 0)};
+  max-height: ${(props) => (props.$isOpen ? '500px' : '0')};
+  opacity: ${(props) => (props.$isOpen ? 1 : 0)};
   overflow: hidden;
   transition: all 0.3s ease-in-out;
   display: flex;

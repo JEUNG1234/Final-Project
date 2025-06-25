@@ -12,10 +12,10 @@ INSERT INTO department (DEPT_CODE, DEPT_NAME) VALUES
 ('D0', '기타부서'),
 ('A', '관리자부서');
 
--- JOB 직급코드
+-- JOB 직급코드 (수정됨)
 INSERT INTO JOB (JOB_CODE, JOB_NAME) VALUES
 ('J0', '외부인'),
-('J1', '개발팀'),
+('J1', '사원'), -- '개발팀' -> '사원' 으로 수정
 ('J2', '관리자'),
 ('J3', '팀장'),
 ('J4', '과장');
