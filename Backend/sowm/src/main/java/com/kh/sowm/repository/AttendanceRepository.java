@@ -4,6 +4,8 @@ import com.kh.sowm.dto.AttendanceDto;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +30,9 @@ public interface AttendanceRepository {
 
 
     Optional<Attendance> findById(Long attendanceNo);
-// 조건으로 직원 출퇴근 정보 확인 , 개발중
-//    List<Attendance> findByFilters(String userName, String deptName, LocalDate date);
+
+    Page<Attendance> findByCompanyCode(String companyCode, Pageable pageable);
+
+    Page<Attendance> findByFilter(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable);
+
 }

@@ -100,6 +100,12 @@ public class Board {
         }
     }
 
+    public void deletedBoard() {
+        if (this.status != null) {
+            this.status = CommonEnums.Status.N;
+        }
+    }
+
 
 
 

@@ -51,6 +51,7 @@ export const API_ENDPOINTS = {
     getAllAttendanceByCompanyCode: '/admin/adminattendance',
     getTodayAttendance: '/admin/adminattendance/today',
     updateAttendTime: '/admin/adminattendance',
+    getMemberAttendance: '/admin/adminattendance/filter',
   },
    VOTES: {
     BASE: '/votes',
@@ -74,5 +75,10 @@ export const API_ENDPOINTS = {
   CATEGORY: {
     BASE: '/categories',
     DETAIL: (id) => `/categories/${id}`,
+  },
+
+  DEPARTMENT: {
+    BASE: '/department',
+    getDepartments: '/department',
   },
 };
