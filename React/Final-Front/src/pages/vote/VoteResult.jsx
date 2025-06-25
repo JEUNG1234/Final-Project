@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
 import { voteService } from '../../api/voteService';
-import useUserStore from '../../Store/useStore'; 
+import useUserStore from '../../Store/useStore';
 import Modal from '../../components/Modal';
 
 const VoteResult = () => {
@@ -39,7 +39,7 @@ const VoteResult = () => {
 
   const handleCreateChallenge = () => {
     if (!resultData || !winningOption) return;
-    
+
     //  챌린지 생성 페이지로 넘겨줄 데이터에 ID값들 추가
     navigate('/challenge/create', {
       state: {
@@ -47,8 +47,9 @@ const VoteResult = () => {
         voteContentNo: winningOption.voteContentNo,
         title: winningOption.voteContent,
         startDate: resultData.voteEndDate, // 투표 종료일을 챌린지 시작일로 제안
-        endDate: resultData.voteEndDate,   // 임시로 시작일과 동일하게 설정
+        endDate: resultData.voteEndDate, // 임시로 시작일과 동일하게 설정
         points: resultData.points,
+        voteType: resultData.voteType, // voteType 추가
       },
     });
   };
@@ -169,6 +170,7 @@ const VoteResult = () => {
   );
 };
 
+// Styled Components.
 const MainContent = styled(BaseMainContent)`
   max-width: 900px;
   margin: 40px auto;

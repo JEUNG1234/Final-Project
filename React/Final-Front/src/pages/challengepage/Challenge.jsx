@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { BsFire } from 'react-icons/bs';
 import {
@@ -6,81 +6,45 @@ import {
   Pagination,
   PageButton,
   MainContent,
-  PageHeader,
   PageTitle,
 } from '../../styles/common/MainContentLayout';
 import { useNavigate } from 'react-router-dom';
 import runningWoman from '../../assets/challengeImg.jpg';
+import { challengeService } from '../../api/challengeService';
 
-const challengeData = [
-  {
-    id: 1,
-    title: '하루에 10000보 걷기',
-    period: '25.06.05 - 25.07.04',
-    completion: 53,
-    achievement: 21.7,
-    img: runningWoman, // 위에서 임포트한 이미지 변수 사용
-  },
-  {
-    id: 2,
-    title: '매일 물 2리터 마시기',
-    period: '25.06.10 - 25.07.10',
-    completion: 15,
-    achievement: 50.0,
-    img: runningWoman,
-  },
-  {
-    id: 3,
-    title: '주 3회 근력 운동',
-    period: '25.06.01 - 25.06.30',
-    completion: 8,
-    achievement: 70.0,
-    img: runningWoman,
-  },
-  {
-    id: 4,
-    title: '하루 한 시간 독서',
-    period: '25.05.20 - 25.06.20',
-    completion: 20,
-    achievement: 85.0,
-    img: runningWoman,
-  },
-  {
-    id: 5,
-    title: '명상 10분',
-    period: '25.06.01 - 25.06.15',
-    completion: 10,
-    achievement: 100.0,
-    img: runningWoman,
-  },
-  {
-    id: 6,
-    title: '건강 식단 지키기',
-    period: '25.06.01 - 25.07.01',
-    completion: 2,
-    achievement: 6.0,
-    img: runningWoman,
-  },
-  {
-    id: 7,
-    title: '건강 식단 지키기',
-    period: '25.06.01 - 25.07.01',
-    completion: 2,
-    achievement: 6.0,
-    img: runningWoman,
-  },
-  {
-    id: 8,
-    title: '건강 식단 지키기',
-    period: '25.06.01 - 25.07.01',
-    completion: 2,
-    achievement: 6.0,
-    img: runningWoman,
-  },
-];
-
-const Chellenge = () => {
+const Challenge = () => {
   const navigate = useNavigate();
+  const [challenges, setChallenges] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    currentPage: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
+
+  const fetchChallenges = async (page) => {
+    try {
+      const data = await challengeService.getAllChallenges(page);
+      setChallenges(data.content);
+      setPageInfo({
+        currentPage: data.currentPage,
+        totalPages: data.totalPage,
+        hasNext: data.hasNext,
+        hasPrevious: data.hasPrevious,
+      });
+    } catch (error) {
+      console.error('챌린지 목록을 불러오는데 실패했습니다.', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchChallenges(0);
+  }, []);
+
+  const handlePageChange = (page) => {
+    fetchChallenges(page);
+  };
+
   return (
     <MainContent>
       <PageTitle>
@@ -92,37 +56,47 @@ const Chellenge = () => {
         <MyChallengeButton onClick={() => navigate('/myChallenge')}>MY 챌린지</MyChallengeButton>
       </MyChallengeAera>
       <ContentBody>
-        {/* challengeData 배열을 map 함수로 순회하여 ChellengeCard 렌더링 */}
-        {challengeData.map((challenge) => (
-          <ChallengeCard key={challenge.id} onClick={() => navigate(`/challenge/${challenge.id}`)}>
+        {challenges.map((challenge) => (
+          <ChallengeCard key={challenge.challengeNo} onClick={() => navigate(`/challenge/${challenge.challengeNo}`)}>
             <CardImageArea>
-              <CardImage src={challenge.img} alt={challenge.title} />
+              <CardImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
             </CardImageArea>
             <CardContent>
-              <CardTitle>챌린지: {challenge.title}</CardTitle>
-              <CardPeriod>기간 :{challenge.period}</CardPeriod>
-              <CardCompletion>완료 :{challenge.completion}</CardCompletion>
-              <ProgressBarContainer>
-                <ProgressBarFill percentage={challenge.achievement} />
-              </ProgressBarContainer>
-              <CardAchievement>참여율 :{challenge.achievement}%</CardAchievement>
+              <CardTitle>챌린지: {challenge.challengeTitle}</CardTitle>
+              <CardPeriod>
+                기간 : {challenge.challengeStartDate} ~ {challenge.challengeEndDate}
+              </CardPeriod>
+              {/* 포인트 표시 추가 */}
+              <CardCompletion>포인트 : {challenge.challengePoint}P</CardCompletion>
+              <CardCompletion>참여인원: {challenge.participantCount}명</CardCompletion>
             </CardContent>
           </ChallengeCard>
         ))}
       </ContentBody>
       <BottomBar>
         <Pagination>
-          <PageButton>&lt;</PageButton>
-          <PageButton className="active">1</PageButton>
-          <PageButton>2</PageButton>
-          <PageButton>3</PageButton>
-          <PageButton>&gt;</PageButton>
+          <PageButton onClick={() => handlePageChange(pageInfo.currentPage - 1)} disabled={!pageInfo.hasPrevious}>
+            &lt;
+          </PageButton>
+          {Array.from({ length: pageInfo.totalPages }, (_, i) => (
+            <PageButton
+              key={i}
+              className={pageInfo.currentPage === i ? 'active' : ''}
+              onClick={() => handlePageChange(i)}
+            >
+              {i + 1}
+            </PageButton>
+          ))}
+          <PageButton onClick={() => handlePageChange(pageInfo.currentPage + 1)} disabled={!pageInfo.hasNext}>
+            &gt;
+          </PageButton>
         </Pagination>
       </BottomBar>
     </MainContent>
   );
 };
 
+// --- Styled Components --- (이하 생략)
 const MyChallengeAera = styled.div`
   width: 100%;
   height: 50px;
@@ -243,28 +217,4 @@ const CardCompletion = styled.p`
   margin: 0;
 `;
 
-const ProgressBarContainer = styled.div`
-  width: 100%;
-  height: 8px; /* 기존 8px에서 줄임 */
-  background-color: #e0e0e0;
-  border-radius: 4px;
-  margin-top: 4px; /* 기존 5px에서 줄임 */
-  overflow: hidden;
-`;
-
-const ProgressBarFill = styled.div`
-  height: 100%;
-  width: ${(props) => props.percentage || 0}%;
-  background-color: #4d8eff;
-  border-radius: 4px;
-`;
-
-const CardAchievement = styled.p`
-  font-size: 12px; /* 기존 12px에서 줄임 */
-  font-weight: 500;
-  color: #666;
-  margin: 4px 0 0 0; /* 기존 5px 0 0 0에서 줄임 */
-  text-align: right;
-`;
-
-export default Chellenge;
+export default Challenge;
