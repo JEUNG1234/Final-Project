@@ -16,7 +16,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/boards")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class BoardController {
 
     private final BoardService boardService;
@@ -34,10 +34,11 @@ public class BoardController {
             @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable, // sort 필드명 'createdDate'로 수정
             @RequestParam(required = false) String title, // 검색 조건: 제목
             @RequestParam(required = false) String writer, // 검색 조건: 작성자
-            @RequestParam(required = false) Long categoryNo // 검색 조건: 카테고리 번호
+            @RequestParam(required = false) Long categoryNo, // 검색 조건: 카테고리 번호
+            @RequestParam String companyCode
     ) {
         // BoardService의 getBoardList 메서드에 검색 조건 파라미터 전달
-        return ResponseEntity.ok(new PageResponse<>(boardService.getBoardList(pageable, title, writer, categoryNo)));
+        return ResponseEntity.ok(new PageResponse<>(boardService.getBoardList(pageable, title, writer, categoryNo, companyCode)));
     }
 
     @GetMapping("/{id}")
