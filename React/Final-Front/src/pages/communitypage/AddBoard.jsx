@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaComments } from 'react-icons/fa';
-import axios from 'axios';
 import useUserStore from '../../Store/useStore';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
+import BoardAPI from '../../api/board';
+import CategoryAPI from '../../api/category';
 
 const AddBoard = () => {
   const navigate = useNavigate();
@@ -15,35 +16,17 @@ const AddBoard = () => {
   const boardWriter = user?.userName || '';
   const userId = user?.userId || '';
 
-  const [fileName, setFileName] = useState('');
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [content, setContent] = useState('');
-  const [file, setFile] = useState(null);
   const [categories, setCategories] = useState([]); // 🔹 카테고리 목록 상태
 
   // 🔹 카테고리 목록 로딩
   useEffect(() => {
-    axios
-      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CATEGORY.BASE}`)
-      .then((res) => {
-        setCategories(res.data);
-      })
-      .catch((err) => {
-        console.error('카테고리 불러오기 실패:', err);
-      });
+    CategoryAPI.getAllCategories()
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error('카테고리 불러오기 실패:', err));
   }, []);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFile(file);
-      setFileName(file.name);
-    } else {
-      setFile(null);
-      setFileName('');
-    }
-  };
 
   const handleSubmit = async () => {
     if (!title || !category || !content || !userId) {
@@ -51,20 +34,19 @@ const AddBoard = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('boardTitle', title);
-    formData.append('boardContent', content);
-    formData.append('categoryNo', category);
-    formData.append('userId', userId);
-    // 파일 업로드도 추가하려면 아래 주석 해제
-    // if (file) formData.append('file', file);
+    // JSON 객체 생성
+    const postData = {
+      boardTitle: title,
+      boardContent: content,
+      categoryNo: category,
+      userId: userId,
+    };
+
+    console.log('보낼 데이터 (JSON):', postData);
 
     try {
-      await axios.post(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.CREATE}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // JSON 데이터로 요청 (BoardAPI 내부도 JSON 전송하도록 구현되어 있어야 함)
+      await BoardAPI.createBoard(postData);
       alert('게시글 등록 성공!');
       navigate('/communityboard');
     } catch (error) {
