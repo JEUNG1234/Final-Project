@@ -19,7 +19,7 @@ public class MedicalCheckResult {
     @Column(name = "MEDICAL_CHECK_RESULT_NO")
     private Long medicalCheckResultNo;
 
-    @Column(name = "MEDIACAL_CHECK_CREATE_DATE")
+    @Column(name = "MEDICAL_CHECK_CREATE_DATE")
     private LocalDate medicalCheckCreateDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,12 +32,12 @@ public class MedicalCheckResult {
     @Column(name = "MEDICAL_CHECK_TYPE",nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private Type medicalCheckType;
+
+    @Column(name = "GUIDE_MESSAGE", columnDefinition = "TEXT")
+    private String guideMessage;
 //
 //    @OneToMany(mappedBy = "medicalCheckResult", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<MedicalCheckResult> medicalCheckResults = new ArrayList<>();
-
-
-
 
     @PrePersist
     public void prePersist(){
