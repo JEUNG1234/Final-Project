@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface BoardRepository {
 
     // 검색 조건과 페이징을 포함한 게시글 목록 조회 메서드
-    Page<Board> findBoardsByFilters(Pageable pageable, String title, String writer, Long categoryNo, CommonEnums.Status status);
+    Page<Board> findBoardsByFilters(Pageable pageable, String title, String writer, Long categoryNo, String companyCode, CommonEnums.Status status);
 
     // ID로 게시글 조회
     Optional<Board> findById(Long id);
