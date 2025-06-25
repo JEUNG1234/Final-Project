@@ -27,6 +27,8 @@ public class MedicalCheckHeadScore {
     @Column(name = "HEAD_SCORE", nullable = false)
     private Integer headScore;
 
+    @Column(name = "QUESTION_TEXT")
+    private String questionText;
 
     //만약 점수가 null일 시 최소값 1그게 아닐경우 입력한 값 입력
     @PrePersist

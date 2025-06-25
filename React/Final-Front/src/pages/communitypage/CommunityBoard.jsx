@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaComments, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa';
-import axios from 'axios';
+import BoardAPI from '../../api/board';
+import CategoryAPI from '../../api/category';
 import {
   MainContent,
   Pagination,
@@ -13,9 +14,11 @@ import {
 } from '../../styles/common/MainContentLayout';
 import dayjs from 'dayjs';
 import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
+import useUserStore from '../../Store/useStore';
 
 const CommunityBoard = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
   const location = useLocation();
   const [posts, setPosts] = useState([]);
   const [pageInfo, setPageInfo] = useState({
@@ -35,15 +38,14 @@ const CommunityBoard = () => {
   const fetchPosts = useCallback(
     async (page, title, writer, categoryNo) => {
       try {
-        const response = await axios.get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.BASE}`, {
-          params: {
-            page: page,
-            size: 10,
-            sort: 'createdDate,desc',
-            title: title,
-            writer: writer,
-            categoryNo: categoryNo,
-          },
+        const response = await BoardAPI.getBoardList({
+          page: page,
+          size: 10,
+          sort: 'createdDate,desc',
+          title: title,
+          writer: writer,
+          categoryNo: categoryNo,
+          companyCode: user.companyCode,
         });
         console.log('불러온 게시글:', response.data);
         const { content, currentPage, totalCount, hasNext, hasPrevious, totalPage } = response.data;
@@ -70,11 +72,18 @@ const CommunityBoard = () => {
   }, [fetchPosts, pageInfo.currentPage, searchTitle, searchWriter, searchCategory, location.state?.refreshBoardList]);
 
   // 카테고리 데이터 가져오기 (컴포넌트 마운트 시 1회만)
+
   useEffect(() => {
-    axios
-      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CATEGORY.BASE}`)
-      .then((res) => setCategories(res.data))
-      .catch((err) => console.error('카테고리 불러오기 실패:', err));
+    const fetchCategories = async () => {
+      try {
+        const res = await CategoryAPI.getAllCategories();
+        setCategories(res.data);
+      } catch (err) {
+        console.error('카테고리 불러오기 실패:', err);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   // 검색 버튼 클릭 핸들러
@@ -133,19 +142,25 @@ const CommunityBoard = () => {
           </tr>
         </thead>
         <tbody>
-          {posts.map((post) => (
-            <TableRow key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
-              <TableCell tag={post.categoryName === '공지사항'}>{post.categoryName}</TableCell>
-              <TableCell>{post.boardTitle}</TableCell>
-              <TableCell>{post.userName}</TableCell>
-              <TableCell>
-                {post.createdDate === post.updatedDate
-                  ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
-                  : dayjs(post.updatedDate).format('YYYY년 MM월 DD일') + ' (수정됨)'}
-              </TableCell>
-              <TableCell>{post.views}</TableCell>
-            </TableRow>
-          ))}
+          {posts.length === 0 ? (
+            <EmptyRow>
+              <td colSpan="5">게시글이 존재하지 않습니다.</td>
+            </EmptyRow>
+          ) : (
+            posts.map((post) => (
+              <TableRow key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
+                <TableCell tag={post.categoryName === '공지사항'}>{post.categoryName}</TableCell>
+                <TableCell>{post.boardTitle}</TableCell>
+                <TableCell>{post.userName}</TableCell>
+                <TableCell>
+                  {post.createdDate === post.updatedDate
+                    ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
+                    : dayjs(post.updatedDate).format('YYYY년 MM월 DD일') + ' (수정됨)'}
+                </TableCell>
+                <TableCell>{post.views}</TableCell>
+              </TableRow>
+            ))
+          )}
         </tbody>
       </CommunityTable>
 
@@ -297,6 +312,16 @@ const CategorySelect = styled.select`
 
   @media (max-width: 768px) {
     width: 100%;
+  }
+`;
+
+const EmptyRow = styled.tr`
+  td {
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 1.1rem;
+    color: #999;
+    font-weight: 500;
   }
 `;
 

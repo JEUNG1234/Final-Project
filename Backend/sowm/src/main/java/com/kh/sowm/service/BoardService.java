@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public interface BoardService {
     // getBoardList 메서드에 검색 조건 (title, writer, categoryNo) 파라미터 추가
-    Page<BoardDto.Response> getBoardList(Pageable pageable, String title, String writer, Long categoryNo);
+    Page<BoardDto.Response> getBoardList(Pageable pageable, String title, String writer, Long categoryNo, String companyCode);
 
     BoardDto.Response getBoardDetail(Long boardNo);
 

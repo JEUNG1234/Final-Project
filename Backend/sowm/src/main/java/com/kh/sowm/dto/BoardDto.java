@@ -54,6 +54,7 @@ public class BoardDto {
         private String categoryName;
         private String userId;
         private String userName;
+        private String companyCode; // ✅ 추가
         private int views;
 
         private boolean isUpdated;
@@ -69,6 +70,7 @@ public class BoardDto {
                     .categoryName(board.getCategory().getCategoryName())
                     .userId(board.getUser().getUserId())
                     .userName(board.getUser().getUserName())
+                    .companyCode(board.getUser().getCompany().getCompanyCode()) // ✅ 중첩 접근
                     .views(board.getViews())
                     .isUpdated(!board.getCreatedDate().equals(board.getUpdatedDate())) // ✅ 작성일과 수정일이 다르면 true
                     .build();

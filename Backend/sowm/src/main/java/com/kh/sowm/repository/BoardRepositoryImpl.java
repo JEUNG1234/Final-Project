@@ -24,7 +24,7 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
     private EntityManager em;
 
     @Override
-    public Page<Board> findBoardsByFilters(Pageable pageable, String title, String writer, Long categoryNo, CommonEnums.Status status) {
+    public Page<Board> findBoardsByFilters(Pageable pageable, String title, String writer, Long categoryNo, String companyCode, CommonEnums.Status status) {
         StringBuilder jpql = new StringBuilder("SELECT b FROM Board b WHERE b.status = :status");
         StringBuilder countJpql = new StringBuilder("SELECT COUNT(b) FROM Board b WHERE b.status = :status");
 
@@ -40,6 +40,11 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
         if (categoryNo != null) {
             jpql.append(" AND b.category.categoryNo = :categoryNo"); // category 엔티티와의 관계를 통해 필터링
             countJpql.append(" AND b.category.categoryNo = :categoryNo");
+        }
+
+        if (StringUtils.hasText(companyCode)) {
+            jpql.append(" AND b.user.company.companyCode = :companyCode");
+            countJpql.append(" AND b.user.company.companyCode = :companyCode");
         }
 
         // 정렬 조건 추가
@@ -70,6 +75,10 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
             boardQuery.setParameter("categoryNo", categoryNo);
         }
 
+        if (StringUtils.hasText(companyCode)) { // 🔽 추가
+            boardQuery.setParameter("companyCode", companyCode);
+        }
+
         // 페이징 적용
         boardQuery.setFirstResult((int) pageable.getOffset());
         boardQuery.setMaxResults(pageable.getPageSize());
@@ -89,6 +98,10 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
         }
         if (categoryNo != null) {
             countQuery.setParameter("categoryNo", categoryNo);
+        }
+
+        if (StringUtils.hasText(companyCode)) { // 🔽 추가
+            countQuery.setParameter("companyCode", companyCode);
         }
 
         Long totalCount = countQuery.getSingleResult();

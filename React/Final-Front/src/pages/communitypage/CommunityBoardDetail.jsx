@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaComments } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
 import dayjs from 'dayjs';
-import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
+import BoardAPI from '../../api/board';
 
 const CommunityBoardDetail = () => {
   const navigate = useNavigate();
@@ -16,49 +15,37 @@ const CommunityBoardDetail = () => {
 
   // 게시글 가져오기 및 조회수 증가
   useEffect(() => {
-    // 1. 게시글 상세 정보 불러오기
-    axios
-      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.DETAIL(id)}`)
-      .then((res) => {
-        setPost(res.data);
-      })
+    BoardAPI.getBoardDetail(id)
+      .then((res) => setPost(res.data))
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
         alert('게시글을 불러오는 데 실패했습니다.');
-        navigate('/communityboard'); // 게시글 로드 실패 시 목록으로 이동
+        navigate('/communityboard');
       });
 
     // 2. ✨ 게시글 조회수 증가 API 호출 ✨
     // 이 요청은 게시글 상세 페이지에 처음 진입할 때만 발생합니다.
     // 백엔드에서 /api/boards/{id}/views 라는 PATCH 엔드포인트를 구현했다고 가정합니다.
-    axios
-      .patch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.INCREASE_VIEW(id)}`)
+    BoardAPI.increaseViewCount(id)
       .then(() => {
-        console.log(`게시글 ${id}의 조회수가 성공적으로 1 증가했습니다.`);
-        // 필요하다면, 프론트엔드에서 즉시 조회수를 업데이트하여 화면에 반영할 수 있습니다.
-        // setPost(prevPost => ({
-        //   ...prevPost,
-        //   viewCount: (prevPost ? prevPost.viewCount : 0) + 1
-        // }));
+        console.log(`게시글 ${id} 조회수 1 증가`);
       })
       .catch((err) => {
-        console.error(`게시글 ${id}의 조회수 증가 실패:`, err);
-        // 조회수 증가 실패는 사용자에게 직접 알릴 필요는 없을 수 있습니다. (백그라운드 작업)
+        console.error(`조회수 증가 실패:`, err);
       });
   }, [id, navigate]); // id가 변경될 때마다(즉, 다른 게시글로 이동할 때마다) 다시 실행
 
   // --- 게시글 삭제 함수 ---
   const handleDelete = () => {
-    if (window.confirm('정말 이 게시글을 삭제하시겠습니까?')) {
-      axios
-        .delete(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.DELETE(id)}`)
+    if (window.confirm('정말 삭제할까요?')) {
+      BoardAPI.deleteBoard(id)
         .then(() => {
-          alert('게시글이 성공적으로 삭제되었습니다.');
-          navigate('/communityboard'); // 삭제 후 게시판 목록으로 이동
+          alert('삭제 성공');
+          navigate('/communityboard');
         })
         .catch((err) => {
-          console.error('게시글 삭제 실패:', err);
-          alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+          console.error('삭제 실패:', err);
+          alert('삭제 실패, 다시 시도하세요');
         });
     }
   };
