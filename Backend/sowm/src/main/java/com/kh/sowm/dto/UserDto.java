@@ -54,6 +54,7 @@ public class UserDto {
                     .deptCode(user.getDepartment().getDeptCode())
                     .createdDate(user.getCreatedDate())
                     .updatedDate(user.getUpdatedDate())
+                    .companyCode(user.getCompanyCode())
                     .point(user.getPoint())
                     .build();
         }

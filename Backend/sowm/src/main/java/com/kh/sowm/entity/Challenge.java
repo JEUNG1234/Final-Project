@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
-import org.hibernate.annotations.Formula; // Formula 어노테이션 임포트
+import org.hibernate.annotations.Formula;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -55,6 +55,10 @@ public class Challenge {
     //포인트
     @Column(name = "CHALLENGE_POINT")
     private int challengePoint;
+
+    // ChallengeComplete 와의 관계 추가
+    @OneToMany(mappedBy = "challenge", fetch = FetchType.LAZY)
+    private List<ChallengeComplete> completions = new ArrayList<>();
 
     // 참여자 수를 계산하는 Formula 필드 추가
     @Formula("(select count(*) from challenge_complete cc where cc.challenge_no = challenge_no)")

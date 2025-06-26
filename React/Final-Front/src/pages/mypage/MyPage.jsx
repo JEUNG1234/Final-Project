@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ProfileImg from '../../assets/ronaldo.jpg';
 import { userService } from '../../api/users';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import BoardAPI from '../../api/board'; // 게시글 API 가져오기
 
 // MyPage Component
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
+  const [myPosts, setMyPosts] = useState([]); // 유저 게시글 상태 추가
   const navigate = useNavigate();
+
   // 부서 코드 매핑
   const deptMap = {
     D1: '개발팀',
@@ -67,6 +69,34 @@ const MyPage = () => {
     }
   };
 
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+    if (!storedUserId) return;
+
+    userService
+      .getUserInfo(storedUserId)
+      .then((data) => {
+        setUserInfo(data);
+        return BoardAPI.getBoardList({
+          page: 0,
+          size: 1000,
+          sort: 'createdDate,desc',
+          companyCode: data.companyCode,
+        });
+      })
+      .then((res) => {
+        const allPosts = res.data.content;
+        // ✅ 프론트에서 userId로 필터링
+        const filtered = allPosts.filter((post) => post.userId === storedUserId);
+        setMyPosts(filtered);
+      })
+      .catch((err) => {
+        console.error('유저 정보 또는 게시글 조회 실패:', err);
+        setUserInfo(null);
+        setMyPosts([]);
+      });
+  }, []);
+
   return (
     <MyPageContainer>
       <ContentCard>
@@ -111,25 +141,43 @@ const MyPage = () => {
 
         <PostListSection>
           <SectionTitle>작성 글 목록</SectionTitle>
-          <Divider />
+          {myPosts.length === 0 ? (
+            <NoPostsMessage>
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+              작성한 게시글이 존재하지 않습니다.
+            </NoPostsMessage>
+          ) : (
+            <PostItemArea>
+              <PostHeader>
+                <PostCell>카테고리</PostCell>
+                <PostCell>제목</PostCell>
+                <PostCell>작성일</PostCell>
+                <PostCell>조회수</PostCell>
+              </PostHeader>
 
-          <NoPostsMessage>
-            <svg
-              viewBox="0 0 24 24"
-              width="24"
-              height="24"
-              stroke="currentColor"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-            </svg>
-            작성한 게시글이 존재하지 않습니다.
-          </NoPostsMessage>
-
+              {myPosts.map((post) => (
+                <PostItem key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
+                  <PostCell>{post.categoryName}</PostCell>
+                  <PostCell>{post.boardTitle}</PostCell>
+                  <PostCell>{(post.updatedDate ?? post.createdDate).split('T')[0]}</PostCell>
+                  <PostCell>{post.views}</PostCell>
+                </PostItem>
+              ))}
+            </PostItemArea>
+          )}
+          {/* ButtonGroup을 PostListSection 내부로 이동 */}
           <ButtonGroup>
             <WithdrawButton onClick={handleWithdrawal}>회원 탈퇴</WithdrawButton>
             <ReturnButton to="/memberdashboard">돌아가기</ReturnButton>
@@ -365,6 +413,47 @@ const Divider = styled.div`
   width: 100%;
   height: 1px;
   background-color: #e0e0e0;
+`;
+
+const PostItemArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-top: 1px solid #dee2e6;
+`;
+
+const PostHeader = styled.div`
+  display: grid;
+  grid-template-columns: 20% 40% 20% 20%;
+  padding: 12px 16px;
+  background: #f1f3f5;
+  font-weight: 600;
+  color: #212529;
+  border-bottom: 1px solid #dee2e6;
+`;
+
+const PostItem = styled.div`
+  display: grid;
+  grid-template-columns: 20% 40% 20% 20%;
+  padding: 14px 16px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  border-bottom: 1px solid #e9ecef;
+`;
+
+const PostCell = styled.div`
+  font-size: 0.95rem;
+  color: #495057;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
 `;
 
 export default MyPage;

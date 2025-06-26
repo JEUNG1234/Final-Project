@@ -16,6 +16,8 @@ public interface ChallengeRepository {
 
     void delete(Challenge challenge);
 
-    // Pageable을 받도록 수정
     Page<Challenge> findAll(Pageable pageable);
+
+    // ID로 챌린지 조회를 위한 메소드 추가
+    Optional<Challenge> findById(Long challengeNo);
 }
