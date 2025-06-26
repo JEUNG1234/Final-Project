@@ -28,16 +28,12 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public Long createChallenge(ChallengeDto.CreateRequest requestDto) {
-        // ... (기존 생성 로직 동일)
         User adminUser = userRepository.findByUserId(requestDto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("관리자 정보를 찾을 수 없습니다."));
-
         Vote vote = voteRepository.findById(requestDto.getVoteNo())
                 .orElseThrow(() -> new EntityNotFoundException("원본 투표를 찾을 수 없습니다."));
-
         VoteContent voteContent = voteContentRepository.findById(requestDto.getVoteContentNo())
                 .orElseThrow(() -> new EntityNotFoundException("원본 투표 항목을 찾을 수 없습니다."));
-
         Challenge challenge = Challenge.builder()
                 .challengeTitle(requestDto.getChallengeTitle())
                 .user(adminUser)
@@ -48,21 +44,27 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .challengeEndDate(requestDto.getChallengeEndDate())
                 .challengePoint(requestDto.getChallengePoint())
                 .build();
-
         challengeRepository.save(challenge);
-
         return challenge.getChallengeNo();
     }
 
-    /**
-     * 페이징 처리된 모든 챌린지를 조회하여 DTO 페이지로 반환
-     * @param pageable 페이징 정보
-     * @return 챌린지 목록 DTO 페이지 객체
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<ChallengeDto.ListResponse> findAllChallenges(Pageable pageable) {
         Page<Challenge> challengePage = challengeRepository.findAll(pageable);
         return challengePage.map(ChallengeDto.ListResponse::fromEntity);
+    }
+
+    /**
+     * ID로 챌린지를 조회하고 DTO로 변환하여 반환
+     * @param challengeNo 조회할 챌린지 ID
+     * @return 챌린지 상세 DTO
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public ChallengeDto.DetailResponse findChallengeById(Long challengeNo) {
+        Challenge challenge = challengeRepository.findById(challengeNo)
+                .orElseThrow(() -> new EntityNotFoundException("챌린지를 찾을 수 없습니다: " + challengeNo));
+        return ChallengeDto.DetailResponse.fromEntity(challenge);
     }
 }

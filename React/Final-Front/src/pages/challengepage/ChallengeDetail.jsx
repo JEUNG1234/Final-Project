@@ -1,56 +1,82 @@
-import React from 'react'; // React 자체는 그대로 임포트
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
 import runningWoman from '../../assets/challengeImg.jpg';
 import { FaPlus } from 'react-icons/fa';
+import { challengeService } from '../../api/challengeService'; // challengeService 임포트
 
-const mockChallengeDetails = {
-  1: {
-    id: 1,
-    breadcrumbs: '하루 10000보 걷기',
-    title: '하루 10000보 걷기',
-    period: '5월 1일 ~ 5월 31일',
-    currentProgressDays: 15,
-    totalChallengeDays: 31,
-    achievement: 50,
-    img: runningWoman,
-    boardPosts: [
-      { id: 1, type: '공지사항', title: '안녕하세요', author: '홍길동', date: '2025/03/01' },
-      { id: 2, type: '챌린지', title: '안녕하세요', author: '김철수', date: '2025/03/01' },
-      { id: 3, type: '챌린지', title: '안녕하세요', author: '이영구', date: '2025/02/01' },
-      { id: 4, type: '챌린지', title: '안녕하세요', author: '최지원', date: '2025/02/01' },
-      { id: 5, type: '챌린지', title: '안녕하세요', author: '박지원', date: '2025/02/01' },
-    ],
-  },
-};
+// 목업 데이터(mockChallengeDetails) 삭제
 
 const ChallengeDetail = () => {
-  const navigate = useNavigate(); // 뒤로가기 버튼을 위한 navigate 훅
+  const navigate = useNavigate();
+  const { id: challengeNo } = useParams(); // URL 파라미터에서 챌린지 ID 가져오기
+  const [challenge, setChallenge] = useState(null); // 챌린지 데이터를 담을 상태
+  const [achievement, setAchievement] = useState(0); // 달성률 상태
+
+  useEffect(() => {
+    // 챌린지 상세 정보 조회 API 호출
+    const fetchChallengeDetail = async () => {
+      if (!challengeNo) return;
+      try {
+        const data = await challengeService.getChallengeDetails(challengeNo);
+        setChallenge(data);
+
+        // --- 챌린지 기간 기반으로 달성률 계산 ---
+        const today = new Date();
+        const startDate = new Date(data.challengeStartDate);
+        const endDate = new Date(data.challengeEndDate);
+
+        // 오늘 날짜가 시작일 이전이면 0%, 종료일 이후면 100%
+        if (today < startDate) {
+          setAchievement(0);
+        } else if (today > endDate) {
+          setAchievement(100);
+        } else {
+          const totalDuration = endDate.getTime() - startDate.getTime();
+          const progressedDuration = today.getTime() - startDate.getTime();
+          const calculatedAchievement = Math.round((progressedDuration / totalDuration) * 100);
+          setAchievement(calculatedAchievement);
+        }
+      } catch (error) {
+        console.error('챌린지 상세 정보 로딩 실패:', error);
+        alert('챌린지 정보를 불러오는 데 실패했습니다.');
+        navigate('/challenge');
+      }
+    };
+
+    fetchChallengeDetail();
+  }, [challengeNo, navigate]);
+
+  // 로딩 중이거나 데이터가 없을 경우
+  if (!challenge) {
+    return <MainContent>챌린지 정보를 불러오는 중...</MainContent>;
+  }
 
   return (
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} {mockChallengeDetails[1].title}
+        챌린지 {'>'} {challenge.challengeTitle}
       </PageTitle>
 
       <ChallengeSummarySection>
         <SummaryTextContent>
-          <PeriodText>{mockChallengeDetails[1].period}</PeriodText>
-          <ChallengeTitle>{mockChallengeDetails[1].title}</ChallengeTitle>
+          <PeriodText>
+            {challenge.challengeStartDate} ~ {challenge.challengeEndDate}
+          </PeriodText>
+          <ChallengeTitle>{challenge.challengeTitle}</ChallengeTitle>
           <ProgressBarWrapper>
             <ProgressBarBackground>
-              <ProgressBarFill percentage={mockChallengeDetails[1].achievement} />
+              <ProgressBarFill percentage={achievement} />
             </ProgressBarBackground>
             <ProgressText>
-              {mockChallengeDetails[1].currentProgressDays}/{mockChallengeDetails[1].totalChallengeDays}일 달성{' '}
-              {mockChallengeDetails[1].achievement}%
+              참여인원 {challenge.participantCount}명 · 달성률 {achievement}%
             </ProgressText>
           </ProgressBarWrapper>
         </SummaryTextContent>
-        <SummaryImage src={mockChallengeDetails[1].img} alt={mockChallengeDetails[1].title} />
+        <SummaryImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
       </ChallengeSummarySection>
 
       <JoinButtonArea>
@@ -67,14 +93,18 @@ const ChallengeDetail = () => {
           <h3>작성일자</h3>
         </BoardHeader>
         <BoardTable>
-          {mockChallengeDetails[1].boardPosts.map((post) => (
-            <BoardRow key={post.id} onClick={() => navigate(`/challenge/challenge_id/${post.id}`)}>
-              <BoardCell typeColumn>{post.type}</BoardCell>
-              <BoardCell>{post.title}</BoardCell>
-              <BoardCell>{post.author}</BoardCell>
-              <BoardCell>{post.date}</BoardCell>
-            </BoardRow>
-          ))}
+          {challenge.completions && challenge.completions.length > 0 ? (
+            challenge.completions.map((post) => (
+              <BoardRow key={post.completeNo} onClick={() => navigate(`/challenge/challenge_id/${post.completeNo}`)}>
+                <BoardCell typeColumn>챌린지</BoardCell>
+                <BoardCell>{post.completeTitle}</BoardCell>
+                <BoardCell>{post.userName}</BoardCell>
+                <BoardCell>{/* 작성일자 필드가 없으므로 임시로 비워둠 */}</BoardCell>
+              </BoardRow>
+            ))
+          ) : (
+            <NoPostsMessage>아직 등록된 인증글이 없습니다.</NoPostsMessage>
+          )}
         </BoardTable>
       </BoardSection>
 
@@ -84,8 +114,6 @@ const ChallengeDetail = () => {
     </MainContent>
   );
 };
-
-export default ChallengeDetail;
 
 const JoinButtonArea = styled.div`
   width: 100%;
@@ -250,6 +278,7 @@ const BoardRow = styled.div`
   color: #555;
   align-items: center;
   transition: background-color 0.3s ease;
+  cursor: pointer;
 
   &:last-child {
     border-bottom: none;
@@ -290,7 +319,6 @@ const BackButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
-  /* padding-bottom: 50px; 하단 여백 */
 `;
 
 const BackButton = styled.button`
@@ -313,3 +341,5 @@ const BackButton = styled.button`
     background-color: #3c75e0;
   }
 `;
+
+export default ChallengeDetail;
