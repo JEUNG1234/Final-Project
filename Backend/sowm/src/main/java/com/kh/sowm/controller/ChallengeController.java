@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/challenges")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5174", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // 💡 포트 5174 -> 5173으로 수정
 public class ChallengeController {
 
     private final ChallengeService challengeService;
