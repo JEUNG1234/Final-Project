@@ -31,7 +31,7 @@ public class UserController {
                 ", companyCode=" + loginUser.getCompanyCode() +
                 ", jobCode=" + loginUser.getJobCode() +
                 ", deptCode=" + loginUser.getDeptCode());
-             return ResponseEntity.ok(loginUser);
+        return ResponseEntity.ok(loginUser);
     }
 
     // 유저 아이디 기준으로 유저 정보 가져오기
@@ -84,4 +84,22 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
+    // 회원 탈퇴
+    @PatchMapping("/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable String userId) {
+        String result = userService.deleteUser(userId);
+        return ResponseEntity.ok(result);
+    }
+
+    // 회원 정보 수정 (이름, 비밀번호)
+    @PatchMapping("/updateinfo")
+    public ResponseEntity<String> updateUserInfo(@RequestBody UserDto.RequestDto updateDto) {
+        String userId = updateDto.getUserId();
+        String result = userService.updateUserInfo(updateDto, userId);
+
+        return ResponseEntity.ok(result);
+    }
+
 }
+
+

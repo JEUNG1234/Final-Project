@@ -60,6 +60,30 @@ public class UserRepositoryImpl implements UserRepository {
                 .getResultList();
     }
 
+    @Override
+    public String deleteUser(User user) {
+        int result =  em.createQuery("UPDATE User u SET u.status = 'N' WHERE u.userId = :id")
+                .setParameter("id", user.getUserId())
+                .executeUpdate();
+
+        return result > 0 ? "삭제 성공" : "삭제 실패";
+    }
+
+    @Override
+    public String updateUserInfo(User user) {
+        int result = em.createQuery("UPDATE User u SET u.userPwd = :newPwd, u.userName = :newName WHERE u.userId = :id")
+                .setParameter("newPwd", user.getUserPwd())
+                .setParameter("newName", user.getUserName())
+                .setParameter("id", user.getUserId())
+                .executeUpdate();
+
+        if (result > 0) {
+            return "회원정보 수정 완료";
+        } else {
+            return "회원정보 수정 실패";
+        }
+    }
+
     // 아이디로 유저 찾기
     @Override
     public Optional<User> findByUserId(String userId) {

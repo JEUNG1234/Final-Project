@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     ENROLLADMIN: '/users/enrolladmin',
     CHECK_USER_ID: '/users/check-user-id',
     CHECK_EMAIL: '/users/check-user-email',
+    DELETEUSER: '/users/deleteUser',
+    UPDATEUSER: 'users/updateinfo',
   },
   COMPANY: {
     BASE: '/company',

@@ -46,6 +46,7 @@ import MyWorkation from './pages/workationpage/MyWorkation';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useUserStore from './Store/useStore';
+import UpdateMyInfo from './pages/mypage/UpdateMyInfo';
 
 const AppContainer = styled.div`
   display: flex;
@@ -130,6 +131,7 @@ function App() {
                     <Route path="/myChallenge" element={<MyCallenge />} />
                     <Route path="/myChallengeComplete" element={<MyChallengeComplete />} />
                     <Route path="/mypage" element={<MyPage />} />
+                    <Route path="/updatemyinfo" element={<UpdateMyInfo />} />
                     <Route path="/adminattendance" element={<AdminAttendance />} />
                     {/* 직원 커뮤니티 게시판 페이지 */}
                     <Route path="/communityboard" element={<CommunityBoard />} />

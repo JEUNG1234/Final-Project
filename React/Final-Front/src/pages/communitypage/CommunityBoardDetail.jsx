@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaComments } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
+import { BounceLoader } from 'react-spinners';
 import dayjs from 'dayjs';
 import BoardAPI from '../../api/board';
 
@@ -12,28 +13,38 @@ const CommunityBoardDetail = () => {
   const { id } = useParams(); // /communityboard/:id → 게시글 ID
   const [post, setPost] = useState(null);
   const { user } = useUserStore(); // Zustand에서 로그인 유저 정보 가져오기
-
+  const location = useLocation();
+  const [loading, setLoading] = useState(true);
+  const MIN_LOADING_TIME = 500; // 500ms (0.5초) 최소 로딩 시간 설정
   // 게시글 가져오기 및 조회수 증가
   useEffect(() => {
+    const startTime = Date.now();
+    setLoading(true);
+    // 게시글 정보 가져오기
     BoardAPI.getBoardDetail(id)
       .then((res) => setPost(res.data))
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
         alert('게시글을 불러오는 데 실패했습니다.');
         navigate('/communityboard');
+      })
+      .finally(() => {
+        const elapsed = Date.now() - startTime;
+        const wait = MIN_LOADING_TIME - elapsed;
+        wait > 0 ? setTimeout(() => setLoading(false), wait) : setLoading(false);
       });
 
-    // 2. ✨ 게시글 조회수 증가 API 호출 ✨
-    // 이 요청은 게시글 상세 페이지에 처음 진입할 때만 발생합니다.
-    // 백엔드에서 /api/boards/{id}/views 라는 PATCH 엔드포인트를 구현했다고 가정합니다.
-    BoardAPI.increaseViewCount(id)
-      .then(() => {
-        console.log(`게시글 ${id} 조회수 1 증가`);
-      })
-      .catch((err) => {
-        console.error(`조회수 증가 실패:`, err);
-      });
-  }, [id, navigate]); // id가 변경될 때마다(즉, 다른 게시글로 이동할 때마다) 다시 실행
+    // 수정페이지에서 되돌아온 경우 조회수 증가 생략
+    if (location.state?.fromEdit) {
+      console.log('수정 후 복귀 - 조회수 증가 생략');
+      return;
+    }
+
+    // 최초 진입 또는 새로고침인 경우 조회수 증가
+    BoardAPI.increaseView(id)
+      .then(() => console.log(`게시글 ${id} 조회수 1 증가`))
+      .catch((err) => console.error(`조회수 증가 실패:`, err));
+  }, [id, navigate, location.state]);
 
   // --- 게시글 삭제 함수 ---
   const handleDelete = () => {
@@ -50,7 +61,20 @@ const CommunityBoardDetail = () => {
     }
   };
 
-  if (!post) return <MainContent>Loading...</MainContent>;
+  if (loading) {
+    return (
+      <MainContent>
+        <LoaderArea>
+          <BounceLoader color="#4d8eff" />
+          Loading.. {/* 폰트 색상 변경경 */}
+        </LoaderArea>
+      </MainContent>
+    );
+  }
+
+  if (!post) {
+    return <MainContent>게시글을 찾을 수 없습니다.</MainContent>;
+  }
 
   return (
     <MainContent>
@@ -81,7 +105,7 @@ const CommunityBoardDetail = () => {
       </InputGroup>
 
       <ButtonGroup>
-        <ActionButton onClick={() => navigate('/communityboard')}>뒤로가기</ActionButton>
+        <ActionButton onClick={() => navigate(-1)}>뒤로가기</ActionButton>
 
         {user?.userId === post.userId && (
           <ActionButton onClick={() => navigate(`/editboard/${post.boardNo}`)}>수정하기</ActionButton>
@@ -229,4 +253,15 @@ const Deletebutton = styled.button`
     background-color: #f14141;
   }
 `;
+
+const LoaderArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-weight: 500;
+  color: #4d8eff;
+`;
+
 export default CommunityBoardDetail;

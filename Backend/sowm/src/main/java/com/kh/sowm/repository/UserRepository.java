@@ -19,4 +19,8 @@ public interface UserRepository {
     List<User> findAllEmployees(UserDto.EmployeeSearchCondition searchCondition);
 
     List<User> findNotApproval(UserDto.EmployeeSearchCondition searchCondition);
+
+    String deleteUser(User user);
+
+    String updateUserInfo(User user);
 }
