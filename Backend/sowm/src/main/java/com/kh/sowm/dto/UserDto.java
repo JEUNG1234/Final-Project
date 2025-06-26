@@ -3,6 +3,7 @@ package com.kh.sowm.dto;
 import com.kh.sowm.entity.Department;
 import com.kh.sowm.entity.Job;
 import com.kh.sowm.entity.User;
+import com.kh.sowm.enums.CommonEnums.Status;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -114,6 +115,7 @@ public class UserDto {
                     .email(this.email)
                     .companyCode(this.companyCode)
                     .job(Job.adminDefaultJob())
+                    .status(Status.Y)
                     .build();
         }
     }
