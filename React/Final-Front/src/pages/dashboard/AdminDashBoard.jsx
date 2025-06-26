@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 // Chart.js 및 react-chartjs-2 임포트
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components'; // styled-components는 여기서 임포트
 import ProfileImg from '../../assets/ronaldo.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
+import { useState } from 'react';
+import { userService } from '../../api/users';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -81,6 +83,23 @@ const AdminDashBoard = () => {
     }
   });
 
+  useEffect(() => {
+    myInfo();
+  }, []);
+
+  const [myInfoState, setMyInfoState] = useState(null);
+
+  const myInfo = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await userService.getUserInfo(userId);
+      setMyInfoState(response);
+      console.log('계정 데이터', response);
+    } catch (err) {
+      console.log('계정 정보를 불러오지 못했습니다.', err);
+    }
+  };
+
   return (
     <DashboardContainer>
       {/* 상단 섹션 */}
@@ -151,20 +170,20 @@ const AdminDashBoard = () => {
           <div className="user-avatar">
             <img src={ProfileImg} alt="사용자 아바타" /> {/* Placeholder 이미지 */}
           </div>
-          <h2>이름: 사용자</h2>
+          <h2>이름: {myInfoState?.userName}</h2>
           <div className="info-list">
             <dl>
               <dt>직급:</dt>
-              <dd>사원</dd>
+              <dd>{myInfoState?.jobName}</dd>
             </dl>
             <dl>
               <dt>소속:</dt>
-              <dd>개발팀</dd>
+              <dd>{myInfoState?.deptName}</dd>
             </dl>
             <dl>
               <dt>남은 연차 수:</dt>
               <dd>
-                <span>3일</span>
+                <span></span>
               </dd>
             </dl>
             <dl>

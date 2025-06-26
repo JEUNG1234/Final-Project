@@ -6,12 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FiCheckCircle } from 'react-icons/fi';
+import useUserStore from '../../Store/useStore';
 
 const UpdateMyInfo = () => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [newPwdConfirm, setNewPwdConfirm] = useState('');
+  const { updateUser } = useUserStore();
 
   const navigate = useNavigate();
 
@@ -35,6 +37,8 @@ const UpdateMyInfo = () => {
         newPwd,
         userName,
       });
+
+      updateUser({ userName });
       toast.success('회원 정보가 수정되었습니다.');
       setTimeout(() => navigate('/MemberDashBoard'), 1500);
     } catch (err) {
