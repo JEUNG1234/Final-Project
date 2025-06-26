@@ -71,6 +71,17 @@ public class SubmitWorkation {
             this.status = StatusType.W;
         }
     }
+
+    //신청 승인시
+    public void setStatus(StatusType status) {
+        this.status = StatusType.Y;
+    }
+
+    public void setStatusd(StatusType status) {
+        this.status = StatusType.N;
+    }
+
+
     //승인상태값 Y=승인. W=대기, N=반려
     public enum StatusType{
         Y, W, N;

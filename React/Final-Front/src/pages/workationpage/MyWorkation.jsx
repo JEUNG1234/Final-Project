@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pagination, PageButton, MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { PiAirplaneTiltFill } from 'react-icons/pi';
 import styled from 'styled-components';
+import { workationService } from '../../api/workation';
+import useUserStore from '../../Store/useStore';
 
 // 테이블 및 관련 요소들을 위한 스타일 컴포넌트
 const TableContainer = styled.div`
@@ -129,67 +131,30 @@ const MyWorkation = () => {
   // 선택된 항목들의 ID를 관리하는 상태
   const [selectedIds, setSelectedIds] = useState([]);
 
+  const { user } = useUserStore();
+
   // 테이블을 위한 더미 데이터
-  const [workationData, setWorkationData] = useState([
-    { id: 10, period: '5.29 - 5.31', name: '허지우', location: '제주도', reason: '그냥', members: 6, status: '대기' },
-    { id: 9, period: '5.29 - 5.31', name: 'alice', location: '제주도', reason: '그냥2', members: 5, status: '대기' },
-    {
-      id: 8,
-      period: '5.29 - 5.31',
-      name: 'james',
-      location: '부산',
-      reason: '국밥 먹으러 감',
-      members: 3,
-      status: '대기',
-    },
-    {
-      id: 7,
-      period: '5.29 - 5.31',
-      name: 'kim',
-      location: '방콕',
-      reason: '방콕에서 쉴 있음',
-      members: 7,
-      status: '대기',
-    },
-    {
-      id: 6,
-      period: '5.29 - 5.31',
-      name: '박지성',
-      location: '런던',
-      reason: '파켓 먹으러 감',
-      members: 4,
-      status: '승인',
-    },
-    {
-      id: 5,
-      period: '5.29 - 5.31',
-      name: '담당영',
-      location: '집',
-      reason: '치킨 먹을거임',
-      members: 8,
-      status: '승인',
-    },
-    {
-      id: 4,
-      period: '5.29 - 5.31',
-      name: '정민구',
-      location: '제주도',
-      reason: '돼지고기 먹으러 감',
-      members: 5,
-      status: '승인',
-    },
-    {
-      id: 3,
-      period: '5.29 - 5.31',
-      name: '홍승연',
-      location: '부산',
-      reason: '바다 보러감',
-      members: 4,
-      status: '승인',
-    },
-    { id: 2, period: '5.29 - 5.31', name: '키리나', location: '경기도', reason: '카페 감', members: 2, status: '승인' },
-    { id: 1, period: '5.29 - 5.31', name: '담당은', location: '부산', reason: '모름', members: 4, status: '승인' },
-  ]);
+  const [workationData, setWorkationData] = useState([]);
+
+  const getStatusText = (status) => {
+    if (status === 'W') return '대기';
+    if (status === 'Y') return '승인';
+    if (status === 'N') return '거절';
+    return status;
+  };
+
+  useEffect(() => {
+    const workationMySubList = async () => {
+      try {
+        const data = await workationService.workationMySubList(user.userId);
+        console.log('워케이션 신청목록', data);
+        setWorkationData(data);
+      } catch (error) {
+        console.error('워케이션 신청목록 불러오기 실패:', error.message);
+      }
+    };
+    workationMySubList();
+  }, []);
 
   // 페이지네이션 로직
   const [currentPage, setCurrentPage] = useState(1);
@@ -289,22 +254,24 @@ const MyWorkation = () => {
           </thead>
           <tbody>
             {currentItems.map((item) => (
-              <TableRow key={item.id}>
+              <TableRow key={item.workationSubNo}>
                 <CheckboxCell>
                   <input
                     type="checkbox"
-                    checked={selectedIds.includes(item.id)} // selectedIds 사용
-                    onChange={() => handleCheckboxChange(item.id)}
+                    checked={selectedIds.includes(item.workationSubNo)} // selectedIds 사용
+                    onChange={() => handleCheckboxChange(item.workationSubNo)}
                   />
                 </CheckboxCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.period}</TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.location}</TableCell>
-                <TableCell>{item.reason}</TableCell>
-                <TableCell>{item.members}</TableCell>
+                <TableCell>{item.workationSubNo}</TableCell>
                 <TableCell>
-                  <StatusChip status={item.status}>{item.status}</StatusChip>
+                  {item.workationStartDate}~{item.workationEndDate}
+                </TableCell>
+                <TableCell>{item.userName}</TableCell>
+                <TableCell>{item.workationTitle}</TableCell>
+                <TableCell>{item.content}</TableCell>
+                <TableCell>{item.peopleMax}</TableCell>
+                <TableCell>
+                  <StatusChip status={item.status}>{getStatusText(item.status)}</StatusChip>
                 </TableCell>
               </TableRow>
             ))}

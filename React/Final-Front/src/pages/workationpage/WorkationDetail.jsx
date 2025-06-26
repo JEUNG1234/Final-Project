@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
 
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
 //달력기능
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -12,25 +15,29 @@ import NaverMapStatic from '../../components/NvaerMapStatic';
 
 import { FaSquare, FaRulerCombined, FaHourglassHalf, FaUsers } from 'react-icons/fa';
 
-import image from '../../assets/돌하르방.jpg';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { workationService } from '../../api/workation';
 import useUserStore from '../../Store/useStore';
+import { useForm } from 'react-hook-form';
 // import { workationService } from '../../api/workation';
 
 const WorkationDetail = () => {
   const { user } = useUserStore();
-  console.log(user);
+
   // 현재 활성화된 탭 상태 관리 (예시)
   const [activeTab, setActiveTab] = React.useState('intro');
 
+  const [workationInfo, setWorkationInfo] = useState([]);
   //날짜 범위 선택[시작일, 종료일]
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
 
-  const [peopleMax , setPeopleMax] = useState('');
   const [content, setContent] = useState('');
 
+  //이미지 필터 저장용
+  const [placeImage, setPlaceImage] = useState('');
+  const [facilityImage, setFacilityImage] = useState('');
+  const [precautionImage, setPrecautionImage] = useState('');
 
   //날짜 초기화
   const resetDates = () => setDateRange([null, null]);
@@ -45,47 +52,74 @@ const WorkationDetail = () => {
         console.log('워케이션 정보: ', data);
         setWorkationInfo(data);
       } catch (error) {
-        console.error('워케이션 리스트 불러오기 실패:', error.message);
+        console.error('워케이션 정보 불러오기 실패:', error.message);
       }
     };
     workationInfo();
   }, []);
 
-  const [workationInfo, setWorkationInfo] = useState([]);
+  useEffect(() => {
+    if (workationInfo.workationImages && workationInfo.workationImages.length > 0) {
+      // PLACE
+      const place = workationInfo.workationImages.find((img) => img.tab === 'PLACE');
+      setPlaceImage(place ? place.changedName : '');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+      // FACILITY
+      const facility = workationInfo.workationImages.find((img) => img.tab === 'FACILITY');
+      setFacilityImage(facility ? facility.changedName : '');
 
+      // PRECAUTIONS
+      const precaution = workationInfo.workationImages.find((img) => img.tab === 'PRECAUTIONS');
+      setPrecautionImage(precaution ? precaution.changedName : '');
+    }
+  }, [workationInfo]);
+
+  //유효성 검사
+  const schema = yup.object().shape({
+   
+    peopleMax: yup.number().typeError('최대 인원을 숫자로 입력해주세요').required('최대 인원을 설정해주세요'),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm({
+    resolver: yupResolver(schema),
+    shouldFocusError: true,
+  });
+  const navigate = useNavigate();
+  const onSubmit = async (data) => {
+    const [startDate, endDate] = data.dateRange;
     try {
       const submitBody = {
-        peopleMax,
+        peopleMax: data.peopleMax,
         startDate,
         endDate,
         content,
-      }
+      };
       const requestBody = {
         ...submitBody,
         userId: user.userId,
         location: workationInfo.address,
-        workationNo: no
-      }
+        workationNo: no,
+      };
 
       console.log(requestBody);
 
       const response = await workationService.workationSubmit(requestBody);
-      
+      navigate('/workationList');
+          alert('워케이션 신청되었습니다.');
       console.log(response);
-
-    } catch(error) {
+    } catch (error) {
       console.error('워케이션 신청 에러:', error);
       alert('워케이션 신청 중 에러가 발생했습니다.');
     }
-    console.log({e});
-    alert('워케이션 신청되었습니다.');
-    Navigate('/workationList');
+    console.log({ data });
+    
+ 
   };
-
-
 
   return (
     <FullWapper>
@@ -111,8 +145,8 @@ const WorkationDetail = () => {
         {activeTab === 'intro' && (
           <>
             <ImageSection>
-              <img src={image} alt="" />
-            </ImageSection>{' '}
+              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${placeImage}`} />
+            </ImageSection>
             {/* 실제 이미지 URL로 교체 필요 */}
             <Title>{workationInfo.workationTitle}</Title>
             <Subtitle>{workationInfo.address}</Subtitle>
@@ -126,7 +160,10 @@ const WorkationDetail = () => {
         {/* 시설안내 탭 */}
         {activeTab === 'facilities' && (
           <>
-            <ImageSection /> {/* 실제 이미지 URL로 교체 필요 */}
+            <ImageSection>
+              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${facilityImage}`} />
+            </ImageSection>{' '}
+            {/* 실제 이미지 URL로 교체 필요 */}
             <FacilityContent>
               <FacilityLeftContent>
                 <FaciltyLeftFirstInfo>
@@ -165,6 +202,10 @@ const WorkationDetail = () => {
         {activeTab === 'precautions' && (
           <>
             <Title>유의 사항</Title>
+            <ImageSection>
+              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage}`} />
+            </ImageSection>{' '}
+            {/* 실제 이미지 URL로 교체 필요 */}
             <PrecautionContent>{workationInfo.precautions}</PrecautionContent>
           </>
         )}
@@ -196,7 +237,10 @@ const WorkationDetail = () => {
             selectsRange
             startDate={startDate}
             endDate={endDate}
-            onChange={(update) => setDateRange(update)}
+            onChange={(update) => {
+              setDateRange(update);
+              setValue('dateRange', update); // 폼에 반영!
+            }}
             inline
             calendarContainer={({ children }) => (
               <CalendarWrapper>
@@ -208,8 +252,9 @@ const WorkationDetail = () => {
               </CalendarWrapper>
             )}
           />
+          {errors.dateRange && <ErrorMessage>{errors.dateRange.message}</ErrorMessage>}
         </DateMenu>
-        <FormContent>
+        <FormContent onSubmit={handleSubmit(onSubmit)}>
           <FormRow>
             <Label>일정</Label>
             <DateRangeWrapper>
@@ -218,28 +263,27 @@ const WorkationDetail = () => {
                 placeholder="시작일"
                 readOnly
                 value={startDate ? startDate.toLocaleDateString() : ''}
+    
               />
+         
               <Tilde>~</Tilde>
               <Input type="text" placeholder="종료일" readOnly value={endDate ? endDate.toLocaleDateString() : ''} />
             </DateRangeWrapper>
           </FormRow>
-
           <FormRow>
             <Label>장소</Label>
-            <Input type="text" value={workationInfo.address} placeholder="장소를 입력하세요" />
+            <Input type="text" value={workationInfo.address} />
           </FormRow>
-
           <FormRow>
             <Label>최대 인원</Label>
-            <Input type="text" value={peopleMax} onChange={(e) => setPeopleMax(e.target.value)} placeholder="최대인원" />
+            <Input type="number" placeholder="최대인원" {...register('peopleMax', { valueAsNumber: true })} />
+            {errors.peopleMax && <ErrorMessage>{errors.peopleMax.message}</ErrorMessage>}
           </FormRow>
-
           <FormRow style={{ alignItems: 'flex-start', flexGrow: 1, marginBottom: '0' }}>
             <Label>사유</Label>
-            <TextArea value={content} onChange={(e) => setContent(e.target.value)}  placeholder="사유를 입력하세요" />
+            <TextArea value={content} onChange={(e) => setContent(e.target.value)} placeholder="사유를 입력하세요" />
           </FormRow>
-
-          <SubmitButton onClick={handleSubmit}>워케이션 신청</SubmitButton>
+          <SubmitButton type="submit">워케이션 신청</SubmitButton>
         </FormContent>
       </DateContent>
     </FullWapper>
@@ -250,24 +294,21 @@ const FullWapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 95%;
-  max-width: 1400px; /*너무 넓어지지 않도록 최대 너비 설정*/
+  max-width: 1400px;
   min-height: 80vh;
   margin: 30px auto;
 `;
 
 const MainContent = styled.div`
   width: 80%;
-  max-width: 1400px; /*너무 넓어지지 않도록 최대 너비 설정*/
-  /* height: 100%; */
+  max-width: 1400px;
   min-height: 80vh;
-
   background: white;
-  /* margin: 60px 0 60px 90px; 중앙 정렬 및 상하 마진 */
-  padding: 30px 30px 0 30px; /* 내부 패딩 */
+  padding: 30px 30px 0 30px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  display: flex; /* 내부 요소들을 flex로 배치 */
-  flex-direction: column; /* 세로 방향으로 정렬 */
+  display: flex;
+  flex-direction: column;
   font-family: 'Pretendard', sans-serif;
   text-align: center;
 `;
@@ -275,22 +316,18 @@ const MainContent = styled.div`
 const DateContent = styled.div`
   position: relative;
   width: 20%;
-  max-width: 1400px; /*너무 넓어지지 않도록 최대 너비 설정*/
-
+  max-width: 1400px;
   height: 92%;
-
   margin: 0 0 0 30px;
-
   border-radius: 10px;
   max-height: 80vh;
-  display: flex; /* 내부 요소들을 flex로 배치 */
-  flex-direction: column; /* 세로 방향으로 정렬 */
+  display: flex;
+  flex-direction: column;
   font-family: 'Pretendard', sans-serif;
 `;
 
 const Tabs = styled.div`
   display: flex;
-  /* 탭 스타일 */
   border-bottom: 1px solid #eee;
   margin-bottom: 20px;
 `;
@@ -303,11 +340,11 @@ const TabButton = styled.button`
   font-size: 16px;
   color: #333;
   &:hover {
-    color: #007bff; /* 예시 색상 */
+    color: #007bff;
   }
   &.active {
-    color: #007bff; /* 예시 색상 */
-    border-bottom: 2px solid #007bff; /* 예시 색상 */
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
     font-weight: bold;
   }
 `;
@@ -347,8 +384,6 @@ const FeaturesSection = styled.div`
   gap: 10px;
 `;
 
-
-
 //시설안내 정보 영역
 const FacilityContent = styled.div`
   width: 60%;
@@ -370,8 +405,6 @@ const FacilityContent = styled.div`
 const FacilityLeftContent = styled.div`
   width: 50%;
   height: 100%;
-
-  
 `;
 
 const FacilityRightContent = styled.div`
@@ -386,9 +419,9 @@ const FacilityRightContent = styled.div`
   `}
   @media (max-width: 1800px) {
     width: 50%;
-      display: flex;
-  flex-direction: column;
-  justify-content: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 `;
 const InfoBlock = styled.div`
@@ -509,13 +542,9 @@ const FaciltyLeftSecondInfo = styled.div`
 const PrecautionContent = styled.div`
   width: 80%;
   height: 80%;
-  border: 1px solid black;
+
   margin: 0 auto;
 `;
-
-// 지도의 기본 중심 좌표 (예: 제주 애월)
-// const MAP_CENTER = [{}}]; // 위도, 경도
-const MAP_ZOOM = 12; // 확대 레벨
 
 //지도 컨테이너 스타일
 const MapContainerStyled = styled.div`
@@ -550,37 +579,27 @@ const CalendarWrapper = styled.div`
   .react-datepicker__day-name {
     width: 1.75vw;
   }
-  // react-datepicker의 주요 요소들에 vw 단위 적용
+
   .react-datepicker {
-    // 기본 폰트 크기 설정. 예를 들어, 100vw가 1000px일 때 16px이 되도록.
-    // 1.6vw는 뷰포트 너비 1000px 기준 16px, 500px 기준 8px
-    font-size: 1.6vw; // 뷰포트 너비에 비례하여 폰트 크기 조절
-
-    // 최소 폰트 크기 설정 (너무 작아지지 않도록)
-    /* min-font-size: 12px; // 이 속성은 표준 CSS가 아니므로, 미디어 쿼리나 clamp() 사용을 권장 */
-
-    // 다른 내부 요소들도 vw로 조절 가능
+    font-size: 1.6vw;
     .react-datepicker__header,
     .react-datepicker__day,
     .react-datepicker__current-month {
       width: 1vw;
-      font-size: 1px; // 상위 .react-datepicker의 font-size를 상속받거나 개별 설정
-      // 직접 설정하거나, 상위의 min-font-size를 따르게 할 수 있습니다.
+      font-size: 1px;
     }
 
     .react-datepicker__day-name {
       width: 1.5vw;
     }
 
-    // 달력의 요일이나 날짜 셀의 padding 등을 vw나 %로 조절
     .react-datepicker__day,
     .react-datepicker__day--selected,
     .react-datepicker__day--keyboard-selected {
       width: 100%;
-      padding: 0.8vw; // 요일/날짜 셀의 패딩도 vw로 조절
+      padding: 0.8vw;
     }
 
-    // Month picker, year picker 등도 조절 가능
     .react-datepicker__month,
     .react-datepicker__year {
       font-size: 1.6vw;
@@ -590,19 +609,18 @@ const CalendarWrapper = styled.div`
 const ButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
-  // gap을 vw로 조절
-  gap: 1vw; // 뷰포트 너비에 비례하여 버튼 간격 조절
-  margin: 0.5vw; // 뷰포트 너비에 비례하여 상단 마진 조절
+
+  gap: 1vw;
+  margin: 0.5vw;
 `;
 
 const ControlButton = styled.button`
   background-color: #3b82f6;
   color: white;
-  // padding을 vw로 조절
   padding: 0.6vw 1.2vw;
   border: none;
-  border-radius: 1.2vw; // border-radius도 vw로 조절하여 비율 유지
-  font-size: 0.9vw; // 폰트 크기를 vw로 조절
+  border-radius: 1.2vw;
+  font-size: 0.9vw;
   font-weight: bold;
   cursor: pointer;
   font-size: 12px;
@@ -614,46 +632,44 @@ const ControlButton = styled.button`
 `;
 
 //신청 영역
-const FormContent = styled.div`
+const FormContent = styled.form`
   width: 100%;
-  /* height: 400px; */
   background: white;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  display: flex; /* 내부 요소들을 flex로 배치 */
-  flex-direction: column; /* 세로 방향으로 정렬 */
+  display: flex;
+  flex-direction: column;
   font-family: 'Pretendard', sans-serif;
   box-sizing: border-box;
-  padding: 15px; /* Added padding to give some space from the edges */
-  justify-content: space-between; /* Distribute space between items */
+  padding: 15px;
+  justify-content: space-between;
 `;
 const FormRow = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 15px; /* Slightly reduced margin for fixed height */
+  margin-bottom: 15px;
 
   &:last-of-type {
-    margin-bottom: 0; /* No margin bottom for the last row (textarea) */
+    margin-bottom: 0;
   }
 `;
 
 const Label = styled.span`
-  font-size: 16px; /* Slightly smaller font size for compactness */
+  font-size: 16px;
   font-weight: bold;
   color: #333;
-  width: 50px; /* Adjust label width as needed for fixed container */
-  flex-shrink: 0; /* Prevent label from shrinking */
+  width: 50px;
+  flex-shrink: 0;
 `;
 
-// Styled input fields
 const Input = styled.input`
-  flex-grow: 1; /* Allow input to take remaining space */
-  padding: 8px 12px; /* Slightly smaller padding */
+  flex-grow: 1;
+  padding: 8px 12px;
   border: none;
   border-radius: 8px;
-  font-size: 15px; /* Slightly smaller font size */
+  font-size: 15px;
   outline: none;
-  background-color: #dbebff; /* Light blue background for inputs */
+  background-color: #dbebff;
   width: 100%;
 
   &::placeholder {
@@ -672,10 +688,10 @@ const TextArea = styled.textarea`
   border: none;
   border-radius: 8px;
   font-size: 15px;
-  min-height: 80px; /* Adjusted min-height to fit 400px container */
-  resize: vertical; /* Allow vertical resizing */
+  min-height: 80px;
+  resize: vertical;
   outline: none;
-  background-color: #dbebff; /* Light blue background for textarea */
+  background-color: #dbebff;
 
   &::placeholder {
     color: #a0a0a0;
@@ -695,32 +711,32 @@ const DateRangeWrapper = styled.div`
 `;
 
 const Tilde = styled.span`
-  margin: 0 8px; /* Slightly reduced margin for tilde */
+  margin: 0 8px;
   font-size: 16px;
   color: #555;
 `;
 
 const RefundPolicy = styled.div`
-  white-space: pre-line; /* 엔터(줄바꿈)는 살리고, 연속 공백은 무시 */
-  font-family: inherit; /* 폰트는 상속 */
+  white-space: pre-line;
+  font-family: inherit;
   font-size: 16px;
   color: #444;
 `;
-// Styled button
+
 const SubmitButton = styled.button`
   background-color: #61a5fa;
   color: white;
-  padding: 10px 20px; /* Slightly smaller padding for button */
+  padding: 10px 20px;
   border: none;
   border-radius: 8px;
-  font-size: 16px; /* Slightly smaller font size */
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 15px; /* Adjusted margin-top to fit container */
+  margin-top: 15px;
   transition: background-color 0.3s ease;
-  align-self: center; /* Center the button */
-  width: 160px; /* Adjusted width */
-  flex-shrink: 0; /* Prevent button from shrinking if content is too large */
+  align-self: center;
+  width: 160px;
+  flex-shrink: 0;
 
   &:hover {
     background-color: #4a8df1;
@@ -731,4 +747,13 @@ const SubmitButton = styled.button`
   }
 `;
 
+//에러메시지
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  text-align: left;
+  width: 100%;
+`;
 export default WorkationDetail;

@@ -9,7 +9,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { MdWork } from 'react-icons/md';
 import { PiAirplaneTiltFill } from 'react-icons/pi';
 
-import image from '../../assets/돌하르방.jpg';
 import { useNavigate } from 'react-router-dom';
 import { workationService } from '../../api/workation';
 import useUserStore from '../../Store/useStore';
@@ -238,7 +237,7 @@ const WorkationList = () => {
           filteredData.map((place) => (
             <Card key={place.locationNo} onClick={() => navigate(`/workationDetail/${place.locationNo}`)}>
               {/* 워케이션 장소 리스트 출력 */}
-              <CardImage src={image} alt={place.title} />
+              <CardImage src={`https://d1qzqzab49ueo8.cloudfront.net/${place?.placeImage}`} alt={place.title} />
               <CardTitle>{place.workationTitle}</CardTitle>
               <CardLocationWrapper>
                 <CardLocation>
