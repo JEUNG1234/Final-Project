@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // 💡 포트 5174 -> 5173으로 수정
 public class UserController {
 
     private final UserService userService;
@@ -31,7 +31,7 @@ public class UserController {
                 ", companyCode=" + loginUser.getCompanyCode() +
                 ", jobCode=" + loginUser.getJobCode() +
                 ", deptCode=" + loginUser.getDeptCode());
-             return ResponseEntity.ok(loginUser);
+        return ResponseEntity.ok(loginUser);
     }
 
     // 유저 아이디 기준으로 유저 정보 가져오기

@@ -45,23 +45,26 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         }
     }
 
-    /**
-     * 페이징을 적용하여 모든 챌린지 목록을 조회
-     * @param pageable 페이징 정보
-     * @return 챌린지 엔티티 페이지 객체
-     */
     @Override
     public Page<Challenge> findAll(Pageable pageable) {
-        // 데이터 조회 쿼리
         TypedQuery<Challenge> query = em.createQuery("SELECT c FROM Challenge c ORDER BY c.challengeNo DESC", Challenge.class);
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
         List<Challenge> challenges = query.getResultList();
 
-        // 전체 카운트 조회 쿼리
         TypedQuery<Long> countQuery = em.createQuery("SELECT count(c) FROM Challenge c", Long.class);
         long total = countQuery.getSingleResult();
 
         return new PageImpl<>(challenges, pageable, total);
+    }
+
+    /**
+     * ID로 챌린지 조회 구현
+     * @param challengeNo 조회할 챌린지 ID
+     * @return 챌린지 Optional 객체
+     */
+    @Override
+    public Optional<Challenge> findById(Long challengeNo) {
+        return Optional.ofNullable(em.find(Challenge.class, challengeNo));
     }
 }
