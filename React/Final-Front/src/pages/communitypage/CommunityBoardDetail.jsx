@@ -105,7 +105,7 @@ const CommunityBoardDetail = () => {
       </InputGroup>
 
       <ButtonGroup>
-        <ActionButton onClick={() => navigate('/communityboard')}>뒤로가기</ActionButton>
+        <ActionButton onClick={() => navigate(-1)}>뒤로가기</ActionButton>
 
         {user?.userId === post.userId && (
           <ActionButton onClick={() => navigate(`/editboard/${post.boardNo}`)}>수정하기</ActionButton>
