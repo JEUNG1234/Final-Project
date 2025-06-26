@@ -3,6 +3,7 @@ package com.kh.sowm.dto;
 import com.kh.sowm.entity.Department;
 import com.kh.sowm.entity.Job;
 import com.kh.sowm.entity.User;
+import com.kh.sowm.enums.CommonEnums.Status;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -90,6 +91,9 @@ public class UserDto {
         private String status;
         private String jobCode;
         private String deptCode;
+        
+        // 변경 될 비밀번호
+        private String newPwd;
 
         // 회원가입 dto
        public User signUp() {
@@ -111,6 +115,7 @@ public class UserDto {
                     .email(this.email)
                     .companyCode(this.companyCode)
                     .job(Job.adminDefaultJob())
+                    .status(Status.Y)
                     .build();
         }
     }

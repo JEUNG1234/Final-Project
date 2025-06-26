@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import ProfileImg from '../../assets/ronaldo.jpg';
 import { userService } from '../../api/users';
+import { toast } from 'react-toastify';
 import BoardAPI from '../../api/board'; // 게시글 API 가져오기
 
 // MyPage Component
@@ -52,12 +53,19 @@ const MyPage = () => {
   };
 
   const handleEdit = () => {
-    alert('정보 수정 기능 구현 예정');
+    navigate('/updatemyinfo');
   };
 
-  const handleWithdrawal = () => {
-    if (window.confirm('정말로 회원 탈퇴하시겠습니까? 모든 정보가 삭제됩니다.')) {
-      alert('회원 탈퇴 처리 예정');
+  const handleWithdrawal = async () => {
+    const userId = localStorage.getItem('userId');
+    try {
+      const response = await userService.deleteUser(userId);
+      console.log('회원 탈퇴 성공', response);
+      toast.success('회원 탈퇴하셨습니다.');
+      // 인덱스 화면으로 넘기기
+      navigate('/');
+    } catch (err) {
+      console.log('회원 탈퇴에 실패했습니다.', err);
     }
   };
 
@@ -133,7 +141,6 @@ const MyPage = () => {
 
         <PostListSection>
           <SectionTitle>작성 글 목록</SectionTitle>
-
           {myPosts.length === 0 ? (
             <NoPostsMessage>
               <svg
@@ -173,7 +180,7 @@ const MyPage = () => {
           {/* ButtonGroup을 PostListSection 내부로 이동 */}
           <ButtonGroup>
             <WithdrawButton onClick={handleWithdrawal}>회원 탈퇴</WithdrawButton>
-            <ReturnButton to="/">돌아가기</ReturnButton>
+            <ReturnButton to="/memberdashboard">돌아가기</ReturnButton>
           </ButtonGroup>
         </PostListSection>
       </ContentCard>

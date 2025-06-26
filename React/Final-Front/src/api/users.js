@@ -92,4 +92,14 @@ export const userService = {
     );
     return response;
   },
+
+  deleteUser: async (userId) => {
+    const response = await api.patch(`${API_ENDPOINTS.USERS.BASE}/${userId}`);
+    return response;
+  },
+
+  updateUser: async (updateInfo) => {
+    const response = await api.patch(`${API_ENDPOINTS.USERS.UPDATEUSER}`, updateInfo);
+    return response;
+  },
 };

@@ -1,6 +1,7 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.UserDto;
+import com.kh.sowm.dto.UserDto.RequestDto;
 import com.kh.sowm.entity.Company;
 import com.kh.sowm.entity.Department;
 import com.kh.sowm.entity.Job;
@@ -40,6 +41,11 @@ public class UserServiceImpl implements UserService {
     public UserDto.ResponseDto getUserByUserId(String userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디를 찾을 수 없습니다."));
+
+        if (user.getStatus() == CommonEnums.Status.N) {
+            throw new IllegalArgumentException("탈퇴한 회원입니다.");
+        }
+
         return UserDto.ResponseDto.getLoginUserDto(user);
     }
 
@@ -112,6 +118,31 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return UserDto.ResponseDto.toDto(user);
+    }
+
+    @Override
+    public String deleteUser(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(()-> new IllegalArgumentException("회원정보가 없습니다."));
+
+        return userRepository.deleteUser(user);
+    }
+
+    @Override
+    public String updateUserInfo(RequestDto updateDto, String userId) {
+        System.out.println("입력 비밀번호: " + updateDto.getPassword());
+
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(()-> new IllegalArgumentException("회원정보가 없습니다."));
+        System.out.println("DB 비밀번호: " + user.getUserPwd());
+
+        // db 에 저장되어 있는 비밀번호랑 입력한 비밀번호가 동일한지 체크
+        if (!user.getUserPwd().equals(updateDto.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+        user.changeUserInfo(updateDto.getUserName(), updateDto.getNewPwd());
+
+        return userRepository.updateUserInfo(user);
     }
 
 

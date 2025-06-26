@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     ENROLLADMIN: '/users/enrolladmin',
     CHECK_USER_ID: '/users/check-user-id',
     CHECK_EMAIL: '/users/check-user-email',
+    DELETEUSER: '/users/deleteUser',
+    UPDATEUSER: 'users/updateinfo',
   },
   COMPANY: {
     BASE: '/company',
@@ -53,7 +55,7 @@ export const API_ENDPOINTS = {
     updateAttendTime: '/admin/adminattendance',
     getMemberAttendance: '/admin/adminattendance/filter',
   },
-   VOTES: {
+  VOTES: {
     BASE: '/votes',
     // 투표자 목록 조회 엔드포인트
     GET_VOTERS: (voteNo, voteContentNo) => `/votes/${voteNo}/options/${voteContentNo}/voters`,
