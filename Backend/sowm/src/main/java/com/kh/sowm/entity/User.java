@@ -125,6 +125,12 @@ public class User {
         this.department = newDepartment;
     }
 
+    // 회원정보 수정할 때 사용할 메소드
+    public void changeUserInfo(String newName, String newPassword) {
+        this.userName = newName;
+        this.userPwd = newPassword;
+    }
+
     public void addPoints(int points) {
         if (this.point == null) {
             this.point = 0;
