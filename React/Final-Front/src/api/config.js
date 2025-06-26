@@ -81,4 +81,10 @@ export const API_ENDPOINTS = {
     BASE: '/department',
     getDepartments: '/department',
   },
+
+  HEALTH: {
+    BASE: '/health',
+    mentalquestion: '/health/mentalquestion',
+    mentalresult: '/health/mentalquestion/result',
+  },
 };

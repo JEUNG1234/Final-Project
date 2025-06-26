@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import styled from 'styled-components';
 import { FaComments } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -7,7 +6,8 @@ import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import dayjs from 'dayjs';
 import useUserStore from '../../Store/useStore';
 import { BounceLoader } from 'react-spinners';
-import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
+import BoardAPI from '../../api/board';
+import CategoryAPI from '../../api/category';
 
 const EditBoard = () => {
   const { user } = useUserStore();
@@ -22,17 +22,15 @@ const EditBoard = () => {
   const MIN_LOADING_TIME = 500; // 500ms (0.5초) 최소 로딩 시간 설정
 
   useEffect(() => {
-    setLoading(true); // 데이터 요청 시작 시 로딩 상태 true
-    const startTime = Date.now(); // 요청 시작 시간 기록
+    const startTime = Date.now();
+    setLoading(true);
 
-    axios
-      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.DETAIL(id)}`)
+    BoardAPI.getBoardDetail(id)
       .then((res) => {
         setPost(res.data);
         setBoardTitle(res.data.boardTitle);
         setBoardContent(res.data.boardContent);
         setCategory(res.data.categoryNo);
-        console.log(res.data);
       })
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
@@ -40,43 +38,31 @@ const EditBoard = () => {
         navigate('/communityboard');
       })
       .finally(() => {
-        const elapsedTime = Date.now() - startTime; // 경과 시간 계산
-        const remainingTime = MIN_LOADING_TIME - elapsedTime; // 남은 시간 계산
-
-        if (remainingTime > 0) {
-          // 최소 로딩 시간보다 적게 걸렸다면 남은 시간만큼 대기
-          setTimeout(() => {
-            setLoading(false);
-          }, remainingTime);
-        } else {
-          // 최소 로딩 시간을 초과했다면 바로 로딩 상태 false
-          setLoading(false);
-        }
+        const elapsed = Date.now() - startTime;
+        const wait = MIN_LOADING_TIME - elapsed;
+        wait > 0 ? setTimeout(() => setLoading(false), wait) : setLoading(false);
       });
   }, [id, navigate]);
 
   useEffect(() => {
-    axios
-      .get(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CATEGORY.BASE}`)
+    CategoryAPI.getAllCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('카테고리 불러오기 실패:', err));
   }, []);
 
   const handleUpdate = () => {
     const updatedPost = {
-      boardTitle: boardTitle,
-      boardContent: boardContent,
+      boardTitle,
+      boardContent,
       categoryNo: category,
     };
 
-    axios
-      .patch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.BOARD.UPDATE(id)}`, updatedPost)
+    BoardAPI.updateBoard(id, updatedPost)
       .then((res) => {
         setPost(res.data);
         setBoardTitle(res.data.boardTitle);
         setBoardContent(res.data.boardContent);
         setCategory(res.data.categoryNo);
-        console.log(res.data);
         alert('게시글이 성공적으로 수정되었습니다!');
         navigate(`/communityboard`);
       })
@@ -146,7 +132,9 @@ const EditBoard = () => {
       </InputGroup>
       <ButtonGroup>
         <ActionButton onClick={handleUpdate}>수정완료</ActionButton>
-        <ActionButton onClick={() => navigate(-1)}>뒤로가기</ActionButton>
+        <ActionButton onClick={() => navigate(`/communityboard/${id}`, { state: { fromEdit: true } })}>
+          뒤로가기
+        </ActionButton>
       </ButtonGroup>
     </MainContent>
   );
@@ -295,5 +283,7 @@ const LoaderArea = styled.div`
   align-items: center;
   height: 100vh;
   font-weight: 500;
+  color: #4d8eff;
 `;
+
 export default EditBoard;
