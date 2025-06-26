@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
 import { userService } from '../../api/users';
 import useUserStore from '../../Store/useStore';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [userId, setUserId] = useState('');
@@ -31,11 +32,14 @@ const Login = () => {
         status: user.status,
       });
 
-      // setUser(user);
+      if (user.status !== 'Y') {
+        toast.error('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
+        return;
+      }
 
       if (user.jobCode === 'J2') {
         navigate('/AdminDashBoard');
-      } else if (user.jobCode === 'J1' || user.jobCode === 'J3' || user.jobCode === 'J4') {
+      } else if (['J1', 'J3', 'J4'].includes(user.jobCode)) {
         navigate('/MemberDashBoard');
       } else if (user.jobCode === 'J0') {
         alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');

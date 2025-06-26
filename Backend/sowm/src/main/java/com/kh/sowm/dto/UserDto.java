@@ -89,6 +89,9 @@ public class UserDto {
         private String status;
         private String jobCode;
         private String deptCode;
+        
+        // 변경 될 비밀번호
+        private String newPwd;
 
         // 회원가입 dto
        public User signUp() {
