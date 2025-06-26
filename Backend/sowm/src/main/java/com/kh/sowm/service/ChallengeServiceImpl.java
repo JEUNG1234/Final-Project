@@ -3,6 +3,7 @@ package com.kh.sowm.service;
 import com.kh.sowm.dto.ChallengeDto;
 import com.kh.sowm.entity.Challenge;
 import com.kh.sowm.entity.ChallengeComplete;
+import com.kh.sowm.entity.ChallengeResult;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Vote;
 import com.kh.sowm.entity.VoteContent;
@@ -30,7 +31,8 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final UserRepository userRepository;
     private final VoteRepository voteRepository;
     private final VoteContentRepository voteContentRepository;
-    private final ChallengeCompleteRepository challengeCompleteRepository; // 주입
+    private final ChallengeCompleteRepository challengeCompleteRepository;
+    private final ChallengeResultRepository challengeResultRepository;
 
     @Override
     public Long createChallenge(ChallengeDto.CreateRequest requestDto) {
@@ -104,10 +106,40 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> findMyChallenges(String userId) {
         LocalDate today = LocalDate.now();
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+
         List<Challenge> allUserChallenges = challengeRepository.findAllByUserId(userId);
+
+        for (Challenge challenge : allUserChallenges) {
+            if (challenge.getChallengeEndDate().isBefore(today) &&
+                    challengeResultRepository.findByUserAndChallenge(user, challenge).isEmpty()) {
+
+                long totalDuration = challenge.getChallengeEndDate().toEpochDay() - challenge.getChallengeStartDate().toEpochDay() + 1;
+                long completedCount = challenge.getCompletions().stream()
+                        .filter(c -> c.getUser().getUserId().equals(userId))
+                        .count();
+                int achievementRate = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
+
+                boolean isSuccess = achievementRate >= 70; // 달성률 70% 이상일 때만 성공
+
+                ChallengeResult result = ChallengeResult.builder()
+                        .user(user)
+                        .challenge(challenge)
+                        .success(isSuccess)
+                        .finalAchievementRate(achievementRate)
+                        .build();
+                challengeResultRepository.save(result);
+
+                if (isSuccess) {
+                    user.addPoints(challenge.getChallengePoint());
+                    userRepository.save(user); // 변경된 포인트를 DB에 저장
+                }
+            }
+        }
 
         Optional<Challenge> ongoingChallengeOpt = allUserChallenges.stream()
                 .filter(c -> !c.getChallengeEndDate().isBefore(today))
@@ -140,6 +172,8 @@ public class ChallengeServiceImpl implements ChallengeService {
         response.put("completedChallenges", allUserChallenges.stream()
                 .map(challenge -> ChallengeDto.MyChallengeResponse.fromEntity(challenge, userId))
                 .collect(Collectors.toList()));
+
+        response.put("userTotalPoints", user.getPoint());
 
         return response;
     }

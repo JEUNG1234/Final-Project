@@ -125,4 +125,10 @@ public class User {
         this.department = newDepartment;
     }
 
+    public void addPoints(int points) {
+        if (this.point == null) {
+            this.point = 0;
+        }
+        this.point += points;
+    }
 }
