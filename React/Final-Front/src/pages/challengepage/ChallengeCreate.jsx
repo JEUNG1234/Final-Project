@@ -88,7 +88,8 @@ const ChallengeCreate = () => {
 
       await challengeService.createChallenge(payload);
       alert('챌린지가 성공적으로 생성되었습니다.');
-      navigate('/challenge');
+      // 수정: 챌린지 목록 대신 투표 결과 페이지로 이동
+      navigate(`/voteresult/${prefillData.voteNo}`);
     } catch (error) {
       alert('챌린지 생성에 실패했습니다.');
       console.error(error);

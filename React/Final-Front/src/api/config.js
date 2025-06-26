@@ -61,6 +61,9 @@ export const API_ENDPOINTS = {
 
   CHALLENGE: {
     BASE: '/challenges',
+    COMPLETE: (challengeNo) => `/challenges/${challengeNo}/complete`,
+    CHECK_ACTIVE: '/challenges/active-status',
+    MY_CHALLENGES: '/challenges/my', // 나의 챌린지 엔드포인트 추가
   },
 
   BOARD: {
@@ -87,4 +90,6 @@ export const API_ENDPOINTS = {
     mentalquestion: '/health/mentalquestion',
     mentalresult: '/health/mentalquestion/result',
   },
+
+  
 };

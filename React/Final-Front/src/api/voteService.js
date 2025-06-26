@@ -47,6 +47,8 @@ export const voteService = {
   getVoteDetails: async (voteId) => {
     try {
       const response = await api.get(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`);
+      // 디버그 코드 추가
+      console.log('✅ [DEBUG] voteService - API 응답 데이터:', response.data);
       return response.data;
     } catch (error) {
       console.error('투표 상세 정보 조회 API 호출 중 오류 발생:', error);
