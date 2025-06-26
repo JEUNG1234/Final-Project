@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { media } from '../../styles/MediaQueries';
-// import { v4 as uuidv4 } from 'uuid';
-// import axios from 'axios';
 import * as yup from 'yup';
 
 import { PageTitle, PageButton } from '../../styles/common/MainContentLayout';
@@ -130,7 +128,7 @@ const WorkationEnrollForm = () => {
     // 숫자인지 확인하고 계산
     const number = parseFloat(value);
     if (!isNaN(number)) {
-      const converted = (number * 0.3025).toFixed(2); // 소수점 2자리까지
+      const converted = (number * 0.3025).toFixed(2);
       setAreaPyeong(converted);
     } else {
       setAreaPyeong('');
@@ -158,11 +156,6 @@ const WorkationEnrollForm = () => {
     }
   };
 
- 
-  // placeImage: placeImgInfo ? placeImgInfo.filename : '',
-  // facilityImage: facilityImgInfo ? facilityImgInfo.filename : '',
-  // precautionImage: precautionImgInfo ? precautionImgInfo.filename : '',
-
   const onSubmit = async (data) => {
     try {
       const placeImgInfo = await fileupload.uploadImageToS3(placeImage.file, 'workation/');
@@ -175,31 +168,28 @@ const WorkationEnrollForm = () => {
       console.log(precautionImgInfo.filename);
 
       const images = [
-  {
-    originalName: placeImage.file.name,
-    changedName: placeImgInfo.filename,   // S3에 저장된 uuid.jpg
-    path: placeImgInfo.url,               // S3 URL
-    size: placeImage.file.size,
-    tab: "PLACE",                             // 대표
-              // 방금 등록한 워케이션 PK
-  },
-  {
-    originalName: facilityImage.file.name,
-    changedName: facilityImgInfo.filename,
-    path: facilityImgInfo.url,
-    size: facilityImage.file.size,
-    tab: "FACILITY", // 시설
-  
-  },
-  {
-    originalName: precautionImage.file.name,
-    changedName: precautionImgInfo.filename,
-    path: precautionImgInfo.url,
-    size: precautionImage.file.size,
-    tab: "PRECAUTIONS", // 유의사항
-    
-  }
-];
+        {
+          originalName: placeImage.file.name,
+          changedName: placeImgInfo.filename,
+          path: placeImgInfo.url,
+          size: placeImage.file.size,
+          tab: 'PLACE',
+        },
+        {
+          originalName: facilityImage.file.name,
+          changedName: facilityImgInfo.filename,
+          path: facilityImgInfo.url,
+          size: facilityImage.file.size,
+          tab: 'FACILITY',
+        },
+        {
+          originalName: precautionImage.file.name,
+          changedName: precautionImgInfo.filename,
+          path: precautionImgInfo.url,
+          size: precautionImage.file.size,
+          tab: 'PRECAUTIONS',
+        },
+      ];
       const location = {
         placeInfo,
         address: data.address,
@@ -227,6 +217,7 @@ const WorkationEnrollForm = () => {
         location,
         userId: user.userId,
         images: images,
+        selectedDays,
       };
 
       console.log(requestBody);
@@ -267,7 +258,7 @@ const WorkationEnrollForm = () => {
         {activeTab === 'intro' && (
           <>
             <ImageSection>
-              <img src={placeImage.previewUrl} alt="장소 이미지 미리보기" />
+              {placeImage.previewUrl && <img src={placeImage.previewUrl} alt="장소 이미지 미리보기" />}
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
             <Title>제주 애월 스테이</Title>
@@ -283,7 +274,7 @@ const WorkationEnrollForm = () => {
         {activeTab === 'facilities' && (
           <>
             <ImageSection>
-              <img src={facilityImage.previewUrl} alt="시설 미리보기" />
+              {facilityImage.previewUrl && <img src={facilityImage.previewUrl} alt="장소 이미지 미리보기" />}
             </ImageSection>{' '}
             <FacilityContent>
               <FacilityLeftContent>
@@ -323,7 +314,7 @@ const WorkationEnrollForm = () => {
             <Subtitle>예약시 주의사항</Subtitle>
             <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
             <ImageSection>
-              <img src={precautionImage.previewUrl} alt="유의사항이미지 미리보기" />
+              {precautionImage.previewUrl && <img src={precautionImage.previewUrl} alt="장소 이미지 미리보기" />}
             </ImageSection>{' '}
           </>
         )}
@@ -627,11 +618,11 @@ const MainContent = styled.div`
   text-align: center;
 `;
 
-const DayButton = styled(PageButton)`
-  padding: 0;
-  width: 3vw;
-  height: 4vh;
-  max-width: 45px;
+const DayButton = styled(PageButton).withConfig({
+  shouldForwardProp: (prop) => prop !== 'isSelected'
+})`
+  background-color: ${({ isSelected }) => (isSelected ? '#267eff' : 'white')};
+  color: ${({ isSelected }) => (isSelected ? 'white' : '#267eff')};
 `;
 
 const DateContent = styled.form`
