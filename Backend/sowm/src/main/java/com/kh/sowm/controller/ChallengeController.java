@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -42,5 +43,41 @@ public class ChallengeController {
     public ResponseEntity<ChallengeDto.DetailResponse> getChallengeById(@PathVariable Long challengeNo) {
         ChallengeDto.DetailResponse challenge = challengeService.findChallengeById(challengeNo);
         return ResponseEntity.ok(challenge);
+    }
+
+    /**
+     * 챌린지 참여(인증) API 추가
+     * @param challengeNo 참여할 챌린지 ID
+     * @param requestDto 인증글 내용 (title, content, userId)
+     * @return 생성된 인증글의 ID
+     */
+    @PostMapping("/{challengeNo}/complete")
+    public ResponseEntity<Long> createCompletion(
+            @PathVariable Long challengeNo,
+            @RequestBody ChallengeDto.CompletionRequest requestDto) {
+        Long completionId = challengeService.createChallengeCompletion(challengeNo, requestDto);
+        return ResponseEntity.ok(completionId);
+    }
+
+    /**
+     * 사용자의 활성 챌린지 참여 상태를 확인하는 API 추가
+     * @param userId 확인할 사용자의 ID
+     * @return 활성 챌린지 참여 여부 (true/false)
+     */
+    @GetMapping("/active-status")
+    public ResponseEntity<Map<String, Boolean>> checkActiveChallenge(@RequestParam String userId) {
+        boolean hasActive = challengeService.hasActiveChallenge(userId);
+        return ResponseEntity.ok(Map.of("hasActiveChallenge", hasActive));
+    }
+
+    /**
+     * 사용자의 챌린지 목록(진행중/완료)을 조회하는 API 추가
+     * @param userId 조회할 사용자의 ID
+     * @return 챌린지 목록 DTO
+     */
+    @GetMapping("/my")
+    public ResponseEntity<Map<String, Object>> getMyChallenges(@RequestParam String userId) {
+        Map<String, Object> myChallenges = challengeService.findMyChallenges(userId);
+        return ResponseEntity.ok(myChallenges);
     }
 }

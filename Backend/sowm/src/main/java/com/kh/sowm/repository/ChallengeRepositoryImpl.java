@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,11 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
 
     @Override
     public void save(Challenge challenge) {
-        em.persist(challenge);
+        if (!em.contains(challenge)) {
+            em.persist(em.merge(challenge));
+        } else {
+            em.persist(challenge);
+        }
     }
 
     @Override
@@ -58,13 +63,31 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         return new PageImpl<>(challenges, pageable, total);
     }
 
-    /**
-     * ID로 챌린지 조회 구현
-     * @param challengeNo 조회할 챌린지 ID
-     * @return 챌린지 Optional 객체
-     */
     @Override
     public Optional<Challenge> findById(Long challengeNo) {
         return Optional.ofNullable(em.find(Challenge.class, challengeNo));
+    }
+
+    @Override
+    public List<Challenge> findCompletedChallengesByUserId(String userId, LocalDate today) {
+        String jpql = "SELECT DISTINCT c FROM Challenge c " +
+                "JOIN c.completions cc " +
+                "WHERE cc.user.userId = :userId " +
+                "AND c.challengeEndDate < :today";
+        return em.createQuery(jpql, Challenge.class)
+                .setParameter("userId", userId)
+                .setParameter("today", today)
+                .getResultList();
+    }
+
+    @Override
+    public List<Challenge> findAllByUserId(String userId) {
+        String jpql = "SELECT DISTINCT c FROM Challenge c " +
+                "JOIN c.completions cc " +
+                "WHERE cc.user.userId = :userId " +
+                "ORDER BY c.challengeStartDate DESC";
+        return em.createQuery(jpql, Challenge.class)
+                .setParameter("userId", userId)
+                .getResultList();
     }
 }

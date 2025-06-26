@@ -62,7 +62,7 @@ const VoteList = () => {
     }
   };
   
-  // ✅ [추가] 투표 삭제 핸들러 함수
+  // 투표 삭제 핸들러 함수
   const handleDeleteVote = async (voteNo) => {
     if (window.confirm(`정말로 ${voteNo}번 투표를 삭제하시겠습니까?`)) {
       try {
@@ -111,7 +111,7 @@ const VoteList = () => {
       <VoteListWrapper>
         {voteList.map((vote) => {
           const dDay = calculateDday(vote.voteEndDate);
-          const isFinished = dDay < 0;
+          const isFinished = dDay < 0; // "종료" 상태 조건: D-day가 0보다 작을 때
           const hasVoted = !!vote.votedOptionNo;
 
           return (
@@ -148,7 +148,7 @@ const VoteList = () => {
                     </DeleteButton>
                   )}
 
-                  <Dday>{isFinished ? '종료' : `D-${dDay}`}</Dday>
+                  <Dday>{isFinished ? '투표 종료' : dDay === 0 ? 'D-Day' : `D-${dDay}`}</Dday>
                   {openId === vote.voteNo ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
                 </ActionWrapper>
               </VoteHeader>
@@ -359,6 +359,8 @@ const Dday = styled.span`
   font-size: 16px;
   font-weight: 700;
   color: #333;
+  width: 80px; /* 고정 너비 부여 */
+  text-align: center; /* 텍스트 중앙 정렬 */
 `;
 const OptionContainer = styled.div`
   padding: ${(props) => (props.$isOpen ? '20px 20px 20px 52px' : '0 20px 0 52px')};

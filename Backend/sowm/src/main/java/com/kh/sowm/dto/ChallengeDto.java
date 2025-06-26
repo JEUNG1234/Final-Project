@@ -25,6 +25,14 @@ public class ChallengeDto {
     }
 
     @Getter
+    @NoArgsConstructor
+    public static class CompletionRequest {
+        private String userId;
+        private String completeTitle;
+        private String completeContent;
+    }
+
+    @Getter
     @Builder
     public static class ListResponse {
         private Long challengeNo;
@@ -56,6 +64,7 @@ public class ChallengeDto {
         private String completeContent;
         private String userName;
         private String userId;
+        private LocalDate createdDate; // 작성일자 필드 추가
 
         public static CompletionResponse fromEntity(ChallengeComplete completion) {
             return CompletionResponse.builder()
@@ -64,6 +73,7 @@ public class ChallengeDto {
                     .completeContent(completion.getCompleteContent())
                     .userName(completion.getUser().getUserName())
                     .userId(completion.getUser().getUserId())
+                    .createdDate(completion.getCreatedDate()) // 필드 매핑
                     .build();
         }
     }
@@ -92,6 +102,36 @@ public class ChallengeDto {
                     .completions(challenge.getCompletions().stream()
                             .map(CompletionResponse::fromEntity)
                             .collect(Collectors.toList()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class MyChallengeResponse {
+        private Long challengeNo;
+        private String challengeTitle;
+        private String challengeImageUrl;
+        private LocalDate challengeStartDate;
+        private LocalDate challengeEndDate;
+        private int challengePoint;
+        private int userAchievementRate; // 개인 달성률
+
+        public static MyChallengeResponse fromEntity(Challenge challenge, String userId) {
+            long totalDuration = challenge.getChallengeEndDate().toEpochDay() - challenge.getChallengeStartDate().toEpochDay() + 1;
+            long completedCount = challenge.getCompletions().stream()
+                    .filter(c -> c.getUser().getUserId().equals(userId))
+                    .count();
+            int achievement = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
+
+            return MyChallengeResponse.builder()
+                    .challengeNo(challenge.getChallengeNo())
+                    .challengeTitle(challenge.getChallengeTitle())
+                    .challengeImageUrl(challenge.getChallengeImageUrl())
+                    .challengeStartDate(challenge.getChallengeStartDate())
+                    .challengeEndDate(challenge.getChallengeEndDate())
+                    .challengePoint(challenge.getChallengePoint())
+                    .userAchievementRate(achievement)
                     .build();
         }
     }
