@@ -1,6 +1,8 @@
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.dto.WorkationDto.WorkationNoDto;
+import com.kh.sowm.dto.WorkationDto.WorkationSubNoDto;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.service.WorkationService;
 import lombok.RequiredArgsConstructor;
@@ -64,12 +66,32 @@ public class WorkationController {
         return WorkationDto.ResponseDto.toDto(deleted);
     }
 
-//    //워케이션 리스트 조회
-//    @GetMapping("/sublist")
-//    public ResponseEntity<List<WorkationDto.WorkationBasicDto>> list(@RequestParam String companyCode) {
-//
-//        return workationService.workationList(companyCode);
-//    }
+    //워케이션 신청 리스트 조회
+    @GetMapping("/sublist")
+    public ResponseEntity<List<WorkationDto.WorkationSubListDto>> sublist(@RequestParam String companyCode) {
+        return workationService.workationSubList(companyCode);
+    }
+
+    //워케이션 신청 승인용
+    @PatchMapping("/subupdate")
+    public ResponseEntity<List<Long>> subupdate(@RequestBody WorkationSubNoDto selectedIds) {
+        List<Long> result = workationService.workationSubUpdate(selectedIds);
+        return ResponseEntity.ok(result);
+    }
+
+    //워케이션 신청 거절용
+    @PatchMapping("/returnupdate")
+    public ResponseEntity<List<Long>> returnupdate(@RequestBody WorkationSubNoDto selectedIds) {
+        List<Long> result = workationService.workationReturnUpdate(selectedIds);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/submylist")
+    public ResponseEntity<List<WorkationDto.WorkationSubListDto>> submylist(@RequestParam String userId) {
+
+        return workationService.workationMySubList(userId);
+    }
+
 
 
 

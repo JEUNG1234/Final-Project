@@ -21,7 +21,6 @@ public class WorkationDto {
     @Builder
     public static class UserCompanyRequest {
         private String userCompanyCode;
-
     }
 
     //이미지 디테일용  dto
@@ -64,8 +63,6 @@ public class WorkationDto {
         private String changeName;
         private String tab;
         private List<WorkationImgDto> workationImages;
-
-
 
         public static ResponseDto toDto(Workation workation) {
             return ResponseDto.builder()
@@ -204,7 +201,6 @@ public class WorkationDto {
         private LocalDate workationStartDate;
         private LocalDate workationEndDate;
         private String placeImage;
-        //        private String placeImage; 이미지는 추후에 추가 예정
 
         public WorkationBasicDto(Long locationNo, String address, String workationTitle, String userId, int peopleMin,
                                  int peopleMax, LocalDate workationStartDate, LocalDate workationEndDate,
@@ -218,7 +214,6 @@ public class WorkationDto {
             this.workationStartDate = workationStartDate;
             this.workationEndDate = workationEndDate;
             this.placeImage = placeImage;
-
         }
 
         public static WorkationBasicDto from(Workation workation) {
@@ -351,8 +346,6 @@ public class WorkationDto {
                     .build();
         }
 
-
-
         public WorkationLocation toLocationEntity() {
             return WorkationLocation.builder()
                     .placeInfo(location.getPlaceInfo())
@@ -404,14 +397,14 @@ public class WorkationDto {
 
     }
 
-
+    //워케이션 신청 리스트
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class WorkationSubListDto {
-        private Long workationNo;
+        private Long workationSubNo;
         private String workationTitle;
         private String userId;
         private int peopleMax;
@@ -419,10 +412,12 @@ public class WorkationDto {
         private LocalDate workationEndDate;
         private String content;
         private String status;
+        private String userName;
+
 
         public static WorkationSubListDto dto(SubmitWorkation workation) {
             return WorkationSubListDto.builder()
-                    .workationNo(workation.getWorkationSubNo())
+                    .workationSubNo(workation.getWorkationSubNo())
                     .workationTitle(workation.getWorkation().getWorkationTitle())
                     .userId(workation.getUser().getUserId())
                     .workationStartDate(workation.getStartDate())
@@ -430,9 +425,28 @@ public class WorkationDto {
                     .peopleMax(workation.getPeopleMax())
                     .content(workation.getContent())
                     .status(workation.getStatus().toString())
+                    .userName(workation.getUser().getUserName())
                     .build();
         }
+    }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class WorkationSubNoDto {
+        private List<Long> workationSubNo;
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class WorkationUserIdDto {
+        private String userId;
 
     }
 

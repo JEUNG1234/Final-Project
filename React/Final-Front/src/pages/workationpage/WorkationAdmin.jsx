@@ -11,36 +11,21 @@ const MainContent = styled(BaseMainContent)`
   min-height: auto;
 `;
 
-// Mock 데이터 (실제로는 API를 통해 받아옵니다)
-const mockData = [
-  { id: 1, schedule: '5.29 - 5.31', name: '황동준', location: '부산', reason: '모름', status: '승인' },
-  { id: 2, schedule: '5.29 - 5.31', name: '카리나', location: '경기도', reason: '커피 감', status: '승인' },
-  { id: 3, schedule: '5.29 - 5.31', name: '윈터', location: '제주도', reason: '바다 보러 감', status: '승인' },
-  { id: 4, schedule: '5.29 - 5.31', name: '정인구', location: '제주도', reason: '흑돼지 먹으러 감', status: '승인' },
-  { id: 5, schedule: '5.29 - 5.31', name: '황윤창', location: '집', reason: '치킨 먹을거임', status: '승인' },
-  { id: 6, schedule: '5.29 - 5.31', name: '박지성', location: '일본', reason: '라면 먹으러 감', status: '대기' },
-  { id: 7, schedule: '5.29 - 5.31', name: 'kim', location: '방콕', reason: '방에서 콕 있을거임', status: '대기' },
-  { id: 8, schedule: '5.29 - 5.31', name: 'james', location: '부산', reason: '국밥 먹으러 감', status: '대기' },
-  { id: 9, schedule: '5.29 - 5.31', name: 'alice', location: '제주도', reason: '그냥2', status: '대기' },
-  { id: 10, schedule: '5.29 - 5.31', name: '최지원', location: '제주도', reason: '그냥', status: '대기' },
-];
-
 const WorkationAdmin = () => {
   const { user } = useUserStore();
-  const [requests, setRequests] = useState(mockData);
-  const [selectedIds, setSelectedIds] = useState([]);
+
+  const [workationSubNo, setWorkationSubNo] = useState([]);
 
   // 전체 선택/해제 핸들러
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      const allIds = requests.map((req) => req.id);
-      setSelectedIds(allIds);
+      const allIds = workationData.map((req) => req.workationSubNo);
+      setWorkationSubNo(allIds);
     } else {
-      setSelectedIds([]);
+      setWorkationSubNo([]);
     }
   };
 
-  const [workationData, setWorkationData] = useState([]);
   useEffect(() => {
     const workationSubList = async () => {
       try {
@@ -52,27 +37,82 @@ const WorkationAdmin = () => {
         console.error('워케이션 신청 리스트 불러오기 실패:', error.message);
       }
     };
-    workationSubList;
+    workationSubList();
     console.log(workationData);
   }, []);
 
+  const getStatusText = (status) => {
+    if (status === 'W') return '대기';
+    if (status === 'Y') return '승인';
+    if (status === 'N') return '거절';
+    return status;
+  };
+
+  const [workationData, setWorkationData] = useState([]);
+
   // 개별 선택/해제 핸들러
   const handleSelectSingle = (id) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+    setWorkationSubNo((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   // 승인/거부 처리 핸들러
-  const handleAction = (action) => {
-    if (selectedIds.length === 0) {
+  // const handleAction = (action) => {
+  //   if (selectedIds.length === 0) {
+  //     alert('항목을 먼저 선택해주세요.');
+  //     return;
+  //   }
+  //   // 실제 로직: API 호출로 선택된 ID들의 상태를 변경합니다.
+  //   console.log(`${action}할 ID:`, selectedIds);
+  //   // UI 업데이트 (예시)
+  //   setWorkationData((prevReqs) => prevReqs.map((req) => (selectedIds.includes(req.id) ? { ...req, status: action } : req)));
+  //   setSelectedIds([]); // 선택 해제
+  //   alert(`${selectedIds.length}개의 항목을 ${action} 처리했습니다.`);
+  // };
+
+  console.log('workationSubNo', workationSubNo);
+
+  const handleReturnAction = async (workationSubNo) => {
+    console.log('workationSubNo', workationSubNo);
+
+    if (workationSubNo.length === 0) {
       alert('항목을 먼저 선택해주세요.');
       return;
     }
-    // 실제 로직: API 호출로 선택된 ID들의 상태를 변경합니다.
-    console.log(`${action}할 ID:`, selectedIds);
-    // UI 업데이트 (예시)
-    setRequests((prevReqs) => prevReqs.map((req) => (selectedIds.includes(req.id) ? { ...req, status: action } : req)));
-    setSelectedIds([]); // 선택 해제
-    alert(`${selectedIds.length}개의 항목을 ${action} 처리했습니다.`);
+    try {
+      const workResponse = await workationService.handleReturnAction(workationSubNo);
+
+      console.log(workResponse);
+      alert('성공적으로 처리되었습니다.');
+
+      const updatedData = await workationService.workationSubList(user.companyCode);
+      setWorkationData(updatedData);
+      setWorkationSubNo([]);
+    } catch (error) {
+      console.error('워케이션 신청 승인 에러', error);
+      alert('워케이션 신청 승인 중 에러가 발생했습니다.');
+    }
+  };
+
+  const handleApprovedAction = async (workationSubNo) => {
+    console.log('workationSubNo', workationSubNo);
+
+    if (workationSubNo.length === 0) {
+      alert('항목을 먼저 선택해주세요.');
+      return;
+    }
+    try {
+      const workResponse = await workationService.workationApprovedUpdate(workationSubNo);
+
+      console.log(workResponse);
+      alert('성공적으로 처리되었습니다.');
+
+      const updatedData = await workationService.workationSubList(user.companyCode);
+      setWorkationData(updatedData);
+      setWorkationSubNo([]);
+    } catch (error) {
+      console.error('워케이션 신청 승인 에러', error);
+      alert('워케이션 신청 승인 중 에러가 발생했습니다.');
+    }
   };
 
   return (
@@ -88,7 +128,7 @@ const WorkationAdmin = () => {
               <input
                 type="checkbox"
                 onChange={handleSelectAll}
-                checked={selectedIds.length === requests.length && requests.length > 0}
+                checked={workationSubNo.length === workationData.length && workationData.length > 0}
               />
             </TableHeader>
             <TableHeader>번호 ↓</TableHeader>
@@ -100,22 +140,27 @@ const WorkationAdmin = () => {
           </tr>
         </thead>
         <tbody>
-          {requests.map((req) => (
-            <TableRow key={req.id}>
+          {workationData.map((req) => (
+            
+            <TableRow key={req.workationSubNo}>
+              
               <TableCell>
                 <input
                   type="checkbox"
-                  checked={selectedIds.includes(req.id)}
-                  onChange={() => handleSelectSingle(req.id)}
+                  checked={workationSubNo.includes(req.workationSubNo)}
+                  onChange={() => handleSelectSingle(req.workationSubNo)}
                 />
               </TableCell>
-              <TableCell>{req.id}</TableCell>
-              <TableCell>{req.schedule}</TableCell>
-              <TableCell>{req.name}</TableCell>
-              <TableCell>{req.location}</TableCell>
-              <TableCell>{req.reason}</TableCell>
+              <TableCell>{req.workationSubNo}</TableCell>
               <TableCell>
-                <StatusBadge status={req.status}>{req.status}</StatusBadge>
+                {req.workationStartDate}~{req.workationEndDate}
+              </TableCell>
+              <TableCell>{req.userName}</TableCell>
+              <TableCell>{req.workationTitle}</TableCell>
+              <TableCell>{req.content}</TableCell>
+              <TableCell>
+                {console.log(req.status, getStatusText(req.status))}
+                <StatusBadge status={req.status}>{getStatusText(req.status)}</StatusBadge>
               </TableCell>
             </TableRow>
           ))}
@@ -123,10 +168,10 @@ const WorkationAdmin = () => {
       </AdminTable>
 
       <ButtonContainer>
-        <ActionButton variant="reject" onClick={() => handleAction('거부')}>
+        <ActionButton variant="reject" onClick={() => handleReturnAction({ workationSubNo })}>
           거부
         </ActionButton>
-        <ActionButton variant="approve" onClick={() => handleAction('승인')}>
+        <ActionButton variant="approve" onClick={() => handleApprovedAction({ workationSubNo })}>
           승인
         </ActionButton>
       </ButtonContainer>
@@ -181,16 +226,16 @@ const StatusBadge = styled.span`
   font-size: 13px;
 
   color: ${(props) => {
-    if (props.status === '대기') return '#9A6700';
-    if (props.status === '승인') return '#047857';
-    if (props.status === '거부') return '#991B1B';
+    if (props.status === 'W') return '#9A6700';
+    if (props.status === 'Y') return '#047857';
+    if (props.status === 'N') return '#991B1B';
     return '#333';
   }};
 
   background-color: ${(props) => {
-    if (props.status === '대기') return '#FEF9C3';
-    if (props.status === '승인') return '#D1FAE5';
-    if (props.status === '거부') return '#FEE2E2';
+    if (props.status === 'W') return '#FEF9C3';
+    if (props.status === 'Y') return '#D1FAE5';
+    if (props.status === 'N') return '#FEE2E2';
     return '#F3F4F6';
   }};
 `;
