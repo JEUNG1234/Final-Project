@@ -66,6 +66,7 @@ const CommunityBoard = () => {
           hasNext,
           hasPrevious,
         });
+        console.log('게시글 목록:', response.data);
       } catch (error) {
         console.error('게시글 불러오기 실패:', error);
       }
