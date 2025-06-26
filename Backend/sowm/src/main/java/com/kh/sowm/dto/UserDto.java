@@ -25,6 +25,8 @@ public class UserDto {
         private Integer point;
         private String jobCode;
         private String deptCode;
+        private String deptName;
+        private String jobName;
         private String companyCode;
         private String status;
 
@@ -52,7 +54,9 @@ public class UserDto {
                     .userName(user.getUserName())
                     .email(user.getEmail())
                     .jobCode(user.getJob().getJobCode())
+                    .jobName(user.getJob().getJobName())
                     .deptCode(user.getDepartment().getDeptCode())
+                    .deptName(user.getDepartment().getDeptName())
                     .createdDate(user.getCreatedDate())
                     .updatedDate(user.getUpdatedDate())
                     .companyCode(user.getCompanyCode())
