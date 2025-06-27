@@ -59,7 +59,10 @@ const Challenge = () => {
         {challenges.map((challenge) => (
           <ChallengeCard key={challenge.challengeNo} onClick={() => navigate(`/challenge/${challenge.challengeNo}`)}>
             <CardImageArea>
-              <CardImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
+              <CardImage 
+                src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
+                alt={challenge.challengeTitle} 
+              />
             </CardImageArea>
             <CardContent>
               <CardTitle>챌린지: {challenge.challengeTitle}</CardTitle>
@@ -184,7 +187,7 @@ const CardImage = styled.img`
   width: 90%;
   height: 85%; /* 기존 120px에서 100px로 줄임 */
   object-fit: contain;
-  background-color: #ffffff; 
+  background-color: #ffffff; /* 빈 공간에 배경색을 주어 더 깔끔하게 보일 수 있습니다 */
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
 `;

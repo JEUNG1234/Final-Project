@@ -70,7 +70,7 @@ const ChallengeCreate = () => {
 
     try {
       const imageInfo = await fileupload.uploadImageToS3(imageFile, 'challenge-thumbnails/');
-      if (!imageInfo || !imageInfo.url) {
+      if (!imageInfo || !imageInfo.filename) {
         alert('이미지 업로드에 실패했습니다.');
         return;
       }
@@ -83,7 +83,7 @@ const ChallengeCreate = () => {
         challengeStartDate: formData.challengeStartDate,
         challengeEndDate: formData.challengeEndDate,
         challengePoint: parseInt(formData.challengePoint, 10),
-        challengeImageUrl: imageInfo.url,
+        challengeImageUrl: imageInfo.filename, // 수정: url -> filename
       };
 
       await challengeService.createChallenge(payload);

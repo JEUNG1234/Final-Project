@@ -85,7 +85,10 @@ const MyCallenge = () => {
           {completedChallenges.map((challenge) => (
             <ChallengeCard key={challenge.challengeNo} onClick={() => navigate(`/mychallenge/complete/${challenge.challengeNo}`)}>
               <CardImageArea>
-                <CardImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
+                <CardImage 
+                  src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
+                  alt={challenge.challengeTitle} 
+                />
               </CardImageArea>
               <CardContent>
                 <CardTitle>챌린지: {challenge.challengeTitle}</CardTitle>

@@ -100,7 +100,10 @@ const ChallengeDetail = () => {
             </ProgressText>
           </ProgressBarWrapper>
         </SummaryTextContent>
-        <SummaryImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
+        <SummaryImage 
+              src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
+              alt={challenge.challengeTitle} 
+            />
       </ChallengeSummarySection>
 
       <JoinButtonArea>
