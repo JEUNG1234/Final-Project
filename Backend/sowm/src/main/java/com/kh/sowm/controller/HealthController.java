@@ -1,14 +1,26 @@
 package com.kh.sowm.controller;
 
+import com.kh.sowm.dto.BoardDto;
+import com.kh.sowm.dto.BoardDto.Response;
 import com.kh.sowm.dto.MedicalCheckDto;
+import com.kh.sowm.dto.MedicalCheckDto.MedicalCheckResultDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalResultDto;
+
+import com.kh.sowm.dto.MedicalCheckDto.PhysicalQuestionDto;
+import com.kh.sowm.dto.MedicalCheckDto.PhysicalResultDto;
+import com.kh.sowm.dto.PageResponse;
 import com.kh.sowm.entity.MedicalCheckResult;
+import com.kh.sowm.entity.MedicalCheckResult.Type;
 import com.kh.sowm.service.HealthService;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -44,6 +56,43 @@ public class HealthController {
     public ResponseEntity<MedicalCheckDto.MentalResultDto> getMentalCheckResult(@RequestParam String userId) {
         MentalResultDto result = healthService.getMentalCheckResult(userId);
         return ResponseEntity.ok(result);
+    }
+
+
+    @PostMapping("/physicalquestion")
+    public ResponseEntity<MedicalCheckDto.PhysicalQuestionDto> askQuestions(
+            @RequestBody MedicalCheckDto.PhysicalQuestionRequestDto requestDto) {
+
+        PhysicalQuestionDto result = healthService.getPhysicalQuestion(requestDto, requestDto.getUserId());
+        System.out.println("전송한 아이디 : " + requestDto.getUserId());
+        return ResponseEntity.ok(result);
+    }
+
+    // 테스트한 결과 프론트로 출력
+    @GetMapping("/physicalquestion/result")
+    public ResponseEntity<MedicalCheckDto.PhysicalResultDto> getPhysicalCheckResult(@RequestParam String userId) {
+        PhysicalResultDto result = healthService.getPhysicalCheckResult(userId);
+        return ResponseEntity.ok(result);
+    }
+
+
+    /*
+        page: 보고자 하는 페이지 번호 (0부터 시작)
+        size: 한 페이지당 몇 개씩 가지고 올 것인지
+        sort: 정렬 기준 (예: "createdDate,desc")
+        title: 검색할 게시글 제목
+        writer: 검색할 작성자 이름
+        categoryNo: 검색할 카테고리 번호
+         */
+    @GetMapping("/allresult")
+    public ResponseEntity<PageResponse<MedicalCheckResultDto>> getAllResult(
+            @PageableDefault(size = 10, sort = "medicalCheckCreateDate", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) LocalDate createDate,
+            @RequestParam(required = false) Type type
+    ) {
+        return ResponseEntity.ok(
+                new PageResponse<>(healthService.getResultList(pageable, createDate, type))
+        );
     }
 
 

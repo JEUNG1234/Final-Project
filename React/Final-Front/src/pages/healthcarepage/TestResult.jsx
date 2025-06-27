@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   MainContent,
   ContentHeader,
@@ -8,52 +8,47 @@ import {
   Pagination,
   PageButton,
 } from '../../styles/common/MainContentLayout';
-import { FaHeartbeat, FaSearch, FaPlus, FaSortDown } from 'react-icons/fa';
-import { useState } from 'react';
+import { FaHeartbeat, FaSearch, FaSortDown } from 'react-icons/fa';
 import styled from 'styled-components';
+import { healthService } from '../../api/health';
 
 const TestResult = () => {
-  const posts = [
-    { id: 1, date: '2025-06-12', category: '신체검사', score: '80', comment: '훌륭하게 신체 관리를 하고 계십니다!' },
-    { id: 2, date: '2025-06-12', category: '심리검사', score: '70', comment: '훌륭하게 심리 관리를 하고 계십니다!' },
-    { id: 3, date: '2025-06-10', category: '신체검사', score: '65', comment: '운동량을 조금 더 늘려보는 건 어떨까요?' },
-    { id: 4, date: '2025-06-09', category: '심리검사', score: '85', comment: '정서적 안정 상태가 매우 좋습니다!' },
-    { id: 5, date: '2025-06-08', category: '신체검사', score: '90', comment: '아주 건강한 신체 상태입니다!' },
-    {
-      id: 6,
-      date: '2025-06-07',
-      category: '심리검사',
-      score: '60',
-      comment: '스트레스를 조금 줄이는 방법을 찾아보세요.',
-    },
-    { id: 7, date: '2025-06-05', category: '신체검사', score: '75', comment: '체중 관리에 신경 쓰면 더 좋습니다.' },
-    {
-      id: 8,
-      date: '2025-06-04',
-      category: '심리검사',
-      score: '78',
-      comment: '심리적 안정이 어느 정도 유지되고 있습니다.',
-    },
-  ];
-
   const [selectedDate, setSelectedDate] = useState('');
-  const [selectedCategory, setselectedCategory] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState(posts);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [results, setResults] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    currentPage: 0,
+    totalPage: 1,
+  });
 
-  const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
+  const fetchData = async (page = 0) => {
+    try {
+      const res = await healthService.getAllResultList({
+        page,
+        size: 10,
+        createDate: selectedDate || undefined,
+        type: selectedCategory === '신체검사' ? 'PHYSICAL' : selectedCategory === '심리검사' ? 'PSYCHOLOGY' : undefined,
+      });
+      setResults(res.content);
+      setPageInfo({
+        currentPage: res.currentPage,
+        totalPage: res.totalPage,
+      });
+    } catch (err) {
+      console.error('결과 불러오기 실패:', err);
+    }
   };
-  const handleCategoryChange = (event) => {
-    setselectedCategory(event.target.value);
-  };
+
+  useEffect(() => {
+    fetchData(); // 초기 로딩
+  }, []);
 
   const handleSearch = () => {
-    const filtered = posts.filter((post) => {
-      const matchDate = selectedDate ? post.date === selectedDate : true;
-      const matchCategory = selectedCategory ? post.category === selectedCategory : true;
-      return matchDate && matchCategory;
-    });
-    setFilteredPosts(filtered); // 조회 버튼 클릭 시만 반영
+    fetchData(0); // 필터 조건으로 0페이지부터 다시 요청
+  };
+
+  const handlePageChange = (page) => {
+    fetchData(page);
   };
 
   return (
@@ -66,17 +61,15 @@ const TestResult = () => {
         <h2>건강결과 기록</h2>
         <hr />
       </ContentHeader>
+
       <BoardActions>
-        {/* 날짜 검색 input */}
-        <SearchInput type="date" placeholder="날짜검색" value={selectedDate} onChange={handleDateChange} />
-        <CategoryInput value={selectedCategory} onChange={handleCategoryChange}>
+        <SearchInput type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+        <CategoryInput value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
           <option value="">전체</option>
           <option value="신체검사">신체검사</option>
           <option value="심리검사">심리검사</option>
         </CategoryInput>
         <ActionButton primary onClick={handleSearch}>
-          {' '}
-          {/* 조회 버튼에 핸들러 연결 */}
           <FaSearch /> 조회
         </ActionButton>
       </BoardActions>
@@ -86,24 +79,24 @@ const TestResult = () => {
           <tr>
             <TableHeaderCell>번호</TableHeaderCell>
             <TableHeaderCell>날짜</TableHeaderCell>
-            <TableHeaderCell sortable>
+            <TableHeaderCell>
               유형 <FaSortDown />
             </TableHeaderCell>
-            <TableHeaderCell>평균 점수</TableHeaderCell>
-            <TableHeaderCell sortable>
+            <TableHeaderCell>총 점수</TableHeaderCell>
+            <TableHeaderCell>
               요약 <FaSortDown />
             </TableHeaderCell>
           </tr>
         </thead>
         <tbody>
-          {filteredPosts.length > 0 ? (
-            filteredPosts.map((post, index) => (
-              <TableRow key={post.id}>
+          {results.length > 0 ? (
+            results.map((result, index) => (
+              <TableRow key={result.medicalCheckResultNo}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{post.date}</TableCell>
-                <TableCell>{post.category}</TableCell>
-                <TableCell>{post.score}</TableCell>
-                <TableCell>{post.comment}</TableCell>
+                <TableCell>{result.medicalCheckCreateDate}</TableCell>
+                <TableCell>{result.medicalCheckType}</TableCell>
+                <TableCell>{result.medicalCheckTotalScore}</TableCell>
+                <TableCell>{result.guideMessage}</TableCell>
               </TableRow>
             ))
           ) : (
@@ -116,11 +109,15 @@ const TestResult = () => {
 
       <BottomBar>
         <Pagination>
-          <PageButton>&lt;</PageButton>
-          <PageButton className="active">1</PageButton>
-          <PageButton>2</PageButton>
-          <PageButton>3</PageButton>
-          <PageButton>&gt;</PageButton>
+          {Array.from({ length: pageInfo.totalPage }, (_, i) => (
+            <PageButton
+              key={i}
+              className={pageInfo.currentPage === i ? 'active' : ''}
+              onClick={() => handlePageChange(i)}
+            >
+              {i + 1}
+            </PageButton>
+          ))}
         </Pagination>
       </BottomBar>
     </MainContent>

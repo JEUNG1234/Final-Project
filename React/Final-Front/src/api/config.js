@@ -99,7 +99,8 @@ export const API_ENDPOINTS = {
     BASE: '/health',
     mentalquestion: '/health/mentalquestion',
     mentalresult: '/health/mentalquestion/result',
+    physicalquestion: '/health/physicalquestion',
+    physicalresult: '/health/physicalquestion/result',
+    allresultList: '/health/allresult', // ✅ 결과 목록 추가
   },
-
-  
 };
