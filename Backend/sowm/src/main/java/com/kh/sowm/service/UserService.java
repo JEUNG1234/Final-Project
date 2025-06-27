@@ -1,6 +1,7 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.UserDto;
+import com.kh.sowm.dto.UserDto.RequestDto;
 import com.kh.sowm.entity.User;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,4 +27,8 @@ public interface UserService {
     UserDto.ResponseDto changeStatus(String userId, UserDto.RequestDto requestDto);
 
     UserDto.ResponseDto changeMemberStatus(String userId, UserDto.RequestDto requestDto);
+
+    String deleteUser(String userId);
+
+    String updateUserInfo(RequestDto updateDto, String userId);
 }

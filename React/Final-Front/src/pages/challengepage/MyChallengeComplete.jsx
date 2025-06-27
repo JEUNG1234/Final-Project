@@ -1,59 +1,73 @@
-import React from 'react'; // React 자체는 그대로 임포트
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
 import runningWoman from '../../assets/challengeImg.jpg';
-import { FaPlus } from 'react-icons/fa';
-
-const mockChallengeDetails = {
-  1: {
-    id: 1,
-    breadcrumbs: '하루 10000보 걷기',
-    title: '하루 10000보 걷기',
-    period: '5월 1일 ~ 5월 31일',
-    currentProgressDays: 15,
-    totalChallengeDays: 31,
-    achievement: 50,
-    img: runningWoman,
-    boardPosts: [
-      { id: 1, type: '공지사항', title: '안녕하세요', author: '홍길동', date: '2025/03/01' },
-      { id: 2, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/03/01' },
-      { id: 3, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/02/01' },
-      { id: 4, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/02/01' },
-      { id: 5, type: '챌린지', title: '안녕하세요', author: '홍길동', date: '2025/02/01' },
-    ],
-  },
-};
+import { challengeService } from '../../api/challengeService';
+import useUserStore from '../../Store/useStore';
 
 const MyChallengeComplete = () => {
-  const navigate = useNavigate(); // 뒤로가기 버튼을 위한 navigate 훅
+  const navigate = useNavigate();
+  const { id: challengeNo } = useParams();
+  const [challenge, setChallenge] = useState(null);
+  const [personalAchievement, setPersonalAchievement] = useState(0);
+  const { user } = useUserStore();
+
+  useEffect(() => {
+    const fetchChallengeData = async () => {
+      if (!challengeNo || !user) return;
+      try {
+        const detailData = await challengeService.getChallengeDetails(challengeNo);
+        setChallenge(detailData);
+
+        const userCompletions = detailData.completions.filter(c => c.userId === user.userId);
+        const totalDuration = (new Date(detailData.challengeEndDate).getTime() - new Date(detailData.challengeStartDate).getTime()) / (1000 * 60 * 60 * 24) + 1;
+
+        if (totalDuration > 0) {
+          const calculatedAchievement = Math.round((userCompletions.length / totalDuration) * 100);
+          setPersonalAchievement(calculatedAchievement);
+        }
+      } catch (error) {
+        console.error('챌린지 상세 정보 로딩 실패:', error);
+        alert('챌린지 정보를 불러오는 데 실패했습니다.');
+        navigate('/myChallenge');
+      }
+    };
+
+    fetchChallengeData();
+  }, [challengeNo, user, navigate]);
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  if (!challenge) {
+    return <MainContent>로딩 중...</MainContent>;
+  }
 
   return (
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} MY 챌린지 {'>'} {mockChallengeDetails[1].title}
+        챌린지 {'>'} MY 챌린지 {'>'} {challenge.challengeTitle}
       </PageTitle>
 
       <ChallengeSummarySection>
         <SummaryTextContent>
-          <PeriodText>{mockChallengeDetails[1].period}</PeriodText>
-          <ChallengeTitle>{mockChallengeDetails[1].title}</ChallengeTitle>
+          <PeriodText>{challenge.challengeStartDate} ~ {challenge.challengeEndDate}</PeriodText>
+          <ChallengeTitle>{challenge.challengeTitle}</ChallengeTitle>
           <ProgressBarWrapper>
             <ProgressBarBackground>
-              <ProgressBarFill percentage={mockChallengeDetails[1].achievement} />
+              <ProgressBarFill percentage={personalAchievement} />
             </ProgressBarBackground>
             <ProgressText>
-              {mockChallengeDetails[1].currentProgressDays}/{mockChallengeDetails[1].totalChallengeDays}일 달성{' '}
-              {mockChallengeDetails[1].achievement}%
+              나의 달성률 {personalAchievement}%
             </ProgressText>
           </ProgressBarWrapper>
         </SummaryTextContent>
-        <SummaryImage src={mockChallengeDetails[1].img} alt={mockChallengeDetails[1].title} />
+        <SummaryImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
       </ChallengeSummarySection>
-
-      <JoinButtonArea></JoinButtonArea>
 
       <BoardSection>
         <BoardHeader>
@@ -63,19 +77,25 @@ const MyChallengeComplete = () => {
           <h3>작성일자</h3>
         </BoardHeader>
         <BoardTable>
-          {mockChallengeDetails[1].boardPosts.map((post) => (
-            <BoardRow key={post.id} onClick={() => navigate(`/challenge/challenge_id/${post.id}`)}>
-              <BoardCell typeColumn>{post.type}</BoardCell>
-              <BoardCell>{post.title}</BoardCell>
-              <BoardCell>{post.author}</BoardCell>
-              <BoardCell>{post.date}</BoardCell>
-            </BoardRow>
-          ))}
+          {challenge.completions && challenge.completions.length > 0 ? (
+             challenge.completions
+             .filter(post => post.userId === user.userId) // 내 인증글만 필터링
+             .map((post) => (
+              <BoardRow key={post.completeNo} onClick={() => navigate(`/challenge/challenge_id/${post.completeNo}`)}>
+                <BoardCell typeColumn>챌린지</BoardCell>
+                <BoardCell>{post.completeTitle}</BoardCell>
+                <BoardCell>{post.userName}</BoardCell>
+                <BoardCell>{/* 작성일자 필드가 없으므로 임시로 비워둠 */}</BoardCell>
+              </BoardRow>
+            ))
+          ) : (
+            <NoPostsMessage>등록된 인증글이 없습니다.</NoPostsMessage>
+          )}
         </BoardTable>
       </BoardSection>
 
       <BackButtonContainer>
-        <BackButton onClick={() => navigate(-1)}>뒤로가기</BackButton>
+        <BackButton onClick={handleGoBack}>뒤로가기</BackButton>
       </BackButtonContainer>
     </MainContent>
   );
@@ -83,14 +103,7 @@ const MyChallengeComplete = () => {
 
 export default MyChallengeComplete;
 
-const JoinButtonArea = styled.div`
-  width: 100%;
-  height: 20px;
-  padding-right: 50px;
-  display: flex;
-  justify-content: end;
-`;
-
+// Styled Components... (이전과 동일)
 const ChallengeSummarySection = styled.div`
   background-color: #e6f2ff; /* 연한 파란색 배경 */
   border-radius: 15px;
@@ -225,6 +238,7 @@ const BoardRow = styled.div`
   color: #555;
   align-items: center;
   transition: background-color 0.3s ease;
+  cursor: pointer;
 
   &:last-child {
     border-bottom: none;
@@ -265,7 +279,6 @@ const BackButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
-  /* padding-bottom: 50px; 하단 여백 */
 `;
 
 const BackButton = styled.button`

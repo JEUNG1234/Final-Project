@@ -27,8 +27,9 @@ public class VoteRepositoryImpl implements VoteRepository {
     }
 
     @Override
-    public List<Vote> findAll() {
-        return em.createQuery("SELECT v FROM Vote v ORDER BY v.voteNo DESC", Vote.class)
+    public List<Vote> findAll(String companyCode) {
+        return em.createQuery("SELECT v FROM Vote v WHERE v.companyCode = :companyCode ORDER BY v.voteNo DESC", Vote.class)
+                .setParameter("companyCode", companyCode)
                 .getResultList();
     }
 

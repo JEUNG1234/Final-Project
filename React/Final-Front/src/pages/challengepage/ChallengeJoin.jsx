@@ -1,38 +1,66 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { MainContent, PageTitle, Pagination, PageButton } from '../../styles/common/MainContentLayout'; // 기존 common/MainContentLayout 활용
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
-import { IoCameraOutline } from 'react-icons/io5'; // 사진 첨부 아이콘
+import { IoCameraOutline } from 'react-icons/io5';
+import useUserStore from '../../Store/useStore';
+import { challengeService } from '../../api/challengeService';
 
 const ChallengeJoin = () => {
   const navigate = useNavigate();
+  const { id: challengeNo } = useParams(); // URL에서 challengeNo를 가져옵니다.
+  const { user } = useUserStore();
 
-  // 입력 필드 상태 관리
-  const [breadcrumbs, setBreadcrumds] = useState('하루 10000보 걷기');
-  const [title, setTitle] = useState('하루 만보 걷기 완료'); // 이미지에 있는 기본값 설정
-  const [author, setAuthor] = useState('홍길동'); // 이미지에 있는 기본값 설정
-  const [content, setContent] = useState('열심히 했어'); // 이미지에 있는 기본값 설정
-  const [attachedPhoto, setAttachedPhoto] = useState(null); // 첨부된 사진 파일 상태
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [attachedPhoto, setAttachedPhoto] = useState(null);
 
   const handleGoBack = () => {
-    navigate(-1); // 이전 페이지로 이동
+    navigate(-1);
   };
 
   const handlePhotoAttach = (event) => {
-    // 실제 파일 첨부 로직 (예: 파일을 서버에 업로드하고 URL을 받아오거나, 미리보기)
     const file = event.target.files[0];
     if (file) {
-      setAttachedPhoto(file.name); // 파일 이름만 저장 (실제로는 파일 객체나 URL을 저장)
-      alert(`사진 첨부: ${file.name}`);
+      setAttachedPhoto(file);
     }
   };
+
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      alert('제목과 내용을 모두 입력해주세요.');
+      return;
+    }
+    if (!user || !user.userId) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    try {
+      const payload = {
+        userId: user.userId,
+        completeTitle: title,
+        completeContent: content,
+        // 이미지 업로드 로직은 별도 구현 필요
+      };
+      
+      await challengeService.createCompletion(challengeNo, payload);
+
+      alert('챌린지 참여가 완료되었습니다!');
+      navigate(`/challenge/${challengeNo}`); // 참여 후 상세 페이지로 이동
+    } catch (error) {
+      console.error('챌린지 참여 실패:', error);
+      alert('챌린지 참여에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
 
   return (
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} {breadcrumbs} {'>'} 챌린지 참여
+        챌린지 {'>'} 챌린지 참여
       </PageTitle>
 
       <FormContainer>
@@ -44,10 +72,10 @@ const ChallengeJoin = () => {
         <FormField>
           <Label>작성자</Label>
           <AuthorInputGroup>
-            <AuthorName>{author}</AuthorName>
+            <AuthorName>{user?.userName || '로그인 필요'}</AuthorName>
             <PhotoAttachContainer>
               {attachedPhoto ? (
-                <AttachedPhotoName>{attachedPhoto}</AttachedPhotoName>
+                <AttachedPhotoName>{attachedPhoto.name}</AttachedPhotoName>
               ) : (
                 <PlaceholderPhotoText>사진첨부</PlaceholderPhotoText>
               )}
@@ -66,7 +94,7 @@ const ChallengeJoin = () => {
       </FormContainer>
 
       <GoBackButtonContainer>
-        <GoBackButton onClick={handleGoBack}>참여신청</GoBackButton>
+        <GoBackButton onClick={handleSubmit}>참여신청</GoBackButton>
         <GoBackButton onClick={handleGoBack}>뒤로가기</GoBackButton>
       </GoBackButtonContainer>
     </MainContent>

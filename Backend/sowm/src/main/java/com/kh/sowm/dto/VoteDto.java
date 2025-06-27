@@ -50,6 +50,7 @@ public class VoteDto {
                     .writer(writer)
                     .anonymous(this.anonymous)
                     .points(this.points)
+                    .companyCode(writer.getCompanyCode()) // 작성자의 회사 코드 설정
                     .build();
         }
     }
@@ -116,13 +117,14 @@ public class VoteDto {
         private LocalDate voteEndDate;
         private int totalVotes;
         private Integer points;
+        private boolean isChallengeCreated; // 챌린지 생성 여부 필드 추가
 
         @JsonProperty("isAnonymous")
         private boolean isAnonymous;
 
         private List<OptionResponse> options;
 
-        public static DetailResponse fromEntity(Vote vote) {
+        public static DetailResponse fromEntity(Vote vote, boolean isChallengeCreated) {
             return DetailResponse.builder()
                     .voteNo(vote.getVoteNo())
                     .voteTitle(vote.getVoteTitle())
@@ -131,6 +133,7 @@ public class VoteDto {
                     .totalVotes(vote.getTotalVotes())
                     .points(vote.getPoints())
                     .isAnonymous(vote.isAnonymous())
+                    .isChallengeCreated(isChallengeCreated) // 필드 매핑
                     .options(vote.getVoteContents().stream()
                             .map(OptionResponse::fromEntity)
                             .collect(Collectors.toList()))

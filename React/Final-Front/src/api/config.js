@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     ENROLLADMIN: '/users/enrolladmin',
     CHECK_USER_ID: '/users/check-user-id',
     CHECK_EMAIL: '/users/check-user-email',
+    DELETEUSER: '/users/deleteUser',
+    UPDATEUSER: 'users/updateinfo',
   },
   COMPANY: {
     BASE: '/company',
@@ -34,6 +36,10 @@ export const API_ENDPOINTS = {
     SUBMIT: '/workation/submit',
     UPDATE: '/workation/update',
     DELETE: '/workation/delete',
+    SUBLIST: '/workation/sublist',
+    SUBUPDATE: '/workation/subupdate',
+    RETURNUPDATE: '/workation/returnupdate',
+    MYLIST: '/workation/submylist',
   },
   ATTENDANCE: {
     BASE: '/attendance',
@@ -61,6 +67,9 @@ export const API_ENDPOINTS = {
 
   CHALLENGE: {
     BASE: '/challenges',
+    COMPLETE: (challengeNo) => `/challenges/${challengeNo}/complete`,
+    CHECK_ACTIVE: '/challenges/active-status',
+    MY_CHALLENGES: '/challenges/my', // 나의 챌린지 엔드포인트 추가
   },
 
   BOARD: {
@@ -89,4 +98,6 @@ export const API_ENDPOINTS = {
     physicalquestion: '/health/physicalquestion',
     physicalresult: '/health/physicalquestion/result',
   },
+
+  
 };
