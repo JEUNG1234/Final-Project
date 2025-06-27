@@ -61,4 +61,22 @@ export const healthService = {
       throw err;
     }
   },
+
+  getAllResultList: async ({ page = 0, size = 10, createDate, type }) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.HEALTH.allresultList, {
+        params: {
+          page,
+          size,
+          createDate,
+          type,
+        },
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (err) {
+      console.error('전체검사 결과 목록 조회 실패:', err);
+      throw err;
+    }
+  },
 };

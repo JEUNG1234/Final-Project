@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { healthService } from '../../api/health';
+import dayjs from 'dayjs';
 
 const MentalCareResult = () => {
   const navigate = useNavigate('');
@@ -12,6 +13,7 @@ const MentalCareResult = () => {
   const [results, setResults] = useState(null); // 전체 결과 저장
   const [totalScore, setTotalScore] = useState(null);
   const [guideMessage, setGuideMessage] = useState('');
+  const [medicalCheckCreateDate, setMedicalCheckCreateDate] = useState('');
 
   useEffect(() => {
     async function fetchResult() {
@@ -21,6 +23,8 @@ const MentalCareResult = () => {
         setResults(data.questionScores);
         setTotalScore(data.totalScore);
         setGuideMessage(data.guideMessage);
+        setMedicalCheckCreateDate(data.medicalCheckCreateDate);
+
         console.log('심리검사 받아온 데이터 : ', data);
         console.log('심리검사 받아온 가이드 메세지 : ', guideMessage);
       } catch (err) {
@@ -77,6 +81,7 @@ const MentalCareResult = () => {
       </PageTitle>
 
       <ContentHeader>
+        <CreateDate>{dayjs(medicalCheckCreateDate).format('YYYY년 MM월 DD일')}</CreateDate>
         <h2>심리검사 결과</h2>
         <hr />
         <Subtitle>당신의 심리 건강 상태를 확인하고, 맞춤형 가이드를 받아보세요.</Subtitle>

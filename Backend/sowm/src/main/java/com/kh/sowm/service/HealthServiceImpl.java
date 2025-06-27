@@ -1,5 +1,7 @@
 package com.kh.sowm.service;
 
+import com.kh.sowm.dto.BoardDto.Response;
+import com.kh.sowm.dto.MedicalCheckDto.MedicalCheckResultDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionRequestDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionRequestDto.QuestionScore;
@@ -20,6 +22,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -255,6 +259,7 @@ public class HealthServiceImpl implements HealthService {
                 .totalScore(result.getMedicalCheckTotalScore())
                 .guideMessage(result.getGuideMessage())
                 .questionScores(questionScores)
+                .medicalCheckCreateDate(result.getMedicalCheckCreateDate())
                 .build();
     }
 
@@ -321,6 +326,27 @@ public class HealthServiceImpl implements HealthService {
                 .totalScore(result.getMedicalCheckTotalScore())
                 .guideMessage(result.getGuideMessage())
                 .questionScores(questionScores)
+                .medicalCheckCreateDate(result.getMedicalCheckCreateDate())
                 .build();
+    }
+
+    @Override
+    public Page<MedicalCheckResultDto> getResultList(Pageable pageable, LocalDate createDate, Type type) {
+        Page<MedicalCheckResult> results = medicalCheckRepository.findResults(pageable, createDate, type);
+
+        return results.map(r -> MedicalCheckResultDto.builder()
+                .medicalCheckResultNo(r.getMedicalCheckResultNo())
+                .medicalCheckCreateDate(r.getMedicalCheckCreateDate().toString())
+                .medicalCheckType(convertType(r.getMedicalCheckType()))
+                .medicalCheckTotalScore(r.getMedicalCheckTotalScore())
+                .guideMessage(r.getGuideMessage())
+                .build());
+    }
+
+    private String convertType(MedicalCheckResult.Type type) {
+        return switch (type) {
+            case PHYSICAL -> "신체검사";
+            case PSYCHOLOGY -> "심리검사";
+        };
     }
 }

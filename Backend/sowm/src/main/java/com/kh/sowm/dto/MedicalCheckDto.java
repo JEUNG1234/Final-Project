@@ -1,6 +1,7 @@
 package com.kh.sowm.dto;
 
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,6 +60,7 @@ public class MedicalCheckDto {
         private int totalScore;
         private String guideMessage;
         private List<QuestionScoreDto> questionScores;
+        private LocalDate medicalCheckCreateDate;
 
         @Getter
         @Setter
@@ -120,6 +122,7 @@ public class MedicalCheckDto {
         private int totalScore;
         private String guideMessage;
         private List<QuestionScoreDto> questionScores;
+        private LocalDate medicalCheckCreateDate;
 
         @Getter
         @Setter
@@ -131,5 +134,18 @@ public class MedicalCheckDto {
             private String questionText;
             private int score;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class MedicalCheckResultDto {
+        private Long medicalCheckResultNo;
+        private String medicalCheckCreateDate; // YYYY-MM-DD
+        private String medicalCheckType;       // "심리검사" / "신체검사"
+        private int medicalCheckTotalScore;
+        private String guideMessage;
     }
 }

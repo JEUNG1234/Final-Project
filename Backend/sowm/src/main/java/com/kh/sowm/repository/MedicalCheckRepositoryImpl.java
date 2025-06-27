@@ -6,8 +6,15 @@ import com.kh.sowm.entity.MedicalCheckResult.Type;
 import com.kh.sowm.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -43,5 +50,44 @@ public class MedicalCheckRepositoryImpl implements MedicalCheckRepository {
                 .setParameter("result", result)
                 .getResultList();
     }
+
+    @Override
+    public Page<MedicalCheckResult> findResults(Pageable pageable, LocalDate createDate, Type type) {
+        StringBuilder jpql = new StringBuilder("SELECT r FROM MedicalCheckResult r WHERE 1=1");
+        StringBuilder countJpql = new StringBuilder("SELECT COUNT(r) FROM MedicalCheckResult r WHERE 1=1");
+
+        Map<String, Object> params = new HashMap<>();
+
+        if (createDate != null) {
+            jpql.append(" AND r.medicalCheckCreateDate = :createDate");
+            countJpql.append(" AND r.medicalCheckCreateDate = :createDate");
+            params.put("createDate", createDate);
+        }
+
+        if (type != null) {
+            jpql.append(" AND r.medicalCheckType = :type");
+            countJpql.append(" AND r.medicalCheckType = :type");
+            params.put("type", type);
+        }
+
+        jpql.append(" ORDER BY r.medicalCheckCreateDate DESC");
+
+        // 본 쿼리 실행
+        TypedQuery<MedicalCheckResult> query = em.createQuery(jpql.toString(), MedicalCheckResult.class);
+        params.forEach(query::setParameter);
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+
+        List<MedicalCheckResult> resultList = query.getResultList();
+
+        // 카운트 쿼리 실행
+        TypedQuery<Long> countQuery = em.createQuery(countJpql.toString(), Long.class);
+        params.forEach(countQuery::setParameter);
+        Long total = countQuery.getSingleResult();
+
+        return new PageImpl<>(resultList, pageable, total);
+    }
+
+
 
 }
