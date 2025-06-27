@@ -30,7 +30,7 @@ public class Board {
     @Column(name = "BOARD_TITLE", nullable = false, length = 50)
     private String boardTitle;
 
-    @Column(name = "BOARD_CONTENT", columnDefinition = "TEXT")
+    @Column(name = "BOARD_CONTENT")
     @Lob
     private String boardContent;
 

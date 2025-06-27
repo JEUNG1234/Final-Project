@@ -98,8 +98,6 @@ export const API_ENDPOINTS = {
     BASE: '/health',
     mentalquestion: '/health/mentalquestion',
     mentalresult: '/health/mentalquestion/result',
-    physicalquestion: '/health/physicalquestion',
-    physicalresult: '/health/physicalquestion/result',
   },
 
   
