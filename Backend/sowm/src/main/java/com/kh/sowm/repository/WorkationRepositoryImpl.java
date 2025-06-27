@@ -92,6 +92,7 @@ public class WorkationRepositoryImpl implements WorkationRepository {
         em.merge(workation);
     }
 
+    //워케이션 삭제용
     @Override
     @Transactional
     public Workation updateWorkationStatus(Long workationNo) {

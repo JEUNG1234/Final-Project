@@ -5,54 +5,64 @@ import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
 import runningWoman from '../../assets/challengeImg.jpg';
 import { FaPlus } from 'react-icons/fa';
-import { challengeService } from '../../api/challengeService'; // challengeService 임포트
-
-// 목업 데이터(mockChallengeDetails) 삭제
+import { challengeService } from '../../api/challengeService';
+import useUserStore from '../../Store/useStore';
+import dayjs from 'dayjs'; // 날짜 포맷을 위해 dayjs 임포트
 
 const ChallengeDetail = () => {
   const navigate = useNavigate();
-  const { id: challengeNo } = useParams(); // URL 파라미터에서 챌린지 ID 가져오기
-  const [challenge, setChallenge] = useState(null); // 챌린지 데이터를 담을 상태
-  const [achievement, setAchievement] = useState(0); // 달성률 상태
+  const { id: challengeNo } = useParams();
+  const [challenge, setChallenge] = useState(null);
+  const [personalAchievement, setPersonalAchievement] = useState(0);
+  const { user } = useUserStore();
+  const [hasActiveChallenge, setHasActiveChallenge] = useState(false); // 활성 챌린지 상태
+  const [isMyChallenge, setIsMyChallenge] = useState(false); // 현재 챌린지가 내 챌린지인지 여부
 
   useEffect(() => {
-    // 챌린지 상세 정보 조회 API 호출
-    const fetchChallengeDetail = async () => {
-      if (!challengeNo) return;
+    const fetchChallengeData = async () => {
+      if (!challengeNo || !user) return;
       try {
-        const data = await challengeService.getChallengeDetails(challengeNo);
-        setChallenge(data);
+        const [detailData, activeStatus] = await Promise.all([
+          challengeService.getChallengeDetails(challengeNo),
+          challengeService.checkActiveChallenge(user.userId),
+        ]);
 
-        // --- 챌린지 기간 기반으로 달성률 계산 ---
-        const today = new Date();
-        const startDate = new Date(data.challengeStartDate);
-        const endDate = new Date(data.challengeEndDate);
+        setChallenge(detailData);
+        setHasActiveChallenge(activeStatus);
 
-        // 오늘 날짜가 시작일 이전이면 0%, 종료일 이후면 100%
-        if (today < startDate) {
-          setAchievement(0);
-        } else if (today > endDate) {
-          setAchievement(100);
-        } else {
-          const totalDuration = endDate.getTime() - startDate.getTime();
-          const progressedDuration = today.getTime() - startDate.getTime();
-          const calculatedAchievement = Math.round((progressedDuration / totalDuration) * 100);
-          setAchievement(calculatedAchievement);
+        const userCompletions = detailData.completions.filter((c) => c.userId === user.userId);
+
+        // --- 개인 달성률 계산 ---
+        const startDate = new Date(detailData.challengeStartDate);
+        const endDate = new Date(detailData.challengeEndDate);
+        const totalDuration = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
+
+        if (totalDuration > 0) {
+          const calculatedAchievement = Math.round((userCompletions.length / totalDuration) * 100);
+          setPersonalAchievement(calculatedAchievement);
+        }
+
+        // 현재 챌린지가 내가 참여한 챌린지인지 확인
+        if (userCompletions.length > 0) {
+          setIsMyChallenge(true);
         }
       } catch (error) {
-        console.error('챌린지 상세 정보 로딩 실패:', error);
+        console.error('챌린지 데이터 로딩 실패:', error);
         alert('챌린지 정보를 불러오는 데 실패했습니다.');
         navigate('/challenge');
       }
     };
 
-    fetchChallengeDetail();
-  }, [challengeNo, navigate]);
+    fetchChallengeData();
+  }, [challengeNo, navigate, user]);
 
-  // 로딩 중이거나 데이터가 없을 경우
   if (!challenge) {
     return <MainContent>챌린지 정보를 불러오는 중...</MainContent>;
   }
+
+  // 참여 버튼 활성화 여부 판단
+  const isChallengeOngoing = new Date() <= new Date(challenge.challengeEndDate);
+  const canJoin = isChallengeOngoing && (!hasActiveChallenge || isMyChallenge);
 
   return (
     <MainContent>
@@ -69,10 +79,10 @@ const ChallengeDetail = () => {
           <ChallengeTitle>{challenge.challengeTitle}</ChallengeTitle>
           <ProgressBarWrapper>
             <ProgressBarBackground>
-              <ProgressBarFill percentage={achievement} />
+              <ProgressBarFill percentage={personalAchievement} />
             </ProgressBarBackground>
             <ProgressText>
-              참여인원 {challenge.participantCount}명 · 달성률 {achievement}%
+              참여인원 {challenge.participantCount}명 · 나의 달성률 {personalAchievement}%
             </ProgressText>
           </ProgressBarWrapper>
         </SummaryTextContent>
@@ -80,9 +90,15 @@ const ChallengeDetail = () => {
       </ChallengeSummarySection>
 
       <JoinButtonArea>
-        <JoinChallengeButton onClick={() => navigate(`/challenge/challengeJoin`)}>
-          <FaPlus /> 챌린지 참여
-        </JoinChallengeButton>
+        {isChallengeOngoing && (
+          <JoinChallengeButton
+            onClick={() => navigate(`/challenge/${challengeNo}/join`)}
+            disabled={!canJoin}
+            title={!canJoin && !isMyChallenge ? '이미 진행중인 다른 챌린지가 있습니다.' : '챌린지 참여하기'}
+          >
+            <FaPlus /> {!canJoin && !isMyChallenge ? '다른 챌린지 진행중' : '챌린지 참여'}
+          </JoinChallengeButton>
+        )}
       </JoinButtonArea>
 
       <BoardSection>
@@ -99,7 +115,7 @@ const ChallengeDetail = () => {
                 <BoardCell typeColumn>챌린지</BoardCell>
                 <BoardCell>{post.completeTitle}</BoardCell>
                 <BoardCell>{post.userName}</BoardCell>
-                <BoardCell>{/* 작성일자 필드가 없으므로 임시로 비워둠 */}</BoardCell>
+                <BoardCell>{dayjs(post.createdDate).format('YYYY-MM-DD')}</BoardCell>
               </BoardRow>
             ))
           ) : (
@@ -115,6 +131,7 @@ const ChallengeDetail = () => {
   );
 };
 
+// Styled Components...
 const JoinButtonArea = styled.div`
   width: 100%;
   height: 50px;
@@ -227,6 +244,11 @@ const JoinChallengeButton = styled.button`
 
   &:hover {
     background-color: #3c75e0;
+  }
+  
+  &:disabled {
+    background-color: #b0c4de;
+    cursor: not-allowed;
   }
 `;
 

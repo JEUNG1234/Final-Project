@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { MainContent as BaseMainContent } from '../../styles/common/MainContentLayout';
 import { voteService } from '../../api/voteService';
 import useUserStore from '../../Store/useStore';
@@ -9,6 +9,7 @@ import Modal from '../../components/Modal';
 const VoteResult = () => {
   const navigate = useNavigate();
   const { voteId } = useParams();
+  const location = useLocation(); // location 훅 사용
   const [resultData, setResultData] = useState(null);
   const [winningOption, setWinningOption] = useState(null);
   const { user } = useUserStore();
@@ -22,6 +23,8 @@ const VoteResult = () => {
     const fetchVoteResult = async () => {
       try {
         const data = await voteService.getVoteDetails(voteId);
+        // 디버그 코드 추가
+        console.log('✅ [DEBUG] VoteResult.jsx - API로부터 받은 데이터:', data);
         setResultData(data);
         if (data && data.options.length > 0) {
           const winner = data.options.reduce((prev, current) =>
@@ -35,7 +38,7 @@ const VoteResult = () => {
       }
     };
     fetchVoteResult();
-  }, [voteId]);
+  }, [voteId, location]); // location을 의존성 배열에 추가하여 페이지 이동 시 재호출
 
   const handleCreateChallenge = () => {
     if (!resultData || !winningOption) return;
@@ -84,6 +87,13 @@ const VoteResult = () => {
     return <MainContent>결과를 불러오는 중...</MainContent>;
   }
 
+  const today = new Date();
+  const voteEndDate = new Date(resultData.voteEndDate);
+  today.setHours(0, 0, 0, 0);
+  voteEndDate.setHours(23, 59, 59, 999);
+  
+  const isVoteOngoing = today <= voteEndDate;
+
   return (
     <>
       <MainContent>
@@ -111,7 +121,7 @@ const VoteResult = () => {
               return (
                 <ResultItem
                   key={option.voteContentNo}
-                  $isWinner={option.voteContentNo === winningOption?.voteContentNo}
+                  $isWinner={option.voteContentNo === winningOption?.voteContentNo && !isVoteOngoing}
                   onClick={!resultData.isAnonymous ? () => handleOpenVotersModal(option.voteContentNo, option.voteContent) : null}
                   isClickable={!resultData.isAnonymous}
                 >
@@ -132,16 +142,24 @@ const VoteResult = () => {
 
         <Footer>
           <SummaryBox>
-            <p>
-              총 <strong>{resultData.totalVotes}</strong>명이 참여한 투표에서 '
-              <strong>{winningOption?.voteContent || '결과 없음'}</strong>' 항목이{' '}
-              <strong>{winningOption?.voteCount || 0}</strong>표를 얻어 1위로 선정되었습니다.
-            </p>
+            {isVoteOngoing ? (
+              <p>현재 투표가 집계중입니다. 최종 결과는 마감 후에 확인해주세요.</p>
+            ) : (
+              <p>
+                총 <strong>{resultData.totalVotes}</strong>명이 참여한 투표에서 '
+                <strong>{winningOption?.voteContent || '결과 없음'}</strong>' 항목이{' '}
+                <strong>{winningOption?.voteCount || 0}</strong>표를 얻어 1위로 선정되었습니다.
+              </p>
+            )}
             <ButtonWrapper>
-              {user?.jobCode === 'J2' && (
-                <ActionButton onClick={handleCreateChallenge} $primary>
-                  챌린지 생성
-                </ActionButton>
+              {user?.jobCode === 'J2' && !isVoteOngoing && (
+                  resultData.challengeCreated ? ( // 수정된 부분
+                      <ActionButton disabled>챌린지 생성 완료</ActionButton>
+                  ) : (
+                      <ActionButton onClick={handleCreateChallenge} $primary>
+                          챌린지 생성
+                      </ActionButton>
+                  )
               )}
               <ActionButton onClick={() => navigate('/votelist')}>목록으로</ActionButton>
             </ButtonWrapper>
@@ -326,6 +344,13 @@ const ActionButton = styled.button`
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  &:disabled {
+    background-color: #ced4da;
+    color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 

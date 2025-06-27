@@ -3,6 +3,8 @@ package com.kh.sowm.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -34,4 +36,13 @@ public class ChallengeComplete {
     //완료인증 내용
     @Column(name = "COMPLETE_CONTENT")
     private String completeContent;
+
+    //작성날짜
+    @Column(name = "CREATED_DATE")
+    private LocalDate createdDate;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdDate = LocalDate.now();
+    }
 }

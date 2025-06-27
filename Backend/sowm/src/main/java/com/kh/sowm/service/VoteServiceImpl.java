@@ -53,7 +53,11 @@ public class VoteServiceImpl implements VoteService {
     @Override
     @Transactional(readOnly = true)
     public List<VoteDto.ListResponse> getAllVotes(String userId) {
-        List<Vote> votes = voteRepository.findAll();
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+        String companyCode = user.getCompanyCode();
+
+        List<Vote> votes = voteRepository.findAll(companyCode);
 
         Map<Long, Long> userVoteMap = voteUserRepository.findVoteUsersByUserId(userId).stream()
                 .collect(Collectors.toMap(
@@ -74,7 +78,13 @@ public class VoteServiceImpl implements VoteService {
     public VoteDto.DetailResponse getVoteDetails(Long voteNo) {
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
-        return VoteDto.DetailResponse.fromEntity(vote);
+
+        // 챌린지 존재 여부 확인
+        boolean isChallengeCreated = challengeRepository.findByVote(vote).isPresent();
+        // 디버그 코드 추가
+        System.out.println("✅ [DEBUG] VoteService - 투표번호 " + voteNo + "의 챌린지 생성 여부: " + isChallengeCreated);
+
+        return VoteDto.DetailResponse.fromEntity(vote, isChallengeCreated);
     }
 
     @Override

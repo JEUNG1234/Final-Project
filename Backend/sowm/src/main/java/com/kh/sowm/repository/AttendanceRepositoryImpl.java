@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -195,21 +196,13 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
             params.put("deptName", deptName);
         }
         if (date != null) {
-            // H2용 (현재 개발환경)
-            jpql.append(" AND FUNCTION('FORMATDATETIME', a.attendTime, 'yyyy-MM-dd') = :dateStr ");
-            countJpql.append(" AND FUNCTION('FORMATDATETIME', a.attendTime, 'yyyy-MM-dd') = :dateStr ");
-            params.put("dateStr", date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-
-            // MySQL용 (나중에 주석 해제)
-            //  jpql.append(" AND DATE(a.attendTime) = :date ");
-            //  countJpql.append(" AND DATE(a.attendTime) = :date ");
-            //  params.put("date", date);
-
-            /*
-            현재 H2 데이터베이스를 사용 중인데,
-            JPQL 또는 SQL 쿼리에서 DATE(attend_time) 함수 사용 → ❌ H2에는 DATE() 함수 없음
-            그래서 Function "DATE" not found 에러로 500 발생.
-             */
+            // 수정된 부분: LocalDateTime 범위를 사용하여 날짜 필터링
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+            jpql.append(" AND a.attendTime BETWEEN :startOfDay AND :endOfDay ");
+            countJpql.append(" AND a.attendTime BETWEEN :startOfDay AND :endOfDay ");
+            params.put("startOfDay", startOfDay);
+            params.put("endOfDay", endOfDay);
         }
 
         // 3. 정렬조건 넣기 (pageable에 있는 정렬조건 활용)

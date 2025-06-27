@@ -56,6 +56,14 @@ public class Vote {
     @Column(name = "VOTE_END_DATE", nullable = false)
     private LocalDate voteEndDate;
 
+    // 회사 코드 정보 추가
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "COMPANY_CODE", referencedColumnName = "COMPANY_CODE", insertable = false, updatable = false)
+    private Company company;
+
+    @Column(name = "COMPANY_CODE")
+    private String companyCode;
+
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteContent> voteContents = new ArrayList<>();
 

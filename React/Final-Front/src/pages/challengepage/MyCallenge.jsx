@@ -1,70 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Pagination, PageButton, MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
-import { FaAngleLeft, FaAngleRight } from 'react-icons/fa'; // 좌우 화살표 아이콘 추가
-
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import runningWoman from '../../assets/challengeImg.jpg';
-
-const ongoingChallengeData = {
-  1: {
-    id: 1,
-    breadcrumbs: '하루 10000보 걷기',
-    title: '하루 10000보 걷기',
-    period: '5월 1일 ~ 5월 31일',
-    currentProgressDays: 15,
-    totalChallengeDays: 31,
-    achievement: 50,
-    img: runningWoman,
-    boardPosts: [
-      { id: 1, type: '공지사항', title: '안녕하세요', author: '홍길동', date: '2025/03/01' },
-      { id: 2, type: '챌린지', title: '안녕하세요', author: '김철수', date: '2025/03/01' },
-      { id: 3, type: '챌린지', title: '안녕하세요', author: '이영구', date: '2025/02/01' },
-      { id: 4, type: '챌린지', title: '안녕하세요', author: '최지원', date: '2025/02/01' },
-      { id: 5, type: '챌린지', title: '안녕하세요', author: '박지원', date: '2025/02/01' },
-    ],
-  },
-};
-
-const completedChallengeData = [
-  {
-    id: 1,
-    title: '5월 챌린지',
-    period: '25.06.05 - 25.07.04',
-    completion: 53,
-    achievement: 50.0,
-    img: runningWoman,
-  },
-  {
-    id: 2,
-    title: '하루에 10000보 걷기',
-    period: '25.06.05 - 25.07.04',
-    completion: 53,
-    achievement: 80.5,
-    img: runningWoman,
-  },
-  {
-    id: 3,
-    title: '건강 식단 지키기', // 이미지에 있는 '검버섯...' 내용은 이 챌린지 제목에 맞게 수정
-    period: '25.06.05 - 25.07.04',
-    completion: 53,
-    achievement: 30.4,
-    img: runningWoman,
-  },
-  {
-    id: 4,
-    title: '건강한 식단하기',
-    period: '25.06.05 - 25.07.04',
-    completion: 53,
-    achievement: 50.0,
-    img: runningWoman,
-  },
-  // 더 많은 챌린지 데이터를 추가할 수 있습니다.
-];
+import { challengeService } from '../../api/challengeService';
+import useUserStore from '../../Store/useStore';
 
 const MyCallenge = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
+  const [ongoingChallenge, setOngoingChallenge] = useState(null);
+  const [completedChallenges, setCompletedChallenges] = useState([]);
+
+  useEffect(() => {
+    const fetchMyChallenges = async () => {
+      if (!user?.userId) return;
+      try {
+        const response = await challengeService.getMyChallenges(user.userId);
+        setOngoingChallenge(response.ongoingChallenge);
+        setCompletedChallenges(response.completedChallenges);
+      } catch (error) {
+        console.error('나의 챌린지 목록을 불러오는데 실패했습니다.', error);
+      }
+    };
+    fetchMyChallenges();
+  }, [user]);
 
   const handleGoBack = () => {
     navigate(-1); // 이전 페이지로 이동
@@ -76,28 +38,33 @@ const MyCallenge = () => {
         <BsFire />
         챌린지 {'>'} MY 챌린지
       </PageTitle>
-
-      <ChallengeSummarySection>
-        <SummaryTextContent>
-          <Participate>참여중인 챌린지</Participate>
-          <PeriodText>{ongoingChallengeData[1].period}</PeriodText>
-          <ChallengeTitle>{ongoingChallengeData[1].title}</ChallengeTitle>
-          <ProgressBarWrapper>
-            <ProgressBarBackground>
-              <ProgressBarFill percentage={ongoingChallengeData[1].achievement} />
-            </ProgressBarBackground>
-            <ProgressText>
-              {ongoingChallengeData[1].currentProgressDays}/{ongoingChallengeData[1].totalChallengeDays}일 달성{' '}
-              {ongoingChallengeData[1].achievement}%
-            </ProgressText>
-          </ProgressBarWrapper>
-        </SummaryTextContent>
-        <SummaryImage src={ongoingChallengeData[1].img} alt={ongoingChallengeData[1].title} />
-      </ChallengeSummarySection>
+      {ongoingChallenge ? (
+        <ChallengeSummarySection>
+          <SummaryTextContent>
+            <Participate>참여중인 챌린지</Participate>
+            <PeriodText>
+              {ongoingChallenge.challengeStartDate} ~ {ongoingChallenge.challengeEndDate}
+            </PeriodText>
+            <ChallengeTitle>{ongoingChallenge.challengeTitle}</ChallengeTitle>
+            <ProgressBarWrapper>
+              <ProgressBarBackground>
+                <ProgressBarFill percentage={ongoingChallenge.achievement} />
+              </ProgressBarBackground>
+              <ProgressText>
+                {ongoingChallenge.currentProgressDays}/{ongoingChallenge.totalChallengeDays}일 달성{' '}
+                {ongoingChallenge.achievement}%
+              </ProgressText>
+            </ProgressBarWrapper>
+          </SummaryTextContent>
+          <SummaryImage src={ongoingChallenge.challengeImageUrl || runningWoman} alt={ongoingChallenge.challengeTitle} />
+        </ChallengeSummarySection>
+      ) : (
+        <NoChallengeMessage>참여중인 챌린지가 없습니다.</NoChallengeMessage>
+      )}
 
       <ChallengeSummary>
-        <SummaryCard>나의 챌린지 완료 횟수: 2회</SummaryCard>
-        <SummaryCard>누적 획득 포인트: 200p</SummaryCard>
+        <SummaryCard>나의 챌린지 완료 횟수: {completedChallenges.filter(c => new Date(c.challengeEndDate) < new Date()).length}회</SummaryCard>
+        <SummaryCard>누적 획득 포인트: {completedChallenges.reduce((acc, cur) => acc + cur.challengePoint, 0)}p</SummaryCard>
       </ChallengeSummary>
 
       <CompletedChallengesSection>
@@ -113,19 +80,21 @@ const MyCallenge = () => {
           </NavigationButtons>
         </SectionHeader>
         <ChallengeCardGrid>
-          {completedChallengeData.map((challenge) => (
-            <ChallengeCard key={challenge.id} onClick={() => navigate('/myChallengeComplete')}>
+          {completedChallenges.map((challenge) => (
+            <ChallengeCard key={challenge.challengeNo} onClick={() => navigate(`/mychallenge/complete/${challenge.challengeNo}`)}>
               <CardImageArea>
-                <CardImage src={challenge.img} alt={challenge.title} />
+                <CardImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
               </CardImageArea>
               <CardContent>
-                <CardTitle>챌린지: {challenge.title}</CardTitle>
-                <CardPeriod>기간 :{challenge.period}</CardPeriod>
-                <CardCompletion>완료 :{challenge.completion}</CardCompletion>
+                <CardTitle>챌린지: {challenge.challengeTitle}</CardTitle>
+                <CardPeriod>
+                  기간 :{challenge.challengeStartDate} ~ {challenge.challengeEndDate}
+                </CardPeriod>
+                <CardCompletion>포인트 : {challenge.challengePoint}P</CardCompletion>
                 <ProgressBarContainer>
-                  <MiniProgressBarFill percentage={challenge.achievement} />
+                  <MiniProgressBarFill percentage={challenge.userAchievementRate} />
                 </ProgressBarContainer>
-                <CardAchievement>달성률 :{challenge.achievement}%</CardAchievement>
+                <CardAchievement>달성률 :{challenge.userAchievementRate}%</CardAchievement>
               </CardContent>
             </ChallengeCard>
           ))}
@@ -141,11 +110,13 @@ const MyCallenge = () => {
 
 export default MyCallenge;
 
-// =========================================================
-// Styled Components
-// =========================================================
-
-// 상단 도전 중인 챌린지 섹션
+// Styled Components... (이전과 동일)
+const NoChallengeMessage = styled.div`
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+  color: #888;
+`;
 const ChallengeSummarySection = styled.div`
   background-color: #e6f2ff; /* 연한 파란색 배경 */
   border-radius: 15px;
