@@ -3,9 +3,49 @@ import { MainContent, PageTitle, ContentHeader, Subtitle, PageButton } from '../
 import { FaHeartbeat } from 'react-icons/fa';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { healthService } from '../../api/health';
+
+const QUESTIONS = [
+  '1. 평소에 충분한 수면을 취하고 있다고 느낀다.',
+  '2. 하루에 최소 30분 이상 걷거나 운동하는 습관이 있다.',
+  '3. 최근 한 달 동안 특별한 통증(허리, 목, 관절 등)을 느낀 적이 없다.',
+  '4. 식사는 규칙적으로 하고 있으며, 영양 균형을 고려하고 있다.',
+  '5. 몸무게나 체형에 대해 건강하다고 느낀다.',
+  '6. 최근 한 달간 과도한 스트레스를 느낀 적이 없다.',
+  '7. 오래 앉아 있거나 서 있을 때 불편함 없이 지낼 수 있다.',
+  '8. 시력이나 청력에 불편함을 느낀 적이 없다.',
+  '9. 평소보다 피로감을 쉽게 느끼지 않는다.',
+  '10. 전반적으로 자신의 건강 상태에 만족한다.',
+];
 
 const PhysicalCareTest = () => {
   const navigate = useNavigate();
+  // 배열 길이 10, 초기값 5 (슬라이드를 위해)
+  const [scores, setScores] = useState(new Array(10).fill(5));
+
+  const handleScoreChange = (index, value) => {
+    setScores((prevScores) => {
+      const updated = [...prevScores];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      console.log('현재 로그인된 계정의 아이디 : ', userId);
+
+      const response = await healthService.physicalquestion({ userId, questions: QUESTIONS, scores }); //physicalquestion으로 변경해야됨됨
+
+      console.log('서버 응답:', response.data);
+
+      navigate('/physicalcareresult');
+    } catch (error) {
+      console.error('서버 에러:', error);
+      alert('서버 요청 중 문제가 발생했습니다.');
+    }
+  };
 
   return (
     <MainContent>
@@ -27,35 +67,35 @@ const PhysicalCareTest = () => {
 
       <SliderWrapper>
         <ContentBody>
-          {/* 각 Slider를 SliderWithLabels 컴포넌트로 교체 */}
-          <SliderWithLabels
-            question="1. 평소에 충분한 수면을 취하고 있다고 느낀다."
-            min={1}
-            max={10}
-            initialValue={5}
-          />
-          <SliderWithLabels question="2. 하루에 최소 30분 이상 걷거나 운동하는 습관이 있다." min={1} max={10} />
-          <SliderWithLabels
-            question="3. 최근 한 달 동안 특별한 통증(허리, 목, 관절 등)을 느낀 적이 없다."
-            min={1}
-            max={10}
-          />
-          <SliderWithLabels question="4. 식사는 규칙적으로 하고 있으며, 영양 균형을 고려하고 있다." min={1} max={10} />
-          <SliderWithLabels question="5. 몸무게나 체형에 대해 건강하다고 느낀다." min={1} max={10} />
+          {QUESTIONS.slice(0, 5).map((q, i) => (
+            <SliderWithLabels
+              key={i}
+              question={q}
+              min={1}
+              max={10}
+              value={scores[i]}
+              onChange={(val) => handleScoreChange(i, val)}
+            />
+          ))}
         </ContentBody>
 
         <ContentBody>
-          <SliderWithLabels question="6. 최근 한 달간 과도한 스트레스를 느낀 적이 없다." min={1} max={10} />
-          <SliderWithLabels question="7. 오래 앉아 있거나 서 있을 때 불편함 없이 지낼 수 있다." min={1} max={10} />
-          <SliderWithLabels question="8. 시력이나 청력에 불편함을 느낀 적이 없다." min={1} max={10} />
-          <SliderWithLabels question="9. 평소보다 피로감을 쉽게 느끼지 않는다." min={1} max={10} />
-          <SliderWithLabels question="10. 전반적으로 자신의 건강 상태에 만족한다." min={1} max={10} />
+          {QUESTIONS.slice(5).map((q, i) => (
+            <SliderWithLabels
+              key={i + 5}
+              question={q}
+              min={1}
+              max={10}
+              value={scores[i + 5]}
+              onChange={(val) => handleScoreChange(i + 5, val)}
+            />
+          ))}
         </ContentBody>
       </SliderWrapper>
 
       <ButtonGroup>
         <PageButton onClick={() => navigate('/healthcaremain')}>뒤로가기</PageButton>
-        <PageButton onClick={() => navigate('/physicalcareresult')}>결과 확인하기</PageButton>
+        <PageButton onClick={handleSubmit}>결과 확인하기</PageButton>
       </ButtonGroup>
     </MainContent>
   );
@@ -105,6 +145,70 @@ const ButtonGroup = styled.div`
   margin-top: 50px; /* 슬라이더 섹션들과 버튼 그룹 사이의 간격 */
 `;
 
+const SliderWithLabels = ({ question, min, max, value, onChange }) => {
+  const sliderRef = useRef(null);
+  const [showValue, setShowValue] = useState(false);
+  const [thumbPosition, setThumbPosition] = useState('0px');
+  const [valuePercentage, setValuePercentage] = useState(0);
+
+  const labelsToShow = [min, max];
+
+  const updateThumbPosition = (currentValue) => {
+    if (sliderRef.current) {
+      const sliderWidth = sliderRef.current.offsetWidth;
+      const thumbWidth = 24;
+      const range = max - min;
+      const percentage = (currentValue - min) / range;
+      const newPosition = percentage * (sliderWidth - thumbWidth) + thumbWidth / 2;
+      setThumbPosition(`${newPosition}px`);
+      setValuePercentage(percentage * 100);
+    }
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => updateThumbPosition(value), 50);
+    const handleResize = () => updateThumbPosition(value);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [value, min, max]);
+
+  const handleSliderChange = (e) => {
+    const newValue = parseInt(e.target.value, 10);
+    updateThumbPosition(newValue);
+    onChange?.(newValue);
+  };
+
+  return (
+    <SliderSection>
+      <QuestionTitle>{question}</QuestionTitle>
+      <CurrentValueDisplay $show={showValue} style={{ left: thumbPosition }}>
+        {value}
+      </CurrentValueDisplay>
+      <StyledSliderInput
+        ref={sliderRef}
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        step="1"
+        onChange={handleSliderChange}
+        onMouseDown={() => setShowValue(true)}
+        onMouseUp={() => setShowValue(false)}
+        onTouchStart={() => setShowValue(true)}
+        onTouchEnd={() => setShowValue(false)}
+        $valuePercentage={valuePercentage}
+      />
+      <Labels>
+        {labelsToShow.map((label) => (
+          <span key={label}>{label}</span>
+        ))}
+      </Labels>
+    </SliderSection>
+  );
+};
 // 각 슬라이더 섹션을 감싸는 컨테이너
 const SliderSection = styled.div`
   margin-bottom: 30px; /* 각 슬라이더 섹션 간의 간격 */
@@ -187,9 +291,7 @@ const StyledSliderInput = styled.input`
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
   }
 
-  &:hover::-webkit-slider-thumb {
-    transform: scale(1.1);
-  }
+  &:hover::-webkit-slider-thumb,
   &:hover::-moz-range-thumb {
     transform: scale(1.1);
   }
@@ -240,89 +342,5 @@ const CurrentValueDisplay = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
 `;
-
-// 슬라이더 부분
-const SliderWithLabels = ({ question, min, max, initialValue = Math.floor((max - min) / 2) + min }) => {
-  const sliderRef = useRef(null);
-  const [value, setValue] = useState(initialValue); // 슬라이더 현재 값 상태
-  const [showValue, setShowValue] = useState(false); // 현재 값 표시 여부
-  const [thumbPosition, setThumbPosition] = useState('0px'); // 썸의 X축 위치
-  const [valuePercentage, setValuePercentage] = useState(0); // 채워진 부분 색상용 백분율
-
-  // 1과 10만 표시할 숫자 배열
-  const labelsToShow = [min, max];
-
-  // 슬라이더 값이 변경될 때 호출
-  const handleSliderChange = (e) => {
-    const newValue = parseInt(e.target.value, 10);
-    setValue(newValue);
-    updateThumbPosition(newValue); // 썸 위치 업데이트
-  };
-
-  // 썸 위치 및 채워진 부분 색상 업데이트 로직
-  const updateThumbPosition = (currentValue) => {
-    if (sliderRef.current) {
-      const sliderWidth = sliderRef.current.offsetWidth; // 슬라이더의 전체 너비
-      const thumbWidth = 24; // 썸의 너비 (CSS와 일치해야 함)
-      const range = max - min; // 슬라이더의 값 범위 (예: 10 - 1 = 9)
-      const percentage = (currentValue - min) / range; // 현재 값의 백분율 (0.0 ~ 1.0)
-
-      // 썸의 중심이 현재 값에 오도록 위치 계산
-      const newPosition = percentage * (sliderWidth - thumbWidth) + thumbWidth / 2;
-      setThumbPosition(`${newPosition}px`);
-
-      // 채워진 부분의 백분율 (CSS linear-gradient용)
-      setValuePercentage(percentage * 100);
-    }
-  };
-
-  // 컴포넌트 마운트 시 (첫 렌더링 후) 초기 썸 위치 설정
-  // 그리고 윈도우 리사이즈 시 썸 위치 재조정
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      // DOM 렌더링 후 계산을 위해 약간의 딜레이
-      updateThumbPosition(value);
-    }, 50);
-
-    const handleResize = () => updateThumbPosition(value);
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      // 컴포넌트 언마운트 시 이벤트 리스너 제거
-      clearTimeout(timeoutId);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [value, min, max]); // value, min, max 변경 시 업데이트
-
-  return (
-    <SliderSection>
-      <QuestionTitle>{question}</QuestionTitle>
-      {/* 슬라이더 썸 위에 현재 값 표시 */}
-      <CurrentValueDisplay $show={showValue} style={{ left: thumbPosition }}>
-        {value}
-      </CurrentValueDisplay>
-      <StyledSliderInput
-        ref={sliderRef} // ref를 사용하여 DOM 요소에 접근
-        type="range"
-        min={min}
-        max={max}
-        value={value} // React 상태와 연결
-        step="1"
-        onChange={handleSliderChange} // 값이 변경될 때 handleSliderChange 호출
-        onMouseDown={() => setShowValue(true)} // 마우스 누르면 값 표시
-        onMouseUp={() => setShowValue(false)} // 마우스 떼면 값 숨김
-        onTouchStart={() => setShowValue(true)} // 모바일 터치 이벤트
-        onTouchEnd={() => setShowValue(false)} // 모바일 터치 이벤트
-        $valuePercentage={valuePercentage} // 채워진 부분 색상을 위한 props 전달
-      />
-
-      <Labels>
-        {labelsToShow.map((label) => (
-          <span key={label}>{label}</span>
-        ))}
-      </Labels>
-    </SliderSection>
-  );
-};
 
 export default PhysicalCareTest;
