@@ -1,12 +1,7 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.ChallengeDto;
-import com.kh.sowm.entity.Challenge;
-import com.kh.sowm.entity.ChallengeComplete;
-import com.kh.sowm.entity.ChallengeResult;
-import com.kh.sowm.entity.User;
-import com.kh.sowm.entity.Vote;
-import com.kh.sowm.entity.VoteContent;
+import com.kh.sowm.entity.*;
 import com.kh.sowm.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +91,32 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .build();
 
         challengeCompleteRepository.save(completion);
+
+        long completedCount = challenge.getCompletions().stream()
+                .filter(c -> c.getUser().getUserId().equals(user.getUserId()))
+                .count() + 1;
+
+        long totalDuration = challenge.getChallengeEndDate().toEpochDay() - challenge.getChallengeStartDate().toEpochDay() + 1;
+
+        int achievementRate = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
+
+        boolean alreadySucceeded = challengeResultRepository.findByUserAndChallenge(user, challenge)
+                .map(ChallengeResult::isSuccess)
+                .orElse(false);
+
+        if (achievementRate >= 70 && !alreadySucceeded) {
+            user.addPoints(challenge.getChallengePoint());
+            userRepository.save(user);
+
+            ChallengeResult result = ChallengeResult.builder()
+                    .user(user)
+                    .challenge(challenge)
+                    .success(true)
+                    .finalAchievementRate(achievementRate)
+                    .build();
+            challengeResultRepository.save(result);
+        }
+
         return completion.getCompleteNo();
     }
 
@@ -124,7 +145,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                         .count();
                 int achievementRate = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
 
-                boolean isSuccess = achievementRate >= 70; // 달성률 70% 이상일 때만 성공
+                boolean isSuccess = achievementRate >= 70;
 
                 ChallengeResult result = ChallengeResult.builder()
                         .user(user)
@@ -133,11 +154,6 @@ public class ChallengeServiceImpl implements ChallengeService {
                         .finalAchievementRate(achievementRate)
                         .build();
                 challengeResultRepository.save(result);
-
-                if (isSuccess) {
-                    user.addPoints(challenge.getChallengePoint());
-                    userRepository.save(user); // 변경된 포인트를 DB에 저장
-                }
             }
         }
 
@@ -176,5 +192,19 @@ public class ChallengeServiceImpl implements ChallengeService {
         response.put("userTotalPoints", user.getPoint());
 
         return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ChallengeDto.CompletionResponse> findCompletionsByChallenge(Long challengeNo, Pageable pageable) {
+        Page<ChallengeComplete> completions = challengeCompleteRepository.findByChallenge_ChallengeNo(challengeNo, pageable);
+        return completions.map(ChallengeDto.CompletionResponse::fromEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ChallengeDto.CompletionResponse> findMyCompletionsByChallenge(Long challengeNo, String userId, Pageable pageable) {
+        Page<ChallengeComplete> completions = challengeCompleteRepository.findByChallenge_ChallengeNoAndUser_UserId(challengeNo, userId, pageable);
+        return completions.map(ChallengeDto.CompletionResponse::fromEntity);
     }
 }

@@ -67,9 +67,12 @@ export const API_ENDPOINTS = {
 
   CHALLENGE: {
     BASE: '/challenges',
+    DETAIL: (challengeNo) => `/challenges/${challengeNo}`,
     COMPLETE: (challengeNo) => `/challenges/${challengeNo}/complete`,
+    COMPLETIONS: (challengeNo) => `/challenges/${challengeNo}/completions`,
+    MY_COMPLETIONS: (challengeNo) => `/challenges/${challengeNo}/my-completions`, // 나의 인증글 목록 엔드포인트 추가
     CHECK_ACTIVE: '/challenges/active-status',
-    MY_CHALLENGES: '/challenges/my', // 나의 챌린지 엔드포인트 추가
+    MY_CHALLENGES: '/challenges/my',
   },
 
   BOARD: {

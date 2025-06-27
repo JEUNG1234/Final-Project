@@ -1,51 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import { MainContent, PageTitle, Pagination, PageButton, BottomBar } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
 import runningWoman from '../../assets/challengeImg.jpg';
 import { FaPlus } from 'react-icons/fa';
 import { challengeService } from '../../api/challengeService';
 import useUserStore from '../../Store/useStore';
-import dayjs from 'dayjs'; // 날짜 포맷을 위해 dayjs 임포트
+import dayjs from 'dayjs';
 
 const ChallengeDetail = () => {
   const navigate = useNavigate();
   const { id: challengeNo } = useParams();
   const [challenge, setChallenge] = useState(null);
+  const [completionsPage, setCompletionsPage] = useState({
+    content: [],
+    currentPage: 0,
+    totalPage: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
   const [personalAchievement, setPersonalAchievement] = useState(0);
   const { user } = useUserStore();
-  const [hasActiveChallenge, setHasActiveChallenge] = useState(false); // 활성 챌린지 상태
-  const [isMyChallenge, setIsMyChallenge] = useState(false); // 현재 챌린지가 내 챌린지인지 여부
+  const [hasActiveChallenge, setHasActiveChallenge] = useState(false);
+  const [isMyChallenge, setIsMyChallenge] = useState(false);
+
+  const fetchCompletions = useCallback(async (page) => {
+    try {
+      const data = await challengeService.getCompletions(challengeNo, page);
+      setCompletionsPage({
+        content: data.content,
+        currentPage: data.currentPage,
+        totalPage: data.totalPage,
+        hasNext: data.hasNext,
+        hasPrevious: data.hasPrevious,
+      });
+    } catch (error) {
+      console.error("인증글 목록을 불러오는데 실패했습니다.", error);
+    }
+  }, [challengeNo]);
 
   useEffect(() => {
     const fetchChallengeData = async () => {
       if (!challengeNo || !user) return;
       try {
-        const [detailData, activeStatus] = await Promise.all([
-          challengeService.getChallengeDetails(challengeNo),
-          challengeService.checkActiveChallenge(user.userId),
-        ]);
-
+        const detailData = await challengeService.getChallengeDetails(challengeNo);
+        const activeStatus = await challengeService.checkActiveChallenge(user.userId);
+        
         setChallenge(detailData);
         setHasActiveChallenge(activeStatus);
 
-        const userCompletions = detailData.completions.filter((c) => c.userId === user.userId);
-
-        // --- 개인 달성률 계산 ---
-        const startDate = new Date(detailData.challengeStartDate);
-        const endDate = new Date(detailData.challengeEndDate);
-        const totalDuration = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
-
+        const userCompletionsCount = detailData.completions.filter((c) => c.userId === user.userId).length;
+        const totalDuration = (new Date(detailData.challengeEndDate).getTime() - new Date(detailData.challengeStartDate).getTime()) / (1000 * 60 * 60 * 24) + 1;
         if (totalDuration > 0) {
-          const calculatedAchievement = Math.round((userCompletions.length / totalDuration) * 100);
-          setPersonalAchievement(calculatedAchievement);
+          setPersonalAchievement(Math.round((userCompletionsCount / totalDuration) * 100));
         }
-
-        // 현재 챌린지가 내가 참여한 챌린지인지 확인
-        if (userCompletions.length > 0) {
+        if (userCompletionsCount > 0) {
           setIsMyChallenge(true);
         }
+        
+        fetchCompletions(0);
+
       } catch (error) {
         console.error('챌린지 데이터 로딩 실패:', error);
         alert('챌린지 정보를 불러오는 데 실패했습니다.');
@@ -54,13 +69,12 @@ const ChallengeDetail = () => {
     };
 
     fetchChallengeData();
-  }, [challengeNo, navigate, user]);
+  }, [challengeNo, navigate, user, fetchCompletions]);
 
   if (!challenge) {
     return <MainContent>챌린지 정보를 불러오는 중...</MainContent>;
   }
 
-  // 참여 버튼 활성화 여부 판단
   const isChallengeOngoing = new Date() <= new Date(challenge.challengeEndDate);
   const canJoin = isChallengeOngoing && (!hasActiveChallenge || isMyChallenge);
 
@@ -109,8 +123,8 @@ const ChallengeDetail = () => {
           <h3>작성일자</h3>
         </BoardHeader>
         <BoardTable>
-          {challenge.completions && challenge.completions.length > 0 ? (
-            challenge.completions.map((post) => (
+          {completionsPage.content && completionsPage.content.length > 0 ? (
+            completionsPage.content.map((post) => (
               <BoardRow key={post.completeNo} onClick={() => navigate(`/challenge/challenge_id/${post.completeNo}`)}>
                 <BoardCell typeColumn>챌린지</BoardCell>
                 <BoardCell>{post.completeTitle}</BoardCell>
@@ -124,8 +138,28 @@ const ChallengeDetail = () => {
         </BoardTable>
       </BoardSection>
 
+      <BottomBar>
+        <Pagination>
+          <PageButton onClick={() => fetchCompletions(completionsPage.currentPage - 1)} disabled={!completionsPage.hasPrevious}>
+            &lt;
+          </PageButton>
+          {Array.from({ length: completionsPage.totalPage }, (_, i) => (
+            <PageButton
+              key={i}
+              className={completionsPage.currentPage === i ? 'active' : ''}
+              onClick={() => fetchCompletions(i)}
+            >
+              {i + 1}
+            </PageButton>
+          ))}
+          <PageButton onClick={() => fetchCompletions(completionsPage.currentPage + 1)} disabled={!completionsPage.hasNext}>
+            &gt;
+          </PageButton>
+        </Pagination>
+      </BottomBar>
+
       <BackButtonContainer>
-        <BackButton onClick={() => navigate(-1)}>뒤로가기</BackButton>
+        <BackButton onClick={() => navigate('/challenge')}>목록으로</BackButton>
       </BackButtonContainer>
     </MainContent>
   );

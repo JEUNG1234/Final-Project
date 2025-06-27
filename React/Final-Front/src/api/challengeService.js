@@ -34,7 +34,7 @@ export const challengeService = {
 
   getChallengeDetails: async (challengeNo) => {
     try {
-      const response = await api.get(`${API_ENDPOINTS.CHALLENGE.BASE}/${challengeNo}`);
+      const response = await api.get(API_ENDPOINTS.CHALLENGE.DETAIL(challengeNo));
       return response.data;
     } catch (error) {
       console.error(`챌린지 상세 정보 조회 실패 (ID: ${challengeNo}):`, error);
@@ -64,7 +64,6 @@ export const challengeService = {
     }
   },
 
-  // 나의 챌린지 목록 조회 함수 추가
   getMyChallenges: async (userId) => {
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.MY_CHALLENGES, {
@@ -73,6 +72,31 @@ export const challengeService = {
       return response.data;
     } catch (error) {
       console.error('나의 챌린지 목록 조회 API 호출 중 오류 발생:', error);
+      throw error;
+    }
+  },
+  
+  getCompletions: async (challengeNo, page = 0, size = 5) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.CHALLENGE.COMPLETIONS(challengeNo), {
+        params: { page, size, sort: 'createdDate,desc' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`인증글 목록 조회 실패 (챌린지 ID: ${challengeNo}):`, error);
+      throw error;
+    }
+  },
+
+  // 나의 인증글 목록 페이징 조회 함수 추가
+  getMyCompletions: async (challengeNo, userId, page = 0, size = 5) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.CHALLENGE.MY_COMPLETIONS(challengeNo), {
+        params: { userId, page, size, sort: 'createdDate,desc' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`나의 인증글 목록 조회 실패 (챌린지 ID: ${challengeNo}):`, error);
       throw error;
     }
   },

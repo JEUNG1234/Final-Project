@@ -13,6 +13,7 @@ const MyCallenge = () => {
   const { user } = useUserStore();
   const [ongoingChallenge, setOngoingChallenge] = useState(null);
   const [completedChallenges, setCompletedChallenges] = useState([]);
+  const [userTotalPoints, setUserTotalPoints] = useState(0); // 1. 누적 포인트를 저장할 상태 추가
 
   useEffect(() => {
     const fetchMyChallenges = async () => {
@@ -21,6 +22,7 @@ const MyCallenge = () => {
         const response = await challengeService.getMyChallenges(user.userId);
         setOngoingChallenge(response.ongoingChallenge);
         setCompletedChallenges(response.completedChallenges);
+        setUserTotalPoints(response.userTotalPoints); // 2. API 응답에서 전체 누적 포인트를 상태에 저장
       } catch (error) {
         console.error('나의 챌린지 목록을 불러오는데 실패했습니다.', error);
       }
@@ -64,7 +66,8 @@ const MyCallenge = () => {
 
       <ChallengeSummary>
         <SummaryCard>나의 챌린지 완료 횟수: {completedChallenges.filter(c => new Date(c.challengeEndDate) < new Date()).length}회</SummaryCard>
-        <SummaryCard>누적 획득 포인트: {completedChallenges.reduce((acc, cur) => acc + cur.challengePoint, 0)}p</SummaryCard>
+        {/* 3. 누적 포인트를 상태값(userTotalPoints)으로 변경 */}
+        <SummaryCard>누적 획득 포인트: {userTotalPoints}p</SummaryCard>
       </ChallengeSummary>
 
       <CompletedChallengesSection>
