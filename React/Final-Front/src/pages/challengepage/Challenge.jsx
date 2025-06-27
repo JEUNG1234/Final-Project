@@ -184,7 +184,7 @@ const CardImage = styled.img`
   width: 90%;
   height: 85%; /* 기존 120px에서 100px로 줄임 */
   object-fit: contain;
-  background-color: #ffffff; /* 빈 공간에 배경색을 주어 더 깔끔하게 보일 수 있습니다 */
+  background-color: #ffffff; 
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
 `;
