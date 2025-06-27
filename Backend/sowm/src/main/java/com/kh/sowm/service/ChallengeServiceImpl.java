@@ -178,4 +178,18 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         return response;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ChallengeDto.CompletionResponse> findCompletionsByChallenge(Long challengeNo, Pageable pageable) {
+        Page<ChallengeComplete> completions = challengeCompleteRepository.findByChallenge_ChallengeNo(challengeNo, pageable);
+        return completions.map(ChallengeDto.CompletionResponse::fromEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ChallengeDto.CompletionResponse> findMyCompletionsByChallenge(Long challengeNo, String userId, Pageable pageable) {
+        Page<ChallengeComplete> completions = challengeCompleteRepository.findByChallenge_ChallengeNoAndUser_UserId(challengeNo, userId, pageable);
+        return completions.map(ChallengeDto.CompletionResponse::fromEntity);
+    }
 }
