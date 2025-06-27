@@ -23,4 +23,6 @@ public interface ChallengeService {
 
     // 특정 챌린지에 대한 나의 인증글 목록 페이징 조회 메소드 추가
     Page<ChallengeDto.CompletionResponse> findMyCompletionsByChallenge(Long challengeNo, String userId, Pageable pageable);
+
+
 }

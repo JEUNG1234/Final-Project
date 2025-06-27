@@ -37,6 +37,10 @@ public class ChallengeComplete {
     @Column(name = "COMPLETE_CONTENT")
     private String completeContent;
 
+    // 인증 이미지 URL 필드 추가
+    @Column(name = "COMPLETE_IMAGE_URL")
+    private String completeImageUrl;
+
     //작성날짜
     @Column(name = "CREATED_DATE")
     private LocalDate createdDate;
