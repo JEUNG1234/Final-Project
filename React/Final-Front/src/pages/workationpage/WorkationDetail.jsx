@@ -206,7 +206,7 @@ const WorkationDetail = () => {
               <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage}`} />
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
-            <PrecautionContent>{workationInfo.precautions}</PrecautionContent>
+            <RefundPolicy>{workationInfo.precautions}</RefundPolicy>
           </>
         )}
 
@@ -225,8 +225,8 @@ const WorkationDetail = () => {
             {/* 추가적인 위치 정보 (주소, 교통편 등) */}
             <Description style={{ marginTop: '20px' }}>
               <p>주소: {workationInfo.address}</p>
-              <p>대중교통: {workationInfo.busInfo}</p>
-              <p>주차: {workationInfo.parkingInfo}</p>
+              <RefundPolicy>대중교통: {workationInfo.busInfo}</RefundPolicy>
+              <RefundPolicy>주차: {workationInfo.parkingInfo}</RefundPolicy>
             </Description>
           </>
         )}

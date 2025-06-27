@@ -241,7 +241,7 @@ const WorkationList = () => {
               <CardTitle>{place.workationTitle}</CardTitle>
               <CardLocationWrapper>
                 <CardLocation>
-                  {place.address} <CardAvailability>남은 예약: {place.availability}</CardAvailability>
+                  {place.address} 
                 </CardLocation>
                 {user && user.jobCode === 'J2' && (
                   <>
