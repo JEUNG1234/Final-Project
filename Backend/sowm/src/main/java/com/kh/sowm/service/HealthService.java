@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+
 public interface HealthService {
     MentalQuestionDto getMentalQuestion(MentalQuestionRequestDto requestDto, String userId);
 
@@ -25,4 +26,5 @@ public interface HealthService {
     PhysicalResultDto getPhysicalCheckResult(String userId);
 
     Page<MedicalCheckResultDto> getResultList(Pageable pageable, LocalDate createDate, Type type);
+
 }

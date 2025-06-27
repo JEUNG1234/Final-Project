@@ -32,7 +32,7 @@ public class MedicalCheckDto {
         @Setter
         @NoArgsConstructor
         @AllArgsConstructor
-        public static class QuestionScore{
+        public static class QuestionScore {
             private String question;
             private int score;
             private String guideMessage;

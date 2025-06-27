@@ -13,6 +13,7 @@ const MyCallenge = () => {
   const { user } = useUserStore();
   const [ongoingChallenge, setOngoingChallenge] = useState(null);
   const [completedChallenges, setCompletedChallenges] = useState([]);
+  const [userTotalPoints, setUserTotalPoints] = useState(0);
 
   useEffect(() => {
     const fetchMyChallenges = async () => {
@@ -21,6 +22,7 @@ const MyCallenge = () => {
         const response = await challengeService.getMyChallenges(user.userId);
         setOngoingChallenge(response.ongoingChallenge);
         setCompletedChallenges(response.completedChallenges);
+        setUserTotalPoints(response.userTotalPoints);
       } catch (error) {
         console.error('나의 챌린지 목록을 불러오는데 실패했습니다.', error);
       }
@@ -29,7 +31,7 @@ const MyCallenge = () => {
   }, [user]);
 
   const handleGoBack = () => {
-    navigate(-1); // 이전 페이지로 이동
+    navigate(-1);
   };
 
   return (
@@ -64,7 +66,7 @@ const MyCallenge = () => {
 
       <ChallengeSummary>
         <SummaryCard>나의 챌린지 완료 횟수: {completedChallenges.filter(c => new Date(c.challengeEndDate) < new Date()).length}회</SummaryCard>
-        <SummaryCard>누적 획득 포인트: {completedChallenges.reduce((acc, cur) => acc + cur.challengePoint, 0)}p</SummaryCard>
+        <SummaryCard>누적 획득 포인트: {userTotalPoints}p</SummaryCard>
       </ChallengeSummary>
 
       <CompletedChallengesSection>
@@ -83,7 +85,10 @@ const MyCallenge = () => {
           {completedChallenges.map((challenge) => (
             <ChallengeCard key={challenge.challengeNo} onClick={() => navigate(`/mychallenge/complete/${challenge.challengeNo}`)}>
               <CardImageArea>
-                <CardImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
+                <CardImage 
+                  src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
+                  alt={challenge.challengeTitle} 
+                />
               </CardImageArea>
               <CardContent>
                 <CardTitle>챌린지: {challenge.challengeTitle}</CardTitle>

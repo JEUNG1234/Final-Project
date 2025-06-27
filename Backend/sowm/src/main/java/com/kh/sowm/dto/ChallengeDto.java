@@ -30,6 +30,7 @@ public class ChallengeDto {
         private String userId;
         private String completeTitle;
         private String completeContent;
+        private String completeImageUrl; // 💡 인증 이미지 URL 필드 추가
     }
 
     @Getter
@@ -64,7 +65,8 @@ public class ChallengeDto {
         private String completeContent;
         private String userName;
         private String userId;
-        private LocalDate createdDate; // 작성일자 필드 추가
+        private LocalDate createdDate;
+        private String completeImageUrl; //  인증 이미지 URL 필드 추가
 
         public static CompletionResponse fromEntity(ChallengeComplete completion) {
             return CompletionResponse.builder()
@@ -73,7 +75,8 @@ public class ChallengeDto {
                     .completeContent(completion.getCompleteContent())
                     .userName(completion.getUser().getUserName())
                     .userId(completion.getUser().getUserId())
-                    .createdDate(completion.getCreatedDate()) // 필드 매핑
+                    .createdDate(completion.getCreatedDate())
+                    .completeImageUrl(completion.getCompleteImageUrl()) //  필드 매핑
                     .build();
         }
     }

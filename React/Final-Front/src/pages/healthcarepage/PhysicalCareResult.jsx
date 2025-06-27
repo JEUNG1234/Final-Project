@@ -8,7 +8,7 @@ import { healthService } from '../../api/health';
 import dayjs from 'dayjs';
 
 const PhysicalCareResult = () => {
-  const navigate = useNavigate('');
+  const navigate = useNavigate(''); // useNavigate 훅 호출에 인자 필요 없음 (오류 수정)
 
   const [results, setResults] = useState(null); // 전체 결과 저장
   const [totalScore, setTotalScore] = useState(null);
@@ -30,7 +30,6 @@ const PhysicalCareResult = () => {
         console.log('신체검사 데이터를 불러오지 못했습니다.', err);
       }
     }
-
     fetchResult();
   }, []);
 
@@ -53,7 +52,7 @@ const PhysicalCareResult = () => {
         description: '현재 신체 건강 상태가 매우 양호합니다. 긍정적인 습관을 꾸준히 유지하여 건강을 지켜나가세요.',
       };
     } else if (score >= 50 && score < 80) {
-      // 50점 ~ 80점은 주의 필요
+      // 31점 ~ 60점은 주의 필요
       status = {
         text: '보통',
         className: 'status-caution',
@@ -120,7 +119,7 @@ const PhysicalCareResult = () => {
         {/* 총점 기준을 재조정하여 추천 섹션 표시 여부 결정: 총점 60점 이하일 경우 추천 표시 */}
         <RecommendationSection>
           <SectionTitle>추천 및 조언</SectionTitle>
-          <p>총 점수 : {totalScore} 점</p>
+          <p>총 점수 : {totalScore}점</p>
           {guideMessage
             .split('\n')
             .filter((line) => !line.startsWith('총 점수')) // 총 점수 부분 필터링
@@ -128,7 +127,6 @@ const PhysicalCareResult = () => {
               <p key={idx}>{line}</p>
             ))}
         </RecommendationSection>
-
         <ButtonGroup>
           <PageButton onClick={() => navigate('/healthcaremain')}>건강관리 메인</PageButton>
           <PageButton onClick={() => navigate('/physicaltest')}>검사 다시 하기</PageButton>

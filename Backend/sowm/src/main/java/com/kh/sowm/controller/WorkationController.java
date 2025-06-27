@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/workation")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // 💡 포트 5174 -> 5173으로 수정
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") //
 public class WorkationController {
 
     private final WorkationService workationService;

@@ -1,46 +1,74 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { MainContent, PageTitle, Pagination, PageButton } from '../../styles/common/MainContentLayout'; // 기존 common/MainContentLayout 활용
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
-import { IoCameraOutline } from 'react-icons/io5'; // 사진 첨부 아이콘
+import { challengeService } from '../../api/challengeService';
 
 const ChallengeComplete = () => {
   const navigate = useNavigate();
+  const { id: completionNo } = useParams();
+  const [completion, setCompletion] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 입력 필드 상태 관리
-  const [breadcrumbs, setBreadcrumds] = useState('하루 10000보 걷기');
-  const [title, setTitle] = useState('하루 만보 걷기 완료'); // 이미지에 있는 기본값 설정
-  const [author, setAuthor] = useState('홍길동'); // 이미지에 있는 기본값 설정
-  const [content, setContent] = useState('열심히 했어'); // 이미지에 있는 기본값 설정
+  useEffect(() => {
+    const fetchCompletion = async () => {
+      try {
+        setLoading(true);
+        const data = await challengeService.getCompletionDetail(completionNo);
+        setCompletion(data);
+      } catch (error) {
+        alert('인증글을 불러오는 데 실패했습니다.');
+        navigate(-1);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCompletion();
+  }, [completionNo, navigate]);
 
   const handleGoBack = () => {
-    navigate(-1); // 이전 페이지로 이동
+    navigate(-1);
   };
+  
+  if (loading) {
+    return <MainContent>로딩 중...</MainContent>;
+  }
 
+  if (!completion) {
+    return <MainContent>인증글 정보를 찾을 수 없습니다.</MainContent>;
+  }
+  
   return (
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} {breadcrumbs} {'>'} {title}
+        챌린지 {'>'} 인증글 상세보기
       </PageTitle>
 
       <FormContainer>
         <FormField>
           <Label>제목</Label>
-          <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} readOnly />
+          <Input type="text" value={completion.completeTitle} readOnly />
         </FormField>
 
         <FormField>
           <Label>작성자</Label>
           <AuthorInputGroup>
-            <AuthorName>{author}</AuthorName>
+            <AuthorName>{completion.userName}</AuthorName>
           </AuthorInputGroup>
         </FormField>
+        
+        {completion.completeImageUrl && (
+            <FormField wide>
+                <Label>인증 사진</Label>
+                <ImagePreview src={`https://d1qzqzab49ueo8.cloudfront.net/${completion.completeImageUrl}`} alt="인증 사진" />
+            </FormField>
+        )}
 
         <FormField wide>
           <Label>내용</Label>
-          <TextArea value={content} onChange={(e) => setContent(e.target.value)} readOnly />
+          <TextArea value={completion.completeContent} readOnly />
         </FormField>
       </FormContainer>
 
@@ -59,8 +87,6 @@ export default ChallengeComplete;
 
 const FormContainer = styled.div`
   background-color: #fff;
-  /* border-radius: 15px; */
-  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); */
   padding: 30px 60px;
   margin: 30px 50px;
   display: flex;
@@ -114,12 +140,7 @@ const Input = styled.input`
   font-size: 16px;
   font-weight: 500;
   color: #333;
-  outline: none;
-  transition: border-color 0.2s;
-
-  &:focus {
-    border-color: #4d8eff;
-  }
+  background-color: #f8f8f8;
 `;
 
 const AuthorInputGroup = styled.div`
@@ -163,13 +184,8 @@ const TextArea = styled.textarea`
   font-size: 16px;
   font-weight: 500;
   color: #333;
-  outline: none;
+  background-color: #f8f8f8;
   resize: vertical; /* 세로로만 크기 조절 가능 */
-  transition: border-color 0.2s;
-
-  &:focus {
-    border-color: #4d8eff;
-  }
 
   @media (max-width: 768px) {
     width: 100%; /* 작은 화면에서 꽉 채우도록 */
@@ -178,11 +194,18 @@ const TextArea = styled.textarea`
   }
 `;
 
+const ImagePreview = styled.img`
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+`;
+
 const GoBackButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 15px;
-  /* padding: 20px 0 40px 0; */
 `;
 
 const GoBackButton = styled.button`

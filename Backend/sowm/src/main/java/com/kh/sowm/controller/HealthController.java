@@ -6,6 +6,7 @@ import com.kh.sowm.dto.MedicalCheckDto;
 import com.kh.sowm.dto.MedicalCheckDto.MedicalCheckResultDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalResultDto;
+
 import com.kh.sowm.dto.MedicalCheckDto.PhysicalQuestionDto;
 import com.kh.sowm.dto.MedicalCheckDto.PhysicalResultDto;
 import com.kh.sowm.dto.PageResponse;
@@ -93,5 +94,6 @@ public class HealthController {
                 new PageResponse<>(healthService.getResultList(pageable, createDate, type))
         );
     }
+
 
 }

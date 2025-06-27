@@ -36,7 +36,7 @@ const PhysicalCareTest = () => {
       const userId = localStorage.getItem('userId');
       console.log('현재 로그인된 계정의 아이디 : ', userId);
 
-      const response = await healthService.physicalquestion({ userId, questions: QUESTIONS, scores }); //physicalquestion으로 변경해야됨됨
+      const response = await healthService.physicalquestion({ userId, questions: QUESTIONS, scores });
 
       console.log('서버 응답:', response.data);
 
@@ -50,12 +50,11 @@ const PhysicalCareTest = () => {
   return (
     <MainContent>
       <PageTitle>
-        <FaHeartbeat />
-        건강관리 {'>'} 신체검사
+        <FaHeartbeat /> 건강관리 {'>'} 신체검사
       </PageTitle>
 
       <StyledContentHeader>
-        <h2>신체검사</h2>
+        <h2>신체체검사</h2>
         <hr />
         <Subtitle>현재 건강 데이터를 입력하고 AI로부터 맞춤형 건강 가이드를 받아보세요.</Subtitle>
       </StyledContentHeader>
@@ -209,6 +208,7 @@ const SliderWithLabels = ({ question, min, max, value, onChange }) => {
     </SliderSection>
   );
 };
+
 // 각 슬라이더 섹션을 감싸는 컨테이너
 const SliderSection = styled.div`
   margin-bottom: 30px; /* 각 슬라이더 섹션 간의 간격 */
