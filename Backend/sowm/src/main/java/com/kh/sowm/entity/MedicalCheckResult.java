@@ -19,7 +19,7 @@ public class MedicalCheckResult {
     @Column(name = "MEDICAL_CHECK_RESULT_NO")
     private Long medicalCheckResultNo;
 
-    @Column(name = "MEDICAL_CHECK_CREATE_DATE", nullable = false)
+    @Column(name = "MEDICAL_CHECK_CREATE_DATE")
     private LocalDate medicalCheckCreateDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -60,7 +60,7 @@ public class Challenge {
     @OneToMany(mappedBy = "challenge", fetch = FetchType.LAZY)
     private List<ChallengeComplete> completions = new ArrayList<>();
 
-    // 참여자 수를 계산하는 Formula 필드
-    @Formula("(select count(distinct cc.user_id) from challenge_complete cc where cc.challenge_no = challenge_no)")
+    // 참여자 수를 계산하는 Formula 필드 수정
+    @Formula("(SELECT COUNT(DISTINCT cc.USER_ID) FROM CHALLENGE_COMPLETE cc WHERE cc.CHALLENGE_NO = CHALLENGE_NO)")
     private int participantCount;
 }

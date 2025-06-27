@@ -93,6 +93,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .user(user)
                 .completeTitle(requestDto.getCompleteTitle())
                 .completeContent(requestDto.getCompleteContent())
+                .completeImageUrl(requestDto.getCompleteImageUrl())
                 .build();
 
         challengeCompleteRepository.save(completion);
@@ -176,5 +177,28 @@ public class ChallengeServiceImpl implements ChallengeService {
         response.put("userTotalPoints", user.getPoint());
 
         return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ChallengeDto.CompletionResponse> findCompletionsByChallenge(Long challengeNo, Pageable pageable) {
+        Page<ChallengeComplete> completions = challengeCompleteRepository.findByChallenge_ChallengeNo(challengeNo, pageable);
+        return completions.map(ChallengeDto.CompletionResponse::fromEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ChallengeDto.CompletionResponse> findMyCompletionsByChallenge(Long challengeNo, String userId, Pageable pageable) {
+        Page<ChallengeComplete> completions = challengeCompleteRepository.findByChallenge_ChallengeNoAndUser_UserId(challengeNo, userId, pageable);
+        return completions.map(ChallengeDto.CompletionResponse::fromEntity);
+    }
+
+    // 인증글 상세 조회 메서드 구현
+    @Override
+    @Transactional(readOnly = true)
+    public ChallengeDto.CompletionResponse getCompletionDetail(Long completionNo) {
+        ChallengeComplete completion = challengeCompleteRepository.findById(completionNo)
+                .orElseThrow(() -> new EntityNotFoundException("인증글을 찾을 수 없습니다: " + completionNo));
+        return ChallengeDto.CompletionResponse.fromEntity(completion);
     }
 }

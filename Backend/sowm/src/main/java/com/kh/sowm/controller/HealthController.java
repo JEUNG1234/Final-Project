@@ -3,8 +3,6 @@ package com.kh.sowm.controller;
 import com.kh.sowm.dto.MedicalCheckDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalResultDto;
-import com.kh.sowm.dto.MedicalCheckDto.PhysicalQuestionDto;
-import com.kh.sowm.dto.MedicalCheckDto.PhysicalResultDto;
 import com.kh.sowm.entity.MedicalCheckResult;
 import com.kh.sowm.service.HealthService;
 import java.util.List;
@@ -48,21 +46,5 @@ public class HealthController {
         return ResponseEntity.ok(result);
     }
 
-
-    @PostMapping("/physicalquestion")
-    public ResponseEntity<MedicalCheckDto.PhysicalQuestionDto> askQuestions(
-            @RequestBody MedicalCheckDto.PhysicalQuestionRequestDto requestDto) {
-
-        PhysicalQuestionDto result = healthService.getPhysicalQuestion(requestDto, requestDto.getUserId());
-        System.out.println("전송한 아이디 : " + requestDto.getUserId());
-        return ResponseEntity.ok(result);
-    }
-
-    // 테스트한 결과 프론트로 출력
-    @GetMapping("/physicalquestion/result")
-    public ResponseEntity<MedicalCheckDto.PhysicalResultDto> getPhysicalCheckResult(@RequestParam String userId) {
-        PhysicalResultDto result = healthService.getPhysicalCheckResult(userId);
-        return ResponseEntity.ok(result);
-    }
 
 }

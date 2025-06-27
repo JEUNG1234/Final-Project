@@ -1,70 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import { MainContent, PageTitle, Pagination, PageButton, BottomBar } from '../../styles/common/MainContentLayout';
 import { BsFire } from 'react-icons/bs';
 import runningWoman from '../../assets/challengeImg.jpg';
 import { challengeService } from '../../api/challengeService';
 import useUserStore from '../../Store/useStore';
+import dayjs from 'dayjs';
 
 const MyChallengeComplete = () => {
   const navigate = useNavigate();
   const { id: challengeNo } = useParams();
-  const [challenge, setChallenge] = useState(null);
-  const [personalAchievement, setPersonalAchievement] = useState(0);
   const { user } = useUserStore();
+  const [challenge, setChallenge] = useState(null);
+  const [myCompletionsPage, setMyCompletionsPage] = useState({
+    content: [],
+    currentPage: 0,
+    totalPage: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
+
+  const fetchMyCompletions = useCallback(async (page) => {
+    if (!user?.userId) return;
+    try {
+      const data = await challengeService.getMyCompletions(challengeNo, user.userId, page);
+      setMyCompletionsPage({
+        content: data.content,
+        currentPage: data.currentPage,
+        totalPage: data.totalPage,
+        hasNext: data.hasNext,
+        hasPrevious: data.hasPrevious,
+      });
+    } catch (error) {
+      console.error("나의 인증글 목록을 불러오는데 실패했습니다.", error);
+    }
+  }, [challengeNo, user]);
 
   useEffect(() => {
-    const fetchChallengeData = async () => {
-      if (!challengeNo || !user) return;
+    const fetchChallengeDetail = async () => {
       try {
         const detailData = await challengeService.getChallengeDetails(challengeNo);
         setChallenge(detailData);
-
-        const userCompletions = detailData.completions.filter(c => c.userId === user.userId);
-        const totalDuration = (new Date(detailData.challengeEndDate).getTime() - new Date(detailData.challengeStartDate).getTime()) / (1000 * 60 * 60 * 24) + 1;
-
-        if (totalDuration > 0) {
-          const calculatedAchievement = Math.round((userCompletions.length / totalDuration) * 100);
-          setPersonalAchievement(calculatedAchievement);
-        }
       } catch (error) {
         console.error('챌린지 상세 정보 로딩 실패:', error);
-        alert('챌린지 정보를 불러오는 데 실패했습니다.');
-        navigate('/myChallenge');
       }
     };
 
-    fetchChallengeData();
-  }, [challengeNo, user, navigate]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
+    fetchChallengeDetail();
+    fetchMyCompletions(0);
+  }, [challengeNo, fetchMyCompletions]);
 
   if (!challenge) {
     return <MainContent>로딩 중...</MainContent>;
   }
+  
+  const handleGoBack = () => {
+    navigate(-1);
+  };
 
   return (
     <MainContent>
       <PageTitle>
         <BsFire />
-        챌린지 {'>'} MY 챌린지 {'>'} {challenge.challengeTitle}
+        MY 챌린지 {'>'} {challenge.challengeTitle}
       </PageTitle>
 
       <ChallengeSummarySection>
         <SummaryTextContent>
-          <PeriodText>{challenge.challengeStartDate} ~ {challenge.challengeEndDate}</PeriodText>
+          <PeriodText>
+            {challenge.challengeStartDate} ~ {challenge.challengeEndDate}
+          </PeriodText>
           <ChallengeTitle>{challenge.challengeTitle}</ChallengeTitle>
-          <ProgressBarWrapper>
-            <ProgressBarBackground>
-              <ProgressBarFill percentage={personalAchievement} />
-            </ProgressBarBackground>
-            <ProgressText>
-              나의 달성률 {personalAchievement}%
-            </ProgressText>
-          </ProgressBarWrapper>
         </SummaryTextContent>
         <SummaryImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
       </ChallengeSummarySection>
@@ -77,38 +84,58 @@ const MyChallengeComplete = () => {
           <h3>작성일자</h3>
         </BoardHeader>
         <BoardTable>
-          {challenge.completions && challenge.completions.length > 0 ? (
-             challenge.completions
-             .filter(post => post.userId === user.userId) // 내 인증글만 필터링
-             .map((post) => (
-              <BoardRow key={post.completeNo} onClick={() => navigate(`/challenge/challenge_id/${post.completeNo}`)}>
+          {myCompletionsPage.content && myCompletionsPage.content.length > 0 ? (
+            myCompletionsPage.content.map((post) => (
+              <BoardRow key={post.completeNo}>
                 <BoardCell typeColumn>챌린지</BoardCell>
                 <BoardCell>{post.completeTitle}</BoardCell>
                 <BoardCell>{post.userName}</BoardCell>
-                <BoardCell>{/* 작성일자 필드가 없으므로 임시로 비워둠 */}</BoardCell>
+                <BoardCell>{dayjs(post.createdDate).format('YYYY-MM-DD')}</BoardCell>
               </BoardRow>
             ))
           ) : (
-            <NoPostsMessage>등록된 인증글이 없습니다.</NoPostsMessage>
+            <NoPostsMessage>작성한 인증글이 없습니다.</NoPostsMessage>
           )}
         </BoardTable>
       </BoardSection>
+      
+      <BottomBar>
+        <Pagination>
+          <PageButton onClick={() => fetchMyCompletions(myCompletionsPage.currentPage - 1)} disabled={!myCompletionsPage.hasPrevious}>
+            &lt;
+          </PageButton>
+          {Array.from({ length: myCompletionsPage.totalPage }, (_, i) => (
+            <PageButton
+              key={i}
+              className={myCompletionsPage.currentPage === i ? 'active' : ''}
+              onClick={() => fetchMyCompletions(i)}
+            >
+              {i + 1}
+            </PageButton>
+          ))}
+          <PageButton onClick={() => fetchMyCompletions(myCompletionsPage.currentPage + 1)} disabled={!myCompletionsPage.hasNext}>
+            &gt;
+          </PageButton>
+        </Pagination>
+      </BottomBar>
 
-      <BackButtonContainer>
-        <BackButton onClick={handleGoBack}>뒤로가기</BackButton>
-      </BackButtonContainer>
+      <GoBackButtonContainer>
+        <GoBackButton onClick={handleGoBack}>뒤로가기</GoBackButton>
+      </GoBackButtonContainer>
     </MainContent>
   );
 };
 
+
 export default MyChallengeComplete;
 
-// Styled Components... (이전과 동일)
+
+// Styled Components...
 const ChallengeSummarySection = styled.div`
   background-color: #e6f2ff; /* 연한 파란색 배경 */
   border-radius: 15px;
-  padding: 20px 40px; /* 내부 여백 */
-  margin: 10px 35px; /* MainContent 내부 여백 */
+  padding: 10px 20px 10px 40px; /* 내부 여백 */
+  margin: 0 35px 10px 35px; /* MainContent 내부 여백 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -141,37 +168,6 @@ const ChallengeTitle = styled.h1`
   font-size: 32px;
   font-weight: bold;
   color: #333;
-  margin: 0;
-`;
-
-const ProgressBarWrapper = styled.div`
-  width: 300px; /* 진행바 너비 고정 */
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-`;
-
-const ProgressBarBackground = styled.div`
-  width: 100%;
-  height: 8px;
-  background-color: #c9e2ff; /* 진행바 배경색 */
-  border-radius: 4px;
-  overflow: hidden;
-`;
-
-const ProgressBarFill = styled.div`
-  height: 100%;
-  width: ${(props) => props.percentage || 0}%;
-  background-color: #4d8eff; /* 진행바 채우는 색 */
-  border-radius: 4px;
-`;
-
-const ProgressText = styled.p`
-  font-size: 14px;
-  font-weight: 500;
-  color: #555;
-  text-align: right;
   margin: 0;
 `;
 
@@ -233,7 +229,7 @@ const BoardRow = styled.div`
   display: grid;
   grid-template-columns: 120px 3fr 1.5fr 1.5fr; /* Header와 동일하게 설정 */
   padding: 12px 0;
-  border-bottom: 1px solid #ffffff;
+  border-bottom: 1px solid #f0f0f0;
   font-size: 14px;
   color: #555;
   align-items: center;
@@ -274,14 +270,14 @@ const NoPostsMessage = styled.div`
   font-size: 16px;
 `;
 
-const BackButtonContainer = styled.div`
-  width: 100%;
+// 뒤로가기 버튼
+const GoBackButtonContainer = styled.div`
+  margin-top: 15px;
   display: flex;
   justify-content: center;
-  margin-top: 20px;
 `;
 
-const BackButton = styled.button`
+const GoBackButton = styled.button`
   height: 50px;
   background-color: #4d8eff;
   color: white;
