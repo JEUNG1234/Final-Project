@@ -18,4 +18,7 @@ public interface ChallengeCompleteRepository {
 
     // 특정 챌린지의 특정 사용자 인증글 페이징 조회
     Page<ChallengeComplete> findByChallenge_ChallengeNoAndUser_UserId(Long challengeNo, String userId, Pageable pageable);
+
+    // ID로 단일 인증글 조회 메서드 추가
+    Optional<ChallengeComplete> findById(Long completeNo);
 }

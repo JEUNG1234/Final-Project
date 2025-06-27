@@ -100,6 +100,15 @@ export const challengeService = {
       throw error;
     }
   },
-
- 
+  
+  // 인증글 상세 정보 조회 함수 추가
+  getCompletionDetail: async (completionNo) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.CHALLENGE.COMPLETION_DETAIL(completionNo));
+      return response.data;
+    } catch (error) {
+      console.error(`인증글 상세 정보 조회 실패 (ID: ${completionNo}):`, error);
+      throw error;
+    }
+  },
 };

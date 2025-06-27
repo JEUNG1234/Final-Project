@@ -85,4 +85,10 @@ public class ChallengeCompleteRepositoryImpl implements ChallengeCompleteReposit
 
         return new PageImpl<>(completions, pageable, total);
     }
+
+    // ID로 단일 인증글 조회 구현
+    @Override
+    public Optional<ChallengeComplete> findById(Long completeNo) {
+        return Optional.ofNullable(em.find(ChallengeComplete.class, completeNo));
+    }
 }

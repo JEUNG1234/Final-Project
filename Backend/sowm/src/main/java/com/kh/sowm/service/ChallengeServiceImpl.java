@@ -192,4 +192,13 @@ public class ChallengeServiceImpl implements ChallengeService {
         Page<ChallengeComplete> completions = challengeCompleteRepository.findByChallenge_ChallengeNoAndUser_UserId(challengeNo, userId, pageable);
         return completions.map(ChallengeDto.CompletionResponse::fromEntity);
     }
+
+    // 인증글 상세 조회 메서드 구현
+    @Override
+    @Transactional(readOnly = true)
+    public ChallengeDto.CompletionResponse getCompletionDetail(Long completionNo) {
+        ChallengeComplete completion = challengeCompleteRepository.findById(completionNo)
+                .orElseThrow(() -> new EntityNotFoundException("인증글을 찾을 수 없습니다: " + completionNo));
+        return ChallengeDto.CompletionResponse.fromEntity(completion);
+    }
 }

@@ -68,13 +68,6 @@ public class ChallengeController {
         return ResponseEntity.ok(new PageResponse<>(completions));
     }
 
-    /**
-     * 특정 챌린지에 대한 나의 인증글 목록을 페이징하여 조회하는 API 추가
-     * @param challengeNo 조회할 챌린지 ID
-     * @param userId      조회할 사용자 ID
-     * @param pageable    페이징 정보
-     * @return 페이징된 인증글 목록
-     */
     @GetMapping("/{challengeNo}/my-completions")
     public ResponseEntity<PageResponse<ChallengeDto.CompletionResponse>> getMyCompletionsByChallenge(
             @PathVariable Long challengeNo,
@@ -82,5 +75,12 @@ public class ChallengeController {
             @PageableDefault(size = 5, sort = "createdDate,desc") Pageable pageable) {
         Page<ChallengeDto.CompletionResponse> completions = challengeService.findMyCompletionsByChallenge(challengeNo, userId, pageable);
         return ResponseEntity.ok(new PageResponse<>(completions));
+    }
+
+    // 인증글 상세 조회 컨트롤러 메서드 추가
+    @GetMapping("/completion/{completionNo}")
+    public ResponseEntity<ChallengeDto.CompletionResponse> getCompletionDetail(@PathVariable Long completionNo) {
+        ChallengeDto.CompletionResponse completion = challengeService.getCompletionDetail(completionNo);
+        return ResponseEntity.ok(completion);
     }
 }

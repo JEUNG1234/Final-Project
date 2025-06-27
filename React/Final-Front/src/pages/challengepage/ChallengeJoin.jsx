@@ -6,7 +6,7 @@ import { BsFire } from 'react-icons/bs';
 import { IoCameraOutline } from 'react-icons/io5';
 import useUserStore from '../../Store/useStore';
 import { challengeService } from '../../api/challengeService';
-import { fileupload } from '../../api/fileupload'; // 💡 fileupload 모듈 임포트
+import { fileupload } from '../../api/fileupload';
 
 const ChallengeJoin = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const ChallengeJoin = () => {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [imageFile, setImageFile] = useState(null); // 💡 업로드할 파일 상태
-  const [previewUrl, setPreviewUrl] = useState(''); // 💡 미리보기 URL 상태
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   const handleGoBack = () => {
     navigate(-1);
@@ -51,7 +51,7 @@ const ChallengeJoin = () => {
     try {
       // 1. S3에 이미지 업로드
       const imageInfo = await fileupload.uploadImageToS3(imageFile, 'challenge-completions/');
-      if (!imageInfo || !imageInfo.url) {
+      if (!imageInfo || !imageInfo.filename) {
         alert('이미지 업로드에 실패했습니다.');
         return;
       }
@@ -61,7 +61,7 @@ const ChallengeJoin = () => {
         userId: user.userId,
         completeTitle: title,
         completeContent: content,
-        completeImageUrl: imageInfo.url, // 💡 업로드된 이미지 URL 포함
+        completeImageUrl: imageInfo.filename, // 수정: url -> filename
       };
       
       await challengeService.createCompletion(challengeNo, payload);
