@@ -53,7 +53,7 @@ export const API_ENDPOINTS = {
     updateAttendTime: '/admin/adminattendance',
     getMemberAttendance: '/admin/adminattendance/filter',
   },
-   VOTES: {
+  VOTES: {
     BASE: '/votes',
     // 투표자 목록 조회 엔드포인트
     GET_VOTERS: (voteNo, voteContentNo) => `/votes/${voteNo}/options/${voteContentNo}/voters`,
@@ -86,5 +86,7 @@ export const API_ENDPOINTS = {
     BASE: '/health',
     mentalquestion: '/health/mentalquestion',
     mentalresult: '/health/mentalquestion/result',
+    physicalquestion: '/health/physicalquestion',
+    physicalresult: '/health/physicalquestion/result',
   },
 };
