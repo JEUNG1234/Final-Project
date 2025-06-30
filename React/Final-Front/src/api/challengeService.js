@@ -2,6 +2,7 @@ import api from './axios';
 import { API_ENDPOINTS } from './config';
 
 export const challengeService = {
+  // ... (createChallenge는 기존과 동일)
   createChallenge: async (payload) => {
     try {
       const response = await api.post(API_ENDPOINTS.CHALLENGE.BASE, payload, {
@@ -16,13 +17,14 @@ export const challengeService = {
     }
   },
 
-  getAllChallenges: async (page = 0, size = 8) => {
+  getAllChallenges: async (page = 0, size = 8, userId) => { // userId 파라미터 추가
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.BASE, {
         params: {
           page,
           size,
           sort: 'challengeNo,desc',
+          userId, // userId 전달
         },
       });
       return response.data;
@@ -31,7 +33,8 @@ export const challengeService = {
       throw error;
     }
   },
-
+  
+  // ... (이하 기존 코드와 동일)
   getChallengeDetails: async (challengeNo) => {
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.DETAIL(challengeNo));
@@ -75,7 +78,7 @@ export const challengeService = {
       throw error;
     }
   },
-  
+
   getCompletions: async (challengeNo, page = 0, size = 5) => {
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.COMPLETIONS(challengeNo), {
@@ -88,7 +91,6 @@ export const challengeService = {
     }
   },
 
-  // 나의 인증글 목록 페이징 조회 함수 추가
   getMyCompletions: async (challengeNo, userId, page = 0, size = 5) => {
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.MY_COMPLETIONS(challengeNo), {
@@ -101,7 +103,6 @@ export const challengeService = {
     }
   },
   
-  // 인증글 상세 정보 조회 함수 추가
   getCompletionDetail: async (completionNo) => {
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.COMPLETION_DETAIL(completionNo));
@@ -109,6 +110,15 @@ export const challengeService = {
     } catch (error) {
       console.error(`인증글 상세 정보 조회 실패 (ID: ${completionNo}):`, error);
       throw error;
+    }
+  },
+
+  getChallengeForDashBoard: async (userId) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.CHALLENGE.CHALLENGEFORDASHBOARD(userId));
+      return response.data;
+    } catch (err) {
+      console.log('대시보드용 챌린지 내용을 불러오지 못했습니다.', err);
     }
   },
 };

@@ -11,9 +11,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import runningWoman from '../../assets/challengeImg.jpg';
 import { challengeService } from '../../api/challengeService';
+import useUserStore from '../../Store/useStore'; // useUserStore 임포트
 
 const Challenge = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore(); // 로그인한 유저 정보 가져오기
   const [challenges, setChallenges] = useState([]);
   const [pageInfo, setPageInfo] = useState({
     currentPage: 0,
@@ -23,8 +25,14 @@ const Challenge = () => {
   });
 
   const fetchChallenges = async (page) => {
+    // user 정보가 없으면 API 호출 중단
+    if (!user?.userId) {
+      console.log("로그인한 사용자 정보가 없어 챌린지 목록을 불러올 수 없습니다.");
+      return;
+    }
     try {
-      const data = await challengeService.getAllChallenges(page);
+      // API 호출 시 userId 전달
+      const data = await challengeService.getAllChallenges(page, 8, user.userId);
       setChallenges(data.content);
       setPageInfo({
         currentPage: data.currentPage,
@@ -39,7 +47,7 @@ const Challenge = () => {
 
   useEffect(() => {
     fetchChallenges(0);
-  }, []);
+  }, [user]); // user 정보가 변경될 때 다시 불러오도록 의존성 배열에 추가
 
   const handlePageChange = (page) => {
     fetchChallenges(page);
@@ -69,7 +77,6 @@ const Challenge = () => {
               <CardPeriod>
                 기간 : {challenge.challengeStartDate} ~ {challenge.challengeEndDate}
               </CardPeriod>
-              {/* 포인트 표시 추가 */}
               <CardCompletion>포인트 : {challenge.challengePoint}P</CardCompletion>
               <CardCompletion>참여인원: {challenge.participantCount}명</CardCompletion>
             </CardContent>
@@ -99,7 +106,7 @@ const Challenge = () => {
   );
 };
 
-// --- Styled Components --- (이하 생략)
+// ... (styled-components는 기존과 동일)
 const MyChallengeAera = styled.div`
   width: 100%;
   height: 50px;

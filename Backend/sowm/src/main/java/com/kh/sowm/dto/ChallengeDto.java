@@ -18,6 +18,7 @@ public class ChallengeDto {
         private Long voteNo;
         private Long voteContentNo;
         private String challengeTitle;
+        private String challengeContent; // 상세 설명 필드 추가
         private LocalDate challengeStartDate;
         private LocalDate challengeEndDate;
         private int challengePoint;
@@ -66,6 +67,8 @@ public class ChallengeDto {
         private String userName;
         private String userId;
         private LocalDate createdDate;
+        private LocalDate startDate;
+        private LocalDate endDate;
         private String completeImageUrl; //  인증 이미지 URL 필드 추가
 
         public static CompletionResponse fromEntity(ChallengeComplete completion) {
@@ -79,6 +82,16 @@ public class ChallengeDto {
                     .completeImageUrl(completion.getCompleteImageUrl()) //  필드 매핑
                     .build();
         }
+
+        public static CompletionResponse from(Challenge challenge) {
+            return CompletionResponse.builder()
+                    .completeNo(challenge.getChallengeNo())
+                    .completeTitle(challenge.getChallengeTitle())
+                    .createdDate(challenge.getChallengeEndDate())
+                    .startDate(challenge.getChallengeStartDate())
+                    .endDate(challenge.getChallengeEndDate())
+                    .build();
+        }
     }
 
     @Getter
@@ -86,6 +99,7 @@ public class ChallengeDto {
     public static class DetailResponse {
         private Long challengeNo;
         private String challengeTitle;
+        private String challengeContent; // 상세 설명 필드 추가
         private String challengeImageUrl;
         private LocalDate challengeStartDate;
         private LocalDate challengeEndDate;
@@ -97,6 +111,7 @@ public class ChallengeDto {
             return DetailResponse.builder()
                     .challengeNo(challenge.getChallengeNo())
                     .challengeTitle(challenge.getChallengeTitle())
+                    .challengeContent(challenge.getChallengeContent()) // 상세 설명 매핑
                     .challengeImageUrl(challenge.getChallengeImageUrl())
                     .challengeStartDate(challenge.getChallengeStartDate())
                     .challengeEndDate(challenge.getChallengeEndDate())

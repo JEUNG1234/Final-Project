@@ -1,6 +1,7 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.ChallengeDto;
+import com.kh.sowm.dto.ChallengeDto.CompletionResponse;
 import com.kh.sowm.entity.Challenge;
 import com.kh.sowm.entity.ChallengeComplete;
 import com.kh.sowm.entity.ChallengeResult;
@@ -34,6 +35,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeCompleteRepository challengeCompleteRepository;
     private final ChallengeResultRepository challengeResultRepository;
 
+    // ... (createChallenge 메소드는 기존과 동일)
     @Override
     public Long createChallenge(ChallengeDto.CreateRequest requestDto) {
         User adminUser = userRepository.findByUserId(requestDto.getUserId())
@@ -44,6 +46,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .orElseThrow(() -> new EntityNotFoundException("원본 투표 항목을 찾을 수 없습니다."));
         Challenge challenge = Challenge.builder()
                 .challengeTitle(requestDto.getChallengeTitle())
+                .challengeContent(requestDto.getChallengeContent())
                 .user(adminUser)
                 .vote(vote)
                 .voteContent(voteContent)
@@ -56,13 +59,21 @@ public class ChallengeServiceImpl implements ChallengeService {
         return challenge.getChallengeNo();
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public Page<ChallengeDto.ListResponse> findAllChallenges(Pageable pageable) {
-        Page<Challenge> challengePage = challengeRepository.findAll(pageable);
+    public Page<ChallengeDto.ListResponse> findAllChallenges(Pageable pageable, String userId) {
+        // userId로 companyCode 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+        String companyCode = user.getCompanyCode();
+
+        // companyCode로 필터링하여 조회
+        Page<Challenge> challengePage = challengeRepository.findAll(pageable, companyCode);
         return challengePage.map(ChallengeDto.ListResponse::fromEntity);
     }
 
+    // ... (findChallengeById 이하 기존과 동일)
     @Override
     @Transactional(readOnly = true)
     public ChallengeDto.DetailResponse findChallengeById(Long challengeNo) {
@@ -193,12 +204,24 @@ public class ChallengeServiceImpl implements ChallengeService {
         return completions.map(ChallengeDto.CompletionResponse::fromEntity);
     }
 
-    // 인증글 상세 조회 메서드 구현
     @Override
     @Transactional(readOnly = true)
     public ChallengeDto.CompletionResponse getCompletionDetail(Long completionNo) {
         ChallengeComplete completion = challengeCompleteRepository.findById(completionNo)
                 .orElseThrow(() -> new EntityNotFoundException("인증글을 찾을 수 없습니다: " + completionNo));
         return ChallengeDto.CompletionResponse.fromEntity(completion);
+    }
+
+    @Override
+    public CompletionResponse getChallenge(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("게정 정보가 없습니다."));
+
+        String companyCode = user.getCompanyCode();
+
+        Challenge challenge = challengeRepository.findDashBoardChallenge(companyCode)
+                .orElseThrow(() -> new IllegalArgumentException("챌린지 정보가 없습니다."));
+
+        return CompletionResponse.from(challenge);
     }
 }

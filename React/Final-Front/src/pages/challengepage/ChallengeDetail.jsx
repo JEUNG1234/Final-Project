@@ -91,6 +91,7 @@ const ChallengeDetail = () => {
             {challenge.challengeStartDate} ~ {challenge.challengeEndDate}
           </PeriodText>
           <ChallengeTitle>{challenge.challengeTitle}</ChallengeTitle>
+          <ChallengeDescription>{challenge.challengeContent}</ChallengeDescription>
           <ProgressBarWrapper>
             <ProgressBarBackground>
               <ProgressBarFill percentage={personalAchievement} />
@@ -168,7 +169,6 @@ const ChallengeDetail = () => {
   );
 };
 
-// Styled Components...
 const JoinButtonArea = styled.div`
   width: 100%;
   height: 50px;
@@ -178,15 +178,15 @@ const JoinButtonArea = styled.div`
 `;
 
 const ChallengeSummarySection = styled.div`
-  background-color: #e6f2ff; /* 연한 파란색 배경 */
+  background-color: #e6f2ff;
   border-radius: 15px;
-  padding: 10px 20px 10px 40px; /* 내부 여백 */
-  margin: 0 35px 10px 35px; /* MainContent 내부 여백 */
+  padding: 10px 20px 10px 40px;
+  margin: 0 35px 10px 35px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative; /* + 챌린지 참여 버튼 위치 조정을 위해 */
-  overflow: hidden; /* 이미지 오버플로우 방지 */
+  position: relative;
+  overflow: hidden;
 
   @media (max-width: 990px) {
     flex-direction: column;
@@ -198,9 +198,9 @@ const ChallengeSummarySection = styled.div`
 const SummaryTextContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 요소 간 간격 */
-  flex-grow: 1; /* 남은 공간 차지 */
-  z-index: 1; /* 이미지 위에 텍스트가 오도록 */
+  gap: 10px;
+  flex-grow: 1;
+  z-index: 1;
 `;
 
 const PeriodText = styled.p`
@@ -217,8 +217,15 @@ const ChallengeTitle = styled.h1`
   margin: 0;
 `;
 
+const ChallengeDescription = styled.p`
+  font-size: 16px;
+  color: #555;
+  margin: 5px 0 10px;
+  line-height: 1.6;
+`;
+
 const ProgressBarWrapper = styled.div`
-  width: 300px; /* 진행바 너비 고정 */
+  width: 300px;
   margin-top: 10px;
   display: flex;
   flex-direction: column;
@@ -228,7 +235,7 @@ const ProgressBarWrapper = styled.div`
 const ProgressBarBackground = styled.div`
   width: 100%;
   height: 8px;
-  background-color: #c9e2ff; /* 진행바 배경색 */
+  background-color: #c9e2ff;
   border-radius: 4px;
   overflow: hidden;
 `;
@@ -236,7 +243,7 @@ const ProgressBarBackground = styled.div`
 const ProgressBarFill = styled.div`
   height: 100%;
   width: ${(props) => props.percentage || 0}%;
-  background-color: #4d8eff; /* 진행바 채우는 색 */
+  background-color: #4d8eff;
   border-radius: 4px;
 `;
 
@@ -253,9 +260,9 @@ const SummaryImage = styled.img`
   height: 200px;
   border-radius: 25px;
   object-fit: cover;
-  flex-shrink: 0; /* 이미지 크기 유연하게 줄어들지 않도록 */
-  background-color: #ffe08a; /* 이미지 배경색 (노란 원) */
-  padding: 10px; /* 이미지와 원형 배경 사이 여백 */
+  flex-shrink: 0;
+  background-color: #ffe08a;
+  padding: 10px;
 
   @media (max-width: 1200px) {
     width: 150px;
@@ -269,7 +276,7 @@ const JoinChallengeButton = styled.button`
   color: white;
   padding: 10px 20px;
   border: none;
-  border-radius: 20px; /* 둥근 버튼 */
+  border-radius: 20px;
   font-size: 15px;
   font-weight: bold;
   cursor: pointer;
@@ -290,7 +297,7 @@ const JoinChallengeButton = styled.button`
 `;
 
 const BoardSection = styled.div`
-  margin: 10px 35px; /* MainContent 내부 여백 */
+  margin: 10px 35px;
   background-color: #ffffff;
   border: 1px solid #ececec;
   border-radius: 15px;
@@ -300,7 +307,7 @@ const BoardSection = styled.div`
 
 const BoardHeader = styled.div`
   display: grid;
-  grid-template-columns: 120px 3fr 1.5fr 1.5fr; /* 열 너비 조정 */
+  grid-template-columns: 120px 3fr 1.5fr 1.5fr;
   padding: 15px 0;
   border-bottom: 1px solid #e0e0e0;
   font-weight: bold;
@@ -330,7 +337,7 @@ const BoardTable = styled.div`
 
 const BoardRow = styled.div`
   display: grid;
-  grid-template-columns: 120px 3fr 1.5fr 1.5fr; /* Header와 동일하게 설정 */
+  grid-template-columns: 120px 3fr 1.5fr 1.5fr;
   padding: 12px 0;
   border-bottom: 1px solid #ffffff;
   font-size: 14px;
@@ -355,13 +362,13 @@ const BoardRow = styled.div`
 
 const BoardCell = styled.div`
   text-align: center;
-  padding: 0 5px; /* 셀 내부 여백 */
-  word-break: break-word; /* 긴 텍스트 줄바꿈 */
+  padding: 0 5px;
+  word-break: break-word;
 
   ${(props) =>
     props.typeColumn &&
     `
-    color: #4d8eff; /* 공지사항/챌린지 텍스트 색상 */
+    color: #4d8eff;
     font-weight: bold;
   `}
 `;

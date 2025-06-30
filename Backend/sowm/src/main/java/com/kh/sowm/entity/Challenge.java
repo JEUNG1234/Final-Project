@@ -25,6 +25,11 @@ public class Challenge {
     @Column(name = "CHALLENGE_TITLE", nullable = false)
     private String challengeTitle;
 
+    // 챌린지 내용 추가
+    @Lob
+    @Column(name = "CHALLENGE_CONTENT")
+    private String challengeContent;
+
     //직원아이디
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", nullable = false)

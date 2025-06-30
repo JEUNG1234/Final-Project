@@ -29,11 +29,13 @@ public class ChallengeController {
 
     @GetMapping
     public ResponseEntity<PageResponse<ChallengeDto.ListResponse>> getAllChallenges(
-            @PageableDefault(size = 8, sort = "challengeNo") Pageable pageable) {
-        Page<ChallengeDto.ListResponse> challenges = challengeService.findAllChallenges(pageable);
+            @PageableDefault(size = 8, sort = "challengeNo") Pageable pageable,
+            @RequestParam String userId) { // userId 파라미터 추가
+        Page<ChallengeDto.ListResponse> challenges = challengeService.findAllChallenges(pageable, userId);
         return ResponseEntity.ok(new PageResponse<>(challenges));
     }
 
+    // ... (이하 기존 코드와 동일)
     @GetMapping("/{challengeNo}")
     public ResponseEntity<ChallengeDto.DetailResponse> getChallengeById(@PathVariable Long challengeNo) {
         ChallengeDto.DetailResponse challenge = challengeService.findChallengeById(challengeNo);
@@ -82,5 +84,12 @@ public class ChallengeController {
     public ResponseEntity<ChallengeDto.CompletionResponse> getCompletionDetail(@PathVariable Long completionNo) {
         ChallengeDto.CompletionResponse completion = challengeService.getCompletionDetail(completionNo);
         return ResponseEntity.ok(completion);
+    }
+
+    // 대시보드쪽 챌린지 정보 가져오기
+    @GetMapping("/getChallenge/{userId}")
+    public ResponseEntity<ChallengeDto.CompletionResponse> getChallenge(@PathVariable String userId) {
+        ChallengeDto.CompletionResponse challenge = challengeService.getChallenge(userId);
+        return ResponseEntity.ok(challenge);
     }
 }
