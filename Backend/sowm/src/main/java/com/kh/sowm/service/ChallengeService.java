@@ -10,7 +10,8 @@ import java.util.Map;
 public interface ChallengeService {
     Long createChallenge(ChallengeDto.CreateRequest requestDto);
 
-    Page<ChallengeDto.ListResponse> findAllChallenges(Pageable pageable);
+    // userId 파라미터 추가
+    Page<ChallengeDto.ListResponse> findAllChallenges(Pageable pageable, String userId);
 
     ChallengeDto.DetailResponse findChallengeById(Long challengeNo);
 

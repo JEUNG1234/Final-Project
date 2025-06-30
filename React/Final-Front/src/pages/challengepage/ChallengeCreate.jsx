@@ -20,6 +20,7 @@ const ChallengeCreate = () => {
     challengeStartDate: prefillData?.startDate || '',
     challengeEndDate: prefillData?.endDate || '',
     challengePoint: prefillData?.points || 0,
+    challengeContent: '', // 상세 설명 필드 추가
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -80,15 +81,15 @@ const ChallengeCreate = () => {
         voteNo: prefillData.voteNo,
         voteContentNo: prefillData.voteContentNo,
         challengeTitle: formData.challengeTitle,
+        challengeContent: formData.challengeContent, // 상세 설명 추가
         challengeStartDate: formData.challengeStartDate,
         challengeEndDate: formData.challengeEndDate,
         challengePoint: parseInt(formData.challengePoint, 10),
-        challengeImageUrl: imageInfo.filename, // 수정: url -> filename
+        challengeImageUrl: imageInfo.filename,
       };
 
       await challengeService.createChallenge(payload);
       alert('챌린지가 성공적으로 생성되었습니다.');
-      // 수정: 챌린지 목록 대신 투표 결과 페이지로 이동
       navigate(`/voteresult/${prefillData.voteNo}`);
     } catch (error) {
       alert('챌린지 생성에 실패했습니다.');
@@ -144,12 +145,21 @@ const ChallengeCreate = () => {
           <Label>포인트</Label>
           <Input name="challengePoint" type="number" value={formData.challengePoint} readOnly />
         </FormGroup>
+
+        <FormGroup style={{ gridColumn: '1 / -1' }}>
+          <Label>상세 설명</Label>
+          <TextArea
+            name="challengeContent"
+            value={formData.challengeContent}
+            onChange={handleInputChange}
+            placeholder="챌린지에 대한 상세한 설명을 입력해주세요."
+          />
+        </FormGroup>
       </FormGrid>
 
       <PreviewSection>
         <Label>미리보기</Label>
         <PreviewWrapper>
-          {/* --- 미리보기 카드 UI 수정 --- */}
           <ChallengeCard>
             <CardImageArea>
               <CardImage src={previewUrl} alt="미리보기" />
@@ -174,7 +184,6 @@ const ChallengeCreate = () => {
   );
 };
 
-// --- Styled Components ---
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -227,6 +236,16 @@ const DateWrapper = styled.div`
   gap: 10px;
 `;
 
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-height: 120px;
+  resize: vertical;
+`;
+
 const PreviewSection = styled.div`
   margin-top: 40px;
 `;
@@ -261,8 +280,6 @@ const CancelButton = styled(BaseButton)`
   background-color: #6c757d;
   color: white;
 `;
-
-// ChallengeCard 스타일을 Challenge.jsx와 유사하게 맞춤
 const ChallengeCard = styled.div`
   width: 250px;
   padding-bottom: 5px;
@@ -312,14 +329,11 @@ const CardPeriod = styled.p`
   color: #666;
   margin: 0;
 `;
-
-// CardCompletion 스타일 추가
 const CardCompletion = styled.p`
   font-size: 12px;
   font-weight: 500;
   color: #666;
   margin: 0;
 `;
-  
 
 export default ChallengeCreate;

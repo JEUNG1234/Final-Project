@@ -28,6 +28,7 @@ public class VoteRepositoryImpl implements VoteRepository {
 
     @Override
     public List<Vote> findAll(String companyCode) {
+        // companyCode를 기준으로 필터링하는 WHERE 절 추가
         return em.createQuery("SELECT v FROM Vote v WHERE v.companyCode = :companyCode ORDER BY v.voteNo DESC", Vote.class)
                 .setParameter("companyCode", companyCode)
                 .getResultList();

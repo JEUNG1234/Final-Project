@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,6 +22,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @PersistenceContext
     private EntityManager em;
 
+    // ... (save, findByVote, delete 메소드는 기존과 동일)
     @Override
     public void save(Challenge challenge) {
         if (!em.contains(challenge)) {
@@ -50,19 +52,28 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         }
     }
 
+
     @Override
-    public Page<Challenge> findAll(Pageable pageable) {
-        TypedQuery<Challenge> query = em.createQuery("SELECT c FROM Challenge c ORDER BY c.challengeNo DESC", Challenge.class);
+    public Page<Challenge> findAll(Pageable pageable, String companyCode) {
+        // JPQL 수정: User 엔티티와 조인하여 companyCode로 필터링
+        String jpql = "SELECT c FROM Challenge c JOIN c.user u WHERE u.companyCode = :companyCode ORDER BY c.challengeNo DESC";
+        TypedQuery<Challenge> query = em.createQuery(jpql, Challenge.class)
+                .setParameter("companyCode", companyCode);
+
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
         List<Challenge> challenges = query.getResultList();
 
-        TypedQuery<Long> countQuery = em.createQuery("SELECT count(c) FROM Challenge c", Long.class);
+        // Count 쿼리 수정
+        String countJpql = "SELECT COUNT(c) FROM Challenge c JOIN c.user u WHERE u.companyCode = :companyCode";
+        TypedQuery<Long> countQuery = em.createQuery(countJpql, Long.class)
+                .setParameter("companyCode", companyCode);
         long total = countQuery.getSingleResult();
 
         return new PageImpl<>(challenges, pageable, total);
     }
 
+    // ... (findById 이하 기존과 동일)
     @Override
     public Optional<Challenge> findById(Long challengeNo) {
         return Optional.ofNullable(em.find(Challenge.class, challengeNo));

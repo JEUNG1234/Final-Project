@@ -17,7 +17,8 @@ public interface ChallengeRepository {
 
     void delete(Challenge challenge);
 
-    Page<Challenge> findAll(Pageable pageable);
+    // companyCode를 파라미터로 받도록 수정
+    Page<Challenge> findAll(Pageable pageable, String companyCode);
 
     Optional<Challenge> findById(Long challengeNo);
 

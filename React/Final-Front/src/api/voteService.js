@@ -29,6 +29,7 @@ export const voteService = {
    */
   getAllVotes: async (userId) => {
     try {
+      // API 호출 시 userId를 쿼리 파라미터로 전달하고, 캐시 방지를 위해 타임스탬프 추가
       const response = await api.get(
         `${API_ENDPOINTS.VOTES.BASE}?userId=${userId}&_=${new Date().getTime()}`
       );
@@ -47,7 +48,6 @@ export const voteService = {
   getVoteDetails: async (voteId) => {
     try {
       const response = await api.get(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`);
-      // 디버그 코드 추가
       console.log('✅ [DEBUG] voteService - API 응답 데이터:', response.data);
       return response.data;
     } catch (error) {
