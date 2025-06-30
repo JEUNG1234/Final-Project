@@ -40,7 +40,5 @@ public interface WorkationService {
     //워케이션 유저가 신청한 신청목록 리스트 가져오기
     ResponseEntity<List<WorkationSubListDto>> workationMySubList(String userId);
 
-//    ResponseEntity<List<WorkationSubNoDto>> workationSubUpdate(WorkationSubNoDto selectedIds);
-
 
 }

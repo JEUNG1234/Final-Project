@@ -253,4 +253,8 @@ const ButtonGroup = styled.div`
   margin-top: 40px;
 `;
 
+const CreateDate = styled.div`
+  font-weight: 500;
+`;
+
 export default MentalCareResult;

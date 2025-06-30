@@ -76,7 +76,6 @@ const WorkationDetail = () => {
 
   //유효성 검사
   const schema = yup.object().shape({
-   
     peopleMax: yup.number().typeError('최대 인원을 숫자로 입력해주세요').required('최대 인원을 설정해주세요'),
   });
 
@@ -110,15 +109,13 @@ const WorkationDetail = () => {
 
       const response = await workationService.workationSubmit(requestBody);
       navigate('/workationList');
-          alert('워케이션 신청되었습니다.');
+      alert('워케이션 신청되었습니다.');
       console.log(response);
     } catch (error) {
       console.error('워케이션 신청 에러:', error);
       alert('워케이션 신청 중 에러가 발생했습니다.');
     }
     console.log({ data });
-    
- 
   };
 
   return (
@@ -206,7 +203,7 @@ const WorkationDetail = () => {
               <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage}`} />
             </ImageSection>{' '}
             {/* 실제 이미지 URL로 교체 필요 */}
-            <PrecautionContent>{workationInfo.precautions}</PrecautionContent>
+            <RefundPolicy>{workationInfo.precautions}</RefundPolicy>
           </>
         )}
 
@@ -225,8 +222,8 @@ const WorkationDetail = () => {
             {/* 추가적인 위치 정보 (주소, 교통편 등) */}
             <Description style={{ marginTop: '20px' }}>
               <p>주소: {workationInfo.address}</p>
-              <p>대중교통: {workationInfo.busInfo}</p>
-              <p>주차: {workationInfo.parkingInfo}</p>
+              <RefundPolicy>대중교통: {workationInfo.busInfo}</RefundPolicy>
+              <RefundPolicy>주차: {workationInfo.parkingInfo}</RefundPolicy>
             </Description>
           </>
         )}
@@ -263,9 +260,8 @@ const WorkationDetail = () => {
                 placeholder="시작일"
                 readOnly
                 value={startDate ? startDate.toLocaleDateString() : ''}
-    
               />
-         
+
               <Tilde>~</Tilde>
               <Input type="text" placeholder="종료일" readOnly value={endDate ? endDate.toLocaleDateString() : ''} />
             </DateRangeWrapper>
