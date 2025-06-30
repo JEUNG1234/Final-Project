@@ -34,7 +34,8 @@ public class Workation {
     private String workationTitle;
 
     //시설안내
-    @Column(name = "FACILITY_INFO",  length = 100)
+    @Column(name = "FACILITY_INFO", columnDefinition = "TEXT")
+    @Lob
     private String facilityInfo;
 
     //작성날짜
@@ -71,7 +72,8 @@ public class Workation {
     private String URL;
 
     //유의사항
-    @Column(name = "PRECAUTIONS", length = 500)
+    @Column(name = "PRECAUTIONS", columnDefinition = "TEXT")
+    @Lob
     private String precautions;
 
 
