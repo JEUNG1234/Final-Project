@@ -11,6 +11,7 @@ import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository {
@@ -46,12 +47,16 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
     }
 
     @Override
+    @Transactional
     public void approvedUpdate(SubmitWorkation submit) {
         em.merge(submit);
     }
 
     @Override
+    @Transactional
     public void returnUpdate(SubmitWorkation submit) {
+        System.out.println("::::::::::124124::::::12345124::::::::::124124");
+        System.out.println("submit"+submit.getStatus());
         em.merge(submit);
     }
 
@@ -71,5 +76,15 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
         em.remove(em.find(SubmitWorkation.class, subNo));
     }
 
-    //
+    @Override
+    public List<SubmitWorkation> findByList(String companyCode) {
+        String jpql = "SELECT w FROM SubmitWorkation w " +
+                "JOIN Fetch w.user u " +
+                "WHERE u.companyCode = :companyCode";
+        return em.createQuery(jpql, SubmitWorkation.class)
+                .setParameter("companyCode", companyCode)
+                .getResultList();
+    }
+
+
 }

@@ -109,4 +109,15 @@ export const workationService = {
       throw error;
     }
   },
+  workationFullList: async (companyCode) => {
+    try { 
+      console.log(companyCode);
+      const response = await api.get(`${API_ENDPOINTS.WORKATION.FULLSUBLIST}?companyCode=${companyCode}`);
+      return response.data;
+    } catch (error) {
+      console.error('워케이션 전체 신청내역을 불러오는 중 실패했습니다.', error);
+
+      throw error;
+    }
+  }
 };

@@ -82,25 +82,34 @@ public class WorkationController {
     //워케이션 신청 거절용
     @PatchMapping("/returnupdate")
     public ResponseEntity<List<Long>> returnupdate(@RequestBody WorkationSubNoDto selectedIds) {
+        System.out.println("111111111111111111111111111111111111111");
         List<Long> result = workationService.workationReturnUpdate(selectedIds);
         return ResponseEntity.ok(result);
     }
 
+    //워케이션 유저 신청 리스트
     @GetMapping("/submylist")
     public ResponseEntity<List<WorkationDto.WorkationSubListDto>> submylist(@RequestParam String userId) {
 
         return workationService.workationMySubList(userId);
     }
 
+    //워케이션 신청 취소
     @DeleteMapping("/mydelete")
     public ResponseEntity<List<Long>> mydelete(@RequestBody WorkationSubNoDto selectedIds) {
-        System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+
 
         List <Long> result = workationService.workationMyDelete(selectedIds);
         return ResponseEntity.ok(result);
 
     }
 
+    //워케이션 전체 신청내역 리스트
+    @GetMapping("/fullsublist")
+    public ResponseEntity<List<WorkationDto.WorkationSubListDto>> fullsublist(@RequestParam String companyCode) {
+
+        return workationService.workationFullSubList(companyCode);
+    }
 
 
 

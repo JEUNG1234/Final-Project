@@ -40,6 +40,9 @@ public interface WorkationService {
     //워케이션 유저가 신청한 신청목록 리스트 가져오기
     ResponseEntity<List<WorkationSubListDto>> workationMySubList(String userId);
 
-
+    //워케이션 신청 취소
     List<Long> workationMyDelete(WorkationSubNoDto selectedIds);
+
+    //워케이션 전체 리스트 불러오기
+    ResponseEntity<List<WorkationSubListDto>> workationFullSubList(String companyCode);
 }
