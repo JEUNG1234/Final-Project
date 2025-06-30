@@ -6,7 +6,7 @@ import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Vote;
 import com.kh.sowm.entity.VoteContent;
 import com.kh.sowm.entity.VoteUser;
-import com.kh.sowm.repository.*; // ✅ 와일드카드로 변경
+import com.kh.sowm.repository.*; 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class VoteServiceImpl implements VoteService {
     private final VoteContentRepository voteContentRepository;
     private final UserRepository userRepository;
     private final VoteUserRepository voteUserRepository;
-    private final ChallengeRepository challengeRepository; // ✅ ChallengeRepository 주입
+    private final ChallengeRepository challengeRepository; //  ChallengeRepository 주입
 
     @Override
     public Long createVote(VoteDto.CreateRequest createRequest, String userId) {

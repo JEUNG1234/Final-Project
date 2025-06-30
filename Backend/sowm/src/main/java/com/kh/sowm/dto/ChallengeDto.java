@@ -18,6 +18,7 @@ public class ChallengeDto {
         private Long voteNo;
         private Long voteContentNo;
         private String challengeTitle;
+        private String challengeContent; // 상세 설명 필드 추가
         private LocalDate challengeStartDate;
         private LocalDate challengeEndDate;
         private int challengePoint;
@@ -86,6 +87,7 @@ public class ChallengeDto {
     public static class DetailResponse {
         private Long challengeNo;
         private String challengeTitle;
+        private String challengeContent; // 상세 설명 필드 추가
         private String challengeImageUrl;
         private LocalDate challengeStartDate;
         private LocalDate challengeEndDate;
@@ -97,6 +99,7 @@ public class ChallengeDto {
             return DetailResponse.builder()
                     .challengeNo(challenge.getChallengeNo())
                     .challengeTitle(challenge.getChallengeTitle())
+                    .challengeContent(challenge.getChallengeContent()) // 상세 설명 매핑
                     .challengeImageUrl(challenge.getChallengeImageUrl())
                     .challengeStartDate(challenge.getChallengeStartDate())
                     .challengeEndDate(challenge.getChallengeEndDate())
