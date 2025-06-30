@@ -226,7 +226,7 @@ const WorkationDetail = () => {
             <Description style={{ marginTop: '20px' }}>
               <p>주소: {workationInfo.address}</p>
               <RefundPolicy>대중교통: {workationInfo.busInfo}</RefundPolicy>
-              <RefundPolicy>주차: {workationInfo.parkingInfo}</RefundPolicy>
+              <RefundPolicyp>주차: {workationInfo.parkingInfo}</RefundPolicyp>
             </Description>
           </>
         )}
