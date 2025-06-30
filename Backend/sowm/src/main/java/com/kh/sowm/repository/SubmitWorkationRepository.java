@@ -28,4 +28,7 @@ public interface SubmitWorkationRepository {
     List<SubmitWorkation> findById(String userId);
 
     void delete(Long subNo);
+
+    //워케이션 전체 신청 리스트조회
+    List<SubmitWorkation> findByList(String companyCode);
 }

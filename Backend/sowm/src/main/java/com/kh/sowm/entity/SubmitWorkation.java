@@ -74,7 +74,7 @@ public class SubmitWorkation {
 
     //신청 승인시
     public void setStatus(StatusType status) {
-        this.status = StatusType.Y;
+        this.status = status;
     }
 
     public void setStatusd(StatusType status) {

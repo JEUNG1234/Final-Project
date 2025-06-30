@@ -15,14 +15,14 @@ const WorkationAdmin = () => {
   const { user } = useUserStore();
 
   const [workationSubNo, setWorkationSubNo] = useState([]);
+  const [isFullList, setIsFullList] = useState(false);
 
   // 전체 선택/해제 핸들러
   const handleSelectAll = (e) => {
     if (e.target.checked) {
       const allIds = workationData.map((req) => req.workationSubNo);
-      console.log("allIds", allIds)
+      console.log('allIds', allIds);
       setWorkationSubNo(allIds);
-
     } else {
       setWorkationSubNo([]);
     }
@@ -81,6 +81,29 @@ const WorkationAdmin = () => {
     }
   };
 
+  const handleFullList = async () => {
+    try {
+      const data = await workationService.workationFullList(user.companyCode);
+      console.log('워케이션 전체 신청 리스트 : ', data);
+
+      setWorkationData(data);
+      setIsFullList(true);
+    } catch (error) {
+      console.error('워케이션 전체 리스트를 불러오는데 실패했습니다.', error.message);
+    }
+  };
+
+  const handleGoBack = async () => {
+    try {
+      const data = await workationService.workationSubList(user.companyCode);
+      setWorkationData(data);
+      setIsFullList(false);
+      setWorkationSubNo([]);
+    } catch (error) {
+      console.error('워케이션 신청 리스트 불러오기 실패:', error.message);
+    }
+  };
+
   const handleApprovedAction = async (workationSubNo) => {
     console.log('workationSubNo', workationSubNo);
 
@@ -105,9 +128,21 @@ const WorkationAdmin = () => {
 
   return (
     <MainContent>
-      <PageTitle>
-        <FaClipboardCheck /> 워케이션 승인
-      </PageTitle>
+      <PageTitleWrapper>
+        <PageTitle>
+          <FaClipboardCheck /> 워케이션 승인
+        </PageTitle>
+
+        {isFullList ? (
+          <FullSearchButton variant="default" onClick={handleGoBack}>
+            돌아가기
+          </FullSearchButton>
+        ) : (
+          <FullSearchButton variant="approve" onClick={handleFullList}>
+            전체 보기
+          </FullSearchButton>
+        )}
+      </PageTitleWrapper>
 
       <AdminTable>
         <thead>
@@ -117,6 +152,7 @@ const WorkationAdmin = () => {
                 type="checkbox"
                 onChange={handleSelectAll}
                 checked={workationSubNo.length === workationData.length && workationData.length > 0}
+                disabled={isFullList}
               />
             </TableHeader>
             <TableHeader>번호 ↓</TableHeader>
@@ -128,15 +164,15 @@ const WorkationAdmin = () => {
           </tr>
         </thead>
         <tbody>
+
           {workationData.map((req) => (
-            
             <TableRow key={req.workationSubNo}>
-              
               <TableCell>
                 <input
                   type="checkbox"
                   checked={workationSubNo.includes(req.workationSubNo)}
                   onChange={() => handleSelectSingle(req.workationSubNo)}
+                  disabled={isFullList}
                 />
               </TableCell>
               <TableCell>{req.workationSubNo}</TableCell>
@@ -228,6 +264,14 @@ const StatusBadge = styled.span`
   }};
 `;
 
+const PageTitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -248,4 +292,8 @@ const ActionButton = styled.button`
   &:hover {
     opacity: 0.9;
   }
+`;
+
+const FullSearchButton = styled(ActionButton)`
+  background-color: ${(props) => (props.variant === 'approve' ? '#2563EB' : '#9CA3AF')};
 `;

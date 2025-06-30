@@ -190,7 +190,6 @@ public class WorkationServiceImpl implements WorkationService {
                     .orElseThrow(() -> new EntityNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
             submit.setStatus(SubmitWorkation.StatusType.Y);
             submitWorkationRepository.approvedUpdate(submit);
-
         }
         return workationSubNo;
     }
@@ -198,10 +197,9 @@ public class WorkationServiceImpl implements WorkationService {
     //워케이션 신청 거절용
     @Override
     public List<Long> workationReturnUpdate(WorkationSubNoDto selectedIds) {
+        System.out.println("123123123123123123123123123123123");
         List<Long> workationSubNo = selectedIds.getWorkationSubNo();
-
         for(Long subNo : workationSubNo) {
-
             SubmitWorkation submit = submitWorkationRepository.findById(subNo)
                     .orElseThrow(() -> new EntityNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
             submit.setStatus(SubmitWorkation.StatusType.N);
@@ -222,6 +220,7 @@ public class WorkationServiceImpl implements WorkationService {
         return ResponseEntity.ok(dtoList);
     }
 
+    //워케이션 신청취소용
     @Override
     public List<Long> workationMyDelete(WorkationSubNoDto selectedIds) {
         List<Long> WorkaionSubNo = selectedIds.getWorkationSubNo();
@@ -231,6 +230,18 @@ public class WorkationServiceImpl implements WorkationService {
             submitWorkationRepository.delete(subNo);
         }
         return List.of();
+    }
+
+    //워케이션 전체 신청 내역 리스트 불러오기
+    @Override
+    public ResponseEntity<List<WorkationSubListDto>> workationFullSubList(String companyCode) {
+        List<SubmitWorkation> subWorkation = submitWorkationRepository.findByList(companyCode);
+
+        List<WorkationSubListDto> dtoList = subWorkation.stream()
+                .map(WorkationSubListDto::dto)
+                .toList();
+
+        return ResponseEntity.ok(dtoList);
     }
 
 
