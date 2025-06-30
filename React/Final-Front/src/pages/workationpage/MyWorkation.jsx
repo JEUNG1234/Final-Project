@@ -129,7 +129,7 @@ const StyledPageButton = styled(PageButton)`
 const MyWorkation = () => {
   const navigate = useNavigate();
   // 선택된 항목들의 ID를 관리하는 상태
-  const [selectedIds, setSelectedIds] = useState([]);
+  // const [selectedIds, setSelectedIds] = useState([]);
 
   const { user } = useUserStore();
 
@@ -176,41 +176,73 @@ const MyWorkation = () => {
   };
 
   // 체크박스: 현재 페이지의 모든 항목 선택/해제
+  const [workationSubNo, setWorkationSubNo] = useState([]);
+
   const handleSelectAll = (e) => {
     if (e.target.checked) {
       // 현재 페이지에 표시된 모든 항목의 ID를 가져옴
-      const currentItemIds = currentItems.map((item) => item.id);
+      const currentItemIds = currentItems.map((item) => item.workationSubNo);
       // 이 ID들만 selectedIds 상태에 추가 (중복 방지를 위해 Set 사용)
-      setSelectedIds((prev) => [...new Set([...prev, ...currentItemIds])]);
+      setWorkationSubNo((prev) => [...new Set([...prev, ...currentItemIds])]);
     } else {
       // 현재 페이지에 표시된 항목의 ID들만 selectedIds에서 제거
-      const currentItemIds = currentItems.map((item) => item.id);
-      setSelectedIds((prev) => prev.filter((id) => !currentItemIds.includes(id)));
+      const currentItemIds = currentItems.map((item) => item.workationSubNo);
+      setWorkationSubNo((prev) => prev.filter((workationSubNo) => !currentItemIds.includes(workationSubNo)));
     }
   };
 
   // 체크박스: 개별 항목 선택/해제
-  const handleCheckboxChange = (id) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+
+  const handleCheckboxChange = (workationSubNo, status) => {
+    if (status === 'Y') {
+      alert('승인된 워케이션은 취소할 수 없습니다.');
+      return;
+    }
+    setWorkationSubNo((prev) =>
+      prev.includes(workationSubNo) ? prev.filter((item) => item !== workationSubNo) : [...prev, workationSubNo]
+    );
   };
 
   // '전체 선택' 체크박스가 체크되어야 하는지 여부 (현재 표시된 모든 항목이 선택되었는지)
   const isAllCurrentItemsSelected =
-    currentItems.length > 0 && currentItems.every((item) => selectedIds.includes(item.id));
+    currentItems.length > 0 && currentItems.every((item) => workationSubNo.includes(item.workationSubNo));
 
-  const handleCancelApplication = () => {
-    if (selectedIds.length === 0) {
+  const handleCancelApplication = async () => {
+    // 파라미터에서 workationSubNo 제거, state 사용
+    if (workationSubNo.length === 0) {
       alert('취소할 신청을 선택해주세요.');
       return;
     }
-    const confirmed = window.confirm(`선택된 ${selectedIds.length}개의 신청을 정말 취소하시겠습니까?`);
-    if (confirmed) {
-      // 실제 애플리케이션에서는 백엔드로 선택된 신청 취소 요청을 보냅니다.
-      // (예: axios.post('/api/cancel-workations', { ids: selectedIds }))
-      alert(`선택된 ${selectedIds.length}개의 신청이 취소되었습니다.`);
-      // API 호출 성공 후 UI를 업데이트 (낙관적 업데이트)
-      setWorkationData((prevData) => prevData.filter((item) => !selectedIds.includes(item.id)));
-      setSelectedIds([]); // 취소 후 선택 초기화
+
+    // 승인된 워케이션이 선택되었는지 확인하는 로직 (이전 답변에 포함된 내용)
+    const selectedApplications = workationData.filter((item) => workationSubNo.includes(item.workationSubNo));
+    const approvedApplications = selectedApplications.filter((item) => item.status === 'Y');
+
+    if (approvedApplications.length > 0) {
+      const approvedTitles = approvedApplications.map((item) => item.workationTitle).join(', ');
+      alert(`다음 워케이션 신청은 이미 승인되어 취소할 수 없습니다: ${approvedTitles}`);
+      return; // 승인된 항목이 있으면 여기서 함수 종료
+    }
+
+    const confirmed = window.confirm(`선택된 ${workationSubNo.length}개의 신청을 정말 취소하시겠습니까?`);
+
+    // **** 핵심 변경 부분: 사용자가 '취소'를 눌렀다면 함수를 여기서 종료합니다. ****
+    if (!confirmed) {
+      // confirmed가 false(취소)인 경우
+      return; // 함수 실행을 여기서 중단합니다.
+    }
+
+    // '확인'을 눌렀을 경우에만 이 아래 코드가 실행됩니다.
+    try {
+      await workationService.workationMyDelete({ workationSubNo });
+      alert(`선택된 ${workationSubNo.length}개의 신청이 취소되었습니다.`);
+      setWorkationSubNo([]); // 성공적으로 취소 후 선택 항목 초기화
+
+      const data = await workationService.workationMySubList(user.userId);
+      setWorkationData(data);
+    } catch (error) {
+      console.error('워케이션 신청 취소 중 에러가 발생했습니다:', error);
+      alert('워케이션 신청 취소 중 에러가 발생했습니다.');
     }
   };
 
@@ -221,7 +253,7 @@ const MyWorkation = () => {
       </PageTitle>
 
       <TopRightButtonContainer>
-        <CancelButton onClick={handleCancelApplication}>신청취소</CancelButton>
+        <CancelButton onClick={() => handleCancelApplication({ workationSubNo })}>신청취소</CancelButton>
       </TopRightButtonContainer>
 
       <TableContainer>
@@ -238,7 +270,7 @@ const MyWorkation = () => {
                   // 일부만 선택된 경우 체크박스에 대시 표시
                   ref={(input) => {
                     if (input) {
-                      input.indeterminate = selectedIds.length > 0 && !isAllCurrentItemsSelected;
+                      input.indeterminate = workationSubNo.length > 0 && !isAllCurrentItemsSelected;
                     }
                   }}
                 />
@@ -258,8 +290,9 @@ const MyWorkation = () => {
                 <CheckboxCell>
                   <input
                     type="checkbox"
-                    checked={selectedIds.includes(item.workationSubNo)} // selectedIds 사용
-                    onChange={() => handleCheckboxChange(item.workationSubNo)}
+                    checked={workationSubNo.includes(item.workationSubNo)} // selectedIds 사용
+                    onChange={() => handleCheckboxChange(item.workationSubNo, item.status)}
+                    disabled={item.status === 'Y'} // Disable checkbox for approved items
                   />
                 </CheckboxCell>
                 <TableCell>{item.workationSubNo}</TableCell>
