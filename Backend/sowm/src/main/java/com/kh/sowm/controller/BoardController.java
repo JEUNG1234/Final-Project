@@ -2,7 +2,12 @@ package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.BoardDto;
 import com.kh.sowm.dto.PageResponse;
+import com.kh.sowm.dto.UserDto;
+import com.kh.sowm.entity.Board;
+import com.kh.sowm.entity.User;
 import com.kh.sowm.service.BoardService;
+import com.kh.sowm.service.UserService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +25,7 @@ import java.io.IOException;
 public class BoardController {
 
     private final BoardService boardService;
+    private final UserService userService;
 
     /*
     page: 보고자 하는 페이지 번호 (0부터 시작)
@@ -73,5 +79,11 @@ public class BoardController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    @GetMapping("/getnotice/{userId}")
+    public ResponseEntity<List<BoardDto.Response>> getNotice(@PathVariable String userId) {
+        List<BoardDto.Response> notices = boardService.getNoticeTop3(userId);
+        return ResponseEntity.ok(notices);
     }
 }

@@ -84,6 +84,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id) => `/boards/${id}`,
     DELETE: (id) => `/boards/${id}`,
     INCREASE_VIEW: (id) => `/boards/${id}/views`,
+    NOTICE: (id) => `/boards/getnotice/${id}`,
   },
 
   CATEGORY: {
