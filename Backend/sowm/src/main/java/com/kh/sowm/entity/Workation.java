@@ -38,7 +38,6 @@ public class Workation {
     @Lob
     private String facilityInfo;
 
-
     //작성날짜
     @Column(name = "CREATED_DATE", nullable = false)
     private LocalDate createdDate;
@@ -90,8 +89,6 @@ public class Workation {
     @Builder.Default
     @OneToMany(mappedBy = "workation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DayOff> dayOffs = new ArrayList<>();
-
-
 
     @PrePersist
     public void prePersist(){
