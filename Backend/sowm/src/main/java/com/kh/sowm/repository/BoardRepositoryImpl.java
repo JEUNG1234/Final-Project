@@ -140,4 +140,14 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
         query.setParameter("boardId", boardId);
         return query.executeUpdate();
     }
+
+    @Override
+    public List<Board> getNoticeTop3(String companyCode) {
+        String jpql = "SELECT b FROM Board b WHERE b.user.companyCode = :companyCode AND b.category.categoryNo = 1 ORDER BY b.createdDate DESC";
+
+        Query query = em.createQuery(jpql);
+        query.setParameter("companyCode", companyCode);
+        query.setMaxResults(3);
+        return query.getResultList();
+    }
 }

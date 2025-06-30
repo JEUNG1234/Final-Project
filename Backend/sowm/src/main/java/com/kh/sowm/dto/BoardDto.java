@@ -75,5 +75,12 @@ public class BoardDto {
                     .isUpdated(!board.getCreatedDate().equals(board.getUpdatedDate())) // ✅ 작성일과 수정일이 다르면 true
                     .build();
         }
+
+        public static Response getNoticeDto(Board board){
+            return Response.builder()
+                    .boardTitle(board.getBoardTitle())
+                    .categoryNo(board.getBoardNo())
+                    .build();
+        }
     }
 }

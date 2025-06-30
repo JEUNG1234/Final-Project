@@ -2,6 +2,7 @@ package com.kh.sowm.repository;
 
 import com.kh.sowm.entity.Board;
 import com.kh.sowm.enums.CommonEnums;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,5 +26,7 @@ public interface BoardRepository {
     // 조회수 증가
     int increaseViewCount(Long boardId);
 
-    // (필요하다면) userId로 사용자 게시글 목록 조회 등 추가 메서드 정의 가능
+    // 대시보드용 공지사항 가져오기
+    List<Board> getNoticeTop3(String companyCode);
+
 }

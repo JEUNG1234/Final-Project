@@ -8,6 +8,7 @@ import ChallangeImg from '../../assets/challengeImg.jpg';
 import { useState, useEffect } from 'react';
 import { userService } from '../../api/users';
 import { attendanceService } from '../../api/attendance';
+import BoardAPI from '../../api/board';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -64,6 +65,7 @@ const MemberDashBoard = () => {
     status: null,
   });
   const [myInfoState, setMyInfoState] = useState(null);
+  const [notices, setNotices] = useState([]);
 
   const myInfo = async () => {
     try {
@@ -128,9 +130,20 @@ const MemberDashBoard = () => {
     return list.find((item) => item.attendTime?.slice(0, 10) === today) || null;
   };
 
+  const getNotice = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await BoardAPI.getNotice(userId);
+      setNotices(response.data);
+    } catch (error) {
+      console.error('공지사항 조회 실패:', error);
+    }
+  };
+
   useEffect(() => {
     getAttendance();
     myInfo();
+    getNotice();
   }, []);
 
   const formatTime = (dateTime) => {
@@ -196,9 +209,9 @@ const MemberDashBoard = () => {
           <NoticeCard>
             <h3>공지사항</h3>
             <ul>
-              <li>프로젝트 마감 기한 엄수</li>
-              <li>Git 병합 수정 잘 할 것</li>
-              <li>6/3 회식 (역삼역 세븐일레븐)</li>
+              {notices.map((notice) => (
+                <li key={notice.boardNo}>{notice.boardTitle}</li>
+              ))}
             </ul>
           </NoticeCard>
         </TopRightSection>
