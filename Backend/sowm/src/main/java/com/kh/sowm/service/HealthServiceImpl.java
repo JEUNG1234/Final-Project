@@ -1,5 +1,7 @@
 package com.kh.sowm.service;
 
+import com.kh.sowm.dto.BoardDto.Response;
+import com.kh.sowm.dto.MedicalCheckDto.MedicalCheckResultDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionRequestDto;
 import com.kh.sowm.dto.MedicalCheckDto.MentalQuestionRequestDto.QuestionScore;
@@ -7,6 +9,7 @@ import com.kh.sowm.dto.MedicalCheckDto.MentalResultDto;
 import com.kh.sowm.dto.MedicalCheckDto.PhysicalQuestionDto;
 import com.kh.sowm.dto.MedicalCheckDto.PhysicalQuestionRequestDto;
 import com.kh.sowm.dto.MedicalCheckDto.PhysicalResultDto;
+import com.kh.sowm.dto.MedicalCheckDto.PhysicalResultDto.QuestionScoreDto;
 import com.kh.sowm.entity.MedicalCheckHeadScore;
 import com.kh.sowm.entity.MedicalCheckResult;
 import com.kh.sowm.entity.MedicalCheckResult.Type;
@@ -20,6 +23,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -138,25 +143,24 @@ public class HealthServiceImpl implements HealthService {
         int totalScore = questionScores.stream().mapToInt(PhysicalQuestionRequestDto.QuestionScore::getScore).sum();
 
         String prompt = "아래 점수들을 바탕으로 신체검사 결과를 작성해 주세요.\n"
-                + "- 각 점수는 1점에서 10점 사이이며, 점수가 낮을수록 건강 상태가 나쁨을 의미합니다.\n"
-                + "- 총점이 높을수록 전반적인 신체 건강 상태가 양호함을 뜻합니다.\n"
-                + "- 총점 기준:\n"
-                + "    - 총점 90점 이상: 매우 건강한 상태\n"
-                + "    - 총점 70점 이상 89점 이하: 양호한 상태\n"
-                + "    - 총점 50점 이상 69점 이하: 주의가 필요한 상태\n"
-                + "    - 총점 50점 미만: 전문가 진료가 필요함\n\n"
-                + "총점: " + totalScore + "점\n\n"
-                + "아래 점수 내용을 참고하세요:\n" +
+                +"_ 각 점수는 1점에서 10점 사이이며, 점수가 낮들수록 건강 상태가 나쁨를 의미합니다.\n"
+                +"_ 총점이 높을수록 전반적인 신체 건강 상태가 양호함을 뜻합니다.\n"
+                +"_총점 기준:\n"
+                +"- 총점 90점 이상: 매우 건강한 상태\n"
+                +"- 총점 70점 이상·89점 이하: 양호한 상태\n"
+                +"- 총점 50점 이상 69점 이하: 주의가 필요한 상태\n"
+                +"- 총점 50점 미만: 전문가 진료가 필요함\n\n"
+                +"총점: " + totalScore +"점\n\n"
+                +"아래 점수 내용를 참고하세요:\n" +
                 content + "\n"
-                + "출력 형식:\n"
-                + "신체검사 결과: [해당 상태]\n"
-                + "총 점수: " + totalScore + "점\n"
-                + "추천 가이드:\n"
-                + "- 1. (생활 습관 개선 조언)\n"
-                + "- 2. (운동, 영양, 수면 등)\n"
-                + "- 3. (필요 시 병원 방문 안내)\n\n"
+                +"출력 형식:\n"
+                +"신체검사 결과: [해당 상태]\n"
+                +"총 점수: " + totalScore +"점\n"
+                +"추천 가이드:\n"
+                +"- 1. (생활 습관 개선 조언)\n"
+                +"- 2. (운동, 영양, 수면 등)\n"
+                +"- 3. 필요 시 병원 방문 안내)\n\n"
                 + "※ 반드시 총점과 상태가 일치하도록 작성해 주세요.";
-
         List<Map<String, String>> messages = List.of(
                 Map.of("role", "user", "content", prompt)
         );
@@ -189,6 +193,9 @@ public class HealthServiceImpl implements HealthService {
         }
         return "AI 가이드 메시지 생성에 실패했습니다.";
     }
+
+
+
 
 
     @Override
@@ -255,6 +262,7 @@ public class HealthServiceImpl implements HealthService {
                 .totalScore(result.getMedicalCheckTotalScore())
                 .guideMessage(result.getGuideMessage())
                 .questionScores(questionScores)
+                .medicalCheckCreateDate(result.getMedicalCheckCreateDate())
                 .build();
     }
 
@@ -321,6 +329,28 @@ public class HealthServiceImpl implements HealthService {
                 .totalScore(result.getMedicalCheckTotalScore())
                 .guideMessage(result.getGuideMessage())
                 .questionScores(questionScores)
+                .medicalCheckCreateDate(result.getMedicalCheckCreateDate())
                 .build();
     }
+
+    @Override
+    public Page<MedicalCheckResultDto> getResultList(Pageable pageable, LocalDate createDate, Type type) {
+        Page<MedicalCheckResult> results = medicalCheckRepository.findResults(pageable, createDate, type);
+
+        return results.map(r -> MedicalCheckResultDto.builder()
+                .medicalCheckResultNo(r.getMedicalCheckResultNo())
+                .medicalCheckCreateDate(r.getMedicalCheckCreateDate().toString())
+                .medicalCheckType(convertType(r.getMedicalCheckType()))
+                .medicalCheckTotalScore(r.getMedicalCheckTotalScore())
+                .guideMessage(r.getGuideMessage())
+                .build());
+    }
+
+    private String convertType(MedicalCheckResult.Type type) {
+        return switch (type) {
+            case PHYSICAL -> "신체검사";
+            case PSYCHOLOGY -> "심리검사";
+        };
+    }
+
 }

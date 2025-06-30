@@ -20,8 +20,7 @@ public class WorkationLocation {
     private Long locationNo;
 
     //장소 소개
-    @Column(name = "PLACE_INFO", columnDefinition = "TEXT")
-    @Lob
+    @Column(name = "PLACE_INFO", length = 500)
     private String placeInfo;
 
     //주소
@@ -41,8 +40,7 @@ public class WorkationLocation {
     private Integer area;
 
     //특징
-    @Column(name = "FEATURE", columnDefinition = "TEXT")
-    @Lob
+    @Column(name = "FEATURE",  length = 500)
     private String feature;
 
     //위도
@@ -54,13 +52,11 @@ public class WorkationLocation {
     private double longitude;
 
     //버스정보
-    @Column(name = "BUS_INFO", columnDefinition = "TEXT")
-    @Lob
+    @Column(name = "BUS_INFO", length = 100)
     private String busInfo;
 
     //주차정보
-    @Column(name = "PARKING_INFO", columnDefinition = "TEXT")
-    @Lob
+    @Column(name = "PARKING_INFO",length = 100)
     private String parkingInfo;
 
     public void updateFromDto(WorkationDto.LocationsDto dto) {
