@@ -26,4 +26,6 @@ public interface SubmitWorkationRepository {
     void returnUpdate(SubmitWorkation submit);
 
     List<SubmitWorkation> findById(String userId);
+
+    void delete(Long subNo);
 }

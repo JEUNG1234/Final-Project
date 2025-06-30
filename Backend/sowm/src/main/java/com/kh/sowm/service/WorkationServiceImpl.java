@@ -222,5 +222,16 @@ public class WorkationServiceImpl implements WorkationService {
         return ResponseEntity.ok(dtoList);
     }
 
+    @Override
+    public List<Long> workationMyDelete(WorkationSubNoDto selectedIds) {
+        List<Long> WorkaionSubNo = selectedIds.getWorkationSubNo();
+        for(Long subNo : WorkaionSubNo) {
+            SubmitWorkation submit = submitWorkationRepository.findById(subNo)
+                    .orElseThrow(() -> new EntityNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
+            submitWorkationRepository.delete(subNo);
+        }
+        return List.of();
+    }
+
 
 }

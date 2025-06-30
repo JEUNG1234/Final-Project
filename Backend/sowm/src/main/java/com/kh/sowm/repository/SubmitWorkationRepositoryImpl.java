@@ -64,4 +64,12 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    //유저가 신청한 워케이션 신청취소
+    @Override
+    public void delete(Long subNo) {
+        em.remove(em.find(SubmitWorkation.class, subNo));
+    }
+
+    //
 }

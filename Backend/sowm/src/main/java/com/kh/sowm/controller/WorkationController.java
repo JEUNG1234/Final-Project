@@ -92,6 +92,15 @@ public class WorkationController {
         return workationService.workationMySubList(userId);
     }
 
+    @DeleteMapping("/mydelete")
+    public ResponseEntity<List<Long>> mydelete(@RequestBody WorkationSubNoDto selectedIds) {
+        System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+
+        List <Long> result = workationService.workationMyDelete(selectedIds);
+        return ResponseEntity.ok(result);
+
+    }
+
 
 
 
