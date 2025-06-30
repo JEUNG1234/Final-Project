@@ -76,7 +76,6 @@ const WorkationDetail = () => {
 
   //유효성 검사
   const schema = yup.object().shape({
-   
     peopleMax: yup.number().typeError('최대 인원을 숫자로 입력해주세요').required('최대 인원을 설정해주세요'),
   });
 
@@ -110,15 +109,13 @@ const WorkationDetail = () => {
 
       const response = await workationService.workationSubmit(requestBody);
       navigate('/workationList');
-          alert('워케이션 신청되었습니다.');
+      alert('워케이션 신청되었습니다.');
       console.log(response);
     } catch (error) {
       console.error('워케이션 신청 에러:', error);
       alert('워케이션 신청 중 에러가 발생했습니다.');
     }
     console.log({ data });
-    
- 
   };
 
   return (
@@ -226,7 +223,7 @@ const WorkationDetail = () => {
             <Description style={{ marginTop: '20px' }}>
               <p>주소: {workationInfo.address}</p>
               <RefundPolicy>대중교통: {workationInfo.busInfo}</RefundPolicy>
-              <RefundPolicyp>주차: {workationInfo.parkingInfo}</RefundPolicyp>
+              <RefundPolicy>주차: {workationInfo.parkingInfo}</RefundPolicy>
             </Description>
           </>
         )}
@@ -263,9 +260,8 @@ const WorkationDetail = () => {
                 placeholder="시작일"
                 readOnly
                 value={startDate ? startDate.toLocaleDateString() : ''}
-    
               />
-         
+
               <Tilde>~</Tilde>
               <Input type="text" placeholder="종료일" readOnly value={endDate ? endDate.toLocaleDateString() : ''} />
             </DateRangeWrapper>
