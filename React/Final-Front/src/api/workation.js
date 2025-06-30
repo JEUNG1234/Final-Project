@@ -98,4 +98,15 @@ export const workationService = {
       throw error;
     }
   },
+  workationMyDelete: async (workationSubNo) => {
+    try {
+      console.log('::::', workationSubNo);
+      const response = await api.delete(API_ENDPOINTS.WORKATION.MYDELETE, { data: workationSubNo });
+
+      return response.data;
+    } catch (error) {
+      console.error('워케이션 신청에 실패했습니다.', error);
+      throw error;
+    }
+  },
 };

@@ -41,4 +41,5 @@ public interface WorkationService {
     ResponseEntity<List<WorkationSubListDto>> workationMySubList(String userId);
 
 
+    List<Long> workationMyDelete(WorkationSubNoDto selectedIds);
 }

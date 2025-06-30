@@ -20,7 +20,9 @@ const WorkationAdmin = () => {
   const handleSelectAll = (e) => {
     if (e.target.checked) {
       const allIds = workationData.map((req) => req.workationSubNo);
+      console.log("allIds", allIds)
       setWorkationSubNo(allIds);
+
     } else {
       setWorkationSubNo([]);
     }
@@ -54,20 +56,6 @@ const WorkationAdmin = () => {
   const handleSelectSingle = (id) => {
     setWorkationSubNo((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
-
-  // 승인/거부 처리 핸들러
-  // const handleAction = (action) => {
-  //   if (selectedIds.length === 0) {
-  //     alert('항목을 먼저 선택해주세요.');
-  //     return;
-  //   }
-  //   // 실제 로직: API 호출로 선택된 ID들의 상태를 변경합니다.
-  //   console.log(`${action}할 ID:`, selectedIds);
-  //   // UI 업데이트 (예시)
-  //   setWorkationData((prevReqs) => prevReqs.map((req) => (selectedIds.includes(req.id) ? { ...req, status: action } : req)));
-  //   setSelectedIds([]); // 선택 해제
-  //   alert(`${selectedIds.length}개의 항목을 ${action} 처리했습니다.`);
-  // };
 
   console.log('workationSubNo', workationSubNo);
 
