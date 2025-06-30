@@ -73,7 +73,10 @@ const MyChallengeComplete = () => {
           </PeriodText>
           <ChallengeTitle>{challenge.challengeTitle}</ChallengeTitle>
         </SummaryTextContent>
-        <SummaryImage src={challenge.challengeImageUrl || runningWoman} alt={challenge.challengeTitle} />
+        <SummaryImage 
+          src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
+          alt={challenge.challengeTitle} 
+        />
       </ChallengeSummarySection>
 
       <BoardSection>
@@ -86,7 +89,7 @@ const MyChallengeComplete = () => {
         <BoardTable>
           {myCompletionsPage.content && myCompletionsPage.content.length > 0 ? (
             myCompletionsPage.content.map((post) => (
-              <BoardRow key={post.completeNo}>
+              <BoardRow key={post.completeNo} onClick={() => navigate(`/challenge/challenge_id/${post.completeNo}`)}>
                 <BoardCell typeColumn>챌린지</BoardCell>
                 <BoardCell>{post.completeTitle}</BoardCell>
                 <BoardCell>{post.userName}</BoardCell>
