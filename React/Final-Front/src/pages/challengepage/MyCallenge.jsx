@@ -58,14 +58,21 @@ const MyCallenge = () => {
               </ProgressText>
             </ProgressBarWrapper>
           </SummaryTextContent>
-          <SummaryImage src={ongoingChallenge.challengeImageUrl || runningWoman} alt={ongoingChallenge.challengeTitle} />
+          <SummaryImage
+            src={
+              ongoingChallenge.challengeImageUrl
+                ? `https://d1qzqzab49ueo8.cloudfront.net/${ongoingChallenge.challengeImageUrl}`
+                : runningWoman
+            }
+            alt={ongoingChallenge.challengeTitle}
+          />
         </ChallengeSummarySection>
       ) : (
         <NoChallengeMessage>참여중인 챌린지가 없습니다.</NoChallengeMessage>
       )}
 
       <ChallengeSummary>
-        <SummaryCard>나의 챌린지 완료 횟수: {completedChallenges.filter(c => new Date(c.challengeEndDate) < new Date()).length}회</SummaryCard>
+        <SummaryCard>나의 챌린지 완료 횟수: {completedChallenges.filter((c) => new Date(c.challengeEndDate) < new Date()).length}회</SummaryCard>
         <SummaryCard>누적 획득 포인트: {userTotalPoints}p</SummaryCard>
       </ChallengeSummary>
 
@@ -87,7 +94,7 @@ const MyCallenge = () => {
               <CardImageArea>
                 <CardImage 
                   src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
-                  alt={challenge.challengeTitle} 
+                  alt={challenge.challengeTitle}  
                 />
               </CardImageArea>
               <CardContent>
