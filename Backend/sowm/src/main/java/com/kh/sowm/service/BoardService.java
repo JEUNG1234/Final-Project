@@ -1,6 +1,10 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.BoardDto;
+import com.kh.sowm.dto.BoardDto.Response;
+import com.kh.sowm.dto.UserDto;
+import com.kh.sowm.entity.User;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,4 +24,6 @@ public interface BoardService {
 
     // 게시글 조회수 증가 메서드 선언은 그대로 유지
     boolean increaseViewCount(Long boardId);
+
+    List<Response> getNoticeTop3(String userId);
 }

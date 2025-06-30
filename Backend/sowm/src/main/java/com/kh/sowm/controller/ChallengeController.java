@@ -85,4 +85,11 @@ public class ChallengeController {
         ChallengeDto.CompletionResponse completion = challengeService.getCompletionDetail(completionNo);
         return ResponseEntity.ok(completion);
     }
+
+    // 대시보드쪽 챌린지 정보 가져오기
+    @GetMapping("/getChallenge/{userId}")
+    public ResponseEntity<ChallengeDto.CompletionResponse> getChallenge(@PathVariable String userId) {
+        ChallengeDto.CompletionResponse challenge = challengeService.getChallenge(userId);
+        return ResponseEntity.ok(challenge);
+    }
 }

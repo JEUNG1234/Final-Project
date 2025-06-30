@@ -78,7 +78,7 @@ export const challengeService = {
       throw error;
     }
   },
-  
+
   getCompletions: async (challengeNo, page = 0, size = 5) => {
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.COMPLETIONS(challengeNo), {
@@ -110,6 +110,15 @@ export const challengeService = {
     } catch (error) {
       console.error(`인증글 상세 정보 조회 실패 (ID: ${completionNo}):`, error);
       throw error;
+    }
+  },
+
+  getChallengeForDashBoard: async (userId) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.CHALLENGE.CHALLENGEFORDASHBOARD(userId));
+      return response.data;
+    } catch (err) {
+      console.log('대시보드용 챌린지 내용을 불러오지 못했습니다.', err);
     }
   },
 };

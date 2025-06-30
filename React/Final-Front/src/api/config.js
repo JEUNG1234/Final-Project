@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
     SUBUPDATE: '/workation/subupdate',
     RETURNUPDATE: '/workation/returnupdate',
     MYLIST: '/workation/submylist',
+    MYDELETE: '/workation/mydelete',
   },
   ATTENDANCE: {
     BASE: '/attendance',
@@ -74,6 +75,7 @@ export const API_ENDPOINTS = {
     CHECK_ACTIVE: '/challenges/active-status',
     MY_CHALLENGES: '/challenges/my',
     COMPLETION_DETAIL: (completionNo) => `/challenges/completion/${completionNo}`, // 인증글 상세 조회 엔드포인트 추가
+    CHALLENGEFORDASHBOARD: (userId) => `/challenges/getChallenge/${userId}`,
   },
 
   BOARD: {
@@ -83,6 +85,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id) => `/boards/${id}`,
     DELETE: (id) => `/boards/${id}`,
     INCREASE_VIEW: (id) => `/boards/${id}/views`,
+    NOTICE: (id) => `/boards/getnotice/${id}`,
   },
 
   CATEGORY: {

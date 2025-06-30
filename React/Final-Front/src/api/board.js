@@ -10,6 +10,7 @@ const BoardAPI = {
   updateBoard: (id, boardData) => api.patch(API_ENDPOINTS.BOARD.UPDATE(id), boardData),
   deleteBoard: (id) => api.delete(API_ENDPOINTS.BOARD.DELETE(id)),
   increaseView: (id) => api.patch(API_ENDPOINTS.BOARD.INCREASE_VIEW(id)),
+  getNotice: (id) => api.get(API_ENDPOINTS.BOARD.NOTICE(id)),
 };
 
 export default BoardAPI;

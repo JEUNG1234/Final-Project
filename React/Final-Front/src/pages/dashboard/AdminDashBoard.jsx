@@ -7,6 +7,8 @@ import ProfileImg from '../../assets/ronaldo.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
 import { useState } from 'react';
 import { userService } from '../../api/users';
+import BoardAPI from '../../api/board';
+import { challengeService } from '../../api/challengeService';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -83,8 +85,35 @@ const AdminDashBoard = () => {
     }
   });
 
+  const [notices, setNotices] = useState([]);
+
+  const [challenge, setChallenge] = useState(null);
+
+  const getChallengeForDashBoard = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await challengeService.getChallengeForDashBoard(userId);
+      setChallenge(response);
+      console.log('챌린지 백엔드에서 가져온 데이터 목록 : ', response.data);
+    } catch (err) {
+      console.log('대시보드에 챌린지 가져오기 실패', err);
+    }
+  };
+
+  const getNotice = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await BoardAPI.getNotice(userId);
+      setNotices(response.data);
+    } catch (error) {
+      console.error('공지사항 조회 실패:', error);
+    }
+  };
+
   useEffect(() => {
     myInfo();
+    getNotice();
+    getChallengeForDashBoard();
   }, []);
 
   const [myInfoState, setMyInfoState] = useState(null);
@@ -141,24 +170,39 @@ const AdminDashBoard = () => {
         <TopRightSection>
           {/* 2. 챌린지 카드 */}
           <ChallengeCard>
-            <div className="challenge-text">
-              <h4>새로 등록된 챌린지</h4>
-              <p>5월 1일 ~ 5월 31일</p>
-              <h2>하루 10000보 걷기</h2>
-            </div>
-            <div className="challenge-image">
-              <img src={ChallangeImg} alt="챌린지 이미지" /> {/* Placeholder 이미지 */}
-            </div>
+            {challenge ? (
+              <>
+                <div className="challenge-text">
+                  <h4>새로 등록된 챌린지</h4>
+                  <p>
+                    {challenge.startDate} ~ {challenge.endDate}
+                  </p>
+                  <h2>{challenge.completeTitle}</h2>
+                </div>
+                <div className="challenge-image">
+                  <img src={ChallangeImg} alt="챌린지 이미지" />
+                </div>
+              </>
+            ) : (
+              <div className="challenge-text" style={{ padding: '20px', textAlign: 'center' }}>
+                <h4>새로 등록된 챌린지</h4>
+                <p>챌린지 정보가 없습니다.</p>
+              </div>
+            )}
           </ChallengeCard>
 
           {/* 3. 공지사항 카드 */}
           <NoticeCard>
             <h3>공지사항</h3>
-            <ul>
-              <li>프로젝트 마감 기한 엄수</li>
-              <li>Git 병합 수정 잘 할 것</li>
-              <li>6/3 회식 (역삼역 세븐일레븐)</li>
-            </ul>
+            {notices.length > 0 ? (
+              <ul>
+                {notices.map((notice) => (
+                  <li key={notice.boardNo}>{notice.boardTitle}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>공지사항이 없습니다.</p>
+            )}
           </NoticeCard>
         </TopRightSection>
       </TopSection>
@@ -367,6 +411,9 @@ const ChallengeCard = styled(Card)`
   background-color: #ffffff; /* 챌린지 배경색 */
   padding: 20px 25px;
 
+  min-height: 300px; /* 최소 높이 지정 */
+  min-width: 500px; /* 필요하면 최소 너비도 지정 */
+
   .challenge-text {
     flex-grow: 1;
     h4 {
@@ -405,6 +452,8 @@ const ChallengeCard = styled(Card)`
 
 // 3. 공지사항 카드 (Top Right 하단)
 const NoticeCard = styled(Card)`
+  min-height: 250px;
+  padding: 20px;
   h3 {
     font-size: 20px;
     color: #333;

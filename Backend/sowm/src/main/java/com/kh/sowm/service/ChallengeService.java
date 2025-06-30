@@ -1,6 +1,7 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.ChallengeDto;
+import com.kh.sowm.dto.ChallengeDto.CompletionResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,4 +28,6 @@ public interface ChallengeService {
 
     // 인증글 상세 조회 메서드 추가
     ChallengeDto.CompletionResponse getCompletionDetail(Long completionNo);
+
+    CompletionResponse getChallenge(String userId);
 }

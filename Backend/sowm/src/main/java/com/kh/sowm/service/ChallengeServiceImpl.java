@@ -1,6 +1,7 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.ChallengeDto;
+import com.kh.sowm.dto.ChallengeDto.CompletionResponse;
 import com.kh.sowm.entity.Challenge;
 import com.kh.sowm.entity.ChallengeComplete;
 import com.kh.sowm.entity.ChallengeResult;
@@ -209,5 +210,18 @@ public class ChallengeServiceImpl implements ChallengeService {
         ChallengeComplete completion = challengeCompleteRepository.findById(completionNo)
                 .orElseThrow(() -> new EntityNotFoundException("인증글을 찾을 수 없습니다: " + completionNo));
         return ChallengeDto.CompletionResponse.fromEntity(completion);
+    }
+
+    @Override
+    public CompletionResponse getChallenge(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("게정 정보가 없습니다."));
+
+        String companyCode = user.getCompanyCode();
+
+        Challenge challenge = challengeRepository.findDashBoardChallenge(companyCode)
+                .orElseThrow(() -> new IllegalArgumentException("챌린지 정보가 없습니다."));
+
+        return CompletionResponse.from(challenge);
     }
 }

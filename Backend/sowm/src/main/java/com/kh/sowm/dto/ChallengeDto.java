@@ -67,6 +67,8 @@ public class ChallengeDto {
         private String userName;
         private String userId;
         private LocalDate createdDate;
+        private LocalDate startDate;
+        private LocalDate endDate;
         private String completeImageUrl; //  인증 이미지 URL 필드 추가
 
         public static CompletionResponse fromEntity(ChallengeComplete completion) {
@@ -78,6 +80,16 @@ public class ChallengeDto {
                     .userId(completion.getUser().getUserId())
                     .createdDate(completion.getCreatedDate())
                     .completeImageUrl(completion.getCompleteImageUrl()) //  필드 매핑
+                    .build();
+        }
+
+        public static CompletionResponse from(Challenge challenge) {
+            return CompletionResponse.builder()
+                    .completeNo(challenge.getChallengeNo())
+                    .completeTitle(challenge.getChallengeTitle())
+                    .createdDate(challenge.getChallengeEndDate())
+                    .startDate(challenge.getChallengeStartDate())
+                    .endDate(challenge.getChallengeEndDate())
                     .build();
         }
     }

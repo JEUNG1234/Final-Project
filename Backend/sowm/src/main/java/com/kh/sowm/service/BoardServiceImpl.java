@@ -2,6 +2,8 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.BoardDto;
+import com.kh.sowm.dto.BoardDto.Response;
+import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.entity.Board;
 import com.kh.sowm.entity.Category;
 import com.kh.sowm.entity.User;
@@ -10,6 +12,8 @@ import com.kh.sowm.repository.BoardRepository;
 import com.kh.sowm.repository.CategoryRepository;
 import com.kh.sowm.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -91,4 +95,16 @@ public class BoardServiceImpl implements BoardService {
         int updatedRows = boardRepository.increaseViewCount(boardId);
         return updatedRows > 0;
     }
+
+    @Override
+    public List<Response> getNoticeTop3(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("계정 정보가 존재하지 않습니다."));
+
+        String companyCode = user.getCompanyCode();
+
+        List<Board> boards = boardRepository.getNoticeTop3(companyCode);
+        return boards.stream().map(BoardDto.Response::fromEntity).collect(Collectors.toList());
+    }
+
 }
