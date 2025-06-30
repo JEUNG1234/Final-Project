@@ -25,4 +25,6 @@ public interface ChallengeRepository {
 
     // 사용자가 참여한 모든 챌린지 목록 조회를 위한 메소드 추가
     List<Challenge> findAllByUserId(String userId);
+
+    Optional<Challenge> findDashBoardChallenge(String companyCode);
 }

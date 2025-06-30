@@ -90,4 +90,16 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    @Override
+    public Optional<Challenge> findDashBoardChallenge(String companyCode) {
+        String jpql = "SELECT c FROM Challenge c WHERE c.user.company.companyCode = :companyCode ORDER BY c.challengeStartDate DESC";
+
+        List<Challenge> resultList = em.createQuery(jpql, Challenge.class)
+                .setParameter("companyCode", companyCode)
+                .setMaxResults(1)
+                .getResultList();
+
+        return resultList.stream().findFirst();
+    }
 }
