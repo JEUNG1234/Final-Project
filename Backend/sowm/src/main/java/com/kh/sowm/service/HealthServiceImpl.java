@@ -159,7 +159,7 @@ public class HealthServiceImpl implements HealthService {
                 +"추천 가이드:\n"
                 +"- 1. (생활 습관 개선 조언)\n"
                 +"- 2. (운동, 영양, 수면 등)\n"
-                +"- 3. 필요 시 병원 방문 안내)\n\n"
+                +"- 3. (필요 시 병원 방문 안내)\n"
                 + "※ 반드시 총점과 상태가 일치하도록 작성해 주세요.";
         List<Map<String, String>> messages = List.of(
                 Map.of("role", "user", "content", prompt)
