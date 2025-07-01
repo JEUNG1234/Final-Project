@@ -1,14 +1,18 @@
 package com.kh.sowm.service;
 
+import com.kh.sowm.dto.ProfileImageDto;
 import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.dto.UserDto.RequestDto;
 import com.kh.sowm.entity.Company;
 import com.kh.sowm.entity.Department;
 import com.kh.sowm.entity.Job;
+import com.kh.sowm.entity.ProfileImage;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
+import com.kh.sowm.enums.CommonEnums.Status;
 import com.kh.sowm.repository.DepartmentRepository;
 import com.kh.sowm.repository.JobRepository;
+import com.kh.sowm.repository.ProfileImgRepository;
 import com.kh.sowm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
     private final DepartmentRepository departmentRepository;
+    private final ProfileImgRepository profileImgRepository;
 
     @Override
     public UserDto.ResponseDto login(String userId, String userPwd) {
@@ -143,6 +148,50 @@ public class UserServiceImpl implements UserService {
         user.changeUserInfo(updateDto.getUserName(), updateDto.getNewPwd());
 
         return userRepository.updateUserInfo(user);
+    }
+
+    @Override
+    public void uploadProfileImage(String userId, ProfileImageDto.Request dto) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
+
+        ProfileImage oldImg = user.getOldImg();
+        if (oldImg != null) {
+            // 이미지가 존재하면 status 를 N 으로 바꿈 (기존 이미지 비활성화)
+            oldImg.deactivate();
+            profileImgRepository.save(oldImg);
+        }
+
+        // changedName 처리: null 또는 빈 문자열이면 imgUrl에서 파일명 추출
+        String changedName = dto.getChangedName();
+        if (changedName == null || changedName.trim().isEmpty()) {
+            String imgUrl = dto.getImgUrl();
+            if (imgUrl != null && imgUrl.contains("/")) {
+                changedName = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+            } else {
+                changedName = "unknown_filename";
+            }
+        }
+
+        // oldName 처리: null 또는 빈 문자열이면 changedName으로 기본값 설정
+        String oldName = dto.getOriginalName();
+        if (oldName == null || oldName.trim().isEmpty()) {
+            oldName = changedName;
+        }
+
+        // 이미지가 존재하지 않는다면 새로운 이미지 파일 업로드
+        // 새로운 이미지 생성
+        ProfileImage newImg = ProfileImage.builder()
+                .user(user)
+                .originalName(oldName) 
+                .changedName(changedName)
+                .path(dto.getImgUrl())
+                .size(dto.getSize())
+                .status(Status.Y)
+                .build();
+        profileImgRepository.save(newImg);
+        user.updateProfileImg(newImg);
+        userRepository.save(user);
     }
 
 

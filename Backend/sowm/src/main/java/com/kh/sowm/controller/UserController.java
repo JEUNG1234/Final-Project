@@ -1,5 +1,6 @@
 package com.kh.sowm.controller;
 
+import com.kh.sowm.dto.ProfileImageDto;
 import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.service.UserService;
@@ -98,6 +99,13 @@ public class UserController {
         String result = userService.updateUserInfo(updateDto, userId);
 
         return ResponseEntity.ok(result);
+    }
+
+    // 마이페이지 사진 업로드
+    @PatchMapping("/{userId}/profileimage")
+    public ResponseEntity<String> uploadProfileImage(@PathVariable String userId, @RequestBody ProfileImageDto.Request dto) {
+        userService.uploadProfileImage(userId, dto);
+        return ResponseEntity.ok().build();
     }
 
 }

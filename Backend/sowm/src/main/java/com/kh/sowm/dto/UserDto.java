@@ -30,6 +30,9 @@ public class UserDto {
         private String companyCode;
         private String status;
 
+        private String profileImageUrl;
+        private String profileImagePath;
+
         public static ResponseDto toDto(User user){
             return ResponseDto.builder()
                     .userId(user.getUserId())
@@ -60,7 +63,9 @@ public class UserDto {
                     .createdDate(user.getCreatedDate())
                     .updatedDate(user.getUpdatedDate())
                     .companyCode(user.getCompanyCode())
+                    .profileImageUrl(user.getOldImg() != null ? user.getOldImg().getPath() : null)
                     .point(user.getPoint())
+                    .profileImagePath(user.getOldImg() != null ? "mypage/" + user.getOldImg().getChangedName() : null)
                     .build();
         }
 

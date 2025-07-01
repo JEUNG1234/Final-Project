@@ -3,7 +3,7 @@ import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components'; // styled-components는 여기서 임포트
-import ProfileImg from '../../assets/ronaldo.jpg';
+import ProfileImg from '../../assets/profile.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
 import { useState, useEffect } from 'react';
 import { userService } from '../../api/users';
@@ -254,7 +254,14 @@ const MemberDashBoard = () => {
         {/* 4. 사용자 정보 카드 */}
         <UserInfoCard>
           <div className="user-avatar">
-            <img src={ProfileImg} alt="사용자 아바타" /> {/* Placeholder 이미지 */}
+            <img
+              src={
+                myInfoState?.profileImagePath
+                  ? `https://d1qzqzab49ueo8.cloudfront.net/${myInfoState.profileImagePath}`
+                  : ProfileImg
+              }
+              alt="사용자 아바타"
+            />
           </div>
           <h2>이름: {myInfoState?.userName}</h2>
           <div className="info-list">
