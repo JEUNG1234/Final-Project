@@ -75,7 +75,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     List<Board> boards = new ArrayList<>();
 
+    // 마이페이지 이미지
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CURRENT_PROFILE_IMAGE_ID")
+    private ProfileImage currentProfileImage;
 
+    
     @PrePersist
     public void prePersist() {
         if (this.createdDate == null) {
@@ -136,5 +141,14 @@ public class User {
             this.point = 0;
         }
         this.point += points;
+    }
+
+    public ProfileImage getOldImg() {
+        return this.currentProfileImage;
+    }
+
+    public void updateProfileImg(ProfileImage newImg) {
+        this.currentProfileImage = newImg;
+        this.updatedDate = LocalDate.now();
     }
 }

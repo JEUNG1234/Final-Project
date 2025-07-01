@@ -4,7 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import ProfileImg from '../../assets/ronaldo.jpg';
 import { userService } from '../../api/users';
 import { toast } from 'react-toastify';
-import BoardAPI from '../../api/board'; // 게시글 API 가져오기
+import BoardAPI from '../../api/board';
+import { fileupload } from '../../api/fileupload';
+import defaultProfile from '../../assets/profile.jpg';
 
 // MyPage Component
 const MyPage = () => {
@@ -12,43 +14,72 @@ const MyPage = () => {
   const [myPosts, setMyPosts] = useState([]); // 유저 게시글 상태 추가
   const navigate = useNavigate();
 
-  // 부서 코드 매핑
-  const deptMap = {
-    D1: '개발팀',
-    D2: '디자인팀',
-    D3: '영업팀',
-    D4: '인사팀',
-    D5: '마케팅팀',
-  };
-
-  // 직급 코드 매핑
-  const jobMap = {
-    J0: '외부인',
-    J1: '사원',
-    J2: '관리자',
-    J3: '과장',
-    J4: '팀장',
-  };
-
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
-    console.log('저장된 유저 ID:', storedUserId);
-    if (storedUserId) {
-      userService
-        .getUserInfo(storedUserId)
-        .then((data) => {
-          console.log('받은 유저 정보:', data);
-          setUserInfo(data);
-        })
-        .catch((err) => {
-          console.error('유저 정보 가져오기 실패:', err);
-          setUserInfo(null);
+    if (!storedUserId) return;
+
+    userService
+      .getUserInfo(storedUserId)
+      .then((data) => {
+        setUserInfo(data);
+        return BoardAPI.getBoardList({
+          page: 0,
+          size: 1000,
+          sort: 'createdDate,desc',
+          companyCode: data.companyCode,
         });
-    }
+      })
+      .then((res) => {
+        const allPosts = res.data.content;
+        const filtered = allPosts.filter((post) => post.userId === storedUserId);
+        setMyPosts(filtered);
+      })
+      .catch((err) => {
+        console.error('유저 정보 또는 게시글 조회 실패:', err);
+        setUserInfo(null);
+        setMyPosts([]);
+      });
   }, []);
 
-  const handleImageChange = () => {
-    alert('이미지 변경 기능 구현 예정');
+  const fileInputRef = React.useRef(null);
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleImageChange = async (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    try {
+      // 이미지 s3 에 mypage 폴더로 업로드
+      const res = await fileupload.uploadImageToS3(file, 'mypage/');
+      const uploadUrl = res.url;
+
+      // 백엔드로 프로필 이미지 변경 요청
+      if (userInfo) {
+        await userService.uploadProfileImage(userInfo.userId, {
+          imgUrl: uploadUrl,
+          size: file.size,
+          changedName: res.filename, // 가능하면 추가
+          originalName: file.name,
+        });
+      }
+
+      // 유저 정보가 존재할때만 업데이트
+      if (userInfo) {
+        setUserInfo((prev) => ({
+          ...prev,
+          profileImageUrl: uploadUrl,
+          profileImagePath: res.filename,
+        }));
+      }
+      toast.success('프로필 이미지가 변경되었습니다.');
+      console.log('이미지 업로드 성공', uploadUrl, res);
+    } catch (err) {
+      console.log('이미지 업로드 실패', err);
+    }
     console.log({ setUserInfo });
   };
 
@@ -68,42 +99,32 @@ const MyPage = () => {
       console.log('회원 탈퇴에 실패했습니다.', err);
     }
   };
-
-  useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    if (!storedUserId) return;
-
-    userService
-      .getUserInfo(storedUserId)
-      .then((data) => {
-        setUserInfo(data);
-        return BoardAPI.getBoardList({
-          page: 0,
-          size: 1000,
-          sort: 'createdDate,desc',
-          companyCode: data.companyCode,
-        });
-      })
-      .then((res) => {
-        const allPosts = res.data.content;
-        // ✅ 프론트에서 userId로 필터링
-        const filtered = allPosts.filter((post) => post.userId === storedUserId);
-        setMyPosts(filtered);
-      })
-      .catch((err) => {
-        console.error('유저 정보 또는 게시글 조회 실패:', err);
-        setUserInfo(null);
-        setMyPosts([]);
-      });
-  }, []);
+  console.log('프로필 이미지 URL:', userInfo?.profileImageUrl);
 
   return (
     <MyPageContainer>
       <ContentCard>
         <ProfileSection>
           <ProfileImageWrapper>
-            <ProfileImage src={ProfileImg} alt="프로필 이미지" />
-            <ImageChangeButton onClick={handleImageChange}>이미지 변경</ImageChangeButton>
+            <ProfileImage
+              src={
+                userInfo?.profileImagePath
+                  ? `https://d1qzqzab49ueo8.cloudfront.net/${userInfo.profileImagePath}`
+                  : defaultProfile
+              }
+              alt="프로필 이미지"
+            />
+
+            <ImageChangeButton onClick={handleButtonClick}>이미지 변경</ImageChangeButton>
+
+            <input
+              type="file"
+              id="profile-image-input"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={handleImageChange}
+            />
           </ProfileImageWrapper>
 
           <UserInfoSection>
@@ -122,12 +143,12 @@ const MyPage = () => {
 
             <UserDetailRow>
               <Label>부서</Label>
-              <UserInfoValue>: {deptMap[userInfo?.deptCode] || '-'}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.deptName || '-'}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
               <Label>직급</Label>
-              <UserInfoValue>: {jobMap[userInfo?.jobCode] || '-'}</UserInfoValue>
+              <UserInfoValue>: {userInfo?.jobName || '-'}</UserInfoValue>
             </UserDetailRow>
 
             <UserDetailRow>
@@ -235,11 +256,11 @@ const ProfileImageWrapper = styled.div`
 `;
 
 const ProfileImage = styled.img`
-  width: 300px;
+  width: 320px;
   height: 320px;
   border-radius: 10px;
   object-fit: cover;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #eaeaea;
 `;
 
 const ImageChangeButton = styled.button`

@@ -102,4 +102,14 @@ export const userService = {
     const response = await api.patch(`${API_ENDPOINTS.USERS.UPDATEUSER}`, updateInfo);
     return response;
   },
+
+  uploadProfileImage: async (userId, { imgUrl, size, originalName, changeName }) => {
+    const response = await api.patch(`${API_ENDPOINTS.USERS.BASE}/${userId}${API_ENDPOINTS.USERS.UPLOADPROFILEIMAGE}`, {
+      imgUrl,
+      size,
+      originalName,
+      changeName,
+    });
+    return response.data;
+  },
 };

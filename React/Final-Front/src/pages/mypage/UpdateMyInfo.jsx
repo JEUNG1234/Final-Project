@@ -111,17 +111,6 @@ const UpdateMyInfo = () => {
           </Form>
         </Card>
       </Container>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
     </MainContent>
   );
 };
