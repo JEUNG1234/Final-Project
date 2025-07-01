@@ -13,7 +13,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import NaverMapStatic from '../../components/NvaerMapStatic';
 // import DOMPurify from 'dompurify';
 
-import { FaSquare, FaRulerCombined, FaHourglassHalf, FaUsers } from 'react-icons/fa';
+import { FaSquare, FaRulerCombined, FaExclamationTriangle, FaUsers } from 'react-icons/fa';
 
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { workationService } from '../../api/workation';
@@ -76,7 +76,26 @@ const WorkationDetail = () => {
 
   //유효성 검사
   const schema = yup.object().shape({
-    peopleMax: yup.number().typeError('최대 인원을 숫자로 입력해주세요').required('최대 인원을 설정해주세요'),
+    peopleMax: yup
+      .number()
+      .typeError('최대 인원을 숫자로 입력해주세요')
+      .required('최대 인원을 설정해주세요')
+      .max(workationInfo.peopleMax || Infinity, `최대 인원 수(${workationInfo.peopleMax})를 초과했습니다.`)
+      .min(workationInfo.peopleMin || Infinity, `최소 인원 수(${workationInfo.peopleMin}) 이상이여야 합니다.`),
+    dateRange: yup
+      .array()
+      .of(yup.date().nullable())
+      .test('required', '날짜를 선택해주세요', (value) => !!(value && value[0] && value[1]))
+      .test('startDateRange', '신청 가능 기간범위를 벗어났습니다.', (value) => {
+        if (!value || !value[0] || !workationInfo.workationStartDate || !workationInfo.workationEndDate) return true;
+        const start = new Date(value[0]);
+        return start >= new Date(workationInfo.workationStartDate) && start <= new Date(workationInfo.workationEndDate);
+      })
+      .test('endDateRange', '신청 가능 기간범위를 벗어났습니다.', (value) => {
+        if (!value || !value[1] || !workationInfo.workationStartDate || !workationInfo.workationEndDate) return true;
+        const end = new Date(value[1]);
+        return end >= new Date(workationInfo.workationStartDate) && end <= new Date(workationInfo.workationEndDate);
+      }),
   });
 
   const {
@@ -159,7 +178,7 @@ const WorkationDetail = () => {
           <>
             <ImageSection>
               <img src={`https://d1qzqzab49ueo8.cloudfront.net/${facilityImage}`} />
-            </ImageSection>{' '}
+            </ImageSection>
             {/* 실제 이미지 URL로 교체 필요 */}
             <FacilityContent>
               <FacilityLeftContent>
@@ -170,9 +189,19 @@ const WorkationDetail = () => {
                 <FaciltyLeftSecondInfo>
                   <h2>영업시간 | 휴무일</h2>
                   <h3>{workationInfo.openHours}</h3>
+                  {Array.isArray(workationInfo.dayOffs) && workationInfo.dayOffs.length > 0 && (
+                    <h3>{workationInfo.dayOffs.map((item) => item.dayOff).join(', ')}</h3>
+                  )}
                 </FaciltyLeftSecondInfo>
               </FacilityLeftContent>
               <FacilityRightContent>
+                <InfoBlock>
+                  <InfoIcon as={FaSquare} /> {/* 공간유형 아이콘 (임시) */}
+                  <InfoText>계약기간</InfoText>
+                  <DetailText>
+                    {workationInfo.workationStartDate} ~ {workationInfo.workationEndDate}
+                  </DetailText>
+                </InfoBlock>
                 <InfoBlock>
                   <InfoIcon as={FaSquare} /> {/* 공간유형 아이콘 (임시) */}
                   <InfoText>공간유형</InfoText>
@@ -236,7 +265,7 @@ const WorkationDetail = () => {
             endDate={endDate}
             onChange={(update) => {
               setDateRange(update);
-              setValue('dateRange', update); // 폼에 반영!
+              setValue('dateRange', update);
             }}
             inline
             calendarContainer={({ children }) => (
@@ -249,12 +278,12 @@ const WorkationDetail = () => {
               </CalendarWrapper>
             )}
           />
-          {errors.dateRange && <ErrorMessage>{errors.dateRange.message}</ErrorMessage>}
         </DateMenu>
         <FormContent onSubmit={handleSubmit(onSubmit)}>
           <FormRow>
             <Label>일정</Label>
-            <DateRangeWrapper>
+
+            <FormField>
               <Input
                 type="text"
                 placeholder="시작일"
@@ -264,7 +293,15 @@ const WorkationDetail = () => {
 
               <Tilde>~</Tilde>
               <Input type="text" placeholder="종료일" readOnly value={endDate ? endDate.toLocaleDateString() : ''} />
-            </DateRangeWrapper>
+              {errors.dateRange && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {errors.dateRange.message}
+                </ErrorTooltip>
+              )}
+            </FormField>
           </FormRow>
           <FormRow>
             <Label>장소</Label>
@@ -272,8 +309,22 @@ const WorkationDetail = () => {
           </FormRow>
           <FormRow>
             <Label>최대 인원</Label>
-            <Input type="number" placeholder="최대인원" {...register('peopleMax', { valueAsNumber: true })} />
-            {errors.peopleMax && <ErrorMessage>{errors.peopleMax.message}</ErrorMessage>}
+            <FormField>
+              <Input
+                type="number"
+                placeholder="최대인원"
+                {...register('peopleMax', { valueAsNumber: true })}
+                style={errors.peopleMax ? { border: '1.5px solid #ff4545' } : {}}
+              />
+              {errors.peopleMax && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {errors.peopleMax.message}
+                </ErrorTooltip>
+              )}
+            </FormField>
           </FormRow>
           <FormRow style={{ alignItems: 'flex-start', flexGrow: 1, marginBottom: '0' }}>
             <Label>사유</Label>
@@ -751,5 +802,57 @@ const ErrorMessage = styled.p`
   margin-bottom: 8px;
   text-align: left;
   width: 100%;
+`;
+
+// 말풍선 툴팁 스타일
+const ErrorTooltip = styled.div`
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  color: #222;
+  font-size: 12px;
+  padding: 11px 16px 11px 13px;
+  border-radius: 7px;
+  box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.11);
+  display: flex;
+  align-items: center;
+  min-width: 100px;
+  z-index: 20;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 18px;
+    border-width: 0 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent #fff transparent;
+    filter: drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.09));
+  }
+`;
+
+const IconBox = styled.div`
+  background: #ffb300;
+  color: #fff;
+  border-radius: 5px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-size: 17px;
+`;
+
+// FormField(최대 인원 입력 부분에만 새로 사용)
+const FormField = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
 `;
 export default WorkationDetail;

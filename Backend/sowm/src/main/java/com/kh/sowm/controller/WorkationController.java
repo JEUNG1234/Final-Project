@@ -60,7 +60,7 @@ public class WorkationController {
     //워케이션 삭제 기능
     @PatchMapping("/delete")
     public WorkationDto.ResponseDto delete(@RequestBody WorkationDto.WorkationNoDto workNo) {
-        System.out.println(workNo.getWorkationNo());
+
         Long workationNo = workNo.getWorkationNo();
         Workation deleted = workationService.delete(workationNo);
         return WorkationDto.ResponseDto.toDto(deleted);
@@ -82,7 +82,7 @@ public class WorkationController {
     //워케이션 신청 거절용
     @PatchMapping("/returnupdate")
     public ResponseEntity<List<Long>> returnupdate(@RequestBody WorkationSubNoDto selectedIds) {
-        System.out.println("111111111111111111111111111111111111111");
+
         List<Long> result = workationService.workationReturnUpdate(selectedIds);
         return ResponseEntity.ok(result);
     }

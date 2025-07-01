@@ -72,12 +72,10 @@ public class WorkationServiceImpl implements WorkationService {
     @Override
     public WorkationDto.ResponseDto enrollWorkation(WorkationDto.WorkationCreateDto request) {
         String userId = request.getUserId();
-        //유저 조회
+
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
-        System.out.println(userId);
 
-        //DTO -> Entity로 변환
         Workation workation = request.toWorkationEntity(user);
         WorkationLocation location = request.toLocationEntity();
 
@@ -107,9 +105,8 @@ public class WorkationServiceImpl implements WorkationService {
                         .build();
 
                 workationImageRepository.save(image);
+                }
             }
-            }
-//        workationLocationRepository.save(location);
 
             return WorkationDto.ResponseDto.toDto(savedWorkation);
 
@@ -136,7 +133,6 @@ public class WorkationServiceImpl implements WorkationService {
         return subWork;
     }
 
-
     //워케이션 수정용
     @Override
     public WorkationDto.ResponseUpdateDto updateWorkation(WorkationDto.WorkationUpdateDto  request) {
@@ -148,15 +144,12 @@ public class WorkationServiceImpl implements WorkationService {
 
         workation.updateFromDto(request.getWorkation(), user);
 
-        // 4. 워케이션로케이션 조회 및 수정
         WorkationLocation location = workation.getWorkationLocation();
         location.updateFromDto(request.getLocation());
 
-        //merge
         workationRepository.updateWorkation(workation);
         workationLocationRepository.updateLocation(location);
 
-        // 6. ResponseUpdateDto로 변환
         return WorkationDto.ResponseUpdateDto.toDto(workation);
     }
 
@@ -197,7 +190,6 @@ public class WorkationServiceImpl implements WorkationService {
     //워케이션 신청 거절용
     @Override
     public List<Long> workationReturnUpdate(WorkationSubNoDto selectedIds) {
-        System.out.println("123123123123123123123123123123123");
         List<Long> workationSubNo = selectedIds.getWorkationSubNo();
         for(Long subNo : workationSubNo) {
             SubmitWorkation submit = submitWorkationRepository.findById(subNo)

@@ -23,6 +23,16 @@ public class WorkationDto {
         private String userCompanyCode;
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class WorkationDayDto{
+        private String dayOff;
+
+    }
+
     //이미지 디테일용  dto
     @Getter
     @Setter
@@ -63,6 +73,7 @@ public class WorkationDto {
         private String changeName;
         private String tab;
         private List<WorkationImgDto> workationImages;
+        private List<WorkationDayDto> dayOffs;
 
         public static ResponseDto toDto(Workation workation) {
             return ResponseDto.builder()
@@ -90,6 +101,7 @@ public class WorkationDto {
                                     .map(img -> new WorkationImgDto(img.getChangedName(), img.getTab().name()))
                                     .toList()
                     )
+                    .dayOffs(workation.getDayOffs().stream().map(dayOff -> new WorkationDayDto(dayOff.getDayOff())).toList())
                     .build();
         }
     }
