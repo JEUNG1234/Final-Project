@@ -29,24 +29,6 @@ public class WorkationRepositoryImpl implements WorkationRepository {
         return workation;
     }
 
-    //워케이션 카드 리스트 가져오는 용도
-    @Override
-    public ResponseEntity<List<WorkationDto.WorkationBasicDto>> findByList(String companyCode) {
-        String jpql = "SELECT new com.kh.sowm.dto.WorkationDto.WorkationBasicDto(" +
-                "wl.locationNo, wl.address, w.workationTitle, u.userId, w.peopleMin, w.peopleMax, w.workationStartDate, w.workationEndDate) " +
-                "FROM Workation w " +
-                "JOIN w.workationLocation wl " +
-                "JOIN w.user u " +
-                "WHERE w.status = :status AND u.companyCode = :companyCode";
-
-        List<WorkationDto.WorkationBasicDto> result = em.createQuery(jpql, WorkationDto.WorkationBasicDto.class)
-                .setParameter("status", CommonEnums.Status.Y)
-                .setParameter("companyCode", companyCode)
-                .getResultList();
-
-        return ResponseEntity.ok(result);
-    }
-
     @Override
     public List<Workation> findByStatus(CommonEnums.Status status, String companyCode) {
         String jpql = "SELECT w FROM Workation w " +

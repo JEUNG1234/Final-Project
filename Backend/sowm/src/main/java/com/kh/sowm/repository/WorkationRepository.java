@@ -16,8 +16,6 @@ public interface WorkationRepository {
    Workation save(Workation workation);
 
 
-   ResponseEntity<List<WorkationDto.WorkationBasicDto>> findByList(String companyCode);
-
    //스테이터스가 Y인 것을 조회
    List<Workation> findByStatus(CommonEnums.Status status, String companyCode);
 

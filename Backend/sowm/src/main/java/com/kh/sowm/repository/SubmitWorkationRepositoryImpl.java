@@ -19,8 +19,6 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
     @PersistenceContext
     private EntityManager em;
 
-
-
     @Override
     public List<SubmitWorkation> findByStatus(StatusType statusType, String companyCode) {
         String jpql = "SELECT w FROM SubmitWorkation w " +
@@ -43,7 +41,6 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
     @Override
     public Optional<SubmitWorkation> findById(Long subNo) {
         return Optional.ofNullable(em.find(SubmitWorkation.class, subNo));
-
     }
 
     @Override
@@ -55,8 +52,6 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
     @Override
     @Transactional
     public void returnUpdate(SubmitWorkation submit) {
-        System.out.println("::::::::::124124::::::12345124::::::::::124124");
-        System.out.println("submit"+submit.getStatus());
         em.merge(submit);
     }
 
@@ -85,6 +80,5 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
                 .setParameter("companyCode", companyCode)
                 .getResultList();
     }
-
 
 }

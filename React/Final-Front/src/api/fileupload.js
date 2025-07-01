@@ -31,7 +31,7 @@ export const fileupload = {
       });
 
       return {
-        filename: pathPrefix + uniqueName, // 반환 값 명확화
+        filename: pathPrefix + uniqueName, 
         originalName: file.name,
         contentType: file.type,
         url: presignedUrl.split('?')[0],
