@@ -1,29 +1,24 @@
-import React, { useEffect } from 'react';
-// Chart.js 및 react-chartjs-2 임포트
+import React, { useEffect, useState } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import styled from 'styled-components'; // styled-components는 여기서 임포트
+import styled from 'styled-components';
 import ProfileImg from '../../assets/profile.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
-import { useState } from 'react';
 import { userService } from '../../api/users';
 import BoardAPI from '../../api/board';
 import { challengeService } from '../../api/challengeService';
 
-// Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// 달력 날짜 생성 함수
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay(); // 0: 일요일, 1: 월요일
+const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
-// 투표 데이터 요약 차트 데이터 및 옵션 (수정됨)
 const voteDoughnutData = {
   labels: ['찬성', '반대', '기권'],
   datasets: [
     {
-      data: [60, 25, 15], // 예시 투표 비율 (총 100%)
-      backgroundColor: ['#28A745', '#DC3545', '#FFC107'], // 녹색 (찬성), 빨강 (반대), 노랑 (기권)
+      data: [60, 25, 15],
+      backgroundColor: ['#28A745', '#DC3545', '#FFC107'],
       borderColor: ['#ffffff'],
       borderWidth: 2,
     },
@@ -32,10 +27,10 @@ const voteDoughnutData = {
 
 const voteDoughnutOptions = {
   responsive: true,
-  maintainAspectRatio: false, // 컨테이너에 맞게 비율 조정
+  maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: false, // 커스텀 범례를 사용할 것이므로 기본 범례는 숨김
+      display: false,
     },
     tooltip: {
       callbacks: {
@@ -52,29 +47,24 @@ const voteDoughnutOptions = {
       },
     },
   },
-  cutout: '50%', // 도넛 차트의 가운데 구멍 크기
+  cutout: '50%',
 };
 
 const AdminDashBoard = () => {
-  // 예시 날짜 데이터를 위해 Date 객체 사용
   const today = new Date();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
-
   const totalDays = getDaysInMonth(currentYear, currentMonth);
-  const firstDay = getFirstDayOfMonth(currentYear, currentMonth); // 0 (일) ~ 6 (토)
+  const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
 
   const calendarDays = [];
-  // 빈 칸 채우기 (일요일 시작 기준)
   for (let i = 0; i < firstDay; i++) {
     calendarDays.push(null);
   }
-  // 날짜 채우기
   for (let i = 1; i <= totalDays; i++) {
     calendarDays.push(i);
   }
 
-  // 주별로 분리
   const weeks = [];
   let currentWeek = [];
   calendarDays.forEach((day, index) => {
@@ -86,15 +76,29 @@ const AdminDashBoard = () => {
   });
 
   const [notices, setNotices] = useState([]);
-
   const [challenge, setChallenge] = useState(null);
+  const [myInfoState, setMyInfoState] = useState(null);
+  const [vacationCount, setVacationCount] = useState(0); // 휴가 일수 상태 추가
+
+  const myInfo = async () => {
+    try {
+        const userId = localStorage.getItem('userId');
+        const [userInfo, vacationData] = await Promise.all([
+            userService.getUserInfo(userId),
+            userService.getVacationCount(userId)
+        ]);
+        setMyInfoState(userInfo);
+        setVacationCount(vacationData);
+    } catch (err) {
+        console.log('계정 또는 휴가 정보를 불러오지 못했습니다.', err);
+    }
+  };
 
   const getChallengeForDashBoard = async () => {
     try {
       const userId = localStorage.getItem('userId');
       const response = await challengeService.getChallengeForDashBoard(userId);
       setChallenge(response);
-      console.log('챌린지 백엔드에서 가져온 데이터 목록 : ', response.data);
     } catch (err) {
       console.log('대시보드에 챌린지 가져오기 실패', err);
     }
@@ -116,24 +120,9 @@ const AdminDashBoard = () => {
     getChallengeForDashBoard();
   }, []);
 
-  const [myInfoState, setMyInfoState] = useState(null);
-
-  const myInfo = async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      const response = await userService.getUserInfo(userId);
-      setMyInfoState(response);
-      console.log('계정 데이터', response);
-    } catch (err) {
-      console.log('계정 정보를 불러오지 못했습니다.', err);
-    }
-  };
-
   return (
     <DashboardContainer>
-      {/* 상단 섹션 */}
       <TopSection>
-        {/* 1. 달력 카드 */}
         <CalendarCard>
           <h3>
             {currentYear}년 {currentMonth + 1}월
@@ -168,7 +157,6 @@ const AdminDashBoard = () => {
         </CalendarCard>
 
         <TopRightSection>
-          {/* 2. 챌린지 카드 */}
           <ChallengeCard>
             {challenge ? (
               <>
@@ -190,8 +178,6 @@ const AdminDashBoard = () => {
               </div>
             )}
           </ChallengeCard>
-
-          {/* 3. 공지사항 카드 */}
           <NoticeCard>
             <h3>공지사항</h3>
             {notices.length > 0 ? (
@@ -207,9 +193,7 @@ const AdminDashBoard = () => {
         </TopRightSection>
       </TopSection>
 
-      {/* 하단 섹션 */}
       <BottomSection>
-        {/* 4. 사용자 정보 카드 */}
         <UserInfoCard>
           <div className="user-avatar">
             <img
@@ -221,7 +205,6 @@ const AdminDashBoard = () => {
               alt="사용자 아바타"
             />
           </div>
-
           <h2>이름: {myInfoState?.userName}</h2>
           <div className="info-list">
             <dl>
@@ -233,32 +216,26 @@ const AdminDashBoard = () => {
               <dd>{myInfoState?.deptName}</dd>
             </dl>
             <dl>
-              <dt>남은 연차 수:</dt>
-              <dd>
-                <span></span>
-              </dd>
+                <dt>남은 연차 수:</dt>
+                <dd>
+                    <span>{vacationCount}일</span>
+                </dd>
             </dl>
             <dl>
-              <dt>복지 포인트:</dt>
-              <dd>
-                <span>1400점</span>(1500점 = 휴가 1일)
-              </dd>
-            </dl>
-            <dl>
-              <dt></dt>
-              <dd className="small">(현재 추가로 받은 휴가 일 수: 0일)</dd>
+                <dt>복지 포인트:</dt>
+                <dd>
+                    <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
+                </dd>
             </dl>
           </div>
         </UserInfoCard>
 
         <BottomRightSection>
-          {/* 5. 최근 투표수 요약 카드 (수정됨) */}
           <VoteSummaryCard>
             <h3>최근 투표수 요약</h3>
             <div className="chart-wrapper">
               <Doughnut data={voteDoughnutData} options={voteDoughnutOptions} />
             </div>
-            {/* 커스텀 범례 */}
             <div className="legend-list">
               <div>
                 <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>찬성: 60명
@@ -271,8 +248,6 @@ const AdminDashBoard = () => {
               </div>
             </div>
           </VoteSummaryCard>
-
-          {/* 6. 오늘 직원들 출퇴근 현황 카드 (수정됨) */}
           <AttendanceStatusCard>
             <h3>오늘 직원 출퇴근 현황</h3>
             <div className="status-item">
@@ -294,28 +269,22 @@ const AdminDashBoard = () => {
   );
 };
 
-// ==========================================================
-// 스타일 정의 (styled-components)
-// ==========================================================
-
-// 전체 대시보드 컨테이너
 const DashboardContainer = styled.div`
-  padding: 25px; /* 전체 대시보드 안쪽 여백 */
-  background-color: #f0f7ff; /* 전체 배경색 */
+  padding: 25px;
+  background-color: #f0f7ff;
   display: flex;
   flex-direction: column;
-  gap: 30px; /* 섹션 간의 간격 */
-  font-family: 'Pretendard', sans-serif; /* 폰트 설정 */
+  gap: 30px;
+  font-family: 'Pretendard', sans-serif;
 `;
 
-// 섹션별 컨테이너 (그리드 레이아웃)
 const TopSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 좌측 (달력) 1fr, 우측 (챌린지 + 공지) 1fr */
-  gap: 30px; /* 컬럼 간의 간격 */
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
 
   @media (max-width: 992px) {
-    grid-template-columns: 1fr; /* 화면이 작아지면 한 줄로 */
+    grid-template-columns: 1fr;
   }
 `;
 
@@ -327,13 +296,12 @@ const TopRightSection = styled.div`
 
 const BottomSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 좌측 (사용자 정보) 1fr, 우측 (건강 + 출퇴근) 1fr */
+  grid-template-columns: 1fr 1fr;
   gap: 30px;
-  /* Align items to stretch vertically to fill the available space */
-  align-items: start; /* This helps align the top of the columns */
+  align-items: start;
 
   @media (max-width: 992px) {
-    grid-template-columns: 1fr; /* 화면이 작아지면 한 줄로 */
+    grid-template-columns: 1fr;
   }
 `;
 
@@ -341,22 +309,18 @@ const BottomRightSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 55px;
-  /* Ensure this section also stretches if needed, though individual card heights will largely dictate it */
-  /* Make sure it tries to fill its grid area */
 `;
 
-// 개별 카드 스타일
 const Card = styled.div`
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 25px; /* 기본 패딩 */
+  padding: 25px;
 `;
 
-// 1. 달력 카드 (Top Left)
 const CalendarCard = styled(Card)`
   padding: 30px;
-  min-height: 400px; /* 최소 높이 설정 */
+  min-height: 400px;
 
   h3 {
     font-size: 24px;
@@ -390,20 +354,20 @@ const CalendarCard = styled(Card)`
       padding: 30px 0;
       color: #555;
       cursor: pointer;
-      border-radius: 8px; /* 날짜 박스 둥글게 */
+      border-radius: 8px;
 
       &:hover {
         background-color: #f0f7ff;
       }
 
       &.today {
-        background-color: #fb3f4a; /* 오늘 날짜 배경 */
+        background-color: #fb3f4a;
         color: white;
         font-weight: bold;
       }
 
       &.highlight {
-        background-color: #ffecb3; /* 특별한 날짜 (예: 휴가) */
+        background-color: #ffecb3;
         color: #c07000;
         font-weight: bold;
       }
@@ -411,22 +375,20 @@ const CalendarCard = styled(Card)`
   }
 `;
 
-// 2. 챌린지 카드 (Top Right 상단)
 const ChallengeCard = styled(Card)`
   display: flex;
   align-items: center;
   gap: 20px;
-  background-color: #ffffff; /* 챌린지 배경색 */
+  background-color: #ffffff;
   padding: 20px 25px;
-
-  min-height: 300px; /* 최소 높이 지정 */
-  min-width: 500px; /* 필요하면 최소 너비도 지정 */
+  min-height: 300px;
+  min-width: 500px;
 
   .challenge-text {
     flex-grow: 1;
     h4 {
       font-size: 30px;
-      color: #2f80ed; /* 푸른색 제목 */
+      color: #2f80ed;
       margin-bottom: 5px;
     }
     p {
@@ -445,7 +407,7 @@ const ChallengeCard = styled(Card)`
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background-color: #c1e8ef; /* 이미지 플레이스홀더 배경 */
+    background-color: #c1e8ef;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -458,7 +420,6 @@ const ChallengeCard = styled(Card)`
   }
 `;
 
-// 3. 공지사항 카드 (Top Right 하단)
 const NoticeCard = styled(Card)`
   min-height: 250px;
   padding: 20px;
@@ -485,7 +446,6 @@ const NoticeCard = styled(Card)`
   }
 `;
 
-// 4. 사용자 정보 카드 (Bottom Left)
 const UserInfoCard = styled(Card)`
   display: flex;
   flex-direction: column;
@@ -496,7 +456,7 @@ const UserInfoCard = styled(Card)`
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background-color: #e0e0e0; /* 아바타 플레이스홀더 배경 */
+    background-color: #e0e0e0;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -525,7 +485,7 @@ const UserInfoCard = styled(Card)`
 
       dt {
         color: #777;
-        width: 80px; /* 라벨 너비 고정 */
+        width: 100px;
         flex-shrink: 0;
       }
       dd {
@@ -533,7 +493,7 @@ const UserInfoCard = styled(Card)`
         flex-grow: 1;
         span {
           font-weight: bold;
-          color: #007bff; /* 포인트 색상 */
+          color: #007bff;
         }
         &.small {
           font-size: 13px;
@@ -544,7 +504,6 @@ const UserInfoCard = styled(Card)`
   }
 `;
 
-// 5. 최근 투표수 요약 카드 (Bottom Right 상단) - 이름 변경 및 스타일 유지
 const VoteSummaryCard = styled(Card)`
   h3 {
     font-size: 18px;
@@ -581,7 +540,6 @@ const VoteSummaryCard = styled(Card)`
   box-sizing: border-box;
 `;
 
-// 6. 오늘 직원들 출퇴근 현황 카드 (Bottom Right 하단) - 이름 변경 및 스타일 변경
 const AttendanceStatusCard = styled(Card)`
   display: flex;
   flex-direction: column;
@@ -615,16 +573,16 @@ const AttendanceStatusCard = styled(Card)`
     .status-count {
       font-size: 16px;
       font-weight: bold;
-      color: #007bff; /* 기본 색상 */
+      color: #007bff;
 
       &.workation-count {
-        color: #28a745; /* 워케이션은 녹색 */
+        color: #28a745;
       }
       &.on-site-count {
-        color: #ffc107; /* 출근(미출근)은 노란색 */
+        color: #ffc107;
       }
       &.clocked-out-count {
-        color: #6c757d; /* 퇴근은 회색 */
+        color: #6c757d;
       }
     }
   }

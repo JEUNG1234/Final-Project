@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,6 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeCompleteRepository challengeCompleteRepository;
     private final ChallengeResultRepository challengeResultRepository;
 
-    // ... (createChallenge 메소드는 기존과 동일)
     @Override
     public Long createChallenge(ChallengeDto.CreateRequest requestDto) {
         User adminUser = userRepository.findByUserId(requestDto.getUserId())
@@ -54,6 +54,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .challengeStartDate(requestDto.getChallengeStartDate())
                 .challengeEndDate(requestDto.getChallengeEndDate())
                 .challengePoint(requestDto.getChallengePoint())
+                .pointsAwarded(false) // 생성 시 기본값 false
                 .build();
         challengeRepository.save(challenge);
         return challenge.getChallengeNo();
@@ -63,17 +64,14 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Override
     @Transactional(readOnly = true)
     public Page<ChallengeDto.ListResponse> findAllChallenges(Pageable pageable, String userId) {
-        // userId로 companyCode 조회
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
         String companyCode = user.getCompanyCode();
 
-        // companyCode로 필터링하여 조회
         Page<Challenge> challengePage = challengeRepository.findAll(pageable, companyCode);
         return challengePage.map(ChallengeDto.ListResponse::fromEntity);
     }
 
-    // ... (findChallengeById 이하 기존과 동일)
     @Override
     @Transactional(readOnly = true)
     public ChallengeDto.DetailResponse findChallengeById(Long challengeNo) {
@@ -108,8 +106,35 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .build();
 
         challengeCompleteRepository.save(completion);
+
+        // 인증글 작성 후 달성률 체크 및 포인트 지급 로직
+        checkAndAwardPoints(challenge, user);
+
         return completion.getCompleteNo();
     }
+
+    private void checkAndAwardPoints(Challenge challenge, User user) {
+        // 이미 포인트가 지급되었거나 챌린지 기간이 아니면 중단
+        if (challenge.isPointsAwarded() || LocalDate.now().isAfter(challenge.getChallengeEndDate())) {
+            return;
+        }
+
+        long totalDuration = ChronoUnit.DAYS.between(challenge.getChallengeStartDate(), challenge.getChallengeEndDate()) + 1;
+        long completedCount = challenge.getCompletions().stream()
+                .filter(c -> c.getUser().getUserId().equals(user.getUserId()))
+                .count();
+
+        int achievementRate = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
+
+        if (achievementRate >= 70) {
+            user.addPoints(challenge.getChallengePoint());
+            challenge.markAsPointsAwarded(); // 포인트 지급 상태로 변경
+            // 변경된 user와 challenge 상태를 DB에 즉시 반영
+            userRepository.save(user);
+            challengeRepository.save(challenge);
+        }
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -120,47 +145,40 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Override
     @Transactional
     public Map<String, Object> findMyChallenges(String userId) {
-        LocalDate today = LocalDate.now();
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         List<Challenge> allUserChallenges = challengeRepository.findAllByUserId(userId);
 
+        // 종료된 챌린지에 대한 최종 결과만 저장
         for (Challenge challenge : allUserChallenges) {
-            if (challenge.getChallengeEndDate().isBefore(today) &&
+            if (challenge.getChallengeEndDate().isBefore(LocalDate.now()) &&
                     challengeResultRepository.findByUserAndChallenge(user, challenge).isEmpty()) {
 
-                long totalDuration = challenge.getChallengeEndDate().toEpochDay() - challenge.getChallengeStartDate().toEpochDay() + 1;
+                long totalDuration = ChronoUnit.DAYS.between(challenge.getChallengeStartDate(), challenge.getChallengeEndDate()) + 1;
                 long completedCount = challenge.getCompletions().stream()
                         .filter(c -> c.getUser().getUserId().equals(userId))
                         .count();
                 int achievementRate = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
 
-                boolean isSuccess = achievementRate >= 70; // 달성률 70% 이상일 때만 성공
-
                 ChallengeResult result = ChallengeResult.builder()
                         .user(user)
                         .challenge(challenge)
-                        .success(isSuccess)
+                        .success(achievementRate >= 70)
                         .finalAchievementRate(achievementRate)
                         .build();
                 challengeResultRepository.save(result);
-
-                if (isSuccess) {
-                    user.addPoints(challenge.getChallengePoint());
-                    userRepository.save(user); // 변경된 포인트를 DB에 저장
-                }
             }
         }
 
         Optional<Challenge> ongoingChallengeOpt = allUserChallenges.stream()
-                .filter(c -> !c.getChallengeEndDate().isBefore(today))
+                .filter(c -> !c.getChallengeEndDate().isBefore(LocalDate.now()))
                 .findFirst();
 
         Map<String, Object> response = new HashMap<>();
 
         ongoingChallengeOpt.ifPresent(challenge -> {
-            long totalDuration = challenge.getChallengeEndDate().toEpochDay() - challenge.getChallengeStartDate().toEpochDay() + 1;
+            long totalDuration = ChronoUnit.DAYS.between(challenge.getChallengeStartDate(), challenge.getChallengeEndDate()) + 1;
             long completedCount = challenge.getCompletions().stream().filter(c -> c.getUser().getUserId().equals(userId)).count();
             int achievement = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
 
@@ -215,7 +233,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Override
     public CompletionResponse getChallenge(String userId) {
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("게정 정보가 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("계정 정보가 없습니다."));
 
         String companyCode = user.getCompanyCode();
 

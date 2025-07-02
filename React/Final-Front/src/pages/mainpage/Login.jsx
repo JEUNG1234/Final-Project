@@ -157,6 +157,13 @@ const InputField = styled.input`
   width: 100%;
   height: 60px;
   box-sizing: border-box;
+  font-family: 'Pretendard', sans-serif;
+
+  &:focus {
+    outline: none;
+    border-color: #024b98;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 60);
+  }
 `;
 
 const LoginButton = styled.button`
