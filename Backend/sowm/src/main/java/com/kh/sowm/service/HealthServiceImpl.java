@@ -97,7 +97,7 @@ public class HealthServiceImpl implements HealthService {
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-3.5-turbo",
                 "messages", messages,
-                "max_tokens", 300,
+                "max_tokens", 500,
                 "temperature", 0.0,
                 "top_p", 1.0,
                 "n", 1

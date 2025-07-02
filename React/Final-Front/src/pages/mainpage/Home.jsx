@@ -123,13 +123,6 @@ const Home = () => {
                 사용 교육이 제공되며, 바로 시스템을 활용하실 수 있습니다.
               </Answer>
             </FAQItem>
-            <FAQItem>
-              <Question>모바일에서도 사용 가능한가요?</Question>
-              <Answer>
-                네, SOWM 시스템은 반응형 웹으로 개발되어 PC, 태블릿, 모바일 등 모든 기기에서 최적화된 환경으로 이용하실
-                수 있습니다.
-              </Answer>
-            </FAQItem>
           </FAQList>
         </FAQSection>
       </MainContent>
