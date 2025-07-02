@@ -7,6 +7,7 @@ import com.kh.sowm.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -39,7 +40,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<UserDto.ResponseDto> getUserId(@RequestParam String userId) {
         UserDto.ResponseDto loginUser = userService.getUserByUserId(userId);
-
+        /**
+         * 이제 유저 아이디 이런식으로 가져오면 됨. 매개변수에 userId 안 쓰고
+         * String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+         */
         return ResponseEntity.ok(loginUser);
     }
 

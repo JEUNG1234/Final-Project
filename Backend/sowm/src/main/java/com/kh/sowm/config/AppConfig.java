@@ -1,4 +1,4 @@
-package com.kh.sowm;
+package com.kh.sowm.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
