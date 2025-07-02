@@ -1,5 +1,6 @@
 package com.kh.sowm.service;
 
+import com.kh.sowm.dto.ProfileImageDto;
 import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.dto.UserDto.RequestDto;
 import com.kh.sowm.entity.User;
@@ -31,4 +32,6 @@ public interface UserService {
     String deleteUser(String userId);
 
     String updateUserInfo(RequestDto updateDto, String userId);
+
+    void uploadProfileImage(String userId, ProfileImageDto.Request dto);
 }

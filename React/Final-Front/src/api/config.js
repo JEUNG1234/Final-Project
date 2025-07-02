@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
     CHECK_EMAIL: '/users/check-user-email',
     DELETEUSER: '/users/deleteUser',
     UPDATEUSER: 'users/updateinfo',
+    UPLOADPROFILEIMAGE: '/profileimage',
   },
   COMPANY: {
     BASE: '/company',

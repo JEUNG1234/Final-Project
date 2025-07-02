@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components'; // styled-components는 여기서 임포트
-import ProfileImg from '../../assets/ronaldo.jpg';
+import ProfileImg from '../../assets/profile.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
 import { useState } from 'react';
 import { userService } from '../../api/users';
@@ -212,8 +212,16 @@ const AdminDashBoard = () => {
         {/* 4. 사용자 정보 카드 */}
         <UserInfoCard>
           <div className="user-avatar">
-            <img src={ProfileImg} alt="사용자 아바타" /> {/* Placeholder 이미지 */}
+            <img
+              src={
+                myInfoState?.profileImagePath
+                  ? `https://d1qzqzab49ueo8.cloudfront.net/${myInfoState.profileImagePath}`
+                  : ProfileImg
+              }
+              alt="사용자 아바타"
+            />
           </div>
+
           <h2>이름: {myInfoState?.userName}</h2>
           <div className="info-list">
             <dl>
@@ -292,7 +300,7 @@ const AdminDashBoard = () => {
 
 // 전체 대시보드 컨테이너
 const DashboardContainer = styled.div`
-  padding: 30px; /* 전체 대시보드 안쪽 여백 */
+  padding: 25px; /* 전체 대시보드 안쪽 여백 */
   background-color: #f0f7ff; /* 전체 배경색 */
   display: flex;
   flex-direction: column;
@@ -332,9 +340,9 @@ const BottomSection = styled.div`
 const BottomRightSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 55px;
   /* Ensure this section also stretches if needed, though individual card heights will largely dictate it */
-  height: 100%; /* Make sure it tries to fill its grid area */
+  /* Make sure it tries to fill its grid area */
 `;
 
 // 개별 카드 스타일
@@ -483,15 +491,13 @@ const UserInfoCard = styled(Card)`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 36px;
-  box-sizing: border-box;
 
   .user-avatar {
-    width: 280px;
-    height: 280px;
+    width: 300px;
+    height: 300px;
     border-radius: 50%;
     background-color: #e0e0e0; /* 아바타 플레이스홀더 배경 */
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -504,9 +510,9 @@ const UserInfoCard = styled(Card)`
   }
 
   h2 {
-    font-size: 20px;
+    font-size: 24px;
     color: #333;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
 
   .info-list {
@@ -514,12 +520,12 @@ const UserInfoCard = styled(Card)`
     text-align: left;
     dl {
       display: flex;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-size: 15px;
 
       dt {
         color: #777;
-        width: 95px;
+        width: 80px; /* 라벨 너비 고정 */
         flex-shrink: 0;
       }
       dd {
@@ -530,7 +536,7 @@ const UserInfoCard = styled(Card)`
           color: #007bff; /* 포인트 색상 */
         }
         &.small {
-          font-size: 12px;
+          font-size: 13px;
           color: #888;
         }
       }

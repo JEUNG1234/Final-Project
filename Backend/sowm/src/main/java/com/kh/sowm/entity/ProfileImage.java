@@ -1,6 +1,7 @@
 package com.kh.sowm.entity;
 
 import com.kh.sowm.enums.CommonEnums;
+import com.kh.sowm.enums.CommonEnums.Status;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -50,5 +51,9 @@ public class ProfileImage {
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
         }
+    }
+
+    public void deactivate() {
+        this.status = CommonEnums.Status.N;
     }
 }
