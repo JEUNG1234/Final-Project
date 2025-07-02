@@ -1,51 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaComments } from 'react-icons/fa';
 import useUserStore from '../../Store/useStore';
 import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
-import { API_CONFIG, API_ENDPOINTS } from '../../api/config';
 import BoardAPI from '../../api/board';
 import CategoryAPI from '../../api/category';
+import { fileupload } from '../../api/fileupload';
 
 const AddBoard = () => {
   const navigate = useNavigate();
-
   const { user } = useUserStore();
-  console.log(user);
+  const fileInputRef = useRef(null);
+
   const boardWriter = user?.userName || '';
   const userId = user?.userId || '';
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
-  const [content, setContent] = useState('');
-  const [categories, setCategories] = useState([]); // 🔹 카테고리 목록 상태
+  const [categories, setCategories] = useState([]);
+  const [file, setFile] = useState(null);
+  const [, setImageMeta] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
-  // 🔹 카테고리 목록 로딩
+  const contentRef = useRef(null); // 👈 contentEditable 참조
+
+  // 카테고리 불러오기
   useEffect(() => {
     CategoryAPI.getAllCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('카테고리 불러오기 실패:', err));
   }, []);
 
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+
+    if (selectedFile) {
+      const preview = URL.createObjectURL(selectedFile);
+      setPreviewUrl(preview);
+    }
+
+    // ❌ 여기선 S3 업로드 하지 않음
+    setImageMeta(null); // 기존 업로드 정보 초기화
+  };
+
+  const resetFileInput = () => {
+    setFile(null);
+    setImageMeta(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async () => {
-    if (!title || !category || !content || !userId) {
+    const text = contentRef.current?.innerText || '';
+
+    if (!title || !category || !text || !userId) {
       alert('모든 필드를 입력해주세요.');
       return;
     }
 
-    // JSON 객체 생성
-    const postData = {
-      boardTitle: title,
-      boardContent: content,
-      categoryNo: category,
-      userId: userId,
-    };
-
-    console.log('보낼 데이터 (JSON):', postData);
+    let uploadedImageMeta = null;
 
     try {
-      // JSON 데이터로 요청 (BoardAPI 내부도 JSON 전송하도록 구현되어 있어야 함)
+      // ✅ 파일이 있으면 이때 업로드 수행
+      if (file) {
+        const uploaded = await fileupload.uploadImageToS3(file, 'board/');
+        uploadedImageMeta = {
+          originalName: uploaded.originalName,
+          changedName: uploaded.filename,
+          path: uploaded.url,
+          size: file.size,
+        };
+      }
+
+      const postData = {
+        boardTitle: title,
+        boardContent: text,
+        categoryNo: category,
+        userId: userId,
+        image: uploadedImageMeta,
+      };
+
       await BoardAPI.createBoard(postData);
       alert('게시글 등록 성공!');
       navigate('/communityboard');
@@ -80,9 +118,7 @@ const AddBoard = () => {
             <SelectBox value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">게시글 유형을 선택해주세요.</option>
               {categories.map((cat) => {
-                if (cat.categoryName === '공지사항' && user.jobCode !== 'J2') {
-                  return null; // 🔒 j2가 아니면 "공지사항" 표시 안 함
-                }
+                if (cat.categoryName === '공지사항' && user.jobCode !== 'J2') return null;
                 return (
                   <option key={cat.categoryNo} value={cat.categoryNo}>
                     {cat.categoryName}
@@ -92,26 +128,37 @@ const AddBoard = () => {
             </SelectBox>
           </FlexItem>
 
-          {/* 파일 업로드 활성화 시 사용 */}
-          {/* 
           <FlexItem>
             <PageMidTitle>사진첨부</PageMidTitle>
             <FileInputWrapper>
-              <HiddenFileInput type="file" id="fileUpload" onChange={handleFileChange} />
-              <FileNameDisplay type="text" value={fileName} readOnly placeholder="선택된 파일 없음" />
-              <FileSelectButton htmlFor="fileUpload">파일 선택</FileSelectButton>
+              <HiddenFileInput type="file" id="fileUpload" onChange={handleFileChange} ref={fileInputRef} />
+              <FileNameDisplay type="text" readOnly value={file?.name || ''} placeholder="선택된 파일 없음" />
+              {!file ? (
+                <FileSelectButton htmlFor="fileUpload">파일 선택</FileSelectButton>
+              ) : (
+                <FileSelectButton as="button" type="button" onClick={resetFileInput}>
+                  초기화
+                </FileSelectButton>
+              )}
             </FileInputWrapper>
           </FlexItem>
-          */}
         </TwoColumnLayout>
 
         <PageMidTitle>내용</PageMidTitle>
-        <ContentInput
-          type="text"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="내용을 입력하세요."
-        />
+        <EditorWrapper>
+          {previewUrl && (
+            <ImagePreviewInEditor>
+              <img src={previewUrl} alt="미리보기 이미지" />
+            </ImagePreviewInEditor>
+          )}
+          <EditableDiv
+            contentEditable
+            suppressContentEditableWarning
+            ref={contentRef}
+            placeholder="내용을 입력하세요."
+            onInput={() => {}} // 내용은 handleSubmit에서만 참조
+          />
+        </EditorWrapper>
       </InputGroup>
 
       <ButtonGroup>
@@ -278,6 +325,47 @@ const FileSelectButton = styled.label`
   }
   &:active {
     background-color: #e0e0e0;
+  }
+`;
+
+// 내용 작성 영역 스타일
+const EditorWrapper = styled.div`
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 350px;
+  font-family: 'Pretendard', sans-serif;
+  margin-top: 5px;
+`;
+
+// 이미지 미리보기 영역 (내용 상단에 위치)
+const ImagePreviewInEditor = styled.div`
+  margin-bottom: 10px;
+  img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    object-fit: contain;
+    border: 1px solid #ccc;
+  }
+`;
+
+// contentEditable div 자체
+const EditableDiv = styled.div`
+  min-height: 200px;
+  font-size: 18px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  outline: none;
+
+  &::before {
+    content: attr(placeholder);
+    color: #bbb;
+    pointer-events: none;
+  }
+
+  &:focus::before {
+    content: '';
   }
 `;
 
