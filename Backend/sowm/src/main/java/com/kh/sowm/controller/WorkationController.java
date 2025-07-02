@@ -1,6 +1,7 @@
 package com.kh.sowm.controller;
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.dto.WorkationDto.ResponseDto;
 import com.kh.sowm.dto.WorkationDto.WorkationNoDto;
 import com.kh.sowm.dto.WorkationDto.WorkationSubNoDto;
 import com.kh.sowm.entity.Workation;
@@ -52,8 +53,8 @@ public class WorkationController {
 
     //워케이션 수정기능
     @PatchMapping("/update")
-    public ResponseEntity<WorkationDto.ResponseUpdateDto> update(@RequestBody WorkationDto.WorkationUpdateDto request) {
-        WorkationDto.ResponseUpdateDto updated = workationService.updateWorkation(request);
+    public ResponseEntity<ResponseDto> update(@RequestBody WorkationDto.WorkationUpdateDto request) {
+        ResponseDto updated = workationService.updateWorkation(request);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 

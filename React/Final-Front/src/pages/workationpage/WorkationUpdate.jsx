@@ -9,7 +9,7 @@ import { MdWork } from 'react-icons/md';
 import NaverMapWithGeocoding from '../../components/NaverMapWithGeocoding';
 
 import { FaSquare, FaRulerCombined, FaUsers } from 'react-icons/fa';
-
+import NaverMapStatic from '../../components/NvaerMapStatic';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import Modal from '../../components/Modal';
@@ -19,6 +19,7 @@ import useUserStore from '../../Store/useStore';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
+import { fileupload } from '../../api/fileupload';
 const WorkationUpdate = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
@@ -32,6 +33,8 @@ const WorkationUpdate = () => {
   const [precautions, setPrecautions] = useState('');
   const [parkingInfo, setParkingInfo] = useState('');
   const [busInfo, setBusInfo] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
 
   //유효성 검사
   const schema = yup.object().shape({
@@ -75,36 +78,16 @@ const WorkationUpdate = () => {
   const [showMap] = useState(false); //지도 표시 여부 상태
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  // 선택된 주소와 좌표를 저장할 상태 (NaverMapWithGeocoding에서 받아올 값)
-  const [address, setAddress] = useState('');
-  const [selectedCoords, setSelectedCoords] = useState({ lat: null, lng: null });
 
-  // ... (기존 날짜, 파일 업로드 관련 상태 및 핸들러) ...
+  const [address, setAddress] = useState('');
 
   // 모달 닫기
   const handleCloseMapModal = () => {
     setIsMapModalOpen(false);
   };
 
-  useEffect(() => {
-    if (selectedCoords.lat && selectedCoords.lng) {
-      console.log('selectedCoords가 바뀜:', selectedCoords);
-    }
-  }, [selectedCoords]);
-
-  // NaverMapWithGeocoding에서 주소와 좌표를 선택했을 때 호출될 함수
-  // 이 함수를 NaverMapWithGeocoding 컴포넌트에 props로 전달할 것임.
-  const handleAddressSelect = (address, lat, lng) => {
-    setAddress(address); // 메인 폼의 주소 input에 설정
-    setSelectedCoords({ lat, lng }); // 위도/경도 저장
-    setIsMapModalOpen(false); // 모달 닫기
-    // 필요한 경우, 여기서 address와 lat, lng를 다른 폼 데이터와 함께 관리하는 상태에 업데이트.
-    // 예를 들어, 장소 정보 객체에 address와 coords를 추가하는 식으로.]
-    console.log(selectedCoords);
-  };
-
   const allDays = ['월', '화', '수', '목', '금', '토', '일'];
-  const [selectedDays, setSelectedDays] = useState([]); // 선택된 요일들을 배열로 관리
+  const [selectedDays, setSelectedDays] = useState({});
 
   //워케이션 정보 가져오기
   const { no } = useParams();
@@ -120,8 +103,6 @@ const WorkationUpdate = () => {
           workationStartDate: data.workationStartDate,
           workationEndDate: data.workationEndDate,
           openHours: data.openHours,
-          // address는 useState로 관리되므로 별도로 설정
-          // placeInfo, feature 등 useState로 관리되는 필드는 set 함수로 업데이트
         });
         setWorkationInfo(data);
         setAddress(data.address);
@@ -136,6 +117,9 @@ const WorkationUpdate = () => {
         setParkingInfo(data.parkingInfo);
         setBusInfo(data.busInfo);
         setArea(data.area);
+        setLatitude(data.latitude);
+        setLongitude(data.longitude);
+        setSelectedDays(data.dayOffs ? data.dayOffs.map((d) => d.dayOff) : []);
       } catch (error) {
         console.error('워케이션 리스트 불러오기 실패:', error.message);
       }
@@ -143,6 +127,22 @@ const WorkationUpdate = () => {
     workationInfo();
   }, []);
   const [workationInfo, setWorkationInfo] = useState([]);
+
+  useEffect(() => {
+    if (workationInfo.workationImages && workationInfo.workationImages.length > 0) {
+      // PLACE
+      const place = workationInfo.workationImages.find((img) => img.tab === 'PLACE');
+      setPlaceImage(place ? place.changedName : '');
+
+      // FACILITY
+      const facility = workationInfo.workationImages.find((img) => img.tab === 'FACILITY');
+      setFacilityImage(facility ? facility.changedName : '');
+
+      // PRECAUTIONS
+      const precaution = workationInfo.workationImages.find((img) => img.tab === 'PRECAUTIONS');
+      setPrecautionImage(precaution ? precaution.changedName : '');
+    }
+  }, [workationInfo]);
 
   const handleDayToggle = (day) => {
     setSelectedDays((prevSelectedDays) => {
@@ -174,18 +174,63 @@ const WorkationUpdate = () => {
     }
   };
 
-  //시설별 이미지 등록
-  const [placeImage, setPlaceImage] = useState({ name: '', previewUrl: '' });
-  const [facilityImage, setFacilityImage] = useState({ name: '', previewUrl: '' });
-  const [precautionImage, setPrecautionImage] = useState({ name: '', previewUrl: '' });
+  //이미지 필터 저장용
+  const [placeImage, setPlaceImage] = useState({ changedName: '', previewUrl: '', file: null });
+  const [facilityImage, setFacilityImage] = useState({ changedName: '', previewUrl: '', file: null });
+  const [precautionImage, setPrecautionImage] = useState({ changedName: '', previewUrl: '', file: null });
 
+  useEffect(() => {
+    if (workationInfo.workationImages && workationInfo.workationImages.length > 0) {
+      // PLACE
+      const place = workationInfo.workationImages.find((img) => img.tab === 'PLACE');
+      setPlaceImage(
+        place
+          ? {
+              changedName: place.changedName,
+              originalName: place.originalName,
+              size: place.size,
+              previewUrl: '',
+              file: null,
+            }
+          : { changedName: '', previewUrl: '', file: null }
+      );
+
+      // FACILITY
+      const facility = workationInfo.workationImages.find((img) => img.tab === 'FACILITY');
+      setFacilityImage(
+        facility
+          ? {
+              changedName: facility.changedName,
+              originalName: facility.originalName,
+              size: facility.size,
+              previewUrl: '',
+              file: null,
+            }
+          : { changedName: '', previewUrl: '', file: null }
+      );
+
+      // PRECAUTIONS
+      const precaution = workationInfo.workationImages.find((img) => img.tab === 'PRECAUTIONS');
+      setPrecautionImage(
+        precaution
+          ? {
+              changedName: precaution.changedName,
+              originalName: precaution.originalName,
+              size: precaution.size,
+              previewUrl: '',
+              file: null,
+            }
+          : { changedName: '', previewUrl: '', file: null }
+      );
+    }
+  }, [workationInfo]);
   // 파일 선택 시 동작 (선택된 파일 정보 콘솔에 출력 예시)
   const handleImageUpload = (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
-    const imageInfo = { name: file.name, previewUrl };
+    const imageInfo = { name: file.name, previewUrl, file, size: file.size };
 
     if (type === 'place') {
       setPlaceImage(imageInfo);
@@ -196,8 +241,85 @@ const WorkationUpdate = () => {
     }
   };
 
+  const [selectedCoords, setSelectedCoords] = useState({ lat: latitude, lng: longitude });
+
+  const handleAddressSelect = (address, lat, lng) => {
+    setSelectedCoords({ lat, lng }); // 위도/경도 저장
+    setIsMapModalOpen(false); // 모달 닫기
+
+    console.log(selectedCoords);
+  };
+
   const onSubmit = async (data) => {
     try {
+      let placeImageInfo = {};
+      let facilityImageInfo = {};
+      let precautionImageInfo = {};
+      // PLACE 이미지
+      if (placeImage.file) {
+        placeImageInfo = await fileupload.uploadImageToS3(placeImage.file, 'workation/');
+        placeImageInfo.size = placeImage.file.size;
+        placeImageInfo.originalName = placeImage.file.name;
+      } else if (placeImage.changedName) {
+        placeImageInfo = {
+          filename: placeImage.changedName,
+          url: `https://d1qzqzab49ueo8.cloudfront.net/${placeImage.changedName}`,
+          originalName: placeImage.originalName || '', // 없으면 빈 문자열
+          size: placeImage.size || 0, // 없으면 0
+        };
+      }
+
+      // FACILITY 이미지
+      if (facilityImage.file) {
+        facilityImageInfo = await fileupload.uploadImageToS3(facilityImage.file, 'workation/');
+        facilityImageInfo.size = facilityImage.file.size;
+        facilityImageInfo.originalName = facilityImage.file.name;
+      } else if (facilityImage.changedName) {
+        facilityImageInfo = {
+          filename: facilityImage.changedName,
+          url: `https://d1qzqzab49ueo8.cloudfront.net/${facilityImage.changedName}`,
+          originalName: facilityImage.originalName || '',
+          size: facilityImage.size || 0,
+        };
+      }
+
+      // PRECAUTIONS 이미지
+      if (precautionImage.file) {
+        precautionImageInfo = await fileupload.uploadImageToS3(precautionImage.file, 'workation/');
+        precautionImageInfo.size = precautionImage.file.size;
+        precautionImageInfo.originalName = precautionImage.file.name;
+      } else if (precautionImage.changedName) {
+        precautionImageInfo = {
+          originalName: precautionImage.originalName,
+          filename: facilityImage.changedName,
+          url: `https://d1qzqzab49ueo8.cloudfront.net/${precautionImage.changedName}`,
+          size: precautionImage.size || 0,
+        };
+      }
+      const images = [
+        {
+          originalName: placeImageInfo.originalName || '',
+          changedName: placeImageInfo.filename || '',
+          path: placeImageInfo.url || '',
+          size: placeImageInfo.size || 0,
+          tab: 'PLACE',
+        },
+        {
+          originalName: facilityImageInfo.originalName || '',
+          changedName: facilityImageInfo.filename || '',
+          path: facilityImageInfo.url || '',
+          size: facilityImageInfo.size || 0,
+          tab: 'FACILITY',
+        },
+        {
+          originalName: precautionImageInfo.originalName || '',
+          changedName: precautionImageInfo.filename || '',
+          path: precautionImageInfo.url || '',
+          size: precautionImageInfo.size || 0,
+          tab: 'PRECAUTIONS',
+        },
+      ];
+
       const location = {
         placeInfo,
         address,
@@ -207,8 +329,6 @@ const WorkationUpdate = () => {
         area,
         busInfo,
         parkingInfo,
-        latitude: selectedCoords.lat,
-        longitude: selectedCoords.lng,
       };
       const workation = {
         workationTitle: data.workationTitle,
@@ -226,9 +346,11 @@ const WorkationUpdate = () => {
         userId: user.userId,
         locationNo: no,
         workationNo: no,
+        images: images,
+        selectedDays,
       };
 
-      console.log(requestBody);
+      console.log('requestBody', requestBody);
 
       const workResponse = await workationService.update(requestBody);
 
@@ -266,15 +388,18 @@ const WorkationUpdate = () => {
         {activeTab === 'intro' && (
           <>
             <ImageSection>
-              <img src={placeImage.previewUrl || null} alt="장소 이미지 미리보기" />
-            </ImageSection>{' '}
-            {/* 실제 이미지 URL로 교체 필요 */}
-            <Title>제주 애월 스테이</Title>
-            <Subtitle>주소</Subtitle>
-            <Description>장소 소개</Description>
+              {placeImage.previewUrl ? (
+                <img src={placeImage.previewUrl} alt="새 이미지 미리보기" />
+              ) : placeImage.changedName ? (
+                <img src={`https://d1qzqzab49ueo8.cloudfront.net/${placeImage.changedName}`} alt="기존 이미지" />
+              ) : null}
+            </ImageSection>
+            <Title>{workationInfo.workationTitle}</Title>
+            <Subtitle>{workationInfo.address}</Subtitle>
+            <Description>{workationInfo.placeInfo}</Description>
             <Subtitle>주요 특징</Subtitle>
             <FeaturesSection>
-              <FeatureItem>주요 특징</FeatureItem>
+              <RefundPolicy>{workationInfo.feature}</RefundPolicy>
             </FeaturesSection>
           </>
         )}
@@ -282,35 +407,51 @@ const WorkationUpdate = () => {
         {activeTab === 'facilities' && (
           <>
             <ImageSection>
-              <img src={facilityImage.previewUrl || null} alt="시설 미리보기" />
-            </ImageSection>{' '}
+              {facilityImage.previewUrl ? (
+                <img src={facilityImage.previewUrl} alt="새 이미지 미리보기" />
+              ) : facilityImage.changedName ? (
+                <img src={`https://d1qzqzab49ueo8.cloudfront.net/${facilityImage.changedName}`} alt="기존 이미지" />
+              ) : null}
+            </ImageSection>
             <FacilityContent>
               <FacilityLeftContent>
                 <FaciltyLeftFirstInfo>
                   <h2>시설안내</h2>
-                  <h3>4인용 테이블 5개</h3>
+                  <h3>{workationInfo.facilityInfo}</h3>
                 </FaciltyLeftFirstInfo>
                 <FaciltyLeftSecondInfo>
                   <h2>영업시간 | 휴무일</h2>
-                  <h3>8시 ~ 18시 | 없음</h3>
+                  <h3>{workationInfo.openHours}</h3>
+                  {Array.isArray(workationInfo.dayOffs) && workationInfo.dayOffs.length > 0 && (
+                    <h3>{workationInfo.dayOffs.map((item) => item.dayOff).join(', ')}</h3>
+                  )}
                 </FaciltyLeftSecondInfo>
               </FacilityLeftContent>
               <FacilityRightContent>
                 <InfoBlock>
                   <InfoIcon as={FaSquare} /> {/* 공간유형 아이콘 (임시) */}
+                  <InfoText>계약기간</InfoText>
+                  <DetailText>
+                    {workationInfo.workationStartDate} ~ {workationInfo.workationEndDate}
+                  </DetailText>
+                </InfoBlock>
+                <InfoBlock>
+                  <InfoIcon as={FaSquare} /> {/* 공간유형 아이콘 (임시) */}
                   <InfoText>공간유형</InfoText>
-                  <DetailText>스터디룸</DetailText>
+                  <DetailText>{workationInfo.spaceType}</DetailText>
                 </InfoBlock>
                 <InfoBlock>
                   <InfoIcon as={FaRulerCombined} /> {/* 공간면적 아이콘 (임시) */}
                   <InfoText>공간면적</InfoText>
-                  <DetailText>33m²</DetailText>
+                  <DetailText>{workationInfo.area}m²</DetailText>
                 </InfoBlock>
 
                 <InfoBlock>
                   <InfoIcon as={FaUsers} /> {/* 수용인원 아이콘 (임시) */}
                   <InfoText>수용인원</InfoText>
-                  <DetailText>최소 1명 ~ 최대 20명</DetailText>
+                  <DetailText>
+                    {workationInfo.peopleMin}명 ~ 최대{workationInfo.peopleMax}
+                  </DetailText>
                 </InfoBlock>
               </FacilityRightContent>
             </FacilityContent>
@@ -319,11 +460,16 @@ const WorkationUpdate = () => {
 
         {activeTab === 'precautions' && (
           <>
-            <Subtitle>예약시 주의사항</Subtitle>
-            <Description>ex)주류를 이용하실 경우 방문인원 전원 신분증 지참 부탁드립니다.</Description>
+            <Title>유의 사항</Title>
             <ImageSection>
-              <img src={precautionImage.previewUrl || null} alt="유의사항이미지 미리보기" />
-            </ImageSection>{' '}
+              {precautionImage.previewUrl ? (
+                <img src={precautionImage.previewUrl} alt="새 이미지 미리보기" />
+              ) : precautionImage.changedName ? (
+                <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage.changedName}`} alt="기존 이미지" />
+              ) : null}
+            </ImageSection>
+            \\
+            <RefundPolicy>{workationInfo.precautions}</RefundPolicy>
           </>
         )}
 
@@ -331,6 +477,18 @@ const WorkationUpdate = () => {
         {activeTab === 'refund' && (
           <>
             <Title>오시는 길</Title>
+            <MapContainerStyled>
+              <NaverMapStatic
+                address={workationInfo.address}
+                latitude={workationInfo.latitude}
+                longitude={workationInfo.longitude}
+              />
+            </MapContainerStyled>
+            <Description style={{ marginTop: '20px' }}>
+              <p>주소: {workationInfo.address}</p>
+              <RefundPolicy>대중교통: {workationInfo.busInfo}</RefundPolicy>
+              <RefundPolicy>주차: {workationInfo.parkingInfo}</RefundPolicy>
+            </Description>
           </>
         )}
       </MainContent>
@@ -471,6 +629,7 @@ const WorkationUpdate = () => {
                     key={day}
                     onClick={() => handleDayToggle(day)}
                     isSelected={selectedDays.includes(day)}
+                    value={workationInfo.dayOffs}
                   >
                     {day}
                   </DayButton>
@@ -650,11 +809,11 @@ const MainContent = styled.div`
   text-align: center;
 `;
 
-const DayButton = styled(PageButton)`
-  padding: 0;
-  width: 3vw;
-  height: 4vh;
-  max-width: 45px;
+const DayButton = styled(PageButton).withConfig({
+  shouldForwardProp: (prop) => prop !== 'isSelected',
+})`
+  background-color: ${({ isSelected }) => (isSelected ? '#267eff' : 'white')};
+  color: ${({ isSelected }) => (isSelected ? 'white' : '#267eff')};
 `;
 
 const DateContent = styled.form`
@@ -728,8 +887,8 @@ const Description = styled.p`
   height: 10%;
 `;
 const RefundPolicy = styled.div`
-  white-space: pre-line; /* 엔터(줄바꿈)는 살리고, 연속 공백은 무시 */
-  font-family: inherit; /* 폰트는 상속 */
+  white-space: pre-line;
+  font-family: inherit;
   font-size: 16px;
   color: #444;
 `;

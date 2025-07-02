@@ -9,13 +9,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-// GoogleMapReact 대신 Leaflet 관련 컴포넌트 임포트 // Leaflet빼고 네이버Maps로 변경
+
 import NaverMapStatic from '../../components/NvaerMapStatic';
-// import DOMPurify from 'dompurify';
+
 
 import { FaSquare, FaRulerCombined, FaExclamationTriangle, FaUsers } from 'react-icons/fa';
 
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { workationService } from '../../api/workation';
 import useUserStore from '../../Store/useStore';
 import { useForm } from 'react-hook-form';
@@ -230,8 +230,8 @@ const WorkationDetail = () => {
             <Title>유의 사항</Title>
             <ImageSection>
               <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage}`} />
-            </ImageSection>{' '}
-            {/* 실제 이미지 URL로 교체 필요 */}
+            </ImageSection>
+           
             <RefundPolicy>{workationInfo.precautions}</RefundPolicy>
           </>
         )}
@@ -247,8 +247,6 @@ const WorkationDetail = () => {
                 longitude={workationInfo.longitude}
               />
             </MapContainerStyled>
-
-            {/* 추가적인 위치 정보 (주소, 교통편 등) */}
             <Description style={{ marginTop: '20px' }}>
               <p>주소: {workationInfo.address}</p>
               <RefundPolicy>대중교통: {workationInfo.busInfo}</RefundPolicy>

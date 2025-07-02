@@ -1,8 +1,10 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.dto.WorkationDto.ResponseDto;
 import com.kh.sowm.dto.WorkationDto.WorkationSubListDto;
 import com.kh.sowm.dto.WorkationDto.WorkationSubNoDto;
+import com.kh.sowm.dto.WorkationDto.WorkationUpdateDto;
 import com.kh.sowm.entity.Workation;
 import org.springframework.http.ResponseEntity;
 
@@ -23,7 +25,7 @@ public interface WorkationService {
     WorkationDto.SubWorkation submit(WorkationDto.SubWorkation subWork);
 
     //워케이션 수정용
-    WorkationDto.ResponseUpdateDto updateWorkation(WorkationDto.WorkationUpdateDto request);
+    ResponseDto updateWorkation(WorkationUpdateDto request);
 
     //워케이션 삭제용
     Workation delete(Long workationNo);
