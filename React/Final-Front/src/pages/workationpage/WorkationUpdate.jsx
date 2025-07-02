@@ -121,7 +121,10 @@ const WorkationUpdate = () => {
         setLongitude(data.longitude);
         setSelectedDays(data.dayOffs ? data.dayOffs.map((d) => d.dayOff) : []);
       } catch (error) {
-        console.error('워케이션 리스트 불러오기 실패:', error.message);
+        const apiError = error.response.data.message;
+
+        alert(apiError);
+        console.error('워케이션 정보 불러오기 실패:', apiError);
       }
     };
     workationInfo();
