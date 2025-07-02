@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import ProfileImg from '../../assets/ronaldo.jpg';
@@ -8,205 +8,196 @@ import BoardAPI from '../../api/board';
 import { fileupload } from '../../api/fileupload';
 import defaultProfile from '../../assets/profile.jpg';
 
-// MyPage Component
 const MyPage = () => {
-  const [userInfo, setUserInfo] = useState(null);
-  const [myPosts, setMyPosts] = useState([]); // 유저 게시글 상태 추가
-  const navigate = useNavigate();
+    const [userInfo, setUserInfo] = useState(null);
+    const [myPosts, setMyPosts] = useState([]);
+    const [vacationCount, setVacationCount] = useState(0); // 추가: 휴가 일수 상태
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    if (!storedUserId) return;
+    const fetchAllData = useCallback(async () => {
+        const storedUserId = localStorage.getItem('userId');
+        if (!storedUserId) return;
+        try {
+            const [userInfoData, vacationCountData] = await Promise.all([
+                userService.getUserInfo(storedUserId),
+                userService.getVacationCount(storedUserId),
+            ]);
+            
+            setUserInfo(userInfoData);
+            setVacationCount(vacationCountData);
 
-    userService
-      .getUserInfo(storedUserId)
-      .then((data) => {
-        setUserInfo(data);
-        return BoardAPI.getBoardList({
-          page: 0,
-          size: 1000,
-          sort: 'createdDate,desc',
-          companyCode: data.companyCode,
-        });
-      })
-      .then((res) => {
-        const allPosts = res.data.content;
-        const filtered = allPosts.filter((post) => post.userId === storedUserId);
-        setMyPosts(filtered);
-      })
-      .catch((err) => {
-        console.error('유저 정보 또는 게시글 조회 실패:', err);
-        setUserInfo(null);
-        setMyPosts([]);
-      });
-  }, []);
+            const boardRes = await BoardAPI.getBoardList({
+                page: 0,
+                size: 1000,
+                sort: 'createdDate,desc',
+                companyCode: userInfoData.companyCode,
+            });
+            const allPosts = boardRes.data.content;
+            const filtered = allPosts.filter((post) => post.userId === storedUserId);
+            setMyPosts(filtered);
 
-  const fileInputRef = React.useRef(null);
+        } catch (err) {
+            console.error('데이터 조회 실패:', err);
+            setUserInfo(null);
+            setMyPosts([]);
+            setVacationCount(0);
+        }
+    }, []);
 
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+    useEffect(() => {
+        fetchAllData();
+    }, [fetchAllData]);
 
-  const handleImageChange = async (ev) => {
-    const file = ev.target.files[0];
-    if (!file) return;
-    try {
-      // 이미지 s3 에 mypage 폴더로 업로드
-      const res = await fileupload.uploadImageToS3(file, 'mypage/');
-      const uploadUrl = res.url;
+    const fileInputRef = React.useRef(null);
 
-      // 백엔드로 프로필 이미지 변경 요청
-      if (userInfo) {
-        await userService.uploadProfileImage(userInfo.userId, {
-          imgUrl: uploadUrl,
-          size: file.size,
-          changedName: res.filename, // 가능하면 추가
-          originalName: file.name,
-        });
-      }
+    const handleButtonClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
 
-      // 유저 정보가 존재할때만 업데이트
-      if (userInfo) {
-        setUserInfo((prev) => ({
-          ...prev,
-          profileImageUrl: uploadUrl,
-          profileImagePath: res.filename,
-        }));
-      }
-      toast.success('프로필 이미지가 변경되었습니다.');
-      console.log('이미지 업로드 성공', uploadUrl, res);
-    } catch (err) {
-      console.log('이미지 업로드 실패', err);
-    }
-    console.log({ setUserInfo });
-  };
+    const handleImageChange = async (ev) => {
+        const file = ev.target.files[0];
+        if (!file) return;
+        try {
+            const res = await fileupload.uploadImageToS3(file, 'mypage/');
+            const uploadUrl = res.url;
+            if (userInfo) {
+                await userService.uploadProfileImage(userInfo.userId, {
+                    imgUrl: uploadUrl,
+                    size: file.size,
+                    changedName: res.filename,
+                    originalName: file.name,
+                });
+            }
+            if (userInfo) {
+                setUserInfo((prev) => ({
+                    ...prev,
+                    profileImageUrl: uploadUrl,
+                    profileImagePath: res.filename,
+                }));
+            }
+            toast.success('프로필 이미지가 변경되었습니다.');
+        } catch (err) {
+            console.log('이미지 업로드 실패', err);
+        }
+    };
 
-  const handleEdit = () => {
-    navigate('/updatemyinfo');
-  };
+    const handleEdit = () => {
+        navigate('/updatemyinfo');
+    };
 
-  const handleWithdrawal = async () => {
-    const userId = localStorage.getItem('userId');
-    try {
-      const response = await userService.deleteUser(userId);
-      console.log('회원 탈퇴 성공', response);
-      toast.success('회원 탈퇴하셨습니다.');
-      // 인덱스 화면으로 넘기기
-      navigate('/');
-    } catch (err) {
-      console.log('회원 탈퇴에 실패했습니다.', err);
-    }
-  };
-  console.log('프로필 이미지 URL:', userInfo?.profileImageUrl);
+    const handleWithdrawal = async () => {
+        const userId = localStorage.getItem('userId');
+        try {
+            await userService.deleteUser(userId);
+            toast.success('회원 탈퇴하셨습니다.');
+            navigate('/');
+        } catch (err) {
+            console.log('회원 탈퇴에 실패했습니다.', err);
+        }
+    };
 
-  return (
-    <MyPageContainer>
-      <ContentCard>
-        <ProfileSection>
-          <ProfileImageWrapper>
-            <ProfileImage
-              src={
-                userInfo?.profileImagePath
-                  ? `https://d1qzqzab49ueo8.cloudfront.net/${userInfo.profileImagePath}`
-                  : defaultProfile
-              }
-              alt="프로필 이미지"
-            />
+    const handlePointConversion = async () => {
+        const userId = localStorage.getItem('userId');
+        if (window.confirm('1500포인트를 사용하여 휴가 1일로 전환하시겠습니까?')) {
+            try {
+                await userService.convertPointsToVacation(userId);
+                toast.success('휴가 전환이 완료되었습니다.');
+                fetchAllData(); // 포인트와 휴가 정보를 다시 불러옴
+            } catch (error) {
+                console.error('포인트 전환 실패:', error);
+                toast.error(error.response?.data || '포인트 전환에 실패했습니다.');
+            }
+        }
+    };
 
-            <ImageChangeButton onClick={handleButtonClick}>이미지 변경</ImageChangeButton>
-
-            <input
-              type="file"
-              id="profile-image-input"
-              accept="image/*"
-              style={{ display: 'none' }}
-              ref={fileInputRef}
-              onChange={handleImageChange}
-            />
-          </ProfileImageWrapper>
-
-          <UserInfoSection>
-            <WelcomeMessage>{userInfo?.userName}님, 환영합니다!</WelcomeMessage>
-            <Divider />
-
-            <UserDetailRow>
-              <Label>아이디</Label>
-              <UserInfoValue>: {userInfo?.userId}</UserInfoValue>
-            </UserDetailRow>
-
-            <UserDetailRow>
-              <Label>이메일</Label>
-              <UserInfoValue>: {userInfo?.email}</UserInfoValue>
-            </UserDetailRow>
-
-            <UserDetailRow>
-              <Label>부서</Label>
-              <UserInfoValue>: {userInfo?.deptName || '-'}</UserInfoValue>
-            </UserDetailRow>
-
-            <UserDetailRow>
-              <Label>직급</Label>
-              <UserInfoValue>: {userInfo?.jobName || '-'}</UserInfoValue>
-            </UserDetailRow>
-
-            <UserDetailRow>
-              <Label>누적 포인트</Label>
-              <UserInfoValue>: {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : 2일</UserInfoValue>
-            </UserDetailRow>
-
-            <ActionButton onClick={handleEdit}>수정하기</ActionButton>
-          </UserInfoSection>
-        </ProfileSection>
-
-        <PostListSection>
-          <SectionTitle>작성 글 목록</SectionTitle>
-          {myPosts.length === 0 ? (
-            <NoPostsMessage>
-              <svg
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-              </svg>
-              작성한 게시글이 존재하지 않습니다.
-            </NoPostsMessage>
-          ) : (
-            <PostItemArea>
-              <PostHeader>
-                <PostCell>카테고리</PostCell>
-                <PostCell>제목</PostCell>
-                <PostCell>작성일</PostCell>
-                <PostCell>조회수</PostCell>
-              </PostHeader>
-
-              {myPosts.map((post) => (
-                <PostItem key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
-                  <PostCell>{post.categoryName}</PostCell>
-                  <PostCell>{post.boardTitle}</PostCell>
-                  <PostCell>{(post.updatedDate ?? post.createdDate).split('T')[0]}</PostCell>
-                  <PostCell>{post.views}</PostCell>
-                </PostItem>
-              ))}
-            </PostItemArea>
-          )}
-          {/* ButtonGroup을 PostListSection 내부로 이동 */}
-          <ButtonGroup>
-            <WithdrawButton onClick={handleWithdrawal}>회원 탈퇴</WithdrawButton>
-            <ReturnButton to="/memberdashboard">돌아가기</ReturnButton>
-          </ButtonGroup>
-        </PostListSection>
-      </ContentCard>
-    </MyPageContainer>
-  );
+    return (
+        <MyPageContainer>
+            <ContentCard>
+                <ProfileSection>
+                    <ProfileImageWrapper>
+                        <ProfileImage
+                            src={
+                                userInfo?.profileImagePath
+                                    ? `https://d1qzqzab49ueo8.cloudfront.net/${userInfo.profileImagePath}`
+                                    : defaultProfile
+                            }
+                            alt="프로필 이미지"
+                        />
+                        <ImageChangeButton onClick={handleButtonClick}>이미지 변경</ImageChangeButton>
+                        <input
+                            type="file"
+                            id="profile-image-input"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            ref={fileInputRef}
+                            onChange={handleImageChange}
+                        />
+                    </ProfileImageWrapper>
+                    <UserInfoSection>
+                        <WelcomeMessage>{userInfo?.userName}님, 환영합니다!</WelcomeMessage>
+                        <Divider />
+                        <UserDetailRow>
+                            <Label>아이디</Label>
+                            <UserInfoValue>: {userInfo?.userId}</UserInfoValue>
+                        </UserDetailRow>
+                        <UserDetailRow>
+                            <Label>이메일</Label>
+                            <UserInfoValue>: {userInfo?.email}</UserInfoValue>
+                        </UserDetailRow>
+                        <UserDetailRow>
+                            <Label>부서</Label>
+                            <UserInfoValue>: {userInfo?.deptName || '-'}</UserInfoValue>
+                        </UserDetailRow>
+                        <UserDetailRow>
+                            <Label>직급</Label>
+                            <UserInfoValue>: {userInfo?.jobName || '-'}</UserInfoValue>
+                        </UserDetailRow>
+                        <UserDetailRow>
+                            <Label>누적 포인트</Label>
+                            <UserInfoValue>: {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : {vacationCount}일</UserInfoValue>
+                        </UserDetailRow>
+                        <ActionButton onClick={handleEdit}>수정하기</ActionButton>
+                        <ActionButton onClick={handlePointConversion} disabled={(userInfo?.point || 0) < 1500}>휴가 전환</ActionButton>
+                    </UserInfoSection>
+                </ProfileSection>
+                <PostListSection>
+                    <SectionTitle>작성 글 목록</SectionTitle>
+                    {myPosts.length === 0 ? (
+                        <NoPostsMessage>
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                            </svg>
+                            작성한 게시글이 존재하지 않습니다.
+                        </NoPostsMessage>
+                    ) : (
+                        <PostItemArea>
+                            <PostHeader>
+                                <PostCell>카테고리</PostCell>
+                                <PostCell>제목</PostCell>
+                                <PostCell>작성일</PostCell>
+                                <PostCell>조회수</PostCell>
+                            </PostHeader>
+                            {myPosts.map((post) => (
+                                <PostItem key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
+                                    <PostCell>{post.categoryName}</PostCell>
+                                    <PostCell>{post.boardTitle}</PostCell>
+                                    <PostCell>{(post.updatedDate ?? post.createdDate).split('T')[0]}</PostCell>
+                                    <PostCell>{post.views}</PostCell>
+                                </PostItem>
+                            ))}
+                        </PostItemArea>
+                    )}
+                    <ButtonGroup>
+                        <WithdrawButton onClick={handleWithdrawal}>회원 탈퇴</WithdrawButton>
+                        <ReturnButton to="/memberdashboard">돌아가기</ReturnButton>
+                    </ButtonGroup>
+                </PostListSection>
+            </ContentCard>
+        </MyPageContainer>
+    );
 };
 
 const MyPageContainer = styled.div`
@@ -214,23 +205,22 @@ const MyPageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 40px 20px;
-  background-color: #e6f1ff; // 연한 배경색
-  min-height: calc(100vh - 100px - 68px); // Header(100px)와 Footer(68px)를 제외한 최소 높이
-  font-family: 'Pretendard', sans-serif; // 폰트 지정
+  background-color: #e6f1ff;
+  min-height: calc(100vh - 100px - 68px);
+  font-family: 'Pretendard', sans-serif;
   box-sizing: border-box;
 `;
 
 const ContentCard = styled.div`
-  background-color: #f7f9fc; // 카드 배경색 (이미지와 유사하게)
+  background-color: #f7f9fc;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   width: 100%;
-  max-width: 1200px; // 최대 너비 설정
+  max-width: 1200px;
   padding: 25px;
   display: flex;
   flex-direction: column;
-  gap: 30px; // 각 섹션 간의 간격
-
+  gap: 30px;
   @media (max-width: 768px) {
     padding: 20px;
   }
@@ -238,9 +228,8 @@ const ContentCard = styled.div`
 
 const ProfileSection = styled.div`
   display: flex;
-  align-items: flex-start; // 이미지와 정보 블록 상단 정렬
+  align-items: flex-start;
   gap: 30px;
-
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
@@ -272,14 +261,13 @@ const ImageChangeButton = styled.button`
   cursor: pointer;
   font-size: 0.9em;
   transition: background-color 0.2s ease;
-
   &:hover {
     background-color: #ebebeb;
   }
 `;
 
 const UserInfoSection = styled.div`
-  background: #ffffff; // 흰색 배경으로 변경 (이미지 참고)
+  background: #ffffff;
   border-radius: 5px;
   padding: 20px;
   flex-grow: 1;
@@ -305,7 +293,7 @@ const UserDetailRow = styled.div`
 const Label = styled.span`
   font-weight: 600;
   margin-right: 10px;
-  min-width: 60px;
+  min-width: 80px;
 `;
 
 const UserInfoValue = styled.span`
@@ -322,19 +310,22 @@ const ActionButton = styled.button`
   font-size: 17px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  margin-top: 20px;
-  width: 100%; // 너비 100%로 설정하여 부모 컨테이너에 맞춤
-
+  margin-top: 10px;
+  width: 100%;
   &:hover {
     background-color: #1a60cc;
+  }
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 `;
 
 const PostListSection = styled.div`
-  background: #ffffff; // 흰색 배경으로 변경 (이미지 참고)
+  background: #ffffff;
   border-radius: 5px;
   padding: 20px;
-  margin-top: 30px; // 이전 섹션과의 간격
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -362,7 +353,6 @@ const NoPostsMessage = styled.div`
   border-radius: 8px;
   width: 80%;
   text-align: center;
-
   svg {
     font-size: 30px;
     color: #ccc;
@@ -372,10 +362,9 @@ const NoPostsMessage = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 15px;
-  margin-top: 30px; // 작성 글 목록 아래 간격
-  width: 100%; // PostListSection의 내부 너비에 맞춤
-  justify-content: center; // 버튼들을 가운데 정렬
-
+  margin-top: 30px;
+  width: 100%;
+  justify-content: center;
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
@@ -392,12 +381,10 @@ const WithdrawButton = styled.button`
   cursor: pointer;
   transition: background-color 0.2s ease;
   flex: 1;
-  max-width: 300px; // 버튼 최대 너비
-
+  max-width: 300px;
   &:hover {
     background-color: #e05252;
   }
-
   @media (max-width: 768px) {
     width: 80%;
     max-width: none;
@@ -418,12 +405,10 @@ const ReturnButton = styled(Link)`
   justify-content: center;
   align-items: center;
   flex: 1;
-  max-width: 300px; // 버튼 최대 너비
-
+  max-width: 300px;
   &:hover {
     background-color: #4caf50;
   }
-
   @media (max-width: 768px) {
     width: 80%;
     max-width: none;
@@ -460,11 +445,9 @@ const PostItem = styled.div`
   background-color: #ffffff;
   cursor: pointer;
   transition: background-color 0.3s ease;
-
   &:hover {
     background-color: #f8f9fa;
   }
-
   border-bottom: 1px solid #e9ecef;
 `;
 

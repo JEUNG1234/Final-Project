@@ -103,7 +103,7 @@ export const userService = {
     return response;
   },
 
-  uploadProfileImage: async (userId, { imgUrl, size, originalName, changeName }) => {
+ uploadProfileImage: async (userId, { imgUrl, size, originalName, changeName }) => {
     const response = await api.patch(`${API_ENDPOINTS.USERS.BASE}/${userId}${API_ENDPOINTS.USERS.UPLOADPROFILEIMAGE}`, {
       imgUrl,
       size,
@@ -111,5 +111,25 @@ export const userService = {
       changeName,
     });
     return response.data;
+  },
+
+  convertPointsToVacation: async (userId) => {
+    try {
+      const response = await api.post(API_ENDPOINTS.USERS.CONVERT_POINTS(userId));
+      return response.data;
+    } catch (error) {
+      console.error('포인트 전환 API 호출 중 오류 발생:', error);
+      throw error;
+    }
+  },
+
+  getVacationCount: async (userId) => {
+    try {
+      const response = await api.get(API_ENDPOINTS.USERS.GET_VACATION_COUNT(userId));
+      return response.data;
+    } catch (error) {
+      console.error('휴가 수 조회 API 호출 중 오류 발생:', error);
+      throw error;
+    }
   },
 };

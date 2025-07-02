@@ -34,4 +34,8 @@ public interface UserService {
     String updateUserInfo(RequestDto updateDto, String userId);
 
     void uploadProfileImage(String userId, ProfileImageDto.Request dto);
+
+    void convertPointsToVacation(String userId);
+
+    long getVacationCount(String userId); // 추가된 메서드
 }

@@ -23,6 +23,8 @@ export const API_ENDPOINTS = {
     DELETEUSER: '/users/deleteUser',
     UPDATEUSER: 'users/updateinfo',
     UPLOADPROFILEIMAGE: '/profileimage',
+    CONVERT_POINTS: (userId) => `/users/${userId}/point-conversion`,
+    GET_VACATION_COUNT: (userId) => `/users/${userId}/vacation-count`,
   },
   COMPANY: {
     BASE: '/company',
@@ -106,6 +108,6 @@ export const API_ENDPOINTS = {
     mentalresult: '/health/mentalquestion/result',
     physicalquestion: '/health/physicalquestion',
     physicalresult: '/health/physicalquestion/result',
-    allresultList: '/health/allresult', // ✅ 결과 목록 추가
+    allresultList: '/health/allresult', //  결과 목록 추가
   },
 };
