@@ -32,17 +32,23 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) //HTTP Basic인증 비활성(아이디와 비밀번호를 HTTP요청 헤더에 담아서 인증하는 방식)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/users/login",
-                                "/users/signup",
-                                "/users/enrolladmin",
-                                "/company/enrollcompany"
-                        ).permitAll()
-                        .anyRequest().authenticated() // 위의 요청경로를 제외한 나머지 경로는 인증
+                                .anyRequest().permitAll()
+                        /**
+                         * 인증 적용 시 아래처럼 복구:
+                         * .requestMatchers(
+                         *     "/api/users/login",
+                         *     "/api/users/signup",
+                         *     "/api/users/enrolladmin",
+                         *     "/api/company/enrollcompany"
+                         * ).permitAll()
+                         * .anyRequest().authenticated()
+                         */
                 )
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                // 인증 필터 적용할 때 사용
+                // .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

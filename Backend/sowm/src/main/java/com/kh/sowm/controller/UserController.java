@@ -27,12 +27,7 @@ public class UserController {
     public ResponseEntity<UserDto.ResponseDto> login(@RequestBody UserDto.ResponseDto loginDto) {
 
         UserDto.ResponseDto loginUser = userService.login(loginDto.getUserId(), loginDto.getUserPwd());
-        System.out.println("로그인 결과 ResponseDto: " +
-                "userId=" + loginUser.getUserId() +
-                ", userName=" + loginUser.getUserName() +
-                ", companyCode=" + loginUser.getCompanyCode() +
-                ", jobCode=" + loginUser.getJobCode() +
-                ", deptCode=" + loginUser.getDeptCode());
+
         return ResponseEntity.ok(loginUser);
     }
 
