@@ -3,17 +3,14 @@ package com.kh.sowm.service;
 import com.kh.sowm.dto.ProfileImageDto;
 import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.dto.UserDto.RequestDto;
-import com.kh.sowm.entity.Company;
-import com.kh.sowm.entity.Department;
-import com.kh.sowm.entity.Job;
-import com.kh.sowm.entity.ProfileImage;
-import com.kh.sowm.entity.User;
+import com.kh.sowm.entity.*;
 import com.kh.sowm.enums.CommonEnums;
 import com.kh.sowm.enums.CommonEnums.Status;
 import com.kh.sowm.repository.DepartmentRepository;
 import com.kh.sowm.repository.JobRepository;
 import com.kh.sowm.repository.ProfileImgRepository;
 import com.kh.sowm.repository.UserRepository;
+import com.kh.sowm.repository.VacationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final JobRepository jobRepository;
     private final DepartmentRepository departmentRepository;
     private final ProfileImgRepository profileImgRepository;
+    private final VacationRepository vacationRepository;
 
     @Override
     public UserDto.ResponseDto login(String userId, String userPwd) {
@@ -41,7 +39,6 @@ public class UserServiceImpl implements UserService {
         return UserDto.ResponseDto.toDto(user);
     }
 
-    // 아이디 유효성 검사
     @Override
     public UserDto.ResponseDto getUserByUserId(String userId) {
         User user = userRepository.findByUserId(userId)
@@ -54,7 +51,6 @@ public class UserServiceImpl implements UserService {
         return UserDto.ResponseDto.getLoginUserDto(user);
     }
 
-    // 회원가입
     @Override
     public String signUp(UserDto.RequestDto signUp) {
         User user = signUp.signUp();
@@ -62,7 +58,6 @@ public class UserServiceImpl implements UserService {
         return user.getUserId();
     }
 
-    // 관리자 회원가입
     @Override
     public String adminSignUp(UserDto.RequestDto signUp) {
 
@@ -141,7 +136,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(()-> new IllegalArgumentException("회원정보가 없습니다."));
         System.out.println("DB 비밀번호: " + user.getUserPwd());
 
-        // db 에 저장되어 있는 비밀번호랑 입력한 비밀번호가 동일한지 체크
         if (!user.getUserPwd().equals(updateDto.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
@@ -157,12 +151,10 @@ public class UserServiceImpl implements UserService {
 
         ProfileImage oldImg = user.getOldImg();
         if (oldImg != null) {
-            // 이미지가 존재하면 status 를 N 으로 바꿈 (기존 이미지 비활성화)
             oldImg.deactivate();
             profileImgRepository.save(oldImg);
         }
 
-        // changedName 처리: null 또는 빈 문자열이면 imgUrl에서 파일명 추출
         String changedName = dto.getChangedName();
         if (changedName == null || changedName.trim().isEmpty()) {
             String imgUrl = dto.getImgUrl();
@@ -173,17 +165,14 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // oldName 처리: null 또는 빈 문자열이면 changedName으로 기본값 설정
         String oldName = dto.getOriginalName();
         if (oldName == null || oldName.trim().isEmpty()) {
             oldName = changedName;
         }
 
-        // 이미지가 존재하지 않는다면 새로운 이미지 파일 업로드
-        // 새로운 이미지 생성
         ProfileImage newImg = ProfileImage.builder()
                 .user(user)
-                .originalName(oldName) 
+                .originalName(oldName)
                 .changedName(changedName)
                 .path(dto.getImgUrl())
                 .size(dto.getSize())
@@ -194,5 +183,29 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    @Transactional
+    public void convertPointsToVacation(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        if (user.getPoint() == null || user.getPoint() < 1500) {
+            throw new IllegalArgumentException("포인트가 부족합니다.");
+        }
+
+        user.deductPoints(1500);
+        userRepository.save(user);
+
+        Vacation vacation = Vacation.builder()
+                .user(user)
+                .reason("포인트 전환")
+                .build();
+        vacationRepository.save(vacation);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getVacationCount(String userId) {
+        return vacationRepository.countByUserId(userId);
+    }
 }

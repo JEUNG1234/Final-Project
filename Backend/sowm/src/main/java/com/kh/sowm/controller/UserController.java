@@ -108,6 +108,21 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    // 포인트 휴가 전환
+    @PostMapping("/{userId}/point-conversion")
+    public ResponseEntity<String> convertPointsToVacation(@PathVariable String userId) {
+        try {
+            userService.convertPointsToVacation(userId);
+            return ResponseEntity.ok("포인트가 성공적으로 휴가로 전환되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 휴가 일수 조회
+    @GetMapping("/{userId}/vacation-count")
+    public ResponseEntity<Long> getVacationCount(@PathVariable String userId) {
+        long count = userService.getVacationCount(userId);
+        return ResponseEntity.ok(count);
+    }
 }
-
-
