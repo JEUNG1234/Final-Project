@@ -68,4 +68,13 @@ public class Challenge {
     // 참여자 수를 계산하는 Formula 필드 수정
     @Formula("(SELECT COUNT(DISTINCT cc.USER_ID) FROM CHALLENGE_COMPLETE cc WHERE cc.CHALLENGE_NO = CHALLENGE_NO)")
     private int participantCount;
+
+    // 포인트 지급 여부 필드 추가
+    @Column(name = "POINTS_AWARDED", nullable = false)
+    private boolean pointsAwarded;
+
+    // 포인트 지급 상태 변경 메서드
+    public void markAsPointsAwarded() {
+        this.pointsAwarded = true;
+    }
 }

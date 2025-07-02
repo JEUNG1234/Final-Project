@@ -1,361 +1,329 @@
-import React from 'react';
-// Chart.js 및 react-chartjs-2 임포트
+import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import styled from 'styled-components'; // styled-components는 여기서 임포트
+import styled from 'styled-components';
 import ProfileImg from '../../assets/profile.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
-import { useState, useEffect } from 'react';
 import { userService } from '../../api/users';
 import { attendanceService } from '../../api/attendance';
 import BoardAPI from '../../api/board';
 import { challengeService } from '../../api/challengeService';
 
-// Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// 달력 날짜 생성 함수
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay(); // 0: 일요일, 1: 월요일
+const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
-// 건강 데이터 요약 차트 데이터 및 옵션
 const healthDoughnutData = {
-  labels: ['수면 시간', '걸음 수', '스트레스 지수'],
-  datasets: [
-    {
-      data: [35, 55, 10], // 예시 비율
-      backgroundColor: ['#28A745', '#007BFF', '#FFC107'], // 녹색, 파랑, 노랑
-      borderColor: ['#ffffff'],
-      borderWidth: 2,
-    },
-  ],
+    labels: ['수면 시간', '걸음 수', '스트레스 지수'],
+    datasets: [
+        {
+            data: [35, 55, 10],
+            backgroundColor: ['#28A745', '#007BFF', '#FFC107'],
+            borderColor: ['#ffffff'],
+            borderWidth: 2,
+        },
+    ],
 };
 
 const healthDoughnutOptions = {
-  responsive: true,
-  maintainAspectRatio: false, // 컨테이너에 맞게 비율 조정
-  plugins: {
-    legend: {
-      display: false, // 커스텀 범례를 사용할 것이므로 기본 범례는 숨김
-    },
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          let label = context.label || '';
-          if (label) {
-            label += ': ';
-          }
-          if (context.parsed) {
-            label += context.parsed + '%';
-          }
-          return label;
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            display: false,
         },
-      },
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    let label = context.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed) {
+                        label += context.parsed + '%';
+                    }
+                    return label;
+                },
+            },
+        },
     },
-  },
-  cutout: '50%', // 도넛 차트의 가운데 구멍 크기
+    cutout: '50%',
 };
 
-// ==========================================================
-// 메인 대시보드 컴포넌트
-// ==========================================================
 const MemberDashBoard = () => {
-  const [attendance, setAttendance] = useState({
-    attendanceTime: null,
-    leaveTime: null,
-    status: null,
-  });
-  const [myInfoState, setMyInfoState] = useState(null);
-  const [notices, setNotices] = useState([]);
+    const [attendance, setAttendance] = useState({
+        attendanceTime: null,
+        leaveTime: null,
+        status: null,
+    });
+    const [myInfoState, setMyInfoState] = useState(null);
+    const [notices, setNotices] = useState([]);
+    const [vacationCount, setVacationCount] = useState(0); // 휴가 일수 상태 추가
 
-  const myInfo = async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      const response = await userService.getUserInfo(userId);
-      setMyInfoState(response);
-      console.log('계정 데이터', response);
-    } catch (err) {
-      console.log('계정 정보를 불러오지 못했습니다.', err);
-    }
-  };
-
-  // 예시 날짜 데이터를 위해 Date 객체 사용
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-
-  const totalDays = getDaysInMonth(currentYear, currentMonth);
-  const firstDay = getFirstDayOfMonth(currentYear, currentMonth); // 0 (일) ~ 6 (토)
-
-  const calendarDays = [];
-  // 빈 칸 채우기 (일요일 시작 기준)
-  for (let i = 0; i < firstDay; i++) {
-    calendarDays.push(null);
-  }
-  // 날짜 채우기
-  for (let i = 1; i <= totalDays; i++) {
-    calendarDays.push(i);
-  }
-
-  // 주별로 분리
-  const weeks = [];
-  let currentWeek = [];
-  calendarDays.forEach((day, index) => {
-    currentWeek.push(day);
-    if ((index + 1) % 7 === 0 || index === calendarDays.length - 1) {
-      weeks.push(currentWeek);
-      currentWeek = [];
-    }
-  });
-
-  const getAttendance = async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      const response = await attendanceService.attendanceList(userId);
-      console.log('출퇴근 정보 : ', response);
-      const todayRecord = filterTodayAttendance(response);
-      setAttendance(
-        todayRecord || {
-          attendTime: null,
-          leaveTime: null,
-          status: null,
+    const myInfo = async () => {
+        try {
+            const userId = localStorage.getItem('userId');
+            const [userInfo, vacationData] = await Promise.all([
+                userService.getUserInfo(userId),
+                userService.getVacationCount(userId)
+            ]);
+            setMyInfoState(userInfo);
+            setVacationCount(vacationData);
+            console.log('계정 데이터', userInfo);
+            console.log('휴가 데이터', vacationData);
+        } catch (err) {
+            console.log('계정 또는 휴가 정보를 불러오지 못했습니다.', err);
         }
-      );
-    } catch (err) {
-      console.log('출퇴근 정보 불러오기 실패', err);
+    };
+
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const totalDays = getDaysInMonth(currentYear, currentMonth);
+    const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
+
+    const calendarDays = [];
+    for (let i = 0; i < firstDay; i++) {
+        calendarDays.push(null);
     }
-  };
-
-  const filterTodayAttendance = (list) => {
-    const today = new Date().toISOString().slice(0, 10);
-    return list.find((item) => item.attendTime?.slice(0, 10) === today) || null;
-  };
-
-  const getNotice = async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      const response = await BoardAPI.getNotice(userId);
-      setNotices(response.data);
-    } catch (error) {
-      console.error('공지사항 조회 실패:', error);
+    for (let i = 1; i <= totalDays; i++) {
+        calendarDays.push(i);
     }
-  };
 
-  const [challenge, setChallenge] = useState(null);
+    const weeks = [];
+    let currentWeek = [];
+    calendarDays.forEach((day, index) => {
+        currentWeek.push(day);
+        if ((index + 1) % 7 === 0 || index === calendarDays.length - 1) {
+            weeks.push(currentWeek);
+            currentWeek = [];
+        }
+    });
 
-  const getChallengeForDashBoard = async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      const response = await challengeService.getChallengeForDashBoard(userId);
-      setChallenge(response);
-      console.log('챌린지 백엔드에서 가져온 데이터 목록 : ', response.data);
-    } catch (err) {
-      console.log('대시보드에 챌린지 가져오기 실패', err);
-    }
-  };
+    const getAttendance = async () => {
+        try {
+            const userId = localStorage.getItem('userId');
+            const response = await attendanceService.attendanceList(userId);
+            const todayRecord = filterTodayAttendance(response);
+            setAttendance(
+                todayRecord || {
+                    attendTime: null,
+                    leaveTime: null,
+                    status: null,
+                }
+            );
+        } catch (err) {
+            console.log('출퇴근 정보 불러오기 실패', err);
+        }
+    };
 
-  useEffect(() => {
-    getAttendance();
-    myInfo();
-    getNotice();
-    getChallengeForDashBoard();
-  }, []);
+    const filterTodayAttendance = (list) => {
+        const today = new Date().toISOString().slice(0, 10);
+        return list.find((item) => item.attendTime?.slice(0, 10) === today) || null;
+    };
 
-  const formatTime = (dateTime) => {
-    if (!dateTime) return '-';
-    const date = new Date(dateTime);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
+    const getNotice = async () => {
+        try {
+            const userId = localStorage.getItem('userId');
+            const response = await BoardAPI.getNotice(userId);
+            setNotices(response.data);
+        } catch (error) {
+            console.error('공지사항 조회 실패:', error);
+        }
+    };
 
-  return (
-    <DashboardContainer>
-      {/* 상단 섹션 */}
-      <TopSection>
-        {/* 1. 달력 카드 */}
-        <CalendarCard>
-          <h3>
-            {currentYear}년 {currentMonth + 1}월
-          </h3>
-          <table>
-            <thead>
-              <tr>
-                <th>일</th>
-                <th>월</th>
-                <th>화</th>
-                <th>수</th>
-                <th>목</th>
-                <th>금</th>
-                <th>토</th>
-              </tr>
-            </thead>
-            <tbody>
-              {weeks.map((week, weekIndex) => (
-                <tr key={weekIndex}>
-                  {week.map((day, dayIndex) => (
-                    <td
-                      key={dayIndex}
-                      className={`${day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear() ? 'today' : ''}`}
-                    >
-                      {day}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CalendarCard>
+    const [challenge, setChallenge] = useState(null);
 
-        <TopRightSection>
-          {/* 2. 챌린지 카드 */}
-          <TopRightSection>
-            <ChallengeCard>
-              {challenge ? (
-                <>
-                  <div className="challenge-text">
-                    <h4>새로 등록된 챌린지</h4>
-                    <p>
-                      {challenge.startDate} ~ {challenge.endDate}
-                    </p>
-                    <h2>{challenge.completeTitle}</h2>
-                  </div>
-                  <div className="challenge-image">
-                    <img src={ChallangeImg} alt="챌린지 이미지" />
-                  </div>
-                </>
-              ) : (
-                <div className="challenge-text" style={{ padding: '20px', textAlign: 'center' }}>
-                  <h4>새로 등록된 챌린지</h4>
-                  <p>챌린지 정보가 없습니다.</p>
-                </div>
-              )}
-            </ChallengeCard>
-          </TopRightSection>
+    const getChallengeForDashBoard = async () => {
+        try {
+            const userId = localStorage.getItem('userId');
+            const response = await challengeService.getChallengeForDashBoard(userId);
+            setChallenge(response);
+        } catch (err) {
+            console.log('대시보드에 챌린지 가져오기 실패', err);
+        }
+    };
 
-          {/* 3. 공지사항 카드 */}
-          <NoticeCard>
-            <h3>공지사항</h3>
-            {notices.length > 0 ? (
-              <ul>
-                {notices.map((notice) => (
-                  <li key={notice.boardNo}>{notice.boardTitle}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>공지사항이 없습니다.</p>
-            )}
-          </NoticeCard>
-        </TopRightSection>
-      </TopSection>
+    useEffect(() => {
+        getAttendance();
+        myInfo();
+        getNotice();
+        getChallengeForDashBoard();
+    }, []);
 
-      {/* 하단 섹션 */}
-      <BottomSection>
-        {/* 4. 사용자 정보 카드 */}
-        <UserInfoCard>
-          <div className="user-avatar">
-            <img
-              src={
-                myInfoState?.profileImagePath
-                  ? `https://d1qzqzab49ueo8.cloudfront.net/${myInfoState.profileImagePath}`
-                  : ProfileImg
-              }
-              alt="사용자 아바타"
-            />
-          </div>
-          <h2>이름: {myInfoState?.userName}</h2>
-          <div className="info-list">
-            <dl>
-              <dt>직급:</dt>
-              <dd>{myInfoState?.jobName}</dd>
-            </dl>
-            <dl>
-              <dt>소속:</dt>
-              <dd>{myInfoState?.deptName}</dd>
-            </dl>
-            <dl>
-              <dt>남은 연차 수:</dt>
-              <dd>
-                <span>3일</span>
-              </dd>
-            </dl>
-            <dl>
-              <dt>복지 포인트:</dt>
-              <dd>
-                <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
-              </dd>
-            </dl>
-            <dl>
-              <dt></dt>
-              <dd className="small">(현재 추가로 받은 휴가 일 수: 0일)</dd>
-            </dl>
-          </div>
-        </UserInfoCard>
+    const formatTime = (dateTime) => {
+        if (!dateTime) return '-';
+        const date = new Date(dateTime);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    };
 
-        <BottomRightSection>
-          {/* 5. 건강 데이터 요약 카드 */}
-          <HealthDataCard>
-            <h3>최근 건강 데이터 요약</h3>
-            <div className="chart-wrapper">
-              <Doughnut data={healthDoughnutData} options={healthDoughnutOptions} />
-            </div>
-            {/* 커스텀 범례 */}
-            <div className="legend-list">
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>수면 시간: 9시간
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#007BFF' }}></span>걸음 수: 3000보
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#FFC107' }}></span>스트레스 지수: 중간
-              </div>
-            </div>
-          </HealthDataCard>
+    return (
+        <DashboardContainer>
+            <TopSection>
+                <CalendarCard>
+                    <h3>
+                        {currentYear}년 {currentMonth + 1}월
+                    </h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>일</th>
+                                <th>월</th>
+                                <th>화</th>
+                                <th>수</th>
+                                <th>목</th>
+                                <th>금</th>
+                                <th>토</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {weeks.map((week, weekIndex) => (
+                                <tr key={weekIndex}>
+                                    {week.map((day, dayIndex) => (
+                                        <td
+                                            key={dayIndex}
+                                            className={`${day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear() ? 'today' : ''}`}
+                                        >
+                                            {day}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </CalendarCard>
 
-          {/* 6. 출퇴근 시간 카드 */}
-          <AttendanceTimeCard>
-            <div>
-              <span>출근 시간 : </span>
-              <span className="time">{formatTime(attendance.attendTime)}</span>
-              <button className="check-in">출근</button>
-            </div>
-            <div>
-              <span>퇴근 시간 : </span>
-              <span className="time">{formatTime(attendance.leaveTime)}</span>
-              <button className="check-out">퇴근</button>
-            </div>
-          </AttendanceTimeCard>
-        </BottomRightSection>
-      </BottomSection>
-    </DashboardContainer>
-  );
+                <TopRightSection>
+                    <ChallengeCard>
+                        {challenge ? (
+                            <>
+                                <div className="challenge-text">
+                                    <h4>새로 등록된 챌린지</h4>
+                                    <p>
+                                        {challenge.startDate} ~ {challenge.endDate}
+                                    </p>
+                                    <h2>{challenge.completeTitle}</h2>
+                                </div>
+                                <div className="challenge-image">
+                                    <img src={ChallangeImg} alt="챌린지 이미지" />
+                                </div>
+                            </>
+                        ) : (
+                            <div className="challenge-text" style={{ padding: '20px', textAlign: 'center' }}>
+                                <h4>새로 등록된 챌린지</h4>
+                                <p>챌린지 정보가 없습니다.</p>
+                            </div>
+                        )}
+                    </ChallengeCard>
+                    <NoticeCard>
+                        <h3>공지사항</h3>
+                        {notices.length > 0 ? (
+                            <ul>
+                                {notices.map((notice) => (
+                                    <li key={notice.boardNo}>{notice.boardTitle}</li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>공지사항이 없습니다.</p>
+                        )}
+                    </NoticeCard>
+                </TopRightSection>
+            </TopSection>
+
+            <BottomSection>
+                <UserInfoCard>
+                    <div className="user-avatar">
+                        <img
+                            src={
+                                myInfoState?.profileImagePath
+                                    ? `https://d1qzqzab49ueo8.cloudfront.net/${myInfoState.profileImagePath}`
+                                    : ProfileImg
+                            }
+                            alt="사용자 아바타"
+                        />
+                    </div>
+                    <h2>이름: {myInfoState?.userName}</h2>
+                    <div className="info-list">
+                        <dl>
+                            <dt>직급:</dt>
+                            <dd>{myInfoState?.jobName}</dd>
+                        </dl>
+                        <dl>
+                            <dt>소속:</dt>
+                            <dd>{myInfoState?.deptName}</dd>
+                        </dl>
+                        <dl>
+                            <dt>남은 연차 수:</dt>
+                            <dd>
+                                <span>{vacationCount}일</span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>복지 포인트:</dt>
+                            <dd>
+                                <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
+                            </dd>
+                        </dl>
+                    </div>
+                </UserInfoCard>
+
+                <BottomRightSection>
+                    <HealthDataCard>
+                        <h3>최근 건강 데이터 요약</h3>
+                        <div className="chart-wrapper">
+                            <Doughnut data={healthDoughnutData} options={healthDoughnutOptions} />
+                        </div>
+                        <div className="legend-list">
+                            <div>
+                                <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>수면 시간: 9시간
+                            </div>
+                            <div>
+                                <span className="color-box" style={{ backgroundColor: '#007BFF' }}></span>걸음 수: 3000보
+                            </div>
+                            <div>
+                                <span className="color-box" style={{ backgroundColor: '#FFC107' }}></span>스트레스 지수: 중간
+                            </div>
+                        </div>
+                    </HealthDataCard>
+                    <AttendanceTimeCard>
+                        <div>
+                            <span>출근 시간 : </span>
+                            <span className="time">{formatTime(attendance.attendTime)}</span>
+                            <button className="check-in">출근</button>
+                        </div>
+                        <div>
+                            <span>퇴근 시간 : </span>
+                            <span className="time">{formatTime(attendance.leaveTime)}</span>
+                            <button className="check-out">퇴근</button>
+                        </div>
+                    </AttendanceTimeCard>
+                </BottomRightSection>
+            </BottomSection>
+        </DashboardContainer>
+    );
 };
 
 export default MemberDashBoard;
 
-// ==========================================================
-// 스타일 정의 (styled-components)
-// ==========================================================
-
-// 전체 대시보드 컨테이너
 const DashboardContainer = styled.div`
-  padding: 25px; /* 전체 대시보드 안쪽 여백 */
-  background-color: #f0f7ff; /* 전체 배경색 */
+  padding: 25px;
+  background-color: #f0f7ff;
   display: flex;
   flex-direction: column;
-  gap: 30px; /* 섹션 간의 간격 */
-  font-family: 'Pretendard', sans-serif; /* 폰트 설정 */
+  gap: 30px;
+  font-family: 'Pretendard', sans-serif;
 `;
 
-// 섹션별 컨테이너 (그리드 레이아웃)
 const TopSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 좌측 (달력) 1fr, 우측 (챌린지 + 공지) 1fr */
-  gap: 30px; /* 컬럼 간의 간격 */
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
 
   @media (max-width: 992px) {
-    grid-template-columns: 1fr; /* 화면이 작아지면 한 줄로 */
+    grid-template-columns: 1fr;
   }
 `;
 
@@ -367,11 +335,11 @@ const TopRightSection = styled.div`
 
 const BottomSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 좌측 (사용자 정보) 1fr, 우측 (건강 + 출퇴근) 1fr */
+  grid-template-columns: 1fr 1fr;
   gap: 30px;
 
   @media (max-width: 992px) {
-    grid-template-columns: 1fr; /* 화면이 작아지면 한 줄로 */
+    grid-template-columns: 1fr;
   }
 `;
 
@@ -381,18 +349,16 @@ const BottomRightSection = styled.div`
   gap: 30px;
 `;
 
-// 개별 카드 스타일
 const Card = styled.div`
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 25px; /* 기본 패딩 */
+  padding: 25px;
 `;
 
-// 1. 달력 카드 (Top Left)
 const CalendarCard = styled(Card)`
   padding: 30px;
-  min-height: 400px; /* 최소 높이 설정 */
+  min-height: 400px;
 
   h3 {
     font-size: 24px;
@@ -426,20 +392,20 @@ const CalendarCard = styled(Card)`
       padding: 30px 0;
       color: #555;
       cursor: pointer;
-      border-radius: 8px; /* 날짜 박스 둥글게 */
+      border-radius: 8px;
 
       &:hover {
         background-color: #f0f7ff;
       }
 
       &.today {
-        background-color: #fb3f4a; /* 오늘 날짜 배경 */
+        background-color: #fb3f4a;
         color: white;
         font-weight: bold;
       }
 
       &.highlight {
-        background-color: #ffecb3; /* 특별한 날짜 (예: 휴가) */
+        background-color: #ffecb3;
         color: #c07000;
         font-weight: bold;
       }
@@ -447,22 +413,20 @@ const CalendarCard = styled(Card)`
   }
 `;
 
-// 2. 챌린지 카드 (Top Right 상단)
 const ChallengeCard = styled(Card)`
   display: flex;
   align-items: center;
   gap: 20px;
-  background-color: #ffffff; /* 챌린지 배경색 */
+  background-color: #ffffff;
   padding: 20px 25px;
-
-  min-height: 300px; /* 최소 높이 지정 */
-  min-width: 500px; /* 필요하면 최소 너비도 지정 */
+  min-height: 300px;
+  min-width: 500px;
 
   .challenge-text {
     flex-grow: 1;
     h4 {
       font-size: 30px;
-      color: #2f80ed; /* 푸른색 제목 */
+      color: #2f80ed;
       margin-bottom: 5px;
     }
     p {
@@ -481,7 +445,7 @@ const ChallengeCard = styled(Card)`
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background-color: #c1e8ef; /* 이미지 플레이스홀더 배경 */
+    background-color: #c1e8ef;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -494,7 +458,6 @@ const ChallengeCard = styled(Card)`
   }
 `;
 
-// 3. 공지사항 카드 (Top Right 하단)
 const NoticeCard = styled(Card)`
   min-height: 250px;
   padding: 20px;
@@ -521,7 +484,6 @@ const NoticeCard = styled(Card)`
   }
 `;
 
-// 4. 사용자 정보 카드 (Bottom Left)
 const UserInfoCard = styled(Card)`
   display: flex;
   flex-direction: column;
@@ -532,7 +494,7 @@ const UserInfoCard = styled(Card)`
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background-color: #e0e0e0; /* 아바타 플레이스홀더 배경 */
+    background-color: #e0e0e0;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -561,7 +523,7 @@ const UserInfoCard = styled(Card)`
 
       dt {
         color: #777;
-        width: 80px; /* 라벨 너비 고정 */
+        width: 100px;
         flex-shrink: 0;
       }
       dd {
@@ -569,7 +531,7 @@ const UserInfoCard = styled(Card)`
         flex-grow: 1;
         span {
           font-weight: bold;
-          color: #007bff; /* 포인트 색상 */
+          color: #007bff;
         }
         &.small {
           font-size: 13px;
@@ -580,7 +542,6 @@ const UserInfoCard = styled(Card)`
   }
 `;
 
-// 5. 건강 데이터 요약 (Bottom Right 상단)
 const HealthDataCard = styled(Card)`
   h3 {
     font-size: 20px;
@@ -589,9 +550,9 @@ const HealthDataCard = styled(Card)`
   }
   .chart-wrapper {
     width: 100%;
-    max-width: 250px; /* 차트 최대 너비 */
-    margin: 0 auto 20px; /* 중앙 정렬 */
-    height: 200px; /* 차트 컨테이너 높이 */
+    max-width: 250px;
+    margin: 0 auto 20px;
+    height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -615,7 +576,6 @@ const HealthDataCard = styled(Card)`
   }
 `;
 
-// 6. 출퇴근 시간 카드 (Bottom Right 하단)
 const AttendanceTimeCard = styled(Card)`
   display: flex;
   flex-direction: column;
@@ -645,13 +605,13 @@ const AttendanceTimeCard = styled(Card)`
       font-weight: bold;
 
       &.check-in {
-        background-color: #28a745; /* 녹색 */
+        background-color: #28a745;
         &:hover {
           background-color: #218838;
         }
       }
       &.check-out {
-        background-color: #dc3545; /* 빨강 */
+        background-color: #dc3545;
         &:hover {
           background-color: #c82333;
         }
