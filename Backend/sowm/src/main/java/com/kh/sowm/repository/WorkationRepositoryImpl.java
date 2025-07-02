@@ -70,8 +70,10 @@ public class WorkationRepositoryImpl implements WorkationRepository {
 
     //워케이션 수정용
     @Override
-    public void updateWorkation(Workation workation) {
+    public Workation updateWorkation(Workation workation) {
+        System.out.println("실행됨");
         em.merge(workation);
+        return workation;
     }
 
     //워케이션 삭제용

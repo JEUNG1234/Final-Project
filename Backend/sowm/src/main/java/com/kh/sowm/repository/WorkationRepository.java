@@ -29,7 +29,7 @@ public interface WorkationRepository {
    SubmitWorkation save(SubmitWorkation subWork);
 
    //워케이션 수정용
-   void updateWorkation(Workation workation);
+   Workation updateWorkation(Workation workation);
 
    Workation updateWorkationStatus(Long workationNo);
 }

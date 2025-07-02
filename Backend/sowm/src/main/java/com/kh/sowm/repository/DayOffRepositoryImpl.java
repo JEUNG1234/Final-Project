@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DayOffRepositoryImpl implements DayOffRepository {
 
-
     @PersistenceContext
     private EntityManager em;
 
@@ -16,6 +15,18 @@ public class DayOffRepositoryImpl implements DayOffRepository {
     @Override
     public void save(DayOff dayOff) {
         em.persist(dayOff);
+    }
 
+    @Override
+    public void updateDay(DayOff dayOff) {
+        em.merge(dayOff);
+
+    }
+
+    @Override
+    public void deleteByworkationNo(Long workationNo) {
+        em.createQuery("DELETE FROM DayOff d WHERE d.workation.workationNo = :workationNo")
+                .setParameter("workationNo", workationNo)
+                .executeUpdate();
     }
 }
