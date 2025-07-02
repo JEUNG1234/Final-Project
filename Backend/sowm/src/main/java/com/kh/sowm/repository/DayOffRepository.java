@@ -4,4 +4,8 @@ import com.kh.sowm.entity.DayOff;
 
 public interface DayOffRepository {
     void save(DayOff dayOff);
+
+    void updateDay(DayOff dayOff);
+
+    void deleteByworkationNo(Long workationNo);
 }

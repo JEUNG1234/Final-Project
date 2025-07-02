@@ -120,7 +120,6 @@ public class Workation {
 
     public void updateFromDto(WorkationDto.WorkationsDto dto, User user) {
         this.user = user;
-        this.workationTitle = dto.getWorkationTitle();
         this.facilityInfo = dto.getFacilityInfo();
         this.workationStartDate = dto.getWorkationStartDate();
         this.workationEndDate = dto.getWorkationEndDate();

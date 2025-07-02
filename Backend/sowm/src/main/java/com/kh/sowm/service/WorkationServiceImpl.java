@@ -2,8 +2,10 @@ package com.kh.sowm.service;
 
 
 import com.kh.sowm.dto.WorkationDto;
+import com.kh.sowm.dto.WorkationDto.ResponseDto;
 import com.kh.sowm.dto.WorkationDto.WorkationSubListDto;
 import com.kh.sowm.dto.WorkationDto.WorkationSubNoDto;
+import com.kh.sowm.dto.WorkationDto.WorkationUpdateDto;
 import com.kh.sowm.entity.DayOff;
 import com.kh.sowm.entity.SubmitWorkation;
 import com.kh.sowm.entity.User;
@@ -135,22 +137,52 @@ public class WorkationServiceImpl implements WorkationService {
 
     //워케이션 수정용
     @Override
-    public WorkationDto.ResponseUpdateDto updateWorkation(WorkationDto.WorkationUpdateDto  request) {
+    public ResponseDto updateWorkation(WorkationUpdateDto  request) {
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
 
         Workation workation = workationRepository.findByWorkationNo(request.getWorkationNo())
                 .orElseThrow(() -> new EntityNotFoundException("워케이션 정보를 찾을 수 없습니다."));
+        System.out.println(workation.getWorkationNo());
 
         workation.updateFromDto(request.getWorkation(), user);
 
         WorkationLocation location = workation.getWorkationLocation();
         location.updateFromDto(request.getLocation());
 
-        workationRepository.updateWorkation(workation);
+        Workation updateWorkation = workationRepository.updateWorkation(workation);
         workationLocationRepository.updateLocation(location);
+        Long workationNo = request.getWorkationNo();
 
-        return WorkationDto.ResponseUpdateDto.toDto(workation);
+        dayOffRepository.deleteByworkationNo(workationNo);
+
+        if (request.getSelectedDays() != null) {
+            for (String day : request.getSelectedDays()) {
+                DayOff dayOff = DayOff.builder()
+                        .dayOff(day)
+                        .workation(workation)
+                        .build();
+                dayOffRepository.updateDay(dayOff);
+            }
+        }
+
+        workationImageRepository.deleteByworkationNo(workationNo);
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            for (WorkationDto.WorkationImageDto imageDto : request.getImages()) {
+                WorkationImage image = WorkationImage.builder()
+                        .workation(workation)
+                        .originalName(imageDto.getOriginalName())
+                        .changedName(imageDto.getChangedName())
+                        .path(imageDto.getPath())
+                        .size(imageDto.getSize())
+                        .tab(Tab.valueOf(imageDto.getTab()))
+                        .build();
+
+                workationImageRepository.updateImage(image);
+            }
+        }
+
+        return WorkationDto.ResponseDto.toDto(updateWorkation);
     }
 
     //워케이션 삭제용(상태값 변경)
