@@ -14,14 +14,18 @@ import com.kh.sowm.entity.WorkationImage;
 import com.kh.sowm.entity.WorkationImage.Tab;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
+import com.kh.sowm.exception.usersException.UserNotFoundException;
+import com.kh.sowm.exception.workationException.SubmitWorkationNotFoundException;
+import com.kh.sowm.exception.workationException.WorkationNotFountException;
 import com.kh.sowm.repository.DayOffRepository;
 import com.kh.sowm.repository.SubmitWorkationRepository;
 import com.kh.sowm.repository.UserRepository;
 import com.kh.sowm.repository.WorkationImageRepository;
 import com.kh.sowm.repository.WorkationLocationRepository;
 import com.kh.sowm.repository.WorkationRepository;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +80,7 @@ public class WorkationServiceImpl implements WorkationService {
         String userId = request.getUserId();
 
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         Workation workation = request.toWorkationEntity(user);
         WorkationLocation location = request.toLocationEntity();
@@ -117,17 +121,23 @@ public class WorkationServiceImpl implements WorkationService {
     //워케이션 정보 디테일
     @Override
     public WorkationDto.ResponseDto workationInfo(int locationNo) {
-        return workationRepository.findByInfo(locationNo);
+
+        try {
+            return workationRepository.findByInfo(locationNo);
+        } catch (EmptyResultDataAccessException e) {
+            throw new WorkationNotFountException();
+        }
+
     }
 
     //워케이션 신청용
     @Override
     public WorkationDto.SubWorkation submit(WorkationDto.SubWorkation subWork) {
         User user = userRepository.findByUserId(subWork.getUserId())
-                .orElseThrow(() -> new RuntimeException("유저를 조회할 수 없습니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         Workation workation = workationRepository.findByWorkationNo(subWork.getWorkationNo())
-                .orElseThrow(() -> new RuntimeException("워케이션 정보를 조회할 수 없습니다."));
+                .orElseThrow(WorkationNotFountException::new);
 
         SubmitWorkation entity = subWork.subWorkationDto(user, workation);
         workationRepository.save(entity);
@@ -139,10 +149,10 @@ public class WorkationServiceImpl implements WorkationService {
     @Override
     public ResponseDto updateWorkation(WorkationUpdateDto  request) {
         User user = userRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("회원아이디를 찾을 수 없습니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         Workation workation = workationRepository.findByWorkationNo(request.getWorkationNo())
-                .orElseThrow(() -> new EntityNotFoundException("워케이션 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new WorkationNotFountException("워케이션 정보를 찾을 수 없습니다."));
         System.out.println(workation.getWorkationNo());
 
         workation.updateFromDto(request.getWorkation(), user);
@@ -196,6 +206,10 @@ public class WorkationServiceImpl implements WorkationService {
     public ResponseEntity<List<WorkationSubListDto>> workationSubList(String companyCode) {
         List<SubmitWorkation> subWorkation = submitWorkationRepository.findByStatus(SubmitWorkation.StatusType.W, companyCode);
 
+        if (subWorkation == null || subWorkation.isEmpty()) {
+            throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
+        }
+
         List<WorkationSubListDto> dtoList = subWorkation.stream()
                 .map(WorkationSubListDto::dto)
                 .toList();
@@ -212,7 +226,7 @@ public class WorkationServiceImpl implements WorkationService {
         for(Long subNo : workationSubNo) {
 
             SubmitWorkation submit = submitWorkationRepository.findById(subNo)
-                    .orElseThrow(() -> new EntityNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
+                    .orElseThrow(() -> new SubmitWorkationNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
             submit.setStatus(SubmitWorkation.StatusType.Y);
             submitWorkationRepository.approvedUpdate(submit);
         }
@@ -225,7 +239,7 @@ public class WorkationServiceImpl implements WorkationService {
         List<Long> workationSubNo = selectedIds.getWorkationSubNo();
         for(Long subNo : workationSubNo) {
             SubmitWorkation submit = submitWorkationRepository.findById(subNo)
-                    .orElseThrow(() -> new EntityNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
+                    .orElseThrow(() -> new SubmitWorkationNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
             submit.setStatus(SubmitWorkation.StatusType.N);
             submitWorkationRepository.returnUpdate(submit);
         }
@@ -236,6 +250,9 @@ public class WorkationServiceImpl implements WorkationService {
     @Override
     public ResponseEntity<List<WorkationSubListDto>> workationMySubList(String userId) {
         List<SubmitWorkation> submitWorkations = submitWorkationRepository.findById(userId);
+        if (submitWorkations == null || submitWorkations.isEmpty()) {
+            throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
+        }
 
         List<WorkationSubListDto> dtoList = submitWorkations.stream()
         .map(WorkationSubListDto::dto)
@@ -250,7 +267,7 @@ public class WorkationServiceImpl implements WorkationService {
         List<Long> WorkaionSubNo = selectedIds.getWorkationSubNo();
         for(Long subNo : WorkaionSubNo) {
             SubmitWorkation submit = submitWorkationRepository.findById(subNo)
-                    .orElseThrow(() -> new EntityNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
+                    .orElseThrow(() -> new SubmitWorkationNotFoundException("해당 워케이션 신청 내역을 찾을 수 없습니다."+ subNo));
             submitWorkationRepository.delete(subNo);
         }
         return List.of();
@@ -260,6 +277,9 @@ public class WorkationServiceImpl implements WorkationService {
     @Override
     public ResponseEntity<List<WorkationSubListDto>> workationFullSubList(String companyCode) {
         List<SubmitWorkation> subWorkation = submitWorkationRepository.findByList(companyCode);
+        if (subWorkation == null || subWorkation.isEmpty()) {
+            throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
+        }
 
         List<WorkationSubListDto> dtoList = subWorkation.stream()
                 .map(WorkationSubListDto::dto)
