@@ -34,6 +34,7 @@ public class BoardDto {
     public static class Update {
         private String boardTitle;
         private String boardContent;
+        private BoardImageDto image;
 
         // ✅ [추가] 카테고리 이름
         private Long categoryNo;
