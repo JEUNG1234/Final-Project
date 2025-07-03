@@ -796,15 +796,6 @@ const SubmitButton = styled.button`
   }
 `;
 
-//에러메시지
-const ErrorMessage = styled.p`
-  color: red;
-  font-size: 13px;
-  margin-top: -8px;
-  margin-bottom: 8px;
-  text-align: left;
-  width: 100%;
-`;
 
 // 말풍선 툴팁 스타일
 const ErrorTooltip = styled.div`
