@@ -15,7 +15,7 @@ const MyPage = () => {
   const navigate = useNavigate();
 
   const fetchAllData = useCallback(async () => {
-    const storedUserId = localStorage.getItem('userId');
+    const storedUserId = sessionStorage.getItem('userId');
     if (!storedUserId) return;
     try {
       const [userInfoData, vacationCountData] = await Promise.all([
