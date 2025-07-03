@@ -24,18 +24,12 @@ const useUserStore = create(
       },
 
       logout: () => {
-        console.log('--- Logout function initiated ---');
-        console.log('Before removal, sessionStorage token:', sessionStorage.getItem('token'));
-        console.log('Before removal, sessionStorage userId:', sessionStorage.getItem('userId'));
-
-        // 세션 스토리지에서 직접 관리하는 항목들도 제거
+       
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('userId');
         sessionStorage.removeItem('user-storage'); // zustand persist 스토리지도 클리어
 
-        console.log('After removal, sessionStorage token:', sessionStorage.getItem('token'));
-        console.log('After removal, sessionStorage userId:', sessionStorage.getItem('userId'));
-        console.log('--- Logout function finished ---');
+    
 
         set({
           user: null,
