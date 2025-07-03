@@ -87,7 +87,7 @@ const MyPage = () => {
   };
 
   const handleWithdrawal = async () => {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     try {
       await userService.deleteUser(userId);
       toast.success('회원 탈퇴하셨습니다.');
@@ -98,7 +98,7 @@ const MyPage = () => {
   };
 
   const handlePointConversion = async () => {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     if (window.confirm('1500포인트를 사용하여 휴가 1일로 전환하시겠습니까?')) {
       try {
         await userService.convertPointsToVacation(userId);
