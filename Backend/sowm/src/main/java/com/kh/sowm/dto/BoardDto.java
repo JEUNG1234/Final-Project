@@ -17,6 +17,7 @@ public class BoardDto {
         private String boardContent;
         private Long categoryNo;
         private String userId;
+        private BoardImageDto image;
 
         public Board toEntity(Category category, User user) {
             return Board.builder()
@@ -54,12 +55,19 @@ public class BoardDto {
         private String categoryName;
         private String userId;
         private String userName;
-        private String companyCode; // ✅ 추가
+        private String companyCode;
         private int views;
-
         private boolean isUpdated;
 
+        private BoardImageDto image; // ✅ 이미지 정보 필드 추가
+
         public static Response fromEntity(Board board) {
+            BoardImageDto imageDto = null;
+
+            if (board.getBoardImages() != null && !board.getBoardImages().isEmpty()) {
+                imageDto = BoardImageDto.fromEntity(board.getBoardImages().get(0));
+            }
+
             return Response.builder()
                     .boardNo(board.getBoardNo())
                     .boardTitle(board.getBoardTitle())
@@ -70,11 +78,13 @@ public class BoardDto {
                     .categoryName(board.getCategory().getCategoryName())
                     .userId(board.getUser().getUserId())
                     .userName(board.getUser().getUserName())
-                    .companyCode(board.getUser().getCompany().getCompanyCode()) // ✅ 중첩 접근
+                    .companyCode(board.getUser().getCompany().getCompanyCode())
                     .views(board.getViews())
-                    .isUpdated(!board.getCreatedDate().equals(board.getUpdatedDate())) // ✅ 작성일과 수정일이 다르면 true
+                    .isUpdated(!board.getCreatedDate().equals(board.getUpdatedDate()))
+                    .image(imageDto) // ✅ DTO에 세팅
                     .build();
         }
+    }
 
         public static Response getNoticeDto(Board board){
             return Response.builder()
@@ -82,5 +92,5 @@ public class BoardDto {
                     .categoryNo(board.getBoardNo())
                     .build();
         }
-    }
+
 }

@@ -1,123 +1,141 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { FaComments } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import { FaComments } from 'react-icons/fa';
 import dayjs from 'dayjs';
 import useUserStore from '../../Store/useStore';
-import { BounceLoader } from 'react-spinners';
+import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
 import BoardAPI from '../../api/board';
 import CategoryAPI from '../../api/category';
+import { fileupload } from '../../api/fileupload';
 
 const EditBoard = () => {
   const { user } = useUserStore();
   const navigate = useNavigate();
   const { id } = useParams();
+  const fileInputRef = useRef(null);
+  const contentRef = useRef(null);
+
   const [post, setPost] = useState(null);
-  const [boardTitle, setBoardTitle] = useState('');
-  const [boardContent, setBoardContent] = useState('');
+  const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
+  const [content, setContent] = useState('');
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const MIN_LOADING_TIME = 500; // 500ms (0.5초) 최소 로딩 시간 설정
+  const [file, setFile] = useState(null);
+  const [imageMeta, setImageMeta] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
-    const startTime = Date.now();
-    setLoading(true);
-
     BoardAPI.getBoardDetail(id)
       .then((res) => {
         setPost(res.data);
-        setBoardTitle(res.data.boardTitle);
-        setBoardContent(res.data.boardContent);
+        setTitle(res.data.boardTitle);
         setCategory(res.data.categoryNo);
+        setContent(res.data.boardContent);
+        setImageMeta(res.data.image);
+        if (res.data.image?.path) {
+          setPreviewUrl(`https://d1qzqzab49ueo8.cloudfront.net/${res.data.image.changedName}`);
+        }
+        if (contentRef.current) {
+          contentRef.current.innerText = res.data.boardContent;
+        }
       })
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
         alert('게시글을 불러오는 데 실패했습니다.');
         navigate('/communityboard');
-      })
-      .finally(() => {
-        const elapsed = Date.now() - startTime;
-        const wait = MIN_LOADING_TIME - elapsed;
-        wait > 0 ? setTimeout(() => setLoading(false), wait) : setLoading(false);
       });
-  }, [id, navigate]);
 
-  useEffect(() => {
     CategoryAPI.getAllCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('카테고리 불러오기 실패:', err));
-  }, []);
+  }, [id, navigate]);
 
-  const handleUpdate = () => {
-    const updatedPost = {
-      boardTitle,
-      boardContent,
-      categoryNo: category,
-    };
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
 
-    BoardAPI.updateBoard(id, updatedPost)
-      .then((res) => {
-        setPost(res.data);
-        setBoardTitle(res.data.boardTitle);
-        setBoardContent(res.data.boardContent);
-        setCategory(res.data.categoryNo);
-        alert('게시글이 성공적으로 수정되었습니다!');
-        navigate(`/communityboard`);
-      })
-      .catch((err) => {
-        console.error('게시글 수정 실패:', err);
-        alert('게시글 수정에 실패했습니다. 다시 시도해주세요.');
-      });
+    if (selectedFile) {
+      const preview = URL.createObjectURL(selectedFile);
+      setPreviewUrl(preview);
+    }
+
+    setImageMeta(null); // 기존 이미지 메타 초기화
   };
 
-  if (loading) {
-    return (
-      <MainContent>
-        <LoaderArea>
-          <BounceLoader color="#4d8eff" />
-          Loading.. {/* 폰트 색상 변경경 */}
-        </LoaderArea>
-      </MainContent>
-    );
-  }
+  const resetFileInput = () => {
+    setFile(null);
+    setImageMeta(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
-  if (!post) {
-    return <MainContent>게시글을 찾을 수 없습니다.</MainContent>;
-  }
+  const handleUpdate = async () => {
+    if (!title || !category) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    let uploadedImageMeta = imageMeta;
+    try {
+      if (file) {
+        const uploaded = await fileupload.uploadImageToS3(file, 'board/');
+        uploadedImageMeta = {
+          originalName: uploaded.originalName,
+          changedName: uploaded.filename,
+          path: uploaded.url,
+          size: file.size,
+        };
+      }
+
+      const updatedPost = {
+        boardTitle: title,
+        boardContent: content,
+        categoryNo: category,
+        image: uploadedImageMeta,
+      };
+
+      await BoardAPI.updateBoard(id, updatedPost);
+      alert('게시글이 성공적으로 수정되었습니다!');
+      navigate(`/communityboard`);
+    } catch (error) {
+      console.error('게시글 수정 실패:', error);
+      alert('게시글 수정에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  if (!post) return <MainContent>게시글을 찾을 수 없습니다.</MainContent>;
 
   return (
     <MainContent>
       <PageTitle>
-        <FaComments />
-        커뮤니티 게시판 {'>'} 게시글 수정
+        <FaComments /> 커뮤니티 게시판 {'>'} 게시글 수정
       </PageTitle>
+
       <InputGroup>
         <PageMidTitle>제목</PageMidTitle>
-        <TitleInput type="text" value={boardTitle} onChange={(e) => setBoardTitle(e.target.value)} />
+        <TitleInput type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+
         <PageMidTitle>작성자</PageMidTitle>
         <WriterInput type="text" value={post.userName} readOnly />
-        <FlexItem>
-          <div>
+
+        <TwoColumnLayout>
+          <FlexItem>
             <PageMidTitle>작성일</PageMidTitle>
             <WriterInput
               type="text"
-              value={
-                post.createdDate === post.updatedDate
-                  ? dayjs(post.createdDate).format('YYYY년 MM월 DD일')
-                  : dayjs(post.updatedDate).format('YYYY년 MM월 DD일')
-              }
+              value={dayjs(post.updatedDate || post.createdDate).format('YYYY년 MM월 DD일')}
               readOnly
             />
-          </div>
-          <div>
-            <PageMidTitle>태그</PageMidTitle>
+          </FlexItem>
+
+          <FlexItem>
+            <PageMidTitle>게시글 유형</PageMidTitle>
             <SelectBox value={category} onChange={(e) => setCategory(e.target.value)}>
               {categories.map((cat) => {
-                if (cat.categoryName === '공지사항' && user.jobCode !== 'J2') {
-                  return null;
-                }
+                if (cat.categoryName === '공지사항' && user.jobCode !== 'J2') return null;
                 return (
                   <option key={cat.categoryNo} value={cat.categoryNo}>
                     {cat.categoryName}
@@ -125,11 +143,43 @@ const EditBoard = () => {
                 );
               })}
             </SelectBox>
-          </div>
-        </FlexItem>
+          </FlexItem>
+        </TwoColumnLayout>
+
         <PageMidTitle>내용</PageMidTitle>
-        <ContentInput as="textarea" value={boardContent} onChange={(e) => setBoardContent(e.target.value)} />
+        <EditorWrapper>
+          {previewUrl && (
+            <ImagePreviewInEditor>
+              <img src={previewUrl} alt="미리보기 이미지" />
+            </ImagePreviewInEditor>
+          )}
+          <EditableDiv
+            contentEditable
+            suppressContentEditableWarning
+            ref={contentRef}
+            placeholder="내용을 입력하세요."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        </EditorWrapper>
+
+        <PageMidTitle>첨부 이미지</PageMidTitle>
+        <FileInputWrapper>
+          <HiddenFileInput type="file" onChange={handleFileChange} ref={fileInputRef} />
+          <FileNameDisplay type="text" readOnly value={file?.name || ''} placeholder="선택된 파일 없음" />
+          {!file ? (
+            <FileSelectButton htmlFor="fileUpload" as="label">
+              파일 선택
+              <input id="fileUpload" type="file" style={{ display: 'none' }} onChange={handleFileChange} />
+            </FileSelectButton>
+          ) : (
+            <FileSelectButton as="button" type="button" onClick={resetFileInput}>
+              초기화
+            </FileSelectButton>
+          )}
+        </FileInputWrapper>
       </InputGroup>
+
       <ButtonGroup>
         <ActionButton onClick={handleUpdate}>수정완료</ActionButton>
         <ActionButton onClick={() => navigate(`/communityboard/${id}`, { state: { fromEdit: true } })}>
@@ -140,23 +190,23 @@ const EditBoard = () => {
   );
 };
 const PageMidTitle = styled.h3`
-  display: flex;
   font-size: 18px;
   color: #000000;
-  margin: 5px;
+  display: flex;
   align-items: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
 `;
 
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 30px 10px;
-  margin: 10px;
+  padding: 10px;
 `;
 
 const TitleInput = styled.input`
   width: 100%;
-  font-size: 16px;
+  font-size: 18px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -166,44 +216,9 @@ const TitleInput = styled.input`
   }
 `;
 
-const FileInput = styled.input`
-  padding: 10px 15px;
-  background-color: #ffffff;
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #555;
-
-  /* 실제 버튼처럼 보이게 하기 위한 추가 스타일 */
-  &::-webkit-file-upload-button {
-    visibility: hidden; /* 기본 버튼 숨기기 */
-  }
-  &::before {
-    content: '사진첨부'; /* 버튼 텍스트 */
-    display: inline-block;
-    background: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 8px 12px;
-    outline: none;
-    white-space: nowrap;
-    cursor: pointer;
-    font-size: 14px;
-    color: #555;
-    text-align: center;
-  }
-  &:hover::before {
-    background: #d0d0d0;
-  }
-  &:active::before {
-    background: #d0d0d0;
-  }
-`;
-
 const WriterInput = styled.input`
   width: 100%;
-  font-size: 16px;
+  font-size: 18px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -216,7 +231,7 @@ const WriterInput = styled.input`
 const ContentInput = styled.textarea`
   width: 100%;
   height: 350px;
-  font-size: 16px;
+  font-size: 18px;
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #d0d5dd;
@@ -257,6 +272,20 @@ const ActionButton = styled.button`
   }
 `;
 
+const TwoColumnLayout = styled.div`
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+`;
+
+const FlexItem = styled.div`
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+`;
+
 const SelectBox = styled.select`
   width: 100%;
   padding: 10px;
@@ -271,19 +300,91 @@ const SelectBox = styled.select`
   }
 `;
 
-const FlexItem = styled.div`
-  display: flex; /* 자식 요소들을 가로로 정렬 */
-  justify-content: space-between;
+const FileInputWrapper = styled.div`
+  display: flex;
+  gap: 10px; /* 파일 이름 표시창과 버튼 사이의 간격 */
+  align-items: center; /* 세로 중앙 정렬 */
+  width: 100%;
 `;
 
-const LoaderArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+const HiddenFileInput = styled.input`
+  /* 실제 파일 입력 필드는 시각적으로 숨김 */
+  display: none;
+`;
+
+const FileNameDisplay = styled.input`
+  flex: 1; /* 남은 공간을 모두 차지하여 파일 이름이 길어도 잘 보이도록 */
+  padding: 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background-color: #f8f8f8; /* 읽기 전용임을 나타내기 위한 배경색 */
+  color: #555;
+  font-size: 16px;
+  cursor: default; /* 클릭해도 활성화되지 않도록 */
+  min-width: 0; /* flex 아이템이 내용물보다 커지는 것을 방지 */
+`;
+
+const FileSelectButton = styled.label`
+  padding: 10px 15px;
+  background-color: #ffffff;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 */
+  display: inline-flex; /* 텍스트 정렬을 위해 flexbox 사용 */
   align-items: center;
-  height: 100vh;
-  font-weight: 500;
-  color: #4d8eff;
+  justify-content: center;
+  height: 41px; /* FileNameDisplay와 높이 맞추기 */
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+  &:active {
+    background-color: #e0e0e0;
+  }
+`;
+
+// 내용 작성 영역 스타일
+const EditorWrapper = styled.div`
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 350px;
+  font-family: 'Pretendard', sans-serif;
+  margin-top: 5px;
+`;
+
+// 이미지 미리보기 영역 (내용 상단에 위치)
+const ImagePreviewInEditor = styled.div`
+  margin-bottom: 10px;
+  img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    object-fit: contain;
+    border: 1px solid #ccc;
+  }
+`;
+
+// contentEditable div 자체
+const EditableDiv = styled.div`
+  min-height: 200px;
+  font-size: 18px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  outline: none;
+
+  &::before {
+    content: attr(placeholder);
+    color: #bbb;
+    pointer-events: none;
+  }
+
+  &:focus::before {
+    content: '';
+  }
 `;
 
 export default EditBoard;
