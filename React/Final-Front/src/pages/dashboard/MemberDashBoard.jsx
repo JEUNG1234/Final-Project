@@ -8,6 +8,7 @@ import { userService } from '../../api/users';
 import { attendanceService } from '../../api/attendance';
 import BoardAPI from '../../api/board';
 import { challengeService } from '../../api/challengeService';
+import { workationService } from '../../api/workation';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -60,20 +61,24 @@ const MemberDashBoard = () => {
     const [myInfoState, setMyInfoState] = useState(null);
     const [notices, setNotices] = useState([]);
     const [vacationCount, setVacationCount] = useState(0); // 휴가 일수 상태 추가
+    const [approvedWorkations, setApprovedWorkations] = useState([]); // 승인된 워케이션 목록 상태 추가
 
     const myInfo = async () => {
         try {
             const userId = localStorage.getItem('userId');
-            const [userInfo, vacationData] = await Promise.all([
+            const [userInfo, vacationData, workationData] = await Promise.all([
                 userService.getUserInfo(userId),
-                userService.getVacationCount(userId)
+                userService.getVacationCount(userId),
+                workationService.getApprovedWorkations(userId),
             ]);
             setMyInfoState(userInfo);
             setVacationCount(vacationData);
+            setApprovedWorkations(workationData);
             console.log('계정 데이터', userInfo);
             console.log('휴가 데이터', vacationData);
+            console.log('워케이션 데이터', workationData);
         } catch (err) {
-            console.log('계정 또는 휴가 정보를 불러오지 못했습니다.', err);
+            console.log('계정, 휴가 또는 워케이션 정보를 불러오지 못했습니다.', err);
         }
     };
 
@@ -100,6 +105,16 @@ const MemberDashBoard = () => {
             currentWeek = [];
         }
     });
+    
+    // 날짜가 워케이션 기간에 포함되는지 확인하는 함수
+    const isWorkationDay = (day) => {
+        const date = new Date(currentYear, currentMonth, day);
+        return approvedWorkations.some(workation => {
+            const startDate = new Date(workation.workationStartDate);
+            const endDate = new Date(workation.workationEndDate);
+            return date >= startDate && date <= endDate;
+        });
+    };
 
     const getAttendance = async () => {
         try {
@@ -185,7 +200,7 @@ const MemberDashBoard = () => {
                                     {week.map((day, dayIndex) => (
                                         <td
                                             key={dayIndex}
-                                            className={`${day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear() ? 'today' : ''}`}
+                                            className={`${day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear() ? 'today' : ''} ${isWorkationDay(day) ? 'workation' : ''}`}
                                         >
                                             {day}
                                         </td>
@@ -400,6 +415,12 @@ const CalendarCard = styled(Card)`
 
       &.today {
         background-color: #fb3f4a;
+        color: white;
+        font-weight: bold;
+      }
+
+      &.workation {
+        background-color: #A2D2FF; 
         color: white;
         font-weight: bold;
       }

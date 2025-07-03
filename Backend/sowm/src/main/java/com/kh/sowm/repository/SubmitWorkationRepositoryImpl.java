@@ -80,5 +80,14 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
                 .setParameter("companyCode", companyCode)
                 .getResultList();
     }
+    @Override
+    public List<SubmitWorkation> findApprovedByUserId(String userId) {
+        String jpql = "SELECT sw FROM SubmitWorkation sw " +
+                "WHERE sw.user.userId = :userId AND sw.status = :status";
+        return em.createQuery(jpql, SubmitWorkation.class)
+                .setParameter("userId", userId)
+                .setParameter("status", SubmitWorkation.StatusType.Y)
+                .getResultList();
+    }
 
 }
