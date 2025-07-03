@@ -15,33 +15,34 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const user = await userService.login(userId, password);
+      const response = await userService.login(userId, password);
+      console.log('로그인 응답:', response); // 로그 출력
 
-      if (!user || !user.userId) {
+      if (!response || !response.token) {
         alert('아이디 또는 비밀번호가 틀렸습니다.');
         return;
       }
 
-      login({
-        userId: user.userId,
-        userName: user.userName,
-        jobCode: user.jobCode,
-        deptCode: user.deptCode,
-        companyCode: user.companyCode,
-        status: user.status,
-      });
+      // 토큰 저장
+      sessionStorage.setItem('token', response.token);
 
-      if (user.status !== 'Y') {
-        alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
-        return;
-      }
+      // 토큰으로 사용자 정보 요청
+      const userInfo = await userService.getUserInfo();
 
-      if (user.jobCode === 'J2') {
+      // 세션스토리지로 토큰 저장
+      sessionStorage.setItem('userId', userInfo.userId);
+
+      // 로그인 성공시 상태토큰을 가지고 상태 업데이트함
+      login(userInfo, response.token);
+      console.log('상태 업데이트 후:', useUserStore.getState()); // 상태가 잘 갱신되었는지 확인
+
+      if (userInfo.jobCode === 'J2') {
         navigate('/AdminDashBoard');
-      } else if (['J1', 'J3', 'J4'].includes(user.jobCode)) {
+      } else if (['J1', 'J3', 'J4'].includes(userInfo.jobCode)) {
         navigate('/MemberDashBoard');
-      } else if (user.jobCode === 'J0') {
+      } else if (userInfo.jobCode === 'J0') {
         alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
+        navigate('/login');
       }
     } catch (err) {
       alert('아이디 또는 비밀번호가 틀렸습니다.');

@@ -92,6 +92,19 @@ public class ChallengeDto {
                     .endDate(challenge.getChallengeEndDate())
                     .build();
         }
+        public static CompletionResponse empty() {
+            return CompletionResponse.builder()
+                    .completeNo(null)
+                    .completeTitle(null)
+                    .completeContent(null)
+                    .userName(null)
+                    .userId(null)
+                    .createdDate(null)
+                    .startDate(null)
+                    .endDate(null)
+                    .completeImageUrl(null)
+                    .build();
+        }
     }
 
     @Getter

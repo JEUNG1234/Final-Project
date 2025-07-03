@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 public interface UserService {
-    UserDto.ResponseDto login(String userId, String userPwd);
+    User login(String userId, String userPwd);
 
     UserDto.ResponseDto getUserByUserId(String userId);
 
