@@ -8,7 +8,7 @@ import { attendanceService } from '../api/attendance';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-const HeaderBar = ({ onLogout }) => {
+const Header = ({ onLogout }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
   const { user } = useUserStore();
   const [attendanceStatus, setAttendanceStatus] = useState(null);
@@ -42,8 +42,9 @@ const HeaderBar = ({ onLogout }) => {
   const handleLogoutClick = () => {
     if (onLogout) {
       onLogout(); // App.js에서 전달받은 로그아웃 함수 호출
+      toast.info('로그아웃 되었습니다.');
+      navigate('/login'); // 로그아웃 후 로그인 페이지로 이동
     }
-    navigate('/login'); // 로그아웃 후 로그인 페이지로 이동
   };
 
   const handleAttendanceClick = async () => {
@@ -132,4 +133,4 @@ const WelcomeMessage = styled.span`
   margin-left: 12px;
 `;
 
-export default HeaderBar;
+export default Header;

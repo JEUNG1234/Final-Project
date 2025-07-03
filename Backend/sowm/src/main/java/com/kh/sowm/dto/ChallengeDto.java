@@ -31,7 +31,7 @@ public class ChallengeDto {
         private String userId;
         private String completeTitle;
         private String completeContent;
-        private String completeImageUrl; // 💡 인증 이미지 URL 필드 추가
+        private String completeImageUrl; //  인증 이미지 URL 필드 추가
     }
 
     @Getter
@@ -90,6 +90,19 @@ public class ChallengeDto {
                     .createdDate(challenge.getChallengeEndDate())
                     .startDate(challenge.getChallengeStartDate())
                     .endDate(challenge.getChallengeEndDate())
+                    .build();
+        }
+        public static CompletionResponse empty() {
+            return CompletionResponse.builder()
+                    .completeNo(null)
+                    .completeTitle(null)
+                    .completeContent(null)
+                    .userName(null)
+                    .userId(null)
+                    .createdDate(null)
+                    .startDate(null)
+                    .endDate(null)
+                    .completeImageUrl(null)
                     .build();
         }
     }

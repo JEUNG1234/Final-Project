@@ -18,7 +18,7 @@ const UpdateMyInfo = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     e.preventDefault();
 
     if (newPwd !== newPwdConfirm) {

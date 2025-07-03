@@ -3,16 +3,16 @@ package com.kh.sowm.exception.usersException;
 import com.kh.sowm.exception.BaseException;
 import com.kh.sowm.exception.ErrorCode;
 
-public class UserAleadyExistsException extends BaseException {
-    public UserAleadyExistsException() {
+public class UserAlreadyExistsException extends BaseException {
+    public UserAlreadyExistsException() {
         super(ErrorCode.USER_ALREADY_EXISTS);
     }
 
-    public UserAleadyExistsException(String message) {
+    public UserAlreadyExistsException(String message) {
         super(ErrorCode.USER_ALREADY_EXISTS, message);
     }
 
-    public UserAleadyExistsException(String message, Throwable cause) {
+    public UserAlreadyExistsException(String message, Throwable cause) {
         super(ErrorCode.USER_ALREADY_EXISTS, message, cause);
     }
 }

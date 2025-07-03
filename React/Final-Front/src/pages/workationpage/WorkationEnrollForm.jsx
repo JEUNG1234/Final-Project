@@ -9,7 +9,7 @@ import { MdWork } from 'react-icons/md';
 
 import NaverMapWithGeocoding from '../../components/NaverMapWithGeocoding';
 
-import { FaSquare, FaRulerCombined, FaUsers } from 'react-icons/fa';
+import { FaSquare, FaRulerCombined, FaExclamationTriangle, FaUsers } from 'react-icons/fa';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -63,19 +63,58 @@ const WorkationEnrollForm = () => {
     shouldFocusError: true,
   });
 
+  const [customErrors, setCustomErrors] = useState({
+    placeImage: '',
+    facilityImage: '',
+    precautionImage: '',
+  });
+
   //유효성검사 탭 이동시
   const handleNextFromIntro = async () => {
-    const valid = await trigger(['workationTitle', 'workationStartDate', 'workationEndDate', 'address']);
-    if (valid) {
+    const valid = await trigger(['workationTitle', 'workationStartDate', 'workationEndDate', 'address', 'placeImage']);
+    let customError = {};
+
+    if (!placeImage.file) {
+      customError.placeImage = '장소 이미지는 필수입니다.';
+    }
+
+    setCustomErrors((prev) => ({ ...prev, ...customError }));
+
+    if (valid && !customError.placeImage) {
       setActiveTab('facilities');
     }
   };
 
   //유효성검사 탭 이동시
   const handleNextFromFacilities = async () => {
-    const valid = await trigger(['openHours']);
-    if (valid) {
+    const valid = await trigger(['openHours', 'facilityImage']);
+    let customError = {};
+
+    if (!facilityImage.file) {
+      customError.facilityImage = '시설 이미지는 필수입니다.';
+    }
+
+    setCustomErrors((prev) => ({ ...prev, ...customError }));
+
+    if (valid && !customError.facilityImage) {
       setActiveTab('precautions');
+    }
+  };
+
+  //유효성 검사 탭 이동시
+  const handleNextFromPrecautions = async () => {
+    const valid = await trigger(['precautionImage']);
+
+    let customError = {};
+
+    if (!precautionImage.file) {
+      customError.precautionImage = '유의사항 이미지는 필수입니다.';
+    }
+
+    setCustomErrors((prev) => ({ ...prev, ...customError }));
+
+    if (valid && !customError.precautionImage) {
+      setActiveTab('refund');
     }
   };
 
@@ -149,23 +188,33 @@ const WorkationEnrollForm = () => {
 
     if (type === 'place') {
       setPlaceImage(imageInfo);
+      setCustomErrors((prev) => ({ ...prev, placeImage: '' }));
     } else if (type === 'facility') {
       setFacilityImage(imageInfo);
+      setCustomErrors((prev) => ({ ...prev, facilityImage: '' }));
     } else if (type === 'precaution') {
       setPrecautionImage(imageInfo);
+      setCustomErrors((prev) => ({ ...prev, precautionImage: '' }));
     }
   };
 
   const onSubmit = async (data) => {
+    const start = new Date(data.workationStartDate);
+    const end = new Date(data.workationEndDate);
+
+    if (start > end) {
+      alert('계약기간을 올바르게 설정해주세요.');
+      return;
+    }
+
+    if (peopleMax < peopleMin) {
+      alert('수용인원 입력값을 올바르게 설정해주세요.');
+      return;
+    }
     try {
       const placeImgInfo = await fileupload.uploadImageToS3(placeImage.file, 'workation/');
       const facilityImgInfo = await fileupload.uploadImageToS3(facilityImage.file, 'workation/');
       const precautionImgInfo = await fileupload.uploadImageToS3(precautionImage.file, 'workation/');
-
-      console.log(placeImgInfo);
-      console.log(placeImgInfo.filename);
-      console.log(facilityImgInfo.filename);
-      console.log(precautionImgInfo.filename);
 
       const images = [
         {
@@ -225,12 +274,17 @@ const WorkationEnrollForm = () => {
       const workResponse = await workationService.create(requestBody);
 
       console.log(workResponse);
+
+      alert('워케이션정보가 등록되었습니다.');
     } catch (error) {
-      console.error('워케이션 생성 에러:', error);
-      alert('워케이션 정보 등록 중 에러가 발생했습니다.');
+      const errorMsg =
+        error?.response?.data?.message || error?.message || '워케이션 정보 등록 중 알 수 없는 에러가 발생했습니다.';
+      console.error(errorMsg);
+
+      alert('워케이션 정보 등록 중 에러가 발생했습니다.', errorMsg);
     }
     console.log({ data });
-    alert('워케이션정보가 등록되었습니다.');
+
     navigate('/workationList');
   };
 
@@ -335,13 +389,20 @@ const WorkationEnrollForm = () => {
               <MdWork /> 워케이션 &gt; 장소 추가 &gt; 장소소개
             </PageTitle>
 
-            <FormGroup>
+            <FormField>
               <Label htmlFor="workationTitle">워케이션제목</Label>
               <Input id="workationTitle" type="text" placeholder="워케이션 제목 입력" {...register('workationTitle')} />
-              {errors.workationTitle && <ErrorMessage>{errors.workationTitle.message}</ErrorMessage>}
-            </FormGroup>
+              {errors.workationTitle && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {errors.workationTitle.message}
+                </ErrorTooltip>
+              )}
+            </FormField>
 
-            <FormGroup>
+            <FormField>
               <Label htmlFor="placeImage">장소 이미지</Label>
               <Input
                 id="placeImage"
@@ -352,15 +413,30 @@ const WorkationEnrollForm = () => {
               />
               <HiddenFileInput id="placeUpload" type="file" onChange={(e) => handleImageUpload(e, 'place')} />
               <StyledUploadButton htmlFor="placeUpload">이미지등록</StyledUploadButton>
-            </FormGroup>
+              {customErrors.placeImage && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {customErrors.placeImage}
+                </ErrorTooltip>
+              )}
+            </FormField>
 
-            <FormGroup>
+            <FormField>
               <Label htmlFor="address">주소(위치)</Label>
               <Input id="address" type="text" placeholder="주소검색" {...register('address')} readOnly />
-              {errors.address && <ErrorMessage>{errors.address.message}</ErrorMessage>}
 
+              {errors.address && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {errors.address.message}
+                </ErrorTooltip>
+              )}
               <StyledUploadButton onClick={handleOpenMapModal}>주소등록</StyledUploadButton>
-            </FormGroup>
+            </FormField>
 
             {showMap && <NaverMapWithGeocoding />}
             <FormTextareaGroup style={{ alignItems: 'flex-start' }}>
@@ -387,16 +463,23 @@ const WorkationEnrollForm = () => {
               />
             </FormTextareaGroup>
 
-            <SpaceFormGroup>
+            <FormField>
               <Label htmlFor="workationStartDate">계약기간</Label>
               <SpaceInputGroup>
                 <SpaceInput id="workationStartDate" type="date" {...register('workationStartDate')} />
                 부터
                 <SpaceInput id="workationEndDate" type="date" {...register('workationEndDate')} />
                 까지
-                {errors.workationStartDate && <ErrorMessage>{errors.workationStartDate.message}</ErrorMessage>}
+                {errors.workationStartDate && (
+                  <ErrorTooltip>
+                    <IconBox>
+                      <FaExclamationTriangle />
+                    </IconBox>
+                    {errors.workationStartDate.message}
+                  </ErrorTooltip>
+                )}
               </SpaceInputGroup>
-            </SpaceFormGroup>
+            </FormField>
 
             <ActionButtons>
               <DangerButton onClick={() => navigate(-1)}>취소하기</DangerButton>
@@ -415,7 +498,7 @@ const WorkationEnrollForm = () => {
               <MdWork /> 워케이션 &gt; 장소 추가 &gt; 시설안내
             </PageTitle>
 
-            <FormGroup>
+            <FormField>
               <Label htmlFor="facilityImage">이미지</Label>
               <Input
                 id="facilityImage"
@@ -426,7 +509,15 @@ const WorkationEnrollForm = () => {
               />
               <HiddenFileInput id="facilityUpload" type="file" onChange={(e) => handleImageUpload(e, 'facility')} />
               <StyledUploadButton htmlFor="facilityUpload">이미지등록</StyledUploadButton>
-            </FormGroup>
+              {customErrors.facilityImage && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {customErrors.facilityImage}
+                </ErrorTooltip>
+              )}
+            </FormField>
 
             <FormGroup>
               <Label htmlFor="facilityInfo">시설안내</Label>
@@ -439,11 +530,18 @@ const WorkationEnrollForm = () => {
               />
             </FormGroup>
 
-            <FormGroup>
+            <FormField>
               <Label htmlFor="openHours">영업시간</Label>
               <Input id="openHours" type="text" {...register('openHours')} placeholder="ex)08시 ~ 18시" />
-              {errors.openHours && <ErrorMessage>{errors.openHours.message}</ErrorMessage>}
-            </FormGroup>
+              {errors.openHours && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {errors.openHours.message}
+                </ErrorTooltip>
+              )}
+            </FormField>
 
             <FormGroup>
               <Label>휴무일</Label>
@@ -530,7 +628,7 @@ const WorkationEnrollForm = () => {
                 placeholder="유의사항을 작성해주세요."
               />
             </FormTextareaGroup>
-            <FormGroup>
+            <FormField>
               <Label htmlFor="precautionImage">이미지</Label>
               <Input
                 id="precautionImage"
@@ -541,10 +639,20 @@ const WorkationEnrollForm = () => {
               />
               <HiddenFileInput id="precautionUpload" type="file" onChange={(e) => handleImageUpload(e, 'precaution')} />
               <StyledUploadButton htmlFor="precautionUpload">이미지등록</StyledUploadButton>
-            </FormGroup>
+              {customErrors.precautionImage && (
+                <ErrorTooltip>
+                  <IconBox>
+                    <FaExclamationTriangle />
+                  </IconBox>
+                  {customErrors.precautionImage}
+                </ErrorTooltip>
+              )}
+            </FormField>
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('facilities')}>이전으로</DangerButton>
-              <PrimaryButton onClick={() => setActiveTab('refund')}>다음으로</PrimaryButton>
+              <PrimaryButton type="button" onClick={handleNextFromPrecautions}>
+                다음으로
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
@@ -619,7 +727,7 @@ const MainContent = styled.div`
 `;
 
 const DayButton = styled(PageButton).withConfig({
-  shouldForwardProp: (prop) => prop !== 'isSelected'
+  shouldForwardProp: (prop) => prop !== 'isSelected',
 })`
   background-color: ${({ isSelected }) => (isSelected ? '#267eff' : 'white')};
   color: ${({ isSelected }) => (isSelected ? 'white' : '#267eff')};
@@ -1096,5 +1204,57 @@ const ErrorMessage = styled.p`
   width: 100%;
 `;
 
+// 말풍선 툴팁 스타일
+const ErrorTooltip = styled.div`
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  color: #222;
+  font-size: 12px;
+  padding: 11px 16px 11px 13px;
+  border-radius: 7px;
+  box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.11);
+  display: flex;
+  align-items: center;
+  min-width: 100px;
+  z-index: 20;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 18px;
+    border-width: 0 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent #fff transparent;
+    filter: drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.09));
+  }
+`;
+
+const IconBox = styled.div`
+  background: #ffb300;
+  color: #fff;
+  border-radius: 5px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-size: 17px;
+`;
+
+// FormField(최대 인원 입력 부분에만 새로 사용)
+const FormField = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  position: relative;
+  margin-bottom: 25px;
+`;
 
 export default WorkationEnrollForm;

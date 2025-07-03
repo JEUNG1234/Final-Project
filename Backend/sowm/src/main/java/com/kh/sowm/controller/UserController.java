@@ -1,9 +1,11 @@
 package com.kh.sowm.controller;
 
+import com.kh.sowm.auth.JwtTokenProvider;
 import com.kh.sowm.dto.ProfileImageDto;
 import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.service.UserService;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,24 +23,27 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<UserDto.ResponseDto> login(@RequestBody UserDto.ResponseDto loginDto) {
+    public ResponseEntity<?> login(@RequestBody UserDto.ResponseDto loginDto) {
+        User user = userService.login(loginDto.getUserId(), loginDto.getUserPwd());
+        String jwtToken = jwtTokenProvider.createToken(user.getUserId(), user.getJob().getJobCode());
+        Map<String, Object> loginInfo = new HashMap<>();
+        loginInfo.put("token", jwtToken);
+        loginInfo.put("jobCode", user.getJob().getJobCode());
 
-        UserDto.ResponseDto loginUser = userService.login(loginDto.getUserId(), loginDto.getUserPwd());
-
-        return ResponseEntity.ok(loginUser);
+        return ResponseEntity.ok(loginInfo);
     }
 
     // 유저 아이디 기준으로 유저 정보 가져오기
     @GetMapping
-    public ResponseEntity<UserDto.ResponseDto> getUserId(@RequestParam String userId) {
+    public ResponseEntity<UserDto.ResponseDto> getUserId() {
+
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserDto.ResponseDto loginUser = userService.getUserByUserId(userId);
-        /**
-         * 이제 유저 아이디 이런식으로 가져오면 됨. 매개변수에 userId 안 쓰고
-         * String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-         */
+
         return ResponseEntity.ok(loginUser);
     }
 

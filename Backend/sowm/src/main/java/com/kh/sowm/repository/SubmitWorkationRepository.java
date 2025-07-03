@@ -31,4 +31,7 @@ public interface SubmitWorkationRepository {
 
     //워케이션 전체 신청 리스트조회
     List<SubmitWorkation> findByList(String companyCode);
+
+    // 사용자의 승인된 워케이션 목록 조회
+    List<SubmitWorkation> findApprovedByUserId(String userId);
 }
