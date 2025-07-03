@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import loginImage from '../../assets/메인페이지사진1.jpg'; // 상대 경로로 변경!
 import { userService } from '../../api/users';
 import useUserStore from '../../Store/useStore';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [userId, setUserId] = useState('');
@@ -11,9 +13,16 @@ const Login = () => {
   const navigate = useNavigate();
   const login = useUserStore((state) => state.login);
 
+  const locaion = useLocation();
+
+  useEffect(() => {
+    if (locaion.state && locaion.state.fromPrivateRoute) {
+      toast.info('로그인 후 이용해주세요.');
+    }
+  }, [locaion]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await userService.login(userId, password);
       console.log('로그인 응답:', response); // 로그 출력
@@ -22,16 +31,12 @@ const Login = () => {
         alert('아이디 또는 비밀번호가 틀렸습니다.');
         return;
       }
-
       // 토큰 저장
       sessionStorage.setItem('token', response.token);
-
       // 토큰으로 사용자 정보 요청
       const userInfo = await userService.getUserInfo();
-
       // 세션스토리지로 토큰 저장
       sessionStorage.setItem('userId', userInfo.userId);
-
       // 로그인 성공시 상태토큰을 가지고 상태 업데이트함
       login(userInfo, response.token);
       console.log('상태 업데이트 후:', useUserStore.getState()); // 상태가 잘 갱신되었는지 확인

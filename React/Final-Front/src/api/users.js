@@ -8,8 +8,11 @@ export const userService = {
       console.log(API_ENDPOINTS.USERS.LOGIN);
       const { data } = await api.post(API_ENDPOINTS.USERS.LOGIN, { userId, userPwd: password });
       const user = data;
+      console.log('Server login response:', user); // 서버 응답 로깅
       if (user) {
-        sessionStorage.setItem('userId', user.token); // 로그인 성공시 새 토큰을 sessionStorage 에 저장
+        sessionStorage.setItem('token', user.token); // 로그인 성공시 새 토큰을 sessionStorage 에 저장
+        sessionStorage.setItem('userId', userId); // 유저 아이디 저장
+        user.userId = userId; // 반환되는 user 객체에 userId 추가
       }
       return user;
     } catch (error) {

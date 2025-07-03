@@ -47,6 +47,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useUserStore from './Store/useStore';
 import UpdateMyInfo from './pages/mypage/UpdateMyInfo';
+import PrivateRoute from './PrivateRoute';
 
 const AppContainer = styled.div`
   display: flex;
@@ -108,56 +109,58 @@ function App() {
             <Route
               path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
               element={
-                <Layout user={user} onLogout={logout}>
-                  <Routes>
-                    {/* Layout 안에 포함될 페이지들 */}
-                    <Route path="/workationlist" element={<WorkationList />} />
-                    <Route path="/votelist" element={<VoteList />} />
-                    <Route path="/voteresult/:voteId" element={<VoteResult />} />
-                    <Route path="/votecreate" element={<VoteCreate />} />
-                    <Route path="/employeemanagement" element={<EmployeeManagement />} />
-                    <Route path="/employeeapproval" element={<EmployeeApproval />} />
-                    {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
-                    <Route path="/memberdashboard" element={<MemberDashBoard />} />
-                    <Route path="/admindashboard" element={<AdminDashBoard />} />
-                    {/* 챌린지 페이지 */}
-                    <Route path="/challenge" element={<Challenge />} />
-                    <Route path="/challenge/create" element={<ChallengeCreate />} />
-                    {/* 상세 챌린지 페이지 */}
-                    <Route path="/challenge/:id" element={<ChallengeDetail />} />
-                    {/* 수정된 부분: 챌린지 참여 페이지 라우트 */}
-                    <Route path="/challenge/:id/join" element={<ChallengeJoin />} />
-                    <Route path="/challenge/challenge_id/:id" element={<ChallengeComplete />} />
-                    {/* 내 챌린지 페이지 */}
-                    <Route path="/myChallenge" element={<MyCallenge />} />
-                    <Route path="/mychallenge/complete/:id" element={<MyChallengeComplete />} />
-                    <Route path="/mypage" element={<MyPage />} />
-                    <Route path="/updatemyinfo" element={<UpdateMyInfo />} />
-                    <Route path="/adminattendance" element={<AdminAttendance />} />
-                    {/* 직원 커뮤니티 게시판 페이지 */}
-                    <Route path="/communityboard" element={<CommunityBoard />} />
-                    <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
-                    <Route path="/addboard" element={<AddBoard />} />
-                    <Route path="/editboard/:id" element={<EditBoard />} />
-                    {/* 직원 근태관리 페이지 */}
-                    <Route path="/memberattendance" element={<MemberAttendance />} />
-                    {/* 직원 워케이션 페이지 */}
-                    <Route path="/workationDetail/:no" element={<WorkationDetail />} />
-                    <Route path="/myWorkation" element={<MyWorkation />} />
-                    {/* 관리자 워케이션승인 페이지 */}
-                    <Route path="/workationadmin" element={<WorkationAdmin />} />
-                    {/* 관리자 워케이션리스트 생성 페이지 */}
-                    <Route path="/workationEnrollForm" element={<WorkationEnrollForm />} />
-                    <Route path="/WorkationUpdate/:no" element={<WorkationUpdate />} />
-                    {/* 건강 관리 페이지 */}
-                    <Route path="healthcaremain" element={<HealthCareMain />} />
-                    <Route path="mentaltest" element={<MentalCareTest />} />
-                    <Route path="mentalcareresult" element={<MentalCareResult />} />
-                    <Route path="physicalcareresult" element={<PhysicalCareResult />} />
-                    <Route path="physicaltest" element={<PhysicalCareTest />} />
-                    <Route path="testresult" element={<TestResult />} />
-                  </Routes>
-                </Layout>
+                <PrivateRoute>
+                  <Layout user={user} onLogout={logout}>
+                    <Routes>
+                      {/* Layout 안에 포함될 페이지들 */}
+                      <Route path="/workationlist" element={<WorkationList />} />
+                      <Route path="/votelist" element={<VoteList />} />
+                      <Route path="/voteresult/:voteId" element={<VoteResult />} />
+                      <Route path="/votecreate" element={<VoteCreate />} />
+                      <Route path="/employeemanagement" element={<EmployeeManagement />} />
+                      <Route path="/employeeapproval" element={<EmployeeApproval />} />
+                      {/* 여기에 Sidebar와 Header가 필요한 다른 페이지들을 추가하세요 */}
+                      <Route path="/memberdashboard" element={<MemberDashBoard />} />
+                      <Route path="/admindashboard" element={<AdminDashBoard />} />
+                      {/* 챌린지 페이지 */}
+                      <Route path="/challenge" element={<Challenge />} />
+                      <Route path="/challenge/create" element={<ChallengeCreate />} />
+                      {/* 상세 챌린지 페이지 */}
+                      <Route path="/challenge/:id" element={<ChallengeDetail />} />
+                      {/* 수정된 부분: 챌린지 참여 페이지 라우트 */}
+                      <Route path="/challenge/:id/join" element={<ChallengeJoin />} />
+                      <Route path="/challenge/challenge_id/:id" element={<ChallengeComplete />} />
+                      {/* 내 챌린지 페이지 */}
+                      <Route path="/myChallenge" element={<MyCallenge />} />
+                      <Route path="/mychallenge/complete/:id" element={<MyChallengeComplete />} />
+                      <Route path="/mypage" element={<MyPage />} />
+                      <Route path="/updatemyinfo" element={<UpdateMyInfo />} />
+                      <Route path="/adminattendance" element={<AdminAttendance />} />
+                      {/* 직원 커뮤니티 게시판 페이지 */}
+                      <Route path="/communityboard" element={<CommunityBoard />} />
+                      <Route path="/communityboard/:id" element={<CommunityBoardDetail />} />
+                      <Route path="/addboard" element={<AddBoard />} />
+                      <Route path="/editboard/:id" element={<EditBoard />} />
+                      {/* 직원 근태관리 페이지 */}
+                      <Route path="/memberattendance" element={<MemberAttendance />} />
+                      {/* 직원 워케이션 페이지 */}
+                      <Route path="/workationDetail/:no" element={<WorkationDetail />} />
+                      <Route path="/myWorkation" element={<MyWorkation />} />
+                      {/* 관리자 워케이션승인 페이지 */}
+                      <Route path="/workationadmin" element={<WorkationAdmin />} />
+                      {/* 관리자 워케이션리스트 생성 페이지 */}
+                      <Route path="/workationEnrollForm" element={<WorkationEnrollForm />} />
+                      <Route path="/WorkationUpdate/:no" element={<WorkationUpdate />} />
+                      {/* 건강 관리 페이지 */}
+                      <Route path="healthcaremain" element={<HealthCareMain />} />
+                      <Route path="mentaltest" element={<MentalCareTest />} />
+                      <Route path="mentalcareresult" element={<MentalCareResult />} />
+                      <Route path="physicalcareresult" element={<PhysicalCareResult />} />
+                      <Route path="physicaltest" element={<PhysicalCareTest />} />
+                      <Route path="testresult" element={<TestResult />} />
+                    </Routes>
+                  </Layout>
+                </PrivateRoute>
               }
             />
           </Routes>
