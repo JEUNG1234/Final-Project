@@ -5,9 +5,10 @@ const useUserStore = create(
   persist(
     (set) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
 
-      login: (userData) => {
+      login: (userData, token) => {
         console.log('login userData:', userData);
         set({
           user: {
@@ -17,6 +18,7 @@ const useUserStore = create(
             deptCode: userData.deptCode,
             companyCode: userData.companyCode,
           },
+          token: token,
           isAuthenticated: true,
         });
       },
@@ -24,6 +26,7 @@ const useUserStore = create(
       logout: () => {
         set({
           user: null,
+          token: null,
           isAuthenticated: false,
         });
       },
@@ -36,10 +39,10 @@ const useUserStore = create(
     }),
     {
       name: 'user-storage', // localStorage에 저장될 키 이름
-      // storage: localStorage, // 기본은 localStorage (생략해도 됨)
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
+        token: state.token,
       }),
     }
   )

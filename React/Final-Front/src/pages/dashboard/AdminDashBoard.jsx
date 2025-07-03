@@ -82,21 +82,21 @@ const AdminDashBoard = () => {
 
   const myInfo = async () => {
     try {
-        const userId = localStorage.getItem('userId');
-        const [userInfo, vacationData] = await Promise.all([
-            userService.getUserInfo(userId),
-            userService.getVacationCount(userId)
-        ]);
-        setMyInfoState(userInfo);
-        setVacationCount(vacationData);
+      const userId = sessionStorage.getItem('userId');
+      const [userInfo, vacationData] = await Promise.all([
+        userService.getUserInfo(userId),
+        userService.getVacationCount(userId),
+      ]);
+      setMyInfoState(userInfo);
+      setVacationCount(vacationData);
     } catch (err) {
-        console.log('계정 또는 휴가 정보를 불러오지 못했습니다.', err);
+      console.log('계정 또는 휴가 정보를 불러오지 못했습니다.', err);
     }
   };
 
   const getChallengeForDashBoard = async () => {
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = sessionStorage.getItem('userId');
       const response = await challengeService.getChallengeForDashBoard(userId);
       setChallenge(response);
     } catch (err) {
@@ -106,7 +106,7 @@ const AdminDashBoard = () => {
 
   const getNotice = async () => {
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = sessionStorage.getItem('userId');
       const response = await BoardAPI.getNotice(userId);
       setNotices(response.data);
     } catch (error) {
@@ -216,16 +216,16 @@ const AdminDashBoard = () => {
               <dd>{myInfoState?.deptName}</dd>
             </dl>
             <dl>
-                <dt>남은 연차 수:</dt>
-                <dd>
-                    <span>{vacationCount}일</span>
-                </dd>
+              <dt>남은 연차 수:</dt>
+              <dd>
+                <span>{vacationCount}일</span>
+              </dd>
             </dl>
             <dl>
-                <dt>복지 포인트:</dt>
-                <dd>
-                    <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
-                </dd>
+              <dt>복지 포인트:</dt>
+              <dd>
+                <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
+              </dd>
             </dl>
           </div>
         </UserInfoCard>

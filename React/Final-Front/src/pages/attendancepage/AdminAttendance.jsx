@@ -361,7 +361,7 @@ const AdminAttendance = () => {
 
   const getAttendanceList = async (page = 0) => {
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = sessionStorage.getItem('userId');
       const response = await adminService.getAllAttendanceByCompanyCode(userId, page, 5);
       if (response && Array.isArray(response.content)) {
         setAttendanceList(response.content);
