@@ -9,9 +9,8 @@ export const userService = {
       const { data } = await api.post(API_ENDPOINTS.USERS.LOGIN, { userId, userPwd: password });
       const user = data;
       if (user) {
-        localStorage.setItem('userId', user.userId); // 로그인 성공 시 userId 저장
+        localStorage.setItem('userId', user.token); // 로그인 성공시 새 토큰을 sessionStorage 에 저장
       }
-
       return user;
     } catch (error) {
       if (error.response) {
@@ -49,8 +48,8 @@ export const userService = {
     return regex.test(password);
   },
 
-  getUserInfo: async (userId) => {
-    const response = await api.get(`${API_ENDPOINTS.USERS.BASE}?userId=${userId}`);
+  getUserInfo: async () => {
+    const response = await api.get(API_ENDPOINTS.USERS.BASE);
     return response.data;
   },
 
@@ -103,7 +102,7 @@ export const userService = {
     return response;
   },
 
- uploadProfileImage: async (userId, { imgUrl, size, originalName, changeName }) => {
+  uploadProfileImage: async (userId, { imgUrl, size, originalName, changeName }) => {
     const response = await api.patch(`${API_ENDPOINTS.USERS.BASE}/${userId}${API_ENDPOINTS.USERS.UPLOADPROFILEIMAGE}`, {
       imgUrl,
       size,

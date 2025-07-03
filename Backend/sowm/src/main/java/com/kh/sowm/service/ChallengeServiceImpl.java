@@ -237,9 +237,8 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         String companyCode = user.getCompanyCode();
 
-        Challenge challenge = challengeRepository.findDashBoardChallenge(companyCode)
-                .orElseThrow(() -> new IllegalArgumentException("챌린지 정보가 없습니다."));
-
-        return CompletionResponse.from(challenge);
+        return challengeRepository.findDashBoardChallenge(companyCode)
+                .map(CompletionResponse::from)
+                .orElse(CompletionResponse.empty());
     }
 }

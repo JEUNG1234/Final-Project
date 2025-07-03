@@ -33,7 +33,7 @@ const PhysicalCareTest = () => {
 
   const handleSubmit = async () => {
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = sessionStorage.getItem('userId');
       console.log('현재 로그인된 계정의 아이디 : ', userId);
 
       const response = await healthService.physicalquestion({ userId, questions: QUESTIONS, scores });
