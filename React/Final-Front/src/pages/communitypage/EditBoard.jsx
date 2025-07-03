@@ -25,19 +25,28 @@ const EditBoard = () => {
   const [imageMeta, setImageMeta] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  // 초기 contentEditable 세팅 완료 여부 플래그
+  const [isContentInitialized, setIsContentInitialized] = useState(false);
+
+  // 게시글 데이터 로드
   useEffect(() => {
     BoardAPI.getBoardDetail(id)
       .then((res) => {
-        setPost(res.data);
-        setTitle(res.data.boardTitle);
-        setCategory(res.data.categoryNo);
-        setContent(res.data.boardContent);
-        setImageMeta(res.data.image);
-        if (res.data.image?.path) {
-          setPreviewUrl(`https://d1qzqzab49ueo8.cloudfront.net/${res.data.image.changedName}`);
+        const data = res.data;
+        console.log(data);
+        setPost(data);
+        setTitle(data.boardTitle);
+        setCategory(data.categoryNo);
+        setImageMeta(data.image);
+        if (data.image?.path) {
+          setPreviewUrl(`https://d1qzqzab49ueo8.cloudfront.net/${data.image.changedName}`);
         }
-        if (contentRef.current) {
-          contentRef.current.innerText = res.data.boardContent;
+
+        // 최초 한번만 contentEditable 초기값 세팅
+        if (!isContentInitialized && contentRef.current) {
+          contentRef.current.innerText = data.boardContent;
+          setIsContentInitialized(true);
+          setContent(data.boardContent);
         }
       })
       .catch((err) => {
@@ -49,7 +58,14 @@ const EditBoard = () => {
     CategoryAPI.getAllCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('카테고리 불러오기 실패:', err));
-  }, [id, navigate]);
+  }, [id, navigate, isContentInitialized]);
+
+  // content 상태 변경 시 contentEditable에 innerText를 다시 넣지 않음 (커서 튐 방지)
+
+  // contentEditable 입력 핸들러
+  const handleContentInput = (e) => {
+    setContent(e.currentTarget.innerText);
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -153,20 +169,20 @@ const EditBoard = () => {
               <img src={previewUrl} alt="미리보기 이미지" />
             </ImagePreviewInEditor>
           )}
-          <EditableDiv
-            contentEditable
-            suppressContentEditableWarning
-            ref={contentRef}
-            placeholder="내용을 입력하세요."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <EditableDiv contentEditable suppressContentEditableWarning ref={contentRef} onInput={handleContentInput}>
+            {post.boardContent}
+          </EditableDiv>
         </EditorWrapper>
 
         <PageMidTitle>첨부 이미지</PageMidTitle>
         <FileInputWrapper>
           <HiddenFileInput type="file" onChange={handleFileChange} ref={fileInputRef} />
-          <FileNameDisplay type="text" readOnly value={file?.name || ''} placeholder="선택된 파일 없음" />
+          <FileNameDisplay
+            type="text"
+            readOnly
+            value={file?.name || imageMeta?.originalName || ''}
+            placeholder="선택된 파일 없음"
+          />
           {!file ? (
             <FileSelectButton htmlFor="fileUpload" as="label">
               파일 선택
@@ -189,6 +205,7 @@ const EditBoard = () => {
     </MainContent>
   );
 };
+
 const PageMidTitle = styled.h3`
   font-size: 18px;
   color: #000000;
