@@ -19,7 +19,7 @@ const MyPage = () => {
     if (!storedUserId) return;
     try {
       const [userInfoData, vacationCountData] = await Promise.all([
-        userService.getUserInfo(storedUserId),
+        userService.getUserInfo(),
         userService.getVacationCount(storedUserId),
       ]);
 

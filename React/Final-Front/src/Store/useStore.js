@@ -24,13 +24,9 @@ const useUserStore = create(
       },
 
       logout: () => {
-       
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('userId');
         sessionStorage.removeItem('user-storage'); // zustand persist 스토리지도 클리어
-
-    
-
         set({
           user: null,
           token: null,
