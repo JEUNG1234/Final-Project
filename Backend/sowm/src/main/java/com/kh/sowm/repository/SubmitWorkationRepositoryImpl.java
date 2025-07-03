@@ -22,8 +22,8 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
     @Override
     public List<SubmitWorkation> findByStatus(StatusType statusType, String companyCode) {
         String jpql = "SELECT w FROM SubmitWorkation w " +
-                "JOIN Fetch w.user u " +
-                "WHERE w.status = : status AND u.companyCode = :companyCode";
+                "JOIN FETCH w.user u " +
+                "WHERE w.status = :status AND u.companyCode = :companyCode";
         return em.createQuery(jpql, SubmitWorkation.class)
                 .setParameter("status", statusType)
                 .setParameter("companyCode", companyCode)
@@ -80,6 +80,7 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
                 .setParameter("companyCode", companyCode)
                 .getResultList();
     }
+
     @Override
     public List<SubmitWorkation> findApprovedByUserId(String userId) {
         String jpql = "SELECT sw FROM SubmitWorkation sw " +

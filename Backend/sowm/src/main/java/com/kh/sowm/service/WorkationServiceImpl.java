@@ -30,6 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -208,7 +209,7 @@ public class WorkationServiceImpl implements WorkationService {
         List<SubmitWorkation> subWorkation = submitWorkationRepository.findByStatus(SubmitWorkation.StatusType.W, companyCode);
 
         if (subWorkation == null || subWorkation.isEmpty()) {
-            throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
+            return ResponseEntity.ok(Collections.emptyList());
         }
 
         List<WorkationSubListDto> dtoList = subWorkation.stream()
@@ -288,6 +289,7 @@ public class WorkationServiceImpl implements WorkationService {
 
         return ResponseEntity.ok(dtoList);
     }
+
     @Override
     public ResponseEntity<List<WorkationSubListDto>> getApprovedWorkations(String userId) {
         List<SubmitWorkation> approvedWorkations = submitWorkationRepository.findApprovedByUserId(userId);
