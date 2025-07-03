@@ -246,7 +246,8 @@ const WorkationUpdate = () => {
 
   const [selectedCoords, setSelectedCoords] = useState({ lat: latitude, lng: longitude });
 
-  const handleAddressSelect = (address, lat, lng) => {
+  const handleAddressSelect = (address, lat, lng, e) => {
+    e.preventDefault();
     setSelectedCoords({ lat, lng }); // 위도/경도 저장
     setIsMapModalOpen(false); // 모달 닫기
 

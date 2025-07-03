@@ -9,7 +9,7 @@ export const userService = {
       const { data } = await api.post(API_ENDPOINTS.USERS.LOGIN, { userId, userPwd: password });
       const user = data;
       if (user) {
-        localStorage.setItem('userId', user.token); // 로그인 성공시 새 토큰을 sessionStorage 에 저장
+        sessionStorage.setItem('userId', user.token); // 로그인 성공시 새 토큰을 sessionStorage 에 저장
       }
       return user;
     } catch (error) {
