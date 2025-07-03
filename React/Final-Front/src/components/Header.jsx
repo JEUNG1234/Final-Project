@@ -8,7 +8,7 @@ import { attendanceService } from '../api/attendance';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-const HeaderBar = ({ onLogout }) => {
+const Header = ({ onLogout }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
   const { user } = useUserStore();
   const [attendanceStatus, setAttendanceStatus] = useState(null);
@@ -132,4 +132,4 @@ const WelcomeMessage = styled.span`
   margin-left: 12px;
 `;
 
-export default HeaderBar;
+export default Header;

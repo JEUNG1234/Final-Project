@@ -31,7 +31,7 @@ public class ChallengeDto {
         private String userId;
         private String completeTitle;
         private String completeContent;
-        private String completeImageUrl; // 💡 인증 이미지 URL 필드 추가
+        private String completeImageUrl; //  인증 이미지 URL 필드 추가
     }
 
     @Getter

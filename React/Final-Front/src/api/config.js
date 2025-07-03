@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
     MYLIST: '/workation/submylist',
     MYDELETE: '/workation/mydelete',
     FULLSUBLIST: '/workation/fullsublist',
+    APPROVED_LIST: '/workation/approved-list',
   },
   ATTENDANCE: {
     BASE: '/attendance',

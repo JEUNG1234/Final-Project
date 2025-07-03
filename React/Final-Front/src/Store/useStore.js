@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 const useUserStore = create(
   persist(
@@ -24,6 +24,19 @@ const useUserStore = create(
       },
 
       logout: () => {
+        console.log('--- Logout function initiated ---');
+        console.log('Before removal, sessionStorage token:', sessionStorage.getItem('token'));
+        console.log('Before removal, sessionStorage userId:', sessionStorage.getItem('userId'));
+
+        // 세션 스토리지에서 직접 관리하는 항목들도 제거
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('userId');
+        sessionStorage.removeItem('user-storage'); // zustand persist 스토리지도 클리어
+
+        console.log('After removal, sessionStorage token:', sessionStorage.getItem('token'));
+        console.log('After removal, sessionStorage userId:', sessionStorage.getItem('userId'));
+        console.log('--- Logout function finished ---');
+
         set({
           user: null,
           token: null,
@@ -38,7 +51,8 @@ const useUserStore = create(
       },
     }),
     {
-      name: 'user-storage', // localStorage에 저장될 키 이름
+      name: 'user-storage', // sessionStorage에 저장될 키 이름
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,

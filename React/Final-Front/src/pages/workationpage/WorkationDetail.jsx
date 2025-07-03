@@ -32,8 +32,6 @@ const WorkationDetail = () => {
 
   const [content, setContent] = useState('');
 
- 
-
   //이미지 필터 저장용
   const [placeImage, setPlaceImage] = useState('');
   const [facilityImage, setFacilityImage] = useState('');
@@ -53,12 +51,10 @@ const WorkationDetail = () => {
         setWorkationInfo(data);
       } catch (error) {
         const apiError = error.response.data.message;
-        
-    
+
         alert(apiError);
         console.error(error);
         console.error('워케이션 정보 불러오기 실패:', apiError);
-       
       }
     };
     workationInfo();
@@ -114,7 +110,8 @@ const WorkationDetail = () => {
     shouldFocusError: true,
   });
   const navigate = useNavigate();
-  const onSubmit = async (data) => {
+  const onSubmit = async (data, e) => {
+    e.preventDefault();
     const [startDate, endDate] = data.dateRange;
     try {
       const submitBody = {
@@ -794,16 +791,6 @@ const SubmitButton = styled.button`
   &:active {
     background-color: #3b7ae0;
   }
-`;
-
-//에러메시지
-const ErrorMessage = styled.p`
-  color: red;
-  font-size: 13px;
-  margin-top: -8px;
-  margin-bottom: 8px;
-  text-align: left;
-  width: 100%;
 `;
 
 // 말풍선 툴팁 스타일

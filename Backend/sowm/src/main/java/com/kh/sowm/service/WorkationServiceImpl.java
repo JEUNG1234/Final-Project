@@ -16,6 +16,7 @@ import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
 import com.kh.sowm.exception.usersException.UserNotFoundException;
 import com.kh.sowm.exception.workationException.SubmitWorkationNotFoundException;
+import com.kh.sowm.exception.workationException.WorkationEnrollException;
 import com.kh.sowm.exception.workationException.WorkationNotFountException;
 import com.kh.sowm.repository.DayOffRepository;
 import com.kh.sowm.repository.SubmitWorkationRepository;
@@ -25,12 +26,15 @@ import com.kh.sowm.repository.WorkationLocationRepository;
 import com.kh.sowm.repository.WorkationRepository;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -74,8 +78,9 @@ public class WorkationServiceImpl implements WorkationService {
         return ResponseEntity.ok(dtoList);
     }
 
-     //워케이션 생성
+    //워케이션 생성
     @Override
+    @Transactional
     public WorkationDto.ResponseDto enrollWorkation(WorkationDto.WorkationCreateDto request) {
         String userId = request.getUserId();
 
@@ -85,17 +90,33 @@ public class WorkationServiceImpl implements WorkationService {
         Workation workation = request.toWorkationEntity(user);
         WorkationLocation location = request.toLocationEntity();
 
-        WorkationLocation savedLocation = workationLocationRepository.save(location);
+        WorkationLocation savedLocation;
+        try {
+            savedLocation = workationLocationRepository.save(location);
+        }catch (DataIntegrityViolationException e) {
+            throw new WorkationEnrollException("워케이션 장소 저장에 실패했습니다.");
+        }
+
         workation.setWorkationLocation(savedLocation);
-        Workation savedWorkation = workationRepository.save(workation);
+        Workation savedWorkation;
+        try {
+            savedWorkation = workationRepository.save(workation);
+        } catch (DataIntegrityViolationException e) {
+            throw new WorkationEnrollException("워케이션 저장에 실패했습니다.");
+        }
+
         if (request.getSelectedDays() != null) {
             for (String day : request.getSelectedDays()) {
                 DayOff dayOff = DayOff.builder()
                         .dayOff(day)
                         .workation(savedWorkation)
                         .build();
-                dayOffRepository.save(dayOff);
-            }
+                try {
+                    dayOffRepository.save(dayOff);
+                } catch (DataIntegrityViolationException e) {
+                    throw new WorkationEnrollException("휴무일 저장에 실패했습니다.");
+                }
+                }
         }
 
         if (request.getImages() != null && !request.getImages().isEmpty()) {
@@ -110,11 +131,17 @@ public class WorkationServiceImpl implements WorkationService {
                         .tab(Tab.valueOf(imageDto.getTab()))
                         .build();
 
-                workationImageRepository.save(image);
+                try {
+                    workationImageRepository.save(image);
+                } catch (DataIntegrityViolationException e) {
+                    throw new WorkationEnrollException("이미지 저장에 실패했습니다.");
                 }
-            }
 
-            return WorkationDto.ResponseDto.toDto(savedWorkation);
+
+            }
+        }
+
+        return WorkationDto.ResponseDto.toDto(savedWorkation);
 
     }
 
@@ -147,6 +174,7 @@ public class WorkationServiceImpl implements WorkationService {
 
     //워케이션 수정용
     @Override
+    @Transactional
     public ResponseDto updateWorkation(WorkationUpdateDto  request) {
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(UserNotFoundException::new);
@@ -160,36 +188,53 @@ public class WorkationServiceImpl implements WorkationService {
         WorkationLocation location = workation.getWorkationLocation();
         location.updateFromDto(request.getLocation());
 
-        Workation updateWorkation = workationRepository.updateWorkation(workation);
-        workationLocationRepository.updateLocation(location);
+        Workation updateWorkation;
+        try {
+            updateWorkation = workationRepository.updateWorkation(workation);
+        } catch (DataIntegrityViolationException e) {
+            throw new WorkationEnrollException("워케이션 수정에 실패했습니다.");
+        }
+        try {
+            workationLocationRepository.updateLocation(location);
+        } catch (DataIntegrityViolationException e) {
+            throw new WorkationEnrollException("워케이션 장소 수정에 실패했습니다.");
+        }
         Long workationNo = request.getWorkationNo();
 
-        dayOffRepository.deleteByworkationNo(workationNo);
+        try {
+            dayOffRepository.deleteByworkationNo(workationNo);
 
-        if (request.getSelectedDays() != null) {
-            for (String day : request.getSelectedDays()) {
-                DayOff dayOff = DayOff.builder()
-                        .dayOff(day)
-                        .workation(workation)
-                        .build();
-                dayOffRepository.updateDay(dayOff);
+            if (request.getSelectedDays() != null) {
+                for (String day : request.getSelectedDays()) {
+                    DayOff dayOff = DayOff.builder()
+                            .dayOff(day)
+                            .workation(workation)
+                            .build();
+                    dayOffRepository.updateDay(dayOff);
+                }
             }
+        } catch (DataIntegrityViolationException e) {
+            throw new WorkationEnrollException("휴무일 수정에 실패했습니다.");
         }
 
-        workationImageRepository.deleteByworkationNo(workationNo);
-        if (request.getImages() != null && !request.getImages().isEmpty()) {
-            for (WorkationDto.WorkationImageDto imageDto : request.getImages()) {
-                WorkationImage image = WorkationImage.builder()
-                        .workation(workation)
-                        .originalName(imageDto.getOriginalName())
-                        .changedName(imageDto.getChangedName())
-                        .path(imageDto.getPath())
-                        .size(imageDto.getSize())
-                        .tab(Tab.valueOf(imageDto.getTab()))
-                        .build();
+        try {
+            workationImageRepository.deleteByworkationNo(workationNo);
+            if (request.getImages() != null && !request.getImages().isEmpty()) {
+                for (WorkationDto.WorkationImageDto imageDto : request.getImages()) {
+                    WorkationImage image = WorkationImage.builder()
+                            .workation(workation)
+                            .originalName(imageDto.getOriginalName())
+                            .changedName(imageDto.getChangedName())
+                            .path(imageDto.getPath())
+                            .size(imageDto.getSize())
+                            .tab(Tab.valueOf(imageDto.getTab()))
+                            .build();
 
-                workationImageRepository.updateImage(image);
+                    workationImageRepository.updateImage(image);
+                }
             }
+        } catch (DataIntegrityViolationException e) {
+            throw new WorkationEnrollException("이미지 수정에 실패했습니다.");
         }
 
         return WorkationDto.ResponseDto.toDto(updateWorkation);
@@ -207,7 +252,7 @@ public class WorkationServiceImpl implements WorkationService {
         List<SubmitWorkation> subWorkation = submitWorkationRepository.findByStatus(SubmitWorkation.StatusType.W, companyCode);
 
         if (subWorkation == null || subWorkation.isEmpty()) {
-            throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
+            return ResponseEntity.ok(Collections.emptyList());
         }
 
         List<WorkationSubListDto> dtoList = subWorkation.stream()
@@ -255,8 +300,8 @@ public class WorkationServiceImpl implements WorkationService {
         }
 
         List<WorkationSubListDto> dtoList = submitWorkations.stream()
-        .map(WorkationSubListDto::dto)
-        .toList();
+                .map(WorkationSubListDto::dto)
+                .toList();
 
         return ResponseEntity.ok(dtoList);
     }
@@ -284,6 +329,17 @@ public class WorkationServiceImpl implements WorkationService {
         List<WorkationSubListDto> dtoList = subWorkation.stream()
                 .map(WorkationSubListDto::dto)
                 .toList();
+
+        return ResponseEntity.ok(dtoList);
+    }
+
+    @Override
+    public ResponseEntity<List<WorkationSubListDto>> getApprovedWorkations(String userId) {
+        List<SubmitWorkation> approvedWorkations = submitWorkationRepository.findApprovedByUserId(userId);
+
+        List<WorkationSubListDto> dtoList = approvedWorkations.stream()
+                .map(WorkationSubListDto::dto)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtoList);
     }
