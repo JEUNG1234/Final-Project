@@ -3,11 +3,14 @@ package com.kh.sowm.service;
 
 import com.kh.sowm.dto.BoardDto;
 import com.kh.sowm.dto.BoardDto.Response;
+import com.kh.sowm.dto.BoardImageDto;
 import com.kh.sowm.dto.UserDto;
 import com.kh.sowm.entity.Board;
+import com.kh.sowm.entity.BoardImage;
 import com.kh.sowm.entity.Category;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
+import com.kh.sowm.repository.BoardImageRepository;
 import com.kh.sowm.repository.BoardRepository;
 import com.kh.sowm.repository.CategoryRepository;
 import com.kh.sowm.repository.UserRepository;
@@ -30,6 +33,7 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository; // User 엔티티 조회용
     private final CategoryRepository categoryRepository; // Category 엔티티 조회용
+    private final BoardImageRepository boardImageRepository; // ✅ 이미지 저장용
 
 
     @Override
@@ -51,13 +55,31 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public Long createBoard(BoardDto.Create dto) throws IOException {
-        User user = userRepository.findByUserId(dto.getUserId()) // userRepository는 JpaRepository를 사용한다고 가정
+        User user = userRepository.findByUserId(dto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
-        Category category = categoryRepository.findById(dto.getCategoryNo()) // categoryRepository는 JpaRepository를 사용한다고 가정
+        Category category = categoryRepository.findById(dto.getCategoryNo())
                 .orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
 
+        // 게시글 엔티티 생성 및 저장
         Board board = dto.toEntity(category, user);
-        return boardRepository.save(board); // BoardRepositoryImpl의 save 메서드 호출
+        boardRepository.save(board); // 영속화됨
+
+        // ✅ 이미지 정보가 있는 경우, BoardImage로 저장
+        if (dto.getImage() != null) {
+            BoardImageDto imageDto = dto.getImage();
+
+            BoardImage boardImage = BoardImage.builder()
+                    .board(board)
+                    .originalName(imageDto.getOriginalName())
+                    .changedName(imageDto.getChangedName())
+                    .path(imageDto.getPath())
+                    .size(imageDto.getSize())
+                    .build();
+
+            boardImageRepository.save(boardImage);
+        }
+
+        return board.getBoardNo();
     }
 
     @Transactional

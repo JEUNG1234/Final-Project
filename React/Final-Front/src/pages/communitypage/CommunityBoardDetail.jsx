@@ -23,6 +23,7 @@ const CommunityBoardDetail = () => {
     // 게시글 정보 가져오기
     BoardAPI.getBoardDetail(id)
       .then((res) => setPost(res.data))
+
       .catch((err) => {
         console.error('게시글 불러오기 실패:', err);
         alert('게시글을 불러오는 데 실패했습니다.');
@@ -101,11 +102,18 @@ const CommunityBoardDetail = () => {
         />
 
         <PageMidTitle>내용</PageMidTitle>
-        <ContentInput as="textarea" value={post.boardContent} readOnly />
+        <ContentDisplay>
+          {post.image?.path && (
+            <ImagePreviewContainer>
+              <PreviewImage src={`https://d1qzqzab49ueo8.cloudfront.net/${post.image.changedName}`} alt="첨부 이미지" />
+            </ImagePreviewContainer>
+          )}
+          {post.boardContent}
+        </ContentDisplay>
       </InputGroup>
 
       <ButtonGroup>
-        <ActionButton onClick={() => navigate(-1)}>뒤로가기</ActionButton>
+        <ActionButton onClick={() => navigate('/communityboard')}>뒤로가기</ActionButton>
 
         {user?.userId === post.userId && (
           <ActionButton onClick={() => navigate(`/editboard/${post.boardNo}`)}>수정하기</ActionButton>
@@ -190,7 +198,7 @@ const WriterInput = styled.input`
 `;
 
 const ContentInput = styled.textarea`
-  width: 100%;
+  width: 65%;
   height: 350px;
   font-size: 16px;
   border-radius: 10px;
@@ -262,6 +270,31 @@ const LoaderArea = styled.div`
   height: 100vh;
   font-weight: 500;
   color: #4d8eff;
+`;
+
+const ContentDisplay = styled.div`
+  width: 100%;
+  min-height: 200px;
+  font-size: 18px;
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #d0d5dd;
+  background-color: #fdfdfd;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-family: 'Pretendard', sans-serif;
+`;
+
+const ImagePreviewContainer = styled.div`
+  margin-top: 1rem;
+`;
+
+const PreviewImage = styled.img`
+  width: 300px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 `;
 
 export default CommunityBoardDetail;
