@@ -18,7 +18,7 @@ const PhysicalCareResult = () => {
   useEffect(() => {
     async function fetchResult() {
       try {
-        const userId = localStorage.getItem('userId');
+        const userId = sessionStorage.getItem('userId');
         const data = await healthService.physicalresult(userId);
         setResults(data.questionScores);
         setTotalScore(data.totalScore);

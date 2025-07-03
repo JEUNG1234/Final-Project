@@ -9,195 +9,207 @@ import { fileupload } from '../../api/fileupload';
 import defaultProfile from '../../assets/profile.jpg';
 
 const MyPage = () => {
-    const [userInfo, setUserInfo] = useState(null);
-    const [myPosts, setMyPosts] = useState([]);
-    const [vacationCount, setVacationCount] = useState(0); // 추가: 휴가 일수 상태
-    const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
+  const [myPosts, setMyPosts] = useState([]);
+  const [vacationCount, setVacationCount] = useState(0); // 추가: 휴가 일수 상태
+  const navigate = useNavigate();
 
-    const fetchAllData = useCallback(async () => {
-        const storedUserId = localStorage.getItem('userId');
-        if (!storedUserId) return;
-        try {
-            const [userInfoData, vacationCountData] = await Promise.all([
-                userService.getUserInfo(storedUserId),
-                userService.getVacationCount(storedUserId),
-            ]);
-            
-            setUserInfo(userInfoData);
-            setVacationCount(vacationCountData);
+  const fetchAllData = useCallback(async () => {
+    const storedUserId = localStorage.getItem('userId');
+    if (!storedUserId) return;
+    try {
+      const [userInfoData, vacationCountData] = await Promise.all([
+        userService.getUserInfo(storedUserId),
+        userService.getVacationCount(storedUserId),
+      ]);
 
-            const boardRes = await BoardAPI.getBoardList({
-                page: 0,
-                size: 1000,
-                sort: 'createdDate,desc',
-                companyCode: userInfoData.companyCode,
-            });
-            const allPosts = boardRes.data.content;
-            const filtered = allPosts.filter((post) => post.userId === storedUserId);
-            setMyPosts(filtered);
+      setUserInfo(userInfoData);
+      setVacationCount(vacationCountData);
 
-        } catch (err) {
-            console.error('데이터 조회 실패:', err);
-            setUserInfo(null);
-            setMyPosts([]);
-            setVacationCount(0);
-        }
-    }, []);
+      const boardRes = await BoardAPI.getBoardList({
+        page: 0,
+        size: 1000,
+        sort: 'createdDate,desc',
+        companyCode: userInfoData.companyCode,
+      });
+      const allPosts = boardRes.data.content;
+      const filtered = allPosts.filter((post) => post.userId === storedUserId);
+      setMyPosts(filtered);
+    } catch (err) {
+      console.error('데이터 조회 실패:', err);
+      setUserInfo(null);
+      setMyPosts([]);
+      setVacationCount(0);
+    }
+  }, []);
 
-    useEffect(() => {
-        fetchAllData();
-    }, [fetchAllData]);
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
 
-    const fileInputRef = React.useRef(null);
+  const fileInputRef = React.useRef(null);
 
-    const handleButtonClick = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
-    };
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
-    const handleImageChange = async (ev) => {
-        const file = ev.target.files[0];
-        if (!file) return;
-        try {
-            const res = await fileupload.uploadImageToS3(file, 'mypage/');
-            const uploadUrl = res.url;
-            if (userInfo) {
-                await userService.uploadProfileImage(userInfo.userId, {
-                    imgUrl: uploadUrl,
-                    size: file.size,
-                    changedName: res.filename,
-                    originalName: file.name,
-                });
-            }
-            if (userInfo) {
-                setUserInfo((prev) => ({
-                    ...prev,
-                    profileImageUrl: uploadUrl,
-                    profileImagePath: res.filename,
-                }));
-            }
-            toast.success('프로필 이미지가 변경되었습니다.');
-        } catch (err) {
-            console.log('이미지 업로드 실패', err);
-        }
-    };
+  const handleImageChange = async (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    try {
+      const res = await fileupload.uploadImageToS3(file, 'mypage/');
+      const uploadUrl = res.url;
+      if (userInfo) {
+        await userService.uploadProfileImage(userInfo.userId, {
+          imgUrl: uploadUrl,
+          size: file.size,
+          changedName: res.filename,
+          originalName: file.name,
+        });
+      }
+      if (userInfo) {
+        setUserInfo((prev) => ({
+          ...prev,
+          profileImageUrl: uploadUrl,
+          profileImagePath: res.filename,
+        }));
+      }
+      toast.success('프로필 이미지가 변경되었습니다.');
+    } catch (err) {
+      console.log('이미지 업로드 실패', err);
+    }
+  };
 
-    const handleEdit = () => {
-        navigate('/updatemyinfo');
-    };
+  const handleEdit = () => {
+    navigate('/updatemyinfo');
+  };
 
-    const handleWithdrawal = async () => {
-        const userId = localStorage.getItem('userId');
-        try {
-            await userService.deleteUser(userId);
-            toast.success('회원 탈퇴하셨습니다.');
-            navigate('/');
-        } catch (err) {
-            console.log('회원 탈퇴에 실패했습니다.', err);
-        }
-    };
+  const handleWithdrawal = async () => {
+    const userId = localStorage.getItem('userId');
+    try {
+      await userService.deleteUser(userId);
+      toast.success('회원 탈퇴하셨습니다.');
+      navigate('/');
+    } catch (err) {
+      console.log('회원 탈퇴에 실패했습니다.', err);
+    }
+  };
 
-    const handlePointConversion = async () => {
-        const userId = localStorage.getItem('userId');
-        if (window.confirm('1500포인트를 사용하여 휴가 1일로 전환하시겠습니까?')) {
-            try {
-                await userService.convertPointsToVacation(userId);
-                toast.success('휴가 전환이 완료되었습니다.');
-                fetchAllData(); // 포인트와 휴가 정보를 다시 불러옴
-            } catch (error) {
-                console.error('포인트 전환 실패:', error);
-                toast.error(error.response?.data || '포인트 전환에 실패했습니다.');
-            }
-        }
-    };
+  const handlePointConversion = async () => {
+    const userId = localStorage.getItem('userId');
+    if (window.confirm('1500포인트를 사용하여 휴가 1일로 전환하시겠습니까?')) {
+      try {
+        await userService.convertPointsToVacation(userId);
+        toast.success('휴가 전환이 완료되었습니다.');
+        fetchAllData(); // 포인트와 휴가 정보를 다시 불러옴
+      } catch (error) {
+        console.error('포인트 전환 실패:', error);
+        toast.error(error.response?.data || '포인트 전환에 실패했습니다.');
+      }
+    }
+  };
 
-    return (
-        <MyPageContainer>
-            <ContentCard>
-                <ProfileSection>
-                    <ProfileImageWrapper>
-                        <ProfileImage
-                            src={
-                                userInfo?.profileImagePath
-                                    ? `https://d1qzqzab49ueo8.cloudfront.net/${userInfo.profileImagePath}`
-                                    : defaultProfile
-                            }
-                            alt="프로필 이미지"
-                        />
-                        <ImageChangeButton onClick={handleButtonClick}>이미지 변경</ImageChangeButton>
-                        <input
-                            type="file"
-                            id="profile-image-input"
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            ref={fileInputRef}
-                            onChange={handleImageChange}
-                        />
-                    </ProfileImageWrapper>
-                    <UserInfoSection>
-                        <WelcomeMessage>{userInfo?.userName}님, 환영합니다!</WelcomeMessage>
-                        <Divider />
-                        <UserDetailRow>
-                            <Label>아이디</Label>
-                            <UserInfoValue>: {userInfo?.userId}</UserInfoValue>
-                        </UserDetailRow>
-                        <UserDetailRow>
-                            <Label>이메일</Label>
-                            <UserInfoValue>: {userInfo?.email}</UserInfoValue>
-                        </UserDetailRow>
-                        <UserDetailRow>
-                            <Label>부서</Label>
-                            <UserInfoValue>: {userInfo?.deptName || '-'}</UserInfoValue>
-                        </UserDetailRow>
-                        <UserDetailRow>
-                            <Label>직급</Label>
-                            <UserInfoValue>: {userInfo?.jobName || '-'}</UserInfoValue>
-                        </UserDetailRow>
-                        <UserDetailRow>
-                            <Label>누적 포인트</Label>
-                            <UserInfoValue>: {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : {vacationCount}일</UserInfoValue>
-                        </UserDetailRow>
-                        <ActionButton onClick={handleEdit}>수정하기</ActionButton>
-                        <ActionButton onClick={handlePointConversion} disabled={(userInfo?.point || 0) < 1500}>휴가 전환</ActionButton>
-                    </UserInfoSection>
-                </ProfileSection>
-                <PostListSection>
-                    <SectionTitle>작성 글 목록</SectionTitle>
-                    {myPosts.length === 0 ? (
-                        <NoPostsMessage>
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                            </svg>
-                            작성한 게시글이 존재하지 않습니다.
-                        </NoPostsMessage>
-                    ) : (
-                        <PostItemArea>
-                            <PostHeader>
-                                <PostCell>카테고리</PostCell>
-                                <PostCell>제목</PostCell>
-                                <PostCell>작성일</PostCell>
-                                <PostCell>조회수</PostCell>
-                            </PostHeader>
-                            {myPosts.map((post) => (
-                                <PostItem key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
-                                    <PostCell>{post.categoryName}</PostCell>
-                                    <PostCell>{post.boardTitle}</PostCell>
-                                    <PostCell>{(post.updatedDate ?? post.createdDate).split('T')[0]}</PostCell>
-                                    <PostCell>{post.views}</PostCell>
-                                </PostItem>
-                            ))}
-                        </PostItemArea>
-                    )}
-                    <ButtonGroup>
-                        <WithdrawButton onClick={handleWithdrawal}>회원 탈퇴</WithdrawButton>
-                        <ReturnButton to="/memberdashboard">돌아가기</ReturnButton>
-                    </ButtonGroup>
-                </PostListSection>
-            </ContentCard>
-        </MyPageContainer>
-    );
+  return (
+    <MyPageContainer>
+      <ContentCard>
+        <ProfileSection>
+          <ProfileImageWrapper>
+            <ProfileImage
+              src={
+                userInfo?.profileImagePath
+                  ? `https://d1qzqzab49ueo8.cloudfront.net/${userInfo.profileImagePath}`
+                  : defaultProfile
+              }
+              alt="프로필 이미지"
+            />
+            <ImageChangeButton onClick={handleButtonClick}>이미지 변경</ImageChangeButton>
+            <input
+              type="file"
+              id="profile-image-input"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={handleImageChange}
+            />
+          </ProfileImageWrapper>
+          <UserInfoSection>
+            <WelcomeMessage>{userInfo?.userName}님, 환영합니다!</WelcomeMessage>
+            <Divider />
+            <UserDetailRow>
+              <Label>아이디</Label>
+              <UserInfoValue>: {userInfo?.userId}</UserInfoValue>
+            </UserDetailRow>
+            <UserDetailRow>
+              <Label>이메일</Label>
+              <UserInfoValue>: {userInfo?.email}</UserInfoValue>
+            </UserDetailRow>
+            <UserDetailRow>
+              <Label>부서</Label>
+              <UserInfoValue>: {userInfo?.deptName || '-'}</UserInfoValue>
+            </UserDetailRow>
+            <UserDetailRow>
+              <Label>직급</Label>
+              <UserInfoValue>: {userInfo?.jobName || '-'}</UserInfoValue>
+            </UserDetailRow>
+            <UserDetailRow>
+              <Label>누적 포인트</Label>
+              <UserInfoValue>
+                : {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : {vacationCount}일
+              </UserInfoValue>
+            </UserDetailRow>
+            <ActionButton onClick={handleEdit}>수정하기</ActionButton>
+            <ActionButton onClick={handlePointConversion} disabled={(userInfo?.point || 0) < 1500}>
+              휴가 전환
+            </ActionButton>
+          </UserInfoSection>
+        </ProfileSection>
+        <PostListSection>
+          <SectionTitle>작성 글 목록</SectionTitle>
+          {myPosts.length === 0 ? (
+            <NoPostsMessage>
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+              작성한 게시글이 존재하지 않습니다.
+            </NoPostsMessage>
+          ) : (
+            <PostItemArea>
+              <PostHeader>
+                <PostCell>카테고리</PostCell>
+                <PostCell>제목</PostCell>
+                <PostCell>작성일</PostCell>
+                <PostCell>조회수</PostCell>
+              </PostHeader>
+              {myPosts.map((post) => (
+                <PostItem key={post.boardNo} onClick={() => navigate(`/communityboard/${post.boardNo}`)}>
+                  <PostCell>{post.categoryName}</PostCell>
+                  <PostCell>{post.boardTitle}</PostCell>
+                  <PostCell>{(post.updatedDate ?? post.createdDate).split('T')[0]}</PostCell>
+                  <PostCell>{post.views}</PostCell>
+                </PostItem>
+              ))}
+            </PostItemArea>
+          )}
+          <ButtonGroup>
+            <WithdrawButton onClick={handleWithdrawal}>회원 탈퇴</WithdrawButton>
+            <ReturnButton to="/memberdashboard">돌아가기</ReturnButton>
+          </ButtonGroup>
+        </PostListSection>
+      </ContentCard>
+    </MyPageContainer>
+  );
 };
 
 const MyPageContainer = styled.div`

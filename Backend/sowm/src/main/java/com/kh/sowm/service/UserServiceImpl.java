@@ -30,13 +30,13 @@ public class UserServiceImpl implements UserService {
     private final VacationRepository vacationRepository;
 
     @Override
-    public UserDto.ResponseDto login(String userId, String userPwd) {
+    public User login(String userId, String userPwd) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디를 찾을 수 없습니다."));
         if (!user.getUserPwd().equals(userPwd)) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
-        return UserDto.ResponseDto.toDto(user);
+        return user;
     }
 
     @Override
