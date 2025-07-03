@@ -76,6 +76,11 @@ public class Workation {
     @Lob
     private String precautions;
 
+//    //계약기간 현황
+//    @Column(name = "PERIOD", nullable = false)
+//    @Enumerated(EnumType.STRING)
+//    private PeriodType period;
+
 
 //    여기는 장소고유번호 조인 컬럼
     @OneToOne
@@ -134,4 +139,9 @@ public class Workation {
     public void setStatus(CommonEnums.Status status) {
         this.status = CommonEnums.Status.N;
     }
+
+
+//    public enum PeriodType {
+//        Y, N
+//    }
 }
