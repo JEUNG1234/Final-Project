@@ -9,6 +9,8 @@ import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
+import java.sql.Date;
+import java.time.LocalDate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,14 +33,17 @@ public class WorkationRepositoryImpl implements WorkationRepository {
 
     @Override
     public List<Workation> findByStatus(CommonEnums.Status status, String companyCode) {
+        LocalDate today = LocalDate.now();
         String jpql = "SELECT w FROM Workation w " +
                 "JOIN FETCH w.workationLocation wl " +
                 "JOIN FETCH w.user u " +
-                "WHERE w.status = :status AND u.companyCode = :companyCode";
+                "WHERE w.status = :status AND u.companyCode = :companyCode " +
+                "AND w.workationEndDate >= :today";
 
         return em.createQuery(jpql, Workation.class)
                 .setParameter("status", status)
                 .setParameter("companyCode", companyCode)
+                .setParameter("today", today)
                 .getResultList();
     }
 

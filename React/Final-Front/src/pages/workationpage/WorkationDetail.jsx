@@ -88,15 +88,33 @@ const WorkationDetail = () => {
       .array()
       .of(yup.date().nullable())
       .test('required', '날짜를 선택해주세요', (value) => !!(value && value[0] && value[1]))
+      .test('rangeCheck', '시작일은 종료일보다 늦을 수 없습니다.', (value) => {
+        if (!value || !value[0] || !value[1]) return true;
+        const start = value[0] instanceof Date ? value[0] : new Date(value[0]);
+        const end = value[1] instanceof Date ? value[1] : new Date(value[1]);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return start <= end;
+      })
       .test('startDateRange', '신청 가능 기간범위를 벗어났습니다.', (value) => {
         if (!value || !value[0] || !workationInfo.workationStartDate || !workationInfo.workationEndDate) return true;
-        const start = new Date(value[0]);
-        return start >= new Date(workationInfo.workationStartDate) && start <= new Date(workationInfo.workationEndDate);
+        const start = value[0] instanceof Date ? value[0] : new Date(value[0]);
+        const rangeStart = new Date(workationInfo.workationStartDate);
+        const rangeEnd = new Date(workationInfo.workationEndDate);
+        start.setHours(0, 0, 0, 0);
+        rangeStart.setHours(0, 0, 0, 0);
+        rangeEnd.setHours(0, 0, 0, 0);
+        return start >= rangeStart && start <= rangeEnd;
       })
       .test('endDateRange', '신청 가능 기간범위를 벗어났습니다.', (value) => {
         if (!value || !value[1] || !workationInfo.workationStartDate || !workationInfo.workationEndDate) return true;
-        const end = new Date(value[1]);
-        return end >= new Date(workationInfo.workationStartDate) && end <= new Date(workationInfo.workationEndDate);
+        const end = value[1] instanceof Date ? value[1] : new Date(value[1]);
+        const rangeStart = new Date(workationInfo.workationStartDate);
+        const rangeEnd = new Date(workationInfo.workationEndDate);
+        end.setHours(0, 0, 0, 0);
+        rangeStart.setHours(0, 0, 0, 0);
+        rangeEnd.setHours(0, 0, 0, 0);
+        return end >= rangeStart && end <= rangeEnd;
       }),
   });
 
