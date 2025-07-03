@@ -16,295 +16,324 @@ const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
 const healthDoughnutData = {
-  labels: ['수면 시간', '걸음 수', '스트레스 지수'],
-  datasets: [
-    {
-      data: [35, 55, 10],
-      backgroundColor: ['#28A745', '#007BFF', '#FFC107'],
-      borderColor: ['#ffffff'],
-      borderWidth: 2,
-    },
-  ],
+    labels: ['수면 시간', '걸음 수', '스트레스 지수'],
+    datasets: [
+        {
+            data: [35, 55, 10],
+            backgroundColor: ['#28A745', '#007BFF', '#FFC107'],
+            borderColor: ['#ffffff'],
+            borderWidth: 2,
+        },
+    ],
 };
 
 const healthDoughnutOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          let label = context.label || '';
-          if (label) {
-            label += ': ';
-          }
-          if (context.parsed) {
-            label += context.parsed + '%';
-          }
-          return label;
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            display: false,
         },
-      },
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    let label = context.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed) {
+                        label += context.parsed + '%';
+                    }
+                    return label;
+                },
+            },
+        },
     },
-  },
-  cutout: '50%',
+    cutout: '50%',
 };
 
 const MemberDashBoard = () => {
-  const [attendance, setAttendance] = useState({
-    attendanceTime: null,
-    leaveTime: null,
-    status: null,
-  });
-  const [myInfoState, setMyInfoState] = useState(null);
-  const [notices, setNotices] = useState([]);
-  const [vacationCount, setVacationCount] = useState(0); // 휴가 일수 상태 추가
+    const [attendance, setAttendance] = useState({
+        attendanceTime: null,
+        leaveTime: null,
+        status: null,
+    });
+    const [myInfoState, setMyInfoState] = useState(null);
+    const [notices, setNotices] = useState([]);
+    const [vacationCount, setVacationCount] = useState(0); // 휴가 일수 상태 추가
+    const [approvedWorkations, setApprovedWorkations] = useState([]); // 승인된 워케이션 목록 상태 추가
 
-  const myInfo = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const [userInfo, vacationData] = await Promise.all([
-        userService.getUserInfo(userId),
-        userService.getVacationCount(userId),
-      ]);
-      setMyInfoState(userInfo);
-      setVacationCount(vacationData);
-      console.log('계정 데이터', userInfo);
-      console.log('휴가 데이터', vacationData);
-    } catch (err) {
-      console.log('계정 또는 휴가 정보를 불러오지 못했습니다.', err);
-    }
-  };
-
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-  const totalDays = getDaysInMonth(currentYear, currentMonth);
-  const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
-
-  const calendarDays = [];
-  for (let i = 0; i < firstDay; i++) {
-    calendarDays.push(null);
-  }
-  for (let i = 1; i <= totalDays; i++) {
-    calendarDays.push(i);
-  }
-
-  const weeks = [];
-  let currentWeek = [];
-  calendarDays.forEach((day, index) => {
-    currentWeek.push(day);
-    if ((index + 1) % 7 === 0 || index === calendarDays.length - 1) {
-      weeks.push(currentWeek);
-      currentWeek = [];
-    }
-  });
-
-  const getAttendance = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const response = await attendanceService.attendanceList(userId);
-      const todayRecord = filterTodayAttendance(response);
-      setAttendance(
-        todayRecord || {
-          attendTime: null,
-          leaveTime: null,
-          status: null,
+    const myInfo = async () => {
+        try {
+            const userId = sessionStorage.getItem('userId');
+            const [userInfo, vacationData, workationData] = await Promise.all([
+                userService.getUserInfo(userId),
+                userService.getVacationCount(userId),
+                workationService.getApprovedWorkations(userId),
+            ]);
+            setMyInfoState(userInfo);
+            setVacationCount(vacationData);
+            setApprovedWorkations(workationData);
+            console.log('계정 데이터', userInfo);
+            console.log('휴가 데이터', vacationData);
+            console.log('워케이션 데이터', workationData);
+        } catch (err) {
+            console.log('계정, 휴가 또는 워케이션 정보를 불러오지 못했습니다.', err);
         }
-      );
-    } catch (err) {
-      console.log('출퇴근 정보 불러오기 실패', err);
+    };
+
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const totalDays = getDaysInMonth(currentYear, currentMonth);
+    const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
+
+    const calendarDays = [];
+    for (let i = 0; i < firstDay; i++) {
+        calendarDays.push(null);
     }
-  };
-
-  const filterTodayAttendance = (list) => {
-    const today = new Date().toISOString().slice(0, 10);
-    return list.find((item) => item.attendTime?.slice(0, 10) === today) || null;
-  };
-
-  const getNotice = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const response = await BoardAPI.getNotice(userId);
-      setNotices(response.data);
-    } catch (error) {
-      console.error('공지사항 조회 실패:', error);
+    for (let i = 1; i <= totalDays; i++) {
+        calendarDays.push(i);
     }
-  };
 
-  const [challenge, setChallenge] = useState(null);
+    const weeks = [];
+    let currentWeek = [];
+    calendarDays.forEach((day, index) => {
+        currentWeek.push(day);
+        if ((index + 1) % 7 === 0 || index === calendarDays.length - 1) {
+            weeks.push(currentWeek);
+            currentWeek = [];
+        }
+    });
+    
+    // 날짜가 워케이션 기간에 포함되는지 확인하고, 해당 워케이션 정보를 반환하는 함수
+    const getWorkationForDay = (day) => {
+        const date = new Date(currentYear, currentMonth, day);
+        return approvedWorkations.find(workation => {
+            const startDate = new Date(workation.workationStartDate);
+            const endDate = new Date(workation.workationEndDate);
+            return date >= startDate && date <= endDate;
+        });
+    };
 
-  const getChallengeForDashBoard = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const response = await challengeService.getChallengeForDashBoard(userId);
-      setChallenge(response);
-    } catch (err) {
-      console.log('대시보드에 챌린지 가져오기 실패', err);
-    }
-  };
+    const getAttendance = async () => {
+        try {
+            const userId = sessionStorage.getItem('userId');
+            const response = await attendanceService.attendanceList(userId);
+            const todayRecord = filterTodayAttendance(response);
+            setAttendance(
+                todayRecord || {
+                    attendTime: null,
+                    leaveTime: null,
+                    status: null,
+                }
+            );
+        } catch (err) {
+            console.log('출퇴근 정보 불러오기 실패', err);
+        }
+    };
 
-  useEffect(() => {
-    getAttendance();
-    myInfo();
-    getNotice();
-    getChallengeForDashBoard();
-  }, []);
+    const filterTodayAttendance = (list) => {
+        const today = new Date().toISOString().slice(0, 10);
+        return list.find((item) => item.attendTime?.slice(0, 10) === today) || null;
+    };
 
-  const formatTime = (dateTime) => {
-    if (!dateTime) return '-';
-    const date = new Date(dateTime);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
+    const getNotice = async () => {
+        try {
+            const userId = sessionStorage.getItem('userId');
+            const response = await BoardAPI.getNotice(userId);
+            setNotices(response.data);
+        } catch (error) {
+            console.error('공지사항 조회 실패:', error);
+        }
+    };
 
-  return (
-    <DashboardContainer>
-      <TopSection>
-        <CalendarCard>
-          <h3>
-            {currentYear}년 {currentMonth + 1}월
-          </h3>
-          <table>
-            <thead>
-              <tr>
-                <th>일</th>
-                <th>월</th>
-                <th>화</th>
-                <th>수</th>
-                <th>목</th>
-                <th>금</th>
-                <th>토</th>
-              </tr>
-            </thead>
-            <tbody>
-              {weeks.map((week, weekIndex) => (
-                <tr key={weekIndex}>
-                  {week.map((day, dayIndex) => (
-                    <td
-                      key={dayIndex}
-                      className={`${day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear() ? 'today' : ''}`}
-                    >
-                      {day}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CalendarCard>
+    const [challenge, setChallenge] = useState(null);
 
-        <TopRightSection>
-          <ChallengeCard>
-            {challenge ? (
-              <>
-                <div className="challenge-text">
-                  <h4>새로 등록된 챌린지</h4>
-                  <p>
-                    {challenge.startDate} ~ {challenge.endDate}
-                  </p>
-                  <h2>{challenge.completeTitle}</h2>
-                </div>
-                <div className="challenge-image">
-                  <img src={ChallangeImg} alt="챌린지 이미지" />
-                </div>
-              </>
-            ) : (
-              <div className="challenge-text" style={{ padding: '20px', textAlign: 'center' }}>
-                <h4>새로 등록된 챌린지</h4>
-                <p>챌린지 정보가 없습니다.</p>
-              </div>
-            )}
-          </ChallengeCard>
-          <NoticeCard>
-            <h3>공지사항</h3>
-            {notices.length > 0 ? (
-              <ul>
-                {notices.map((notice) => (
-                  <li key={notice.boardNo}>{notice.boardTitle}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>공지사항이 없습니다.</p>
-            )}
-          </NoticeCard>
-        </TopRightSection>
-      </TopSection>
+    const getChallengeForDashBoard = async () => {
+        try {
+            const userId = sessionStorage.getItem('userId');
+            const response = await challengeService.getChallengeForDashBoard(userId);
+            setChallenge(response);
+        } catch (err) {
+            console.log('대시보드에 챌린지 가져오기 실패', err);
+        }
+    };
 
-      <BottomSection>
-        <UserInfoCard>
-          <div className="user-avatar">
-            <img
-              src={
-                myInfoState?.profileImagePath
-                  ? `https://d1qzqzab49ueo8.cloudfront.net/${myInfoState.profileImagePath}`
-                  : ProfileImg
-              }
-              alt="사용자 아바타"
-            />
-          </div>
-          <h2>이름: {myInfoState?.userName}</h2>
-          <div className="info-list">
-            <dl>
-              <dt>직급:</dt>
-              <dd>{myInfoState?.jobName}</dd>
-            </dl>
-            <dl>
-              <dt>소속:</dt>
-              <dd>{myInfoState?.deptName}</dd>
-            </dl>
-            <dl>
-              <dt>남은 연차 수:</dt>
-              <dd>
-                <span>{vacationCount}일</span>
-              </dd>
-            </dl>
-            <dl>
-              <dt>복지 포인트:</dt>
-              <dd>
-                <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
-              </dd>
-            </dl>
-          </div>
-        </UserInfoCard>
+    useEffect(() => {
+        getAttendance();
+        myInfo();
+        getNotice();
+        getChallengeForDashBoard();
+    }, []);
 
-        <BottomRightSection>
-          <HealthDataCard>
-            <h3>최근 건강 데이터 요약</h3>
-            <div className="chart-wrapper">
-              <Doughnut data={healthDoughnutData} options={healthDoughnutOptions} />
-            </div>
-            <div className="legend-list">
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>수면 시간: 9시간
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#007BFF' }}></span>걸음 수: 3000보
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#FFC107' }}></span>스트레스 지수: 중간
-              </div>
-            </div>
-          </HealthDataCard>
-          <AttendanceTimeCard>
-            <div>
-              <span>출근 시간 : </span>
-              <span className="time">{formatTime(attendance.attendTime)}</span>
-              <button className="check-in">출근</button>
-            </div>
-            <div>
-              <span>퇴근 시간 : </span>
-              <span className="time">{formatTime(attendance.leaveTime)}</span>
-              <button className="check-out">퇴근</button>
-            </div>
-          </AttendanceTimeCard>
-        </BottomRightSection>
-      </BottomSection>
-    </DashboardContainer>
-  );
+    const formatTime = (dateTime) => {
+        if (!dateTime) return '-';
+        const date = new Date(dateTime);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    };
+
+    return (
+        <DashboardContainer>
+            <TopSection>
+                <CalendarCard>
+                    <h3>
+                        {currentYear}년 {currentMonth + 1}월
+                    </h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>일</th>
+                                <th>월</th>
+                                <th>화</th>
+                                <th>수</th>
+                                <th>목</th>
+                                <th>금</th>
+                                <th>토</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {weeks.map((week, weekIndex) => (
+                                <tr key={weekIndex}>
+                                    {week.map((day, dayIndex) => {
+                                        const workationForDay = getWorkationForDay(day);
+                                        const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+                                        const isWorkation = !!workationForDay;
+
+                                        let className = '';
+                                        if (isToday) {
+                                            className += 'today ';
+                                        }
+                                        if (isWorkation) {
+                                            className += 'workation ';
+                                        }
+
+                                        return (
+                                            <td
+                                                key={dayIndex}
+                                                className={className.trim()}
+                                            >
+                                                <div className="day-number">{day}</div>
+                                                {isWorkation && <div className="workation-title">{workationForDay.workationTitle}</div>}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </CalendarCard>
+
+                <TopRightSection>
+                    <ChallengeCard>
+                        {challenge ? (
+                            <>
+                                <div className="challenge-text">
+                                    <h4>새로 등록된 챌린지</h4>
+                                    <p>
+                                        {challenge.startDate} ~ {challenge.endDate}
+                                    </p>
+                                    <h2>{challenge.completeTitle}</h2>
+                                </div>
+                                <div className="challenge-image">
+                                    <img src={ChallangeImg} alt="챌린지 이미지" />
+                                </div>
+                            </>
+                        ) : (
+                            <div className="challenge-text" style={{ padding: '20px', textAlign: 'center' }}>
+                                <h4>새로 등록된 챌린지</h4>
+                                <p>챌린지 정보가 없습니다.</p>
+                            </div>
+                        )}
+                    </ChallengeCard>
+                    <NoticeCard>
+                        <h3>공지사항</h3>
+                        {notices.length > 0 ? (
+                            <ul>
+                                {notices.map((notice) => (
+                                    <li key={notice.boardNo}>{notice.boardTitle}</li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>공지사항이 없습니다.</p>
+                        )}
+                    </NoticeCard>
+                </TopRightSection>
+            </TopSection>
+
+            <BottomSection>
+                <UserInfoCard>
+                    <div className="user-avatar">
+                        <img
+                            src={
+                                myInfoState?.profileImagePath
+                                    ? `https://d1qzqzab49ueo8.cloudfront.net/${myInfoState.profileImagePath}`
+                                    : ProfileImg
+                            }
+                            alt="사용자 아바타"
+                        />
+                    </div>
+                    <h2>이름: {myInfoState?.userName}</h2>
+                    <div className="info-list">
+                        <dl>
+                            <dt>직급:</dt>
+                            <dd>{myInfoState?.jobName}</dd>
+                        </dl>
+                        <dl>
+                            <dt>소속:</dt>
+                            <dd>{myInfoState?.deptName}</dd>
+                        </dl>
+                        <dl>
+                            <dt>남은 연차 수:</dt>
+                            <dd>
+                                <span>{vacationCount}일</span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>복지 포인트:</dt>
+                            <dd>
+                                <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
+                            </dd>
+                        </dl>
+                    </div>
+                </UserInfoCard>
+
+                <BottomRightSection>
+                    <HealthDataCard>
+                        <h3>최근 건강 데이터 요약</h3>
+                        <div className="chart-wrapper">
+                            <Doughnut data={healthDoughnutData} options={healthDoughnutOptions} />
+                        </div>
+                        <div className="legend-list">
+                            <div>
+                                <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>수면 시간: 9시간
+                            </div>
+                            <div>
+                                <span className="color-box" style={{ backgroundColor: '#007BFF' }}></span>걸음 수: 3000보
+                            </div>
+                            <div>
+                                <span className="color-box" style={{ backgroundColor: '#FFC107' }}></span>스트레스 지수: 중간
+                            </div>
+                        </div>
+                    </HealthDataCard>
+                    <AttendanceTimeCard>
+                        <div>
+                            <span>출근 시간 : </span>
+                            <span className="time">{formatTime(attendance.attendTime)}</span>
+                            <button className="check-in">출근</button>
+                        </div>
+                        <div>
+                            <span>퇴근 시간 : </span>
+                            <span className="time">{formatTime(attendance.leaveTime)}</span>
+                            <button className="check-out">퇴근</button>
+                        </div>
+                    </AttendanceTimeCard>
+                </BottomRightSection>
+            </BottomSection>
+        </DashboardContainer>
+    );
 };
 
 export default MemberDashBoard;
@@ -382,6 +411,7 @@ const CalendarCard = styled(Card)`
     border-collapse: collapse;
     font-size: 16px;
     text-align: center;
+    table-layout: fixed; /* 테이블 레이아웃 고정 */
 
     th {
       color: #777;
@@ -390,19 +420,45 @@ const CalendarCard = styled(Card)`
     }
 
     td {
-      padding: 30px 0;
+      padding: 10px 0;
       color: #555;
       cursor: pointer;
       border-radius: 8px;
+      position: relative; 
+      vertical-align: top;
+      height: 90px;
+      border: 1px solid #f0f0f0;
 
       &:hover {
         background-color: #f0f7ff;
+      }
+      
+      .day-number {
+        margin-bottom: 4px;
+      }
+
+      .workation-title {
+        font-size: 12px;
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 4px;
+        padding: 2px 5px;
+        margin-top: 4px;
+        display: inline-block;
+        max-width: 90%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       &.today {
         background-color: #fb3f4a;
         color: white;
         font-weight: bold;
+        .workation-title {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: black;
+        }
       }
 
       &.workation {
