@@ -112,6 +112,10 @@ public class WorkationController {
         return workationService.workationFullSubList(companyCode);
     }
 
+    @GetMapping("/approved-list")
+    public ResponseEntity<List<WorkationDto.WorkationSubListDto>> getApprovedWorkations(@RequestParam String userId) {
+        return workationService.getApprovedWorkations(userId);
+    }
 
 
 }

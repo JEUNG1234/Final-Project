@@ -119,5 +119,14 @@ export const workationService = {
 
       throw error;
     }
+  },
+  getApprovedWorkations: async (userId) => {
+    try {
+        const response = await api.get(API_ENDPOINTS.WORKATION.APPROVED_LIST, { params: { userId } });
+        return response.data;
+    } catch (error) {
+        console.error('승인된 워케이션 목록 조회 실패:', error);
+        throw error;
+    }
   }
 };

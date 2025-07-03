@@ -32,7 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +78,7 @@ public class WorkationServiceImpl implements WorkationService {
         return ResponseEntity.ok(dtoList);
     }
 
-     //워케이션 생성
+    //워케이션 생성
     @Override
     @Transactional
     public WorkationDto.ResponseDto enrollWorkation(WorkationDto.WorkationCreateDto request) {
@@ -128,11 +130,14 @@ public class WorkationServiceImpl implements WorkationService {
                         .size(imageDto.getSize())
                         .tab(Tab.valueOf(imageDto.getTab()))
                         .build();
+
                 try {
                     workationImageRepository.save(image);
                 } catch (DataIntegrityViolationException e) {
                     throw new WorkationEnrollException("이미지 저장에 실패했습니다.");
                 }
+
+
             }
         }
 
@@ -247,7 +252,7 @@ public class WorkationServiceImpl implements WorkationService {
         List<SubmitWorkation> subWorkation = submitWorkationRepository.findByStatus(SubmitWorkation.StatusType.W, companyCode);
 
         if (subWorkation == null || subWorkation.isEmpty()) {
-            throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
+            return ResponseEntity.ok(Collections.emptyList());
         }
 
         List<WorkationSubListDto> dtoList = subWorkation.stream()
@@ -295,8 +300,8 @@ public class WorkationServiceImpl implements WorkationService {
         }
 
         List<WorkationSubListDto> dtoList = submitWorkations.stream()
-        .map(WorkationSubListDto::dto)
-        .toList();
+                .map(WorkationSubListDto::dto)
+                .toList();
 
         return ResponseEntity.ok(dtoList);
     }
@@ -324,6 +329,17 @@ public class WorkationServiceImpl implements WorkationService {
         List<WorkationSubListDto> dtoList = subWorkation.stream()
                 .map(WorkationSubListDto::dto)
                 .toList();
+
+        return ResponseEntity.ok(dtoList);
+    }
+
+    @Override
+    public ResponseEntity<List<WorkationSubListDto>> getApprovedWorkations(String userId) {
+        List<SubmitWorkation> approvedWorkations = submitWorkationRepository.findApprovedByUserId(userId);
+
+        List<WorkationSubListDto> dtoList = approvedWorkations.stream()
+                .map(WorkationSubListDto::dto)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtoList);
     }
