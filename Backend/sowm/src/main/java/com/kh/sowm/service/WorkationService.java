@@ -47,4 +47,7 @@ public interface WorkationService {
 
     //워케이션 전체 리스트 불러오기
     ResponseEntity<List<WorkationSubListDto>> workationFullSubList(String companyCode);
+
+    // 승인된 워케이션 목록 가져오기
+    ResponseEntity<List<WorkationSubListDto>> getApprovedWorkations(String userId);
 }
