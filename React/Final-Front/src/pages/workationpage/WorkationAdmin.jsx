@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaClipboardCheck } from 'react-icons/fa';
 // MainContent를 BaseMainContent로 가져와서 확장합니다.
-import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import { MainContent as BaseMainContent, PageTitle, PageButton, Pagination, BottomBar} from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
 import { workationService } from '../../api/workation';
 
@@ -126,6 +126,24 @@ const WorkationAdmin = () => {
     }
   };
 
+  const [currentPage, setCurrentPage] = useState(1); // 1페이지부터 시작
+  const itemsPerPage = 7; // 한 페이지에 10개씩
+
+  // 전체 페이지 수 계산
+  const totalPages = Math.ceil(workationData.length / itemsPerPage);
+
+  // 현재 페이지에 보여줄 데이터만 slice로 추출
+  const pagedData = workationData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // 이전/다음 버튼 활성화 여부
+  const hasPrevious = currentPage > 1;
+  const hasNext = currentPage < totalPages;
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
   return (
     <MainContent>
       <PageTitleWrapper>
@@ -164,8 +182,7 @@ const WorkationAdmin = () => {
           </tr>
         </thead>
         <tbody>
-
-          {workationData.map((req) => (
+          {pagedData.map((req) => (
             <TableRow key={req.workationSubNo}>
               <TableCell>
                 <input
@@ -199,6 +216,25 @@ const WorkationAdmin = () => {
           승인
         </ActionButton>
       </ButtonContainer>
+      <BottomBar>
+        <Pagination>
+          <PageButton disabled={!hasPrevious} onClick={() => handlePageChange(currentPage - 1)}>
+            &lt;
+          </PageButton>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <PageButton
+              key={i + 1}
+              onClick={() => handlePageChange(i + 1)}
+              style={{ background: currentPage === i + 1 ? '#2563eb' : '#3b82f6' }}
+            >
+              {i + 1}
+            </PageButton>
+          ))}
+          <PageButton disabled={!hasNext} onClick={() => handlePageChange(currentPage + 1)}>
+            &gt;
+          </PageButton>
+        </Pagination>
+      </BottomBar>
     </MainContent>
   );
 };
