@@ -803,12 +803,6 @@ const Description = styled.p`
   margin-bottom: 5px;
   height: 10%;
 `;
-const RefundPolicy = styled.div`
-  white-space: pre-line; /* 엔터(줄바꿈)는 살리고, 연속 공백은 무시 */
-  font-family: inherit; /* 폰트는 상속 */
-  font-size: 16px;
-  color: #444;
-`;
 
 const FeaturesSection = styled.div`
   display: flex;
@@ -872,37 +866,6 @@ const DetailText = styled.span`
   margin-left: 10px;
 `;
 
-const IconGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3열 그리드 */
-  gap: 20px; /* 아이콘 항목 간 간격 */
-  margin-top: 30px; /* 정보 블록과의 간격 */
-  padding-left: 10px; /* InfoBlock과 정렬 */
-`;
-
-const IconItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: #555;
-  text-align: center;
-
-  svg {
-    font-size: 20px; /* 아이콘 크기 */
-    color: #666;
-    margin-bottom: 8px; /* 아이콘과 텍스트 간 간격 */
-  }
-
-  ${media.md`
-      
-        gap: 10px;
-        margin-top: 0;
-        font-size: 0px;
-      `}
-`;
-
 const FaciltyLeftFirstInfo = styled.div`
   width: 100%;
   height: 50%;
@@ -937,51 +900,6 @@ const FaciltyLeftSecondInfo = styled.div`
     color: #929393;
     margin-bottom: 0;
     text-align: left;
-  }
-`;
-
-const PrecautionContent = styled.div`
-  width: 80%;
-  height: 50%;
-  border: 1px solid black;
-  margin: 0 auto;
-`;
-
-// 지도의 기본 중심 좌표 (예: 제주 애월)
-const MAP_CENTER = [33.4507, 126.5706]; // 위도, 경도
-const MAP_ZOOM = 12; // 확대 레벨
-
-//지도 컨테이너 스타일
-const MapContainerStyled = styled.div`
-  width: 90%; /* MainContent 너비에 맞추기 */
-  height: 400px; /* 지도 높이 설정 */
-  margin: 20px auto;
-  border-radius: 8px;
-  overflow: hidden; /* 모서리 둥글게 처리 */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-`;
-
-//신청 영역
-const FormContent = styled.div`
-  width: 100%;
-  /* height: 400px; */
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  display: flex; /* 내부 요소들을 flex로 배치 */
-  flex-direction: column; /* 세로 방향으로 정렬 */
-  font-family: 'Pretendard', sans-serif;
-  box-sizing: border-box;
-  padding: 30px; /* Added padding to give some space from the edges */
-  justify-content: space-between; /* Distribute space between items */
-`;
-const FormRow = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px; /* Slightly reduced margin for fixed height */
-
-  &:last-of-type {
-    margin-bottom: 0; /* No margin bottom for the last row (textarea) */
   }
 `;
 
@@ -1066,31 +984,6 @@ const TextArea = styled.textarea`
   &:focus {
     border-color: #61a5fa;
     box-shadow: 0 0 0 3px rgba(97, 165, 250, 0.2);
-  }
-`;
-
-// Styled button
-const SubmitButton = styled.button`
-  background-color: #61a5fa;
-  color: white;
-  padding: 10px 20px; /* Slightly smaller padding for button */
-  border: none;
-  border-radius: 8px;
-  font-size: 16px; /* Slightly smaller font size */
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 15px; /* Adjusted margin-top to fit container */
-  transition: background-color 0.3s ease;
-  align-self: center; /* Center the button */
-  width: 160px; /* Adjusted width */
-  flex-shrink: 0; /* Prevent button from shrinking if content is too large */
-
-  &:hover {
-    background-color: #4a8df1;
-  }
-
-  &:active {
-    background-color: #3b7ae0;
   }
 `;
 
@@ -1192,16 +1085,6 @@ const DayButtonContainer = styled.div`
   flex-grow: 1; /* 가능한 공간을 차지하도록 */
   justify-content: center;
   width: 80%;
-`;
-
-//에러메시지
-const ErrorMessage = styled.p`
-  color: red;
-  font-size: 13px;
-  margin-top: -8px;
-  margin-bottom: 8px;
-  text-align: left;
-  width: 100%;
 `;
 
 // 말풍선 툴팁 스타일
