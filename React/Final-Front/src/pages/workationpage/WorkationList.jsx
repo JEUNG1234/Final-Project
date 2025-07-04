@@ -237,7 +237,7 @@ const WorkationList = () => {
           filteredData.map((place) => (
             <Card key={place.locationNo} onClick={() => navigate(`/workationDetail/${place.locationNo}`)}>
               {/* 워케이션 장소 리스트 출력 */}
-              <CardImage src={`https://d1qzqzab49ueo8.cloudfront.net/${place?.placeImage}`} alt={place.title} />
+              <CardImage src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${place?.placeImage}`} alt={place.title} />
               <CardTitle>{place.workationTitle}</CardTitle>
               <CardLocationWrapper>
                 <CardLocation>

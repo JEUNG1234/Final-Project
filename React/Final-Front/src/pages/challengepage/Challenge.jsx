@@ -68,7 +68,7 @@ const Challenge = () => {
           <ChallengeCard key={challenge.challengeNo} onClick={() => navigate(`/challenge/${challenge.challengeNo}`)}>
             <CardImageArea>
               <CardImage 
-                src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
+                src={challenge.challengeImageUrl ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${challenge.challengeImageUrl}` : runningWoman} 
                 alt={challenge.challengeTitle} 
               />
             </CardImageArea>

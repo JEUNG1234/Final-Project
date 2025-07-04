@@ -39,7 +39,7 @@ const EditBoard = () => {
         setCategory(data.categoryNo);
         setImageMeta(data.image);
         if (data.image?.path) {
-          setPreviewUrl(`https://d1qzqzab49ueo8.cloudfront.net/${data.image.changedName}`);
+          setPreviewUrl(`${import.meta.env.VITE_CLOUDFRONT_URL}/${res.data.image.changedName}`);
         }
 
         // 최초 한번만 contentEditable 초기값 세팅

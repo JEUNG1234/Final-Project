@@ -267,7 +267,7 @@ const WorkationUpdate = () => {
       } else if (placeImage.changedName) {
         placeImageInfo = {
           filename: placeImage.changedName,
-          url: `https://d1qzqzab49ueo8.cloudfront.net/${placeImage.changedName}`,
+          url: `${import.meta.env.VITE_CLOUDFRONT_URL}/${placeImage.changedName}`,
           originalName: placeImage.originalName || '', // 없으면 빈 문자열
           size: placeImage.size || 0, // 없으면 0
         };
@@ -281,7 +281,7 @@ const WorkationUpdate = () => {
       } else if (facilityImage.changedName) {
         facilityImageInfo = {
           filename: facilityImage.changedName,
-          url: `https://d1qzqzab49ueo8.cloudfront.net/${facilityImage.changedName}`,
+          url: `${import.meta.env.VITE_CLOUDFRONT_URL}/${facilityImage.changedName}`,
           originalName: facilityImage.originalName || '',
           size: facilityImage.size || 0,
         };
@@ -296,7 +296,7 @@ const WorkationUpdate = () => {
         precautionImageInfo = {
           originalName: precautionImage.originalName,
           filename: facilityImage.changedName,
-          url: `https://d1qzqzab49ueo8.cloudfront.net/${precautionImage.changedName}`,
+          url: `${import.meta.env.VITE_CLOUDFRONT_URL}/${precautionImage.changedName}`,
           size: precautionImage.size || 0,
         };
       }
@@ -395,7 +395,7 @@ const WorkationUpdate = () => {
               {placeImage.previewUrl ? (
                 <img src={placeImage.previewUrl} alt="새 이미지 미리보기" />
               ) : placeImage.changedName ? (
-                <img src={`https://d1qzqzab49ueo8.cloudfront.net/${placeImage.changedName}`} alt="기존 이미지" />
+                <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${placeImage.changedName}`} alt="기존 이미지" />
               ) : null}
             </ImageSection>
             <Title>{workationInfo.workationTitle}</Title>
@@ -414,7 +414,7 @@ const WorkationUpdate = () => {
               {facilityImage.previewUrl ? (
                 <img src={facilityImage.previewUrl} alt="새 이미지 미리보기" />
               ) : facilityImage.changedName ? (
-                <img src={`https://d1qzqzab49ueo8.cloudfront.net/${facilityImage.changedName}`} alt="기존 이미지" />
+                <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${facilityImage.changedName}`} alt="기존 이미지" />
               ) : null}
             </ImageSection>
             <FacilityContent>
@@ -469,7 +469,7 @@ const WorkationUpdate = () => {
               {precautionImage.previewUrl ? (
                 <img src={precautionImage.previewUrl} alt="새 이미지 미리보기" />
               ) : precautionImage.changedName ? (
-                <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage.changedName}`} alt="기존 이미지" />
+                <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${precautionImage.changedName}`} alt="기존 이미지" />
               ) : null}
             </ImageSection>
             \\

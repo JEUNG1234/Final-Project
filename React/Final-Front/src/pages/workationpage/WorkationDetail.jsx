@@ -182,9 +182,9 @@ const WorkationDetail = () => {
         {activeTab === 'intro' && (
           <>
             <ImageSection>
-              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${placeImage}`} />
+              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${placeImage}`} />
             </ImageSection>
-            {/* 실제 이미지 URL로 교체 필요 */}
+      
             <Title>{workationInfo.workationTitle}</Title>
             <Subtitle>{workationInfo.address}</Subtitle>
             <Description>{workationInfo.placeInfo}</Description>
@@ -198,9 +198,9 @@ const WorkationDetail = () => {
         {activeTab === 'facilities' && (
           <>
             <ImageSection>
-              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${facilityImage}`} />
+              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${facilityImage}`} />
             </ImageSection>
-            {/* 실제 이미지 URL로 교체 필요 */}
+          
             <FacilityContent>
               <FacilityLeftContent>
                 <FaciltyLeftFirstInfo>
@@ -249,7 +249,7 @@ const WorkationDetail = () => {
         {activeTab === 'precautions' && (
           <>
             <ImageSection>
-              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage}`} />
+              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${precautionImage}`} />
             </ImageSection>
 
             <RefundPolicy>{workationInfo.precautions}</RefundPolicy>
