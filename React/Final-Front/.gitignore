@@ -72,7 +72,8 @@ $RECYCLE.BIN/
 !.vscode/*.code-snippets
 .history/
 .ionide
-
+.env
+.env.*
 # ========================
 # ▶ Other editors/IDEs
 # ========================
