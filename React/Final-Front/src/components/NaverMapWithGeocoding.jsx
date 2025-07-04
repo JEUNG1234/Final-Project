@@ -33,6 +33,7 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
   const [addressInput, setAddressInput] = useState(''); // 검색할 주소 입력 필드
   const [currentAddress, setCurrentAddress] = useState(''); // 검색된 주소 (선택용)
   const [currentCoords, setCurrentCoords] = useState({ lat: null, lng: null }); // 검색된 좌표 (선택용)
+  const [currentZipCode, setCurrentZipCode] = useState(''); // 검색된 우편번호 (선택용)
   const [message, setMessage] = useState('');
   const [isApiLoaded, setIsApiLoaded] = useState(false); // API 로드 상태 추가!
 
@@ -119,6 +120,9 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
         query: addressInput,
       },
       function (status, response) {
+        // 응답 전체를 문자열로 변환하여 메시지로 설정 (디버깅용)
+        setMessage(JSON.stringify(response, null, 2));
+
         if (status === window.naver.maps.Service.Status.ERROR) {
           setMessage('지오코딩 중 오류가 발생했습니다. 다시 시도해주세요.');
           // setCurrentAddress(''); // 이 부분 주석 처리!
@@ -138,10 +142,28 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
         const item = response.v2.addresses[0];
         const newLat = parseFloat(item.y);
         const newLng = parseFloat(item.x);
-        const newAddress = item.roadAddress || item.jibunAddress || addressInput; // 도로명 주소 우선, 없으면 지번, 없으면 검색어
+        const newZipCode = item.zipCode || ''; // 우편번호 추출
+
+        // 상세 주소 조합
+        let detailedAddress = item.roadAddress;
+        if (!detailedAddress) {
+          detailedAddress = item.jibunAddress;
+        }
+
+        // 건물 이름 찾기
+        const buildingNameElement = item.addressElements.find((el) => el.types.includes('BUILDING_NAME'));
+        const buildingName = buildingNameElement ? buildingNameElement.longName : '';
+
+        // 도로명 주소에 건물 이름이 포함되어 있지 않으면 추가
+        if (detailedAddress && buildingName && !detailedAddress.includes(buildingName)) {
+          detailedAddress += ` (${buildingName})`;
+        }
+
+        const newAddress = detailedAddress || addressInput;
 
         setCurrentAddress(newAddress);
         setCurrentCoords({ lat: newLat, lng: newLng });
+        setCurrentZipCode(newZipCode); // 우편번호 상태 업데이트
         setMessage(`"${newAddress}" 주소를 찾았습니다.`);
 
         if (mapInstance.current && markerInstance.current) {
@@ -158,7 +180,7 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
   // '이 주소 선택' 버튼 클릭 핸들러
   const handleSelectAddress = () => {
     if (onAddressSelect && currentCoords.lat && currentCoords.lng && currentAddress) {
-      onAddressSelect(currentAddress, currentCoords.lat, currentCoords.lng);
+      onAddressSelect(currentAddress, currentCoords.lat, currentCoords.lng, currentZipCode);
     } else {
       setMessage('먼저 주소를 검색하여 선택해주세요.');
     }
@@ -210,6 +232,7 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
           <p>
             <strong>{currentAddress}</strong>
           </p>
+          {currentZipCode && <p>우편번호: {currentZipCode}</p>}
           <p>
             위도: {currentCoords.lat}, 경도: {currentCoords.lng}
           </p>
