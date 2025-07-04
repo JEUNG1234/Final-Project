@@ -188,26 +188,33 @@ const WorkationEnrollForm = () => {
 
     if (type === 'place') {
       setPlaceImage(imageInfo);
-        setCustomErrors((prev) => ({ ...prev, placeImage: '' }));
+      setCustomErrors((prev) => ({ ...prev, placeImage: '' }));
     } else if (type === 'facility') {
       setFacilityImage(imageInfo);
-        setCustomErrors((prev) => ({ ...prev, facilityImage: '' }));
+      setCustomErrors((prev) => ({ ...prev, facilityImage: '' }));
     } else if (type === 'precaution') {
       setPrecautionImage(imageInfo);
-        setCustomErrors((prev) => ({ ...prev, precautionImage: '' }));
+      setCustomErrors((prev) => ({ ...prev, precautionImage: '' }));
     }
   };
 
   const onSubmit = async (data) => {
+    const start = new Date(data.workationStartDate);
+    const end = new Date(data.workationEndDate);
+
+    if (start > end) {
+      alert('계약기간을 올바르게 설정해주세요.');
+      return;
+    }
+
+    if (peopleMax < peopleMin) {
+      alert('수용인원 입력값을 올바르게 설정해주세요.');
+      return;
+    }
     try {
       const placeImgInfo = await fileupload.uploadImageToS3(placeImage.file, 'workation/');
       const facilityImgInfo = await fileupload.uploadImageToS3(facilityImage.file, 'workation/');
       const precautionImgInfo = await fileupload.uploadImageToS3(precautionImage.file, 'workation/');
-
-      console.log(placeImgInfo);
-      console.log(placeImgInfo.filename);
-      console.log(facilityImgInfo.filename);
-      console.log(precautionImgInfo.filename);
 
       const images = [
         {

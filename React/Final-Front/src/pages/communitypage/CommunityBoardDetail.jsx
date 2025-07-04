@@ -105,7 +105,7 @@ const CommunityBoardDetail = () => {
         <ContentDisplay>
           {post.image?.path && (
             <ImagePreviewContainer>
-              <PreviewImage src={`https://d1qzqzab49ueo8.cloudfront.net/${post.image.changedName}`} alt="첨부 이미지" />
+              <PreviewImage src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${post.image.changedName}`} alt="첨부 이미지" />
             </ImagePreviewContainer>
           )}
           {post.boardContent}

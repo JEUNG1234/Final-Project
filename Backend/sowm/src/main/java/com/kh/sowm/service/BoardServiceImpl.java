@@ -9,6 +9,8 @@ import com.kh.sowm.entity.Board;
 import com.kh.sowm.entity.BoardImage;
 import com.kh.sowm.entity.Category;
 import com.kh.sowm.entity.User;
+import com.kh.sowm.entity.WorkationImage;
+import com.kh.sowm.entity.WorkationImage.Tab;
 import com.kh.sowm.enums.CommonEnums;
 import com.kh.sowm.repository.BoardImageRepository;
 import com.kh.sowm.repository.BoardRepository;
@@ -105,6 +107,11 @@ public class BoardServiceImpl implements BoardService {
             Category category = categoryRepository.findById(dto.getCategoryNo())
                     .orElseThrow(() -> new RuntimeException("카테고리가 존재하지 않습니다"));
             board.setCategory(category);
+        }
+        boardImageRepository.deleteByboardNo(board.getBoardNo());
+        if (dto.getImage() != null) {
+            BoardImage image = BoardImageDto.toEntity(dto.getImage(), board);
+            boardImageRepository.save(image); // ✅ 여기를 save()로 바꾸세요!
         }
         // save 호출하여 변경 사항을 영속성 컨텍스트에 반영하고 DB에 동기화
         boardRepository.save(board);

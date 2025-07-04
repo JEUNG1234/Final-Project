@@ -11,7 +11,7 @@ export const fileupload = {
 
     // presigned url 요청
     const response = await axios.get(
-      'https://jt6r1uca8l.execute-api.ap-northeast-2.amazonaws.com/default/getPresignedUrl',
+      import.meta.env.VITE_S3_API_URL,
       {
         params: {
           filename: pathPrefix + encodingFileName,
