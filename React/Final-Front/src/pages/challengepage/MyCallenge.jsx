@@ -61,7 +61,7 @@ const MyCallenge = () => {
           <SummaryImage
             src={
               ongoingChallenge.challengeImageUrl
-                ? `https://d1qzqzab49ueo8.cloudfront.net/${ongoingChallenge.challengeImageUrl}`
+                ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${ongoingChallenge.challengeImageUrl}`
                 : runningWoman
             }
             alt={ongoingChallenge.challengeTitle}
@@ -93,7 +93,7 @@ const MyCallenge = () => {
             <ChallengeCard key={challenge.challengeNo} onClick={() => navigate(`/mychallenge/complete/${challenge.challengeNo}`)}>
               <CardImageArea>
                 <CardImage 
-                  src={challenge.challengeImageUrl ? `https://d1qzqzab49ueo8.cloudfront.net/${challenge.challengeImageUrl}` : runningWoman} 
+                  src={challenge.challengeImageUrl ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${challenge.challengeImageUrl}` : runningWoman} 
                   alt={challenge.challengeTitle}  
                 />
               </CardImageArea>

@@ -34,7 +34,7 @@ const EditBoard = () => {
         setContent(res.data.boardContent);
         setImageMeta(res.data.image);
         if (res.data.image?.path) {
-          setPreviewUrl(`https://d1qzqzab49ueo8.cloudfront.net/${res.data.image.changedName}`);
+          setPreviewUrl(`${import.meta.env.VITE_CLOUDFRONT_URL}/${res.data.image.changedName}`);
         }
         if (contentRef.current) {
           contentRef.current.innerText = res.data.boardContent;

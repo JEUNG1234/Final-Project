@@ -119,7 +119,7 @@ const MyPage = () => {
             <ProfileImage
               src={
                 userInfo?.profileImagePath
-                  ? `https://d1qzqzab49ueo8.cloudfront.net/${userInfo.profileImagePath}`
+                  ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${userInfo.profileImagePath}`
                   : defaultProfile
               }
               alt="프로필 이미지"

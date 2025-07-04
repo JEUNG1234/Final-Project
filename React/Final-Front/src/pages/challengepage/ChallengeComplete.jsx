@@ -62,7 +62,7 @@ const ChallengeComplete = () => {
         {completion.completeImageUrl && (
             <FormField wide>
                 <Label>인증 사진</Label>
-                <ImagePreview src={`https://d1qzqzab49ueo8.cloudfront.net/${completion.completeImageUrl}`} alt="인증 사진" />
+                <ImagePreview src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${completion.completeImageUrl}`} alt="인증 사진" />
             </FormField>
         )}
 
