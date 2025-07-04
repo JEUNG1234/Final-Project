@@ -1,5 +1,6 @@
 package com.kh.sowm.dto;
 
+import com.kh.sowm.entity.Board;
 import com.kh.sowm.entity.BoardImage;
 import lombok.*;
 
@@ -20,6 +21,16 @@ public class BoardImageDto {
                 .changedName(image.getChangedName())
                 .path(image.getPath())
                 .size(image.getSize())
+                .build();
+    }
+
+    public static BoardImage toEntity(BoardImageDto dto, Board board) {
+        return BoardImage.builder()
+                .board(board)
+                .originalName(dto.getOriginalName())
+                .changedName(dto.getChangedName())
+                .path(dto.getPath())
+                .size(dto.getSize())
                 .build();
     }
 }
