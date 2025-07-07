@@ -157,9 +157,9 @@ public class HealthServiceImpl implements HealthService {
                 +"신체검사 결과: [해당 상태]\n"
                 +"총 점수: " + totalScore +"점\n"
                 +"추천 가이드:\n"
-                +"- 1. (생활 습관 개선 조언)\n"
-                +"- 2. (운동, 영양, 수면 등)\n"
-                +"- 3. (필요 시 병원 방문 안내)\n"
+                +"- 1. (간결하고 실용적인 가이드 1)\n"
+                +"- 2. (간결하고 실용적인 가이드 2)\n"
+                +"- 3. (간결하고 실용적인 가이드 3)\n"
                 + "※ 반드시 총점과 상태가 일치하도록 작성해 주세요.";
         List<Map<String, String>> messages = List.of(
                 Map.of("role", "user", "content", prompt)
