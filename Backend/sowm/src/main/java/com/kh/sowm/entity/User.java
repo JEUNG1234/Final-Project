@@ -68,7 +68,7 @@ public class User {
     private String companyCode;
 
     @Column(name = "VACATION")
-    private int vacation;
+    private Integer vacation;
 
     // 상태값
     @Column(length = 1, nullable = false)

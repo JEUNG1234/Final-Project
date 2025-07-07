@@ -11,7 +11,7 @@ import {
   FaUmbrellaBeach,
 } from 'react-icons/fa';
 import { BsFire } from 'react-icons/bs';
-import { MdDashboard, MdOutlineWbSunny  } from 'react-icons/md';
+import { MdDashboard, MdOutlineWbSunny } from 'react-icons/md';
 import { PiAirplaneTiltFill } from 'react-icons/pi';
 import { useNavigate } from 'react-router-dom';
 import useUserStore from '../Store/useStore';
@@ -49,9 +49,11 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/workationlist')}>
           <PiAirplaneTiltFill /> 워케이션
         </MenuItem>
-        <MenuItem onClick={() => navigate('/vacationlist')}>
-          <MdOutlineWbSunny  /> 휴가신청
-        </MenuItem>
+        {user && user.jobCode !== 'J2' && (
+          <MenuItem onClick={() => navigate('/vacationlist')}>
+            <MdOutlineWbSunny /> 휴가신청
+          </MenuItem>
+        )}
 
         <MenuItem
           onClick={() => {
