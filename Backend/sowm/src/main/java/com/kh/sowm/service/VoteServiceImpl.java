@@ -1,16 +1,15 @@
 package com.kh.sowm.service;
 
+import com.kh.sowm.dto.PageResponse;
 import com.kh.sowm.dto.VoteDto;
-import com.kh.sowm.entity.Challenge;
-import com.kh.sowm.entity.User;
-import com.kh.sowm.entity.Vote;
-import com.kh.sowm.entity.VoteContent;
-import com.kh.sowm.entity.VoteUser;
+import com.kh.sowm.entity.*;
 import com.kh.sowm.exception.ErrorCode;
 import com.kh.sowm.exception.usersException.CompanyNotFoundException;
 import com.kh.sowm.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,12 +52,12 @@ public class VoteServiceImpl implements VoteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VoteDto.ListResponse> getAllVotes(String userId) {
+    public PageResponse<VoteDto.ListResponse> getAllVotes(String userId, Pageable pageable) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
         String companyCode = user.getCompanyCode();
 
-        List<Vote> votes = voteRepository.findAll(companyCode);
+        Page<Vote> votesPage = voteRepository.findAll(companyCode, pageable);
 
         Map<Long, Long> userVoteMap = voteUserRepository.findVoteUsersByUserId(userId).stream()
                 .collect(Collectors.toMap(
@@ -66,12 +65,12 @@ public class VoteServiceImpl implements VoteService {
                         voteUser -> voteUser.getVoteContent().getVoteContentNo()
                 ));
 
-        return votes.stream()
-                .map(vote -> {
-                    Long votedOptionNo = userVoteMap.get(vote.getVoteNo());
-                    return VoteDto.ListResponse.fromEntity(vote, votedOptionNo);
-                })
-                .collect(Collectors.toList());
+        Page<VoteDto.ListResponse> dtoPage = votesPage.map(vote -> {
+            Long votedOptionNo = userVoteMap.get(vote.getVoteNo());
+            return VoteDto.ListResponse.fromEntity(vote, votedOptionNo);
+        });
+
+        return new PageResponse<>(dtoPage);
     }
 
     @Override
