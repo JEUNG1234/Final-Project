@@ -34,12 +34,19 @@ public class Vacation {
     @Column(name = "GRANTED_DATE", nullable = false)
     private LocalDate grantedDate;
 
-    //
+    //휴가 지급 개수
+    @Column(name = "AMOUNT", nullable = false)
+    private Integer amount;
 
     @PrePersist
     public void prePersist() {
         if (this.grantedDate == null) {
             this.grantedDate = LocalDate.now();
         }
+        if (this.amount == null) {
+            this.amount = 1;
+        }
+
+
     }
 }

@@ -13,77 +13,41 @@ import NaverMapStatic from '../../components/NvaerMapStatic';
 
 import { FaSquare, FaRulerCombined, FaExclamationTriangle, FaUsers } from 'react-icons/fa';
 
-import { useNavigate, useParams } from 'react-router-dom';
-import { workationService } from '../../api/workation';
+import { useNavigate } from 'react-router-dom';
+
 import useUserStore from '../../Store/useStore';
 import { useForm } from 'react-hook-form';
-// import { workationService } from '../../api/workation';
+import { vacationService } from '../../api/vacation';
 
 const VacationList = () => {
   const { user } = useUserStore();
 
-  // 현재 활성화된 탭 상태 관리 (예시)
-  const [activeTab, setActiveTab] = React.useState('intro');
-
-  const [workationInfo, setWorkationInfo] = useState([]);
   //날짜 범위 선택[시작일, 종료일]
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
 
   const [content, setContent] = useState('');
 
-  //이미지 필터 저장용
-  const [placeImage, setPlaceImage] = useState('');
-  const [facilityImage, setFacilityImage] = useState('');
-  const [precautionImage, setPrecautionImage] = useState('');
-
   //날짜 초기화
   const resetDates = () => setDateRange([null, null]);
 
-  //워케이션 정보 가져오기
-  const { no } = useParams();
-
-  useEffect(() => {
-    const workationInfo = async () => {
-      try {
-        const data = await workationService.workationInfo(no);
-        console.log('워케이션 정보: ', data);
-        setWorkationInfo(data);
-      } catch (error) {
-        // const apiError = error.response.data.message;
-
-        // // alert(apiError);
-        // // console.error(error);
-        // // console.error('워케이션 정보 불러오기 실패:', apiError);
-      }
-    };
-    workationInfo();
-  }, []);
-
-  useEffect(() => {
-    if (workationInfo.workationImages && workationInfo.workationImages.length > 0) {
-      // PLACE
-      const place = workationInfo.workationImages.find((img) => img.tab === 'PLACE');
-      setPlaceImage(place ? place.changedName : '');
-
-      // FACILITY
-      const facility = workationInfo.workationImages.find((img) => img.tab === 'FACILITY');
-      setFacilityImage(facility ? facility.changedName : '');
-
-      // PRECAUTIONS
-      const precaution = workationInfo.workationImages.find((img) => img.tab === 'PRECAUTIONS');
-      setPrecautionImage(precaution ? precaution.changedName : '');
-    }
-  }, [workationInfo]);
+  //   useEffect(() => {
+  //     const workationInfo = async () => {
+  //       try {
+  //         const data = await workationService.workationInfo(no);
+  //         console.log('워케이션 정보: ', data);
+  //       } catch (error) {
+  //         // const apiError = error.response.data.message;
+  //         // // alert(apiError);
+  //         // // console.error(error);
+  //         // // console.error('워케이션 정보 불러오기 실패:', apiError);
+  //       }
+  //     };
+  //     workationInfo();
+  //   }, []);
 
   //유효성 검사
   const schema = yup.object().shape({
-    peopleMax: yup
-      .number()
-      .typeError('최대 인원을 숫자로 입력해주세요')
-      .required('최대 인원을 설정해주세요')
-      .max(workationInfo.peopleMax || Infinity, `최대 인원 수(${workationInfo.peopleMax})를 초과했습니다.`)
-      .min(workationInfo.peopleMin || Infinity, `최소 인원 수(${workationInfo.peopleMin}) 이상이여야 합니다.`),
     dateRange: yup
       .array()
       .of(yup.date().nullable())
@@ -95,28 +59,25 @@ const VacationList = () => {
         start.setHours(0, 0, 0, 0);
         end.setHours(0, 0, 0, 0);
         return start <= end;
-      })
-      .test('startDateRange', '신청 가능 기간범위를 벗어났습니다.', (value) => {
-        if (!value || !value[0] || !workationInfo.workationStartDate || !workationInfo.workationEndDate) return true;
-        const start = value[0] instanceof Date ? value[0] : new Date(value[0]);
-        const rangeStart = new Date(workationInfo.workationStartDate);
-        const rangeEnd = new Date(workationInfo.workationEndDate);
-        start.setHours(0, 0, 0, 0);
-        rangeStart.setHours(0, 0, 0, 0);
-        rangeEnd.setHours(0, 0, 0, 0);
-        return start >= rangeStart && start <= rangeEnd;
-      })
-      .test('endDateRange', '신청 가능 기간범위를 벗어났습니다.', (value) => {
-        if (!value || !value[1] || !workationInfo.workationStartDate || !workationInfo.workationEndDate) return true;
-        const end = value[1] instanceof Date ? value[1] : new Date(value[1]);
-        const rangeStart = new Date(workationInfo.workationStartDate);
-        const rangeEnd = new Date(workationInfo.workationEndDate);
-        end.setHours(0, 0, 0, 0);
-        rangeStart.setHours(0, 0, 0, 0);
-        rangeEnd.setHours(0, 0, 0, 0);
-        return end >= rangeStart && end <= rangeEnd;
       }),
   });
+
+  useEffect(() => {
+    const workationInfo = async () => {
+      try {
+        const data = await vacationService.vacationList(user.userId);
+        console.log('휴가 내역: ', data);
+      
+      } catch (error) {
+        // const apiError = error.response.data.message;
+
+        // alert(apiError);
+        // console.error(error);
+        // console.error('워케이션 정보 불러오기 실패:', apiError);
+      }
+    };
+    workationInfo();
+  }, []);
 
   const {
     register,
@@ -128,27 +89,28 @@ const VacationList = () => {
     shouldFocusError: true,
   });
   const navigate = useNavigate();
+
   const onSubmit = async (data, e) => {
     e.preventDefault();
     const [startDate, endDate] = data.dateRange;
+
+    const amount = startDate && endDate ? Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1 : 0;
     try {
       const submitBody = {
-        peopleMax: data.peopleMax,
         startDate,
         endDate,
         content,
+        amount,
       };
       const requestBody = {
         ...submitBody,
         userId: user.userId,
-        location: workationInfo.address,
-        workationNo: no,
       };
 
       console.log(requestBody);
 
-      const response = await workationService.workationSubmit(requestBody);
-      navigate('/workationList');
+      const response = await vacationService.vacationSubmit(requestBody);
+     
       alert('워케이션 신청되었습니다.');
       console.log(response);
     } catch (error) {
@@ -160,120 +122,7 @@ const VacationList = () => {
 
   return (
     <FullWapper>
-      <MainContent>
-        <Tabs>
-          <TabButton className={activeTab === 'intro' ? 'active' : ''} onClick={() => setActiveTab('intro')}>
-            장소 소개
-          </TabButton>
-          <TabButton className={activeTab === 'facilities' ? 'active' : ''} onClick={() => setActiveTab('facilities')}>
-            시설 안내
-          </TabButton>
-          <TabButton
-            className={activeTab === 'precautions' ? 'active' : ''}
-            onClick={() => setActiveTab('precautions')}
-          >
-            유의 사항
-          </TabButton>
-          <TabButton className={activeTab === 'location' ? 'active' : ''} onClick={() => setActiveTab('location')}>
-            오시는 길
-          </TabButton>
-        </Tabs>
-
-        {activeTab === 'intro' && (
-          <>
-            <ImageSection>
-              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${placeImage}`} />
-            </ImageSection>
-      
-            <Title>{workationInfo.workationTitle}</Title>
-            <Subtitle>{workationInfo.address}</Subtitle>
-            <Description>{workationInfo.placeInfo}</Description>
-            <Subtitle>주요 특징</Subtitle>
-            <FeaturesSection>
-              <RefundPolicy>{workationInfo.feature}</RefundPolicy>
-            </FeaturesSection>
-          </>
-        )}
-        {/* 시설안내 탭 */}
-        {activeTab === 'facilities' && (
-          <>
-            <ImageSection>
-              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${facilityImage}`} />
-            </ImageSection>
-          
-            <FacilityContent>
-              <FacilityLeftContent>
-                <FaciltyLeftFirstInfo>
-                  <h2>시설안내</h2>
-                  <h3>{workationInfo.facilityInfo}</h3>
-                </FaciltyLeftFirstInfo>
-                <FaciltyLeftSecondInfo>
-                  <h2>영업시간 | 휴무일</h2>
-                  <h3>{workationInfo.openHours}</h3>
-                  {Array.isArray(workationInfo.dayOffs) && workationInfo.dayOffs.length > 0 && (
-                    <h3>{workationInfo.dayOffs.map((item) => item.dayOff).join(', ')}</h3>
-                  )}
-                </FaciltyLeftSecondInfo>
-              </FacilityLeftContent>
-              <FacilityRightContent>
-                <InfoBlock>
-                  <InfoIcon as={FaSquare} /> {/* 공간유형 아이콘 (임시) */}
-                  <InfoText>계약기간</InfoText>
-                  <DetailText>
-                    {workationInfo.workationStartDate} ~ {workationInfo.workationEndDate}
-                  </DetailText>
-                </InfoBlock>
-                <InfoBlock>
-                  <InfoIcon as={FaSquare} /> {/* 공간유형 아이콘 (임시) */}
-                  <InfoText>공간유형</InfoText>
-                  <DetailText>{workationInfo.spaceType}</DetailText>
-                </InfoBlock>
-                <InfoBlock>
-                  <InfoIcon as={FaRulerCombined} /> {/* 공간면적 아이콘 (임시) */}
-                  <InfoText>공간면적</InfoText>
-                  <DetailText>{workationInfo.area}m²</DetailText>
-                </InfoBlock>
-
-                <InfoBlock>
-                  <InfoIcon as={FaUsers} /> {/* 수용인원 아이콘 (임시) */}
-                  <InfoText>수용인원</InfoText>
-                  <DetailText>
-                    {workationInfo.peopleMin}명 ~ 최대{workationInfo.peopleMax}
-                  </DetailText>
-                </InfoBlock>
-              </FacilityRightContent>
-            </FacilityContent>
-          </>
-        )}
-
-        {activeTab === 'precautions' && (
-          <>
-            <ImageSection>
-              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${precautionImage}`} />
-            </ImageSection>
-
-            <RefundPolicy>{workationInfo.precautions}</RefundPolicy>
-          </>
-        )}
-
-        {/* 위치 정보 탭 */}
-        {activeTab === 'location' && (
-          <>
-            <MapContainerStyled>
-              <NaverMapStatic
-                address={workationInfo.address}
-                latitude={workationInfo.latitude}
-                longitude={workationInfo.longitude}
-              />
-            </MapContainerStyled>
-            <Description style={{ marginTop: '20px' }}>
-              <p>주소: {workationInfo.address}</p>
-              <RefundPolicy>대중교통: {workationInfo.busInfo}</RefundPolicy>
-              <RefundPolicy>주차: {workationInfo.parkingInfo}</RefundPolicy>
-            </Description>
-          </>
-        )}
-      </MainContent>
+      <MainContent></MainContent>
       <DateContent>
         <DateMenu>
           <DatePicker
@@ -316,29 +165,6 @@ const VacationList = () => {
                     <FaExclamationTriangle />
                   </IconBox>
                   {errors.dateRange.message}
-                </ErrorTooltip>
-              )}
-            </FormField>
-          </FormRow>
-          <FormRow>
-            <Label>장소</Label>
-            <Input type="text" value={workationInfo.address} />
-          </FormRow>
-          <FormRow>
-            <Label>최대 인원</Label>
-            <FormField>
-              <Input
-                type="number"
-                placeholder="최대인원"
-                {...register('peopleMax', { valueAsNumber: true })}
-                style={errors.peopleMax ? { border: '1.5px solid #ff4545' } : {}}
-              />
-              {errors.peopleMax && (
-                <ErrorTooltip>
-                  <IconBox>
-                    <FaExclamationTriangle />
-                  </IconBox>
-                  {errors.peopleMax.message}
                 </ErrorTooltip>
               )}
             </FormField>
@@ -525,7 +351,6 @@ const DetailText = styled.span`
   margin-left: 10px;
 `;
 
-
 const FaciltyLeftFirstInfo = styled.div`
   width: 100%;
   height: 50%;
@@ -562,7 +387,6 @@ const FaciltyLeftSecondInfo = styled.div`
     text-align: left;
   }
 `;
-
 
 //지도 컨테이너 스타일
 const MapContainerStyled = styled.div`
