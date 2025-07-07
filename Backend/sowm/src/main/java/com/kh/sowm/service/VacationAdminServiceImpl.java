@@ -63,4 +63,21 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     public ResponseEntity<List<ResponseDto>> getAllVactionList() {
         return vacationAdminRepository.getAllVactionList();
     }
+
+    @Override
+    public List<Long> rejectVacation(RequestDto vacation) {
+        List<Long> vacationNos = vacation.getVacationNos();
+        StatusType newStatus = vacation.getStatus();
+
+        List<VacationAdmin> vacations = vacationAdminRepository.findAllById(vacationNos);
+
+        for (VacationAdmin vacationList : vacations) {
+            vacationList.changeStauts(newStatus);
+        }
+        vacationAdminRepository.saveAll(vacations);
+
+        return vacations.stream()
+                .map(VacationAdmin::getVacationNo)
+                .toList();
+    }
 }

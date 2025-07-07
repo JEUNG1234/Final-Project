@@ -12,4 +12,6 @@ public interface VacationAdminService {
     List<Long> updateVacationStatus(RequestDto vacationNo);
 
     ResponseEntity<List<ResponseDto>> getAllVactionList();
+
+    List<Long> rejectVacation(RequestDto vacation);
 }

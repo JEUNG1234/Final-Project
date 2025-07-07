@@ -102,10 +102,15 @@ const VacationAdmin = () => {
     }
 
     try {
-      const response = await vacationAdminService.handleReturnAction(selectedVacationNos);
-      console.log('성공 거부', response);
+      const requestData = {
+        vacationNos: selectedVacationNos,
+        status: 'N', // 거부 상태 코드 (백엔드 enum에 맞게)
+      };
+      const response = await vacationAdminService.rejectVacation(requestData); // rejectVacation API 호출
+      console.log('거부 처리 응답:', response);
       alert('성공적으로 거부 처리되었습니다.');
-      // 리스트 다시 불러오기
+
+      // 처리 후 리스트 갱신
       const updatedData = await vacationAdminService.getvactionlist(user.companyCode);
       setVacationData(updatedData);
       setVacationNo([]);
