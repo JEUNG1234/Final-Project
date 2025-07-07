@@ -66,7 +66,7 @@ const VoteList = () => {
   const handleDeleteVote = async (voteNo) => {
     if (window.confirm(`정말로 ${voteNo}번 투표를 삭제하시겠습니까?`)) {
       try {
-        await voteService.deleteVote(voteNo);
+        await voteService.deleteVote(voteNo, user.userId);
         alert('투표가 삭제되었습니다.');
         fetchVotes(); // 목록 새로고침
       } catch (error) {

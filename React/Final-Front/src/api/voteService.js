@@ -79,11 +79,14 @@ export const voteService = {
   /**
    * 투표를 삭제합니다. (관리자용)
    * @param {number} voteId - 삭제할 투표의 ID
+   * @param {string} userId - 삭제를 요청한 사용자의 ID
    * @returns {Promise<any>}
    */
-  deleteVote: async (voteId) => {
+  deleteVote: async (voteId, userId) => {
     try {
-      const response = await api.delete(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`);
+      const response = await api.delete(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`, {
+        params: { userId } 
+      });
       return response.data;
     } catch (error) {
       console.error('투표 삭제 API 호출 중 오류 발생:', error);
