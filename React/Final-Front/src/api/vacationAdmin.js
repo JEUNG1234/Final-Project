@@ -23,9 +23,11 @@ export const vacationAdminService = {
     }
   },
 
-  getAllVacationList: async () => {
+  getAllVacationList: async (companyCode) => {
     try {
-      const response = await api.get(`${API_ENDPOINTS.VACATIONADMIN.getAllVacationList}`);
+      const response = await api.get(`${API_ENDPOINTS.VACATIONADMIN.getAllVacationList}`, {
+        params: { companyCode },
+      });
       return response.data;
     } catch (err) {
       console.log('전체 휴가 리스트 불러오기 실패', err);

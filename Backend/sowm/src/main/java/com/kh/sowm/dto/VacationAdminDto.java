@@ -49,5 +49,6 @@ public class VacationAdminDto {
     public static class RequestDto {
         private List<Long> vacationNos;
         private StatusType status;
+        private String companyCode;
     }
 }

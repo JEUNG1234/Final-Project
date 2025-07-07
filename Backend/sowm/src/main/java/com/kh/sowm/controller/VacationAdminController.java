@@ -36,8 +36,8 @@ public class VacationAdminController {
 
     // 전체 휴가 제이터 가져오기
     @GetMapping("/getAllVacationList")
-    public ResponseEntity<List<VacationAdminDto.ResponseDto>> getAllVacationList() {
-        return vacationAdminService.getAllVactionList();
+    public ResponseEntity<List<VacationAdminDto.ResponseDto>> getAllVacationList(String companyCode) {
+        return vacationAdminService.getAllVactionList(companyCode);
     }
 
     // 승인 거부
