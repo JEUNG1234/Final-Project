@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaClipboardCheck } from 'react-icons/fa';
-// MainContent를 BaseMainContent로 가져와서 확장합니다.
-import { MainContent as BaseMainContent, PageTitle, PageButton, Pagination, BottomBar} from '../../styles/common/MainContentLayout';
+import { FaUmbrellaBeach } from 'react-icons/fa';
+import {
+  MainContent as BaseMainContent,
+  PageTitle,
+  PageButton,
+  Pagination,
+  BottomBar,
+} from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
 import { workationService } from '../../api/workation';
 
@@ -32,11 +38,11 @@ const VacationAdmin = () => {
     const workationSubList = async () => {
       try {
         const data = await workationService.workationSubList(user.companyCode);
-        console.log('워케이션 신청 리스트:', data);
+        console.log('휴가 신청 리스트:', data);
 
         setWorkationData(data);
       } catch (error) {
-        console.error('워케이션 신청 리스트 불러오기 실패:', error.message);
+        console.error('휴가 신청 리스트 불러오기 실패:', error.message);
       }
     };
     workationSubList();
@@ -76,20 +82,20 @@ const VacationAdmin = () => {
       setWorkationData(updatedData);
       setWorkationSubNo([]);
     } catch (error) {
-      console.error('워케이션 신청 승인 에러', error);
-      alert('워케이션 신청 승인 중 에러가 발생했습니다.');
+      console.error('휴가 신청 승인 에러', error);
+      alert('휴가 신청 승인 중 에러가 발생했습니다.');
     }
   };
 
   const handleFullList = async () => {
     try {
       const data = await workationService.workationFullList(user.companyCode);
-      console.log('워케이션 전체 신청 리스트 : ', data);
+      console.log('휴가 전체 신청 리스트 : ', data);
 
       setWorkationData(data);
       setIsFullList(true);
     } catch (error) {
-      console.error('워케이션 전체 리스트를 불러오는데 실패했습니다.', error.message);
+      console.error('휴가 전체 리스트를 불러오는데 실패했습니다.', error.message);
     }
   };
 
@@ -100,7 +106,7 @@ const VacationAdmin = () => {
       setIsFullList(false);
       setWorkationSubNo([]);
     } catch (error) {
-      console.error('워케이션 신청 리스트 불러오기 실패:', error.message);
+      console.error('휴가 신청 리스트 불러오기 실패:', error.message);
     }
   };
 
@@ -121,8 +127,8 @@ const VacationAdmin = () => {
       setWorkationData(updatedData);
       setWorkationSubNo([]);
     } catch (error) {
-      console.error('워케이션 신청 승인 에러', error);
-      alert('워케이션 신청 승인 중 에러가 발생했습니다.');
+      console.error('휴가 신청 승인 에러', error);
+      alert('휴가 신청 승인 중 에러가 발생했습니다.');
     }
   };
 
@@ -148,7 +154,7 @@ const VacationAdmin = () => {
     <MainContent>
       <PageTitleWrapper>
         <PageTitle>
-          <FaClipboardCheck /> 워케이션 승인
+          <FaUmbrellaBeach /> 휴가 승인
         </PageTitle>
 
         {isFullList ? (
