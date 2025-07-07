@@ -67,6 +67,9 @@ public class User {
     @Column(name = "COMPANY_CODE")
     private String companyCode;
 
+    @Column(name = "VACATION")
+    private int vacation;
+
     // 상태값
     @Column(length = 1, nullable = false)
     @Enumerated(EnumType.STRING)
@@ -100,6 +103,9 @@ public class User {
         }
         if (this.status == null) {
             this.status = CommonEnums.Status.N;
+        }
+        if (this.vacation == 0) {
+            this.vacation = 20;
         }
     }
 
