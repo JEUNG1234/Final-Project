@@ -105,7 +105,7 @@ public class User {
             this.status = CommonEnums.Status.N;
         }
         if (this.vacation == 0) {
-            this.vacation = 20;
+            this.vacation = 15;
         }
     }
 
