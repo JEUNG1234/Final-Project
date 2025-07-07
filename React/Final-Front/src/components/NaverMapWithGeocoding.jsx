@@ -178,7 +178,8 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
   }, [addressInput, isApiLoaded]); // isApiLoaded를 의존성 배열에 추가!
 
   // '이 주소 선택' 버튼 클릭 핸들러
-  const handleSelectAddress = () => {
+  const handleSelectAddress = (e) => {
+    e.preventDefault();
     if (onAddressSelect && currentCoords.lat && currentCoords.lng && currentAddress) {
       onAddressSelect(currentAddress, currentCoords.lat, currentCoords.lng, currentZipCode);
     } else {
@@ -186,6 +187,13 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // form의 기본 제출 동작을 막음
+      handleSearchAddress();
+    }
+  };
+  
   return (
     <div style={{ padding: '0', maxWidth: '100%', margin: 'auto' }}>
       <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
@@ -194,6 +202,7 @@ const NaverMapWithGeocoding = ({ onAddressSelect }) => {
           placeholder="주소를 입력하세요"
           value={addressInput}
           onChange={handleAddressInputChange}
+          onKeyDown={handleKeyDown}
           style={{ flexGrow: 1, padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
         />
         <button

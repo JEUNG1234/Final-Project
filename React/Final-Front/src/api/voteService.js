@@ -27,12 +27,16 @@ export const voteService = {
    * @param {string} userId - 현재 로그인한 사용자의 ID
    * @returns {Promise<any>} - 투표 목록
    */
-  getAllVotes: async (userId) => {
+  getAllVotes: async (userId, page = 0, size = 10) => {
     try {
-      // API 호출 시 userId를 쿼리 파라미터로 전달하고, 캐시 방지를 위해 타임스탬프 추가
-      const response = await api.get(
-        `${API_ENDPOINTS.VOTES.BASE}?userId=${userId}&_=${new Date().getTime()}`
-      );
+      const response = await api.get(API_ENDPOINTS.VOTES.BASE, {
+        params: {
+          userId,
+          page,
+          size,
+          sort: 'voteNo,desc' // 최신순 정렬
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('투표 목록 조회 API 호출 중 오류 발생:', error);
@@ -79,13 +83,12 @@ export const voteService = {
   /**
    * 투표를 삭제합니다. (관리자용)
    * @param {number} voteId - 삭제할 투표의 ID
-   * @param {string} userId - 삭제를 요청한 사용자의 ID
    * @returns {Promise<any>}
    */
   deleteVote: async (voteId, userId) => {
     try {
       const response = await api.delete(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`, {
-        params: { userId } 
+        params: { userId }
       });
       return response.data;
     } catch (error) {

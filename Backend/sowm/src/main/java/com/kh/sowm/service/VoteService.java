@@ -1,6 +1,8 @@
 package com.kh.sowm.service;
 
+import com.kh.sowm.dto.PageResponse;
 import com.kh.sowm.dto.VoteDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -9,8 +11,8 @@ public interface VoteService {
     // 투표 생성
     Long createVote(VoteDto.CreateRequest createRequest, String userId);
 
-    // 모든 투표 목록 조회
-    List<VoteDto.ListResponse> getAllVotes(String userId);
+    // 모든 투표 목록 조회 (페이징 적용)
+    PageResponse<VoteDto.ListResponse> getAllVotes(String userId, Pageable pageable);
 
     // 투표 상세 결과 조회
     VoteDto.DetailResponse getVoteDetails(Long voteNo);
