@@ -1,5 +1,6 @@
 package com.kh.sowm.repository;
 
+import com.kh.sowm.dto.VacationDto.VacationNoDto;
 import com.kh.sowm.dto.VacationDto.VacationResponseDto;
 import com.kh.sowm.entity.Vacation;
 import com.kh.sowm.entity.VacationAdmin;
@@ -16,5 +17,12 @@ public interface VacationRepository {
 
     List<VacationAdmin> findBySubmitList(String userId, StatusType StatusType);
 
+
     List<Vacation> findBySubmitList(String userId);
+
+    List<VacationAdmin> findByWaitList(String userId);
+
+    Optional<VacationAdmin> findById(Long vacationNos);
+
+    void delete(Long vacationNos);
 }

@@ -50,6 +50,7 @@ import UpdateMyInfo from './pages/mypage/UpdateMyInfo';
 import PrivateRoute from './PrivateRoute';
 import VacationAdmin from './pages/vacationpage/VacationAdmin';
 import VacationList from './pages/vacationpage/VacationList';
+import VacationWaitList from './pages/vacationpage/VacationWaitList';
 
 const AppContainer = styled.div`
   display: flex;
@@ -163,7 +164,7 @@ function App() {
                       {/* 휴가 관리 페이지 */}
                       <Route path="vacationadmin" element={<VacationAdmin />} />
                       <Route path="vacationlist" element={<VacationList />} />
-                      
+                      <Route path="vacationwaitlist" element={<VacationWaitList />} />
                     </Routes>
                   </Layout>
                 </PrivateRoute>

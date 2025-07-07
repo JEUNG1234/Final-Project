@@ -117,6 +117,9 @@ export const API_ENDPOINTS = {
     SUBMIT: '/vacation/submit',
     VACATIONLIST: '/vacation/list',
     LIST: '/vacation/list',
+    WAITLIST: '/vacation/waitList',
+    VADELETE: '/vacation/delete',
+
   },
 
   VACATIONADMIN: {

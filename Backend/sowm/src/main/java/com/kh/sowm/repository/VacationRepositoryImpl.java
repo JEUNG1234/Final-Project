@@ -1,6 +1,8 @@
 package com.kh.sowm.repository;
 
+import com.kh.sowm.dto.VacationDto.VacationNoDto;
 import com.kh.sowm.dto.VacationDto.VacationResponseDto;
+import com.kh.sowm.entity.SubmitWorkation;
 import com.kh.sowm.entity.Vacation;
 import com.kh.sowm.entity.VacationAdmin;
 import com.kh.sowm.entity.VacationAdmin.StatusType;
@@ -57,6 +59,27 @@ public class VacationRepositoryImpl implements VacationRepository {
                 .setParameter("userId", userId)
                 .getResultList();
 
+    }
+
+    @Override
+    public List<VacationAdmin> findByWaitList(String userId) {
+
+        String jpql = ("SELECT v FROM VacationAdmin v WHERE v.user.userId = :userId");
+
+        return em.createQuery(jpql, VacationAdmin.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    @Override
+    public Optional<VacationAdmin> findById(Long vacationNos) {
+
+        return Optional.ofNullable(em.find(VacationAdmin.class, vacationNos));
+    }
+
+    @Override
+    public void delete(Long vacationNos) {
+        em.remove(em.find(VacationAdmin.class, vacationNos));
     }
 
 
