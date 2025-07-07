@@ -112,10 +112,16 @@ export const API_ENDPOINTS = {
     allresultList: '/health/allresult', //  결과 목록 추가
   },
 
-  VACATION:{
+  VACATION: {
     BASE: '/vacation',
     SUBMIT: '/vacation/submit',
     VACATIONLIST: '/vacation/list',
     LIST: '/vacation/list',
+  },
+
+  VACATIONADMIN: {
+    getvacationlist: '/vacationadmin/getvactionlist',
+    updateVacationStatus: '/vacationadmin/updateVacationStatus',
+    getAllVacationList: '/vacationadmin/getAllVacationList',
   },
 };

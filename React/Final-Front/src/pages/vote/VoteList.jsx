@@ -61,7 +61,7 @@ const VoteList = () => {
       console.error('투표 실패:', error);
     }
   };
-  
+
   // 투표 삭제 핸들러 함수
   const handleDeleteVote = async (voteNo) => {
     if (window.confirm(`정말로 ${voteNo}번 투표를 삭제하시겠습니까?`)) {
@@ -70,7 +70,8 @@ const VoteList = () => {
         alert('투표가 삭제되었습니다.');
         fetchVotes(); // 목록 새로고침
       } catch (error) {
-        alert(error.response?.data?.message || '투표 삭제 중 오류가 발생했습니다.');
+        // 서버에서 전달된 구체적인 에러 메시지를 alert로 표시
+        alert(error.message);
         console.error('투표 삭제 실패:', error);
       }
     }
@@ -135,7 +136,7 @@ const VoteList = () => {
                   >
                     결과보기
                   </ResultButton>
-                  
+
                   {/* ✅ [추가] 관리자일 때만 삭제 버튼 렌더링 */}
                   {user?.jobCode === 'J2' && (
                     <DeleteButton
@@ -183,8 +184,6 @@ const VoteList = () => {
 };
 
 // --- Styled Components ---
-
-// ... (기존 Styled Components는 변경 없음) ...
 
 // ✅ [추가] 삭제 버튼 스타일
 const DeleteButton = styled.button`

@@ -64,7 +64,10 @@ public class JwtTokenFilter extends GenericFilter {
         String path = httpRequest.getRequestURI();
 
         // 인증이 필요 없는 경로들
-        if (path.equals("/api/users/login") || path.equals("/api/users/signup") || path.equals("/api/users/enrolladmin") || path.equals("/api/users/enrollcompany") || path.startsWith("/api/public")) {
+        if (path.equals("/api/users/login") || path.equals("/api/users/signup")
+                || path.equals("/api/users/enrolladmin")
+                || path.equals("/api/users/enrollcompany")
+                || path.startsWith("/api/public")) {
             chain.doFilter(request, response); // 토큰 검사 없이 그냥 다음 필터 진행
             return;
         }
