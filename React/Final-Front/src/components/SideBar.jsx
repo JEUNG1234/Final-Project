@@ -1,9 +1,17 @@
 import React from 'react';
 import logoImg from '../assets/로고 이미지.png';
 import styled from 'styled-components';
-import { FaClipboardCheck, FaPoll, FaCalendarAlt, FaComments, FaHeartbeat, FaUsersCog } from 'react-icons/fa';
+import {
+  FaClipboardCheck,
+  FaPoll,
+  FaCalendarAlt,
+  FaComments,
+  FaHeartbeat,
+  FaUsersCog,
+  FaUmbrellaBeach,
+} from 'react-icons/fa';
 import { BsFire } from 'react-icons/bs';
-import { MdDashboard } from 'react-icons/md';
+import { MdDashboard, MdOutlineWbSunny  } from 'react-icons/md';
 import { PiAirplaneTiltFill } from 'react-icons/pi';
 import { useNavigate } from 'react-router-dom';
 import useUserStore from '../Store/useStore';
@@ -41,6 +49,9 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/workationlist')}>
           <PiAirplaneTiltFill /> 워케이션
         </MenuItem>
+        <MenuItem onClick={() => navigate('/vacationlist')}>
+          <MdOutlineWbSunny  /> 휴가신청
+        </MenuItem>
 
         <MenuItem
           onClick={() => {
@@ -69,6 +80,10 @@ const Sidebar = () => {
           <>
             <MenuItem onClick={() => navigate('/workationadmin')}>
               <FaClipboardCheck /> 워케이션승인
+            </MenuItem>
+
+            <MenuItem onClick={() => navigate('/vacationadmin')}>
+              <FaUmbrellaBeach /> 휴가 승인
             </MenuItem>
             <MenuItem onClick={() => navigate('/employeemanagement')}>
               <FaUsersCog /> 직원관리
