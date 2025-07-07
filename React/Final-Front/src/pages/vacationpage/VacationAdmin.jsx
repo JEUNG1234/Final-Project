@@ -10,7 +10,7 @@ import {
   BottomBar,
 } from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
-import { workationService } from '../../api/workation';
+import { vacationAdminService } from '../../api/vacationAdmin';
 
 // 1. 스크롤 제거를 위해 기존 MainContent를 확장하고 min-height를 auto로 변경
 const MainContent = styled(BaseMainContent)`
@@ -20,34 +20,40 @@ const MainContent = styled(BaseMainContent)`
 const VacationAdmin = () => {
   const { user } = useUserStore();
 
-  const [workationSubNo, setWorkationSubNo] = useState([]);
+  const [vacationNo, setVacationNo] = useState([]);
   const [isFullList, setIsFullList] = useState(false);
 
-  // 전체 선택/해제 핸들러
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      const allIds = workationData.map((req) => req.workationSubNo);
-      console.log('allIds', allIds);
-      setWorkationSubNo(allIds);
+      // 전체보기일 땐 전체 데이터, 페이징 중일 땐 현재 페이지 데이터 선택
+      const allIds = isFullList ? vacationData.map((req) => req.vacationNo) : pagedData.map((req) => req.vacationNo);
+      setVacationNo(allIds);
     } else {
-      setWorkationSubNo([]);
+      setVacationNo([]);
     }
   };
 
-  useEffect(() => {
-    const workationSubList = async () => {
-      try {
-        const data = await workationService.workationSubList(user.companyCode);
-        console.log('휴가 신청 리스트:', data);
+  // 개별 선택/해제 핸들러
+  const handleSelectSingle = (id) => {
+    setVacationNo((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+  };
 
-        setWorkationData(data);
+  // 휴가 신청 리스트 조회
+  useEffect(() => {
+    if (!user || !user.companyCode) return;
+
+    const vacationList = async () => {
+      try {
+        console.log('휴가승인 페이지쪽 유저 정보', user);
+        sessionStorage.getItem('token');
+        const data = await vacationAdminService.getvactionlist(user.companyCode);
+        setVacationData(data);
       } catch (error) {
         console.error('휴가 신청 리스트 불러오기 실패:', error.message);
       }
     };
-    workationSubList();
-    console.log(workationData);
-  }, []);
+    vacationList();
+  }, [user]);
 
   const getStatusText = (status) => {
     if (status === 'W') return '대기';
@@ -56,79 +62,79 @@ const VacationAdmin = () => {
     return status;
   };
 
-  const [workationData, setWorkationData] = useState([]);
+  const [vacationData, setVacationData] = useState([]);
 
-  // 개별 선택/해제 핸들러
-  const handleSelectSingle = (id) => {
-    setWorkationSubNo((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
+  console.log('vacationNo', vacationNo);
 
-  console.log('workationSubNo', workationSubNo);
-
-  const handleReturnAction = async (workationSubNo) => {
-    console.log('workationSubNo', workationSubNo);
-
-    if (workationSubNo.length === 0) {
+  // 승인 처리 함수
+  const handleApprovedAction = async (selectedVacationNos) => {
+    if (selectedVacationNos.length === 0) {
       alert('항목을 먼저 선택해주세요.');
       return;
     }
+
     try {
-      const workResponse = await workationService.handleReturnAction(workationSubNo);
+      const requestData = {
+        vacationNos: selectedVacationNos,
+        status: 'Y',
+      };
+      const response = await vacationAdminService.updateVacationStatus(requestData);
+      console.log('response', response);
+      alert('성공적으로 승인 처리되었습니다.');
 
-      console.log(workResponse);
-      alert('성공적으로 처리되었습니다.');
-
-      const updatedData = await workationService.workationSubList(user.companyCode);
-      setWorkationData(updatedData);
-      setWorkationSubNo([]);
+      // 승인 후 리스트 다시 불러오기
+      if (user && user.companyCode) {
+        const updatedData = await vacationAdminService.getvactionlist(user.companyCode);
+        setVacationData(updatedData);
+        setVacationNo([]); // 선택 초기화
+      }
     } catch (error) {
-      console.error('휴가 신청 승인 에러', error);
-      alert('휴가 신청 승인 중 에러가 발생했습니다.');
+      console.error('휴가 승인 중 에러:', error);
+      alert('휴가 승인 중 에러가 발생했습니다.', error);
     }
   };
 
+  // 거부 처리 함수 (임시 예시)
+  const handleReturnAction = async (selectedVacationNos) => {
+    if (selectedVacationNos.length === 0) {
+      alert('항목을 먼저 선택해주세요.');
+      return;
+    }
+
+    try {
+      const response = await vacationAdminService.handleReturnAction(selectedVacationNos);
+      console.log('성공 거부', response);
+      alert('성공적으로 거부 처리되었습니다.');
+      // 리스트 다시 불러오기
+      const updatedData = await vacationAdminService.getvactionlist(user.companyCode);
+      setVacationData(updatedData);
+      setVacationNo([]);
+    } catch (error) {
+      console.error('휴가 거부 중 에러:', error);
+      alert('휴가 거부 중 에러가 발생했습니다.');
+    }
+  };
+
+  // 전체 보기 토글 핸들러 (임시)
   const handleFullList = async () => {
     try {
-      const data = await workationService.workationFullList(user.companyCode);
-      console.log('휴가 전체 신청 리스트 : ', data);
-
-      setWorkationData(data);
+      const allData = await vacationAdminService.getAllVacationList(); // 전체 데이터 API
+      setVacationData(allData);
       setIsFullList(true);
+      setCurrentPage(1);
     } catch (error) {
-      console.error('휴가 전체 리스트를 불러오는데 실패했습니다.', error.message);
+      console.error(error);
     }
   };
-
+  // 돌아가기 시에는 페이징된 데이터만 불러오기
   const handleGoBack = async () => {
     try {
-      const data = await workationService.workationSubList(user.companyCode);
-      setWorkationData(data);
+      const data = await vacationAdminService.getvactionlist(user.companyCode); // 페이징 데이터 API
+      setVacationData(data);
       setIsFullList(false);
-      setWorkationSubNo([]);
+      setCurrentPage(1);
     } catch (error) {
-      console.error('휴가 신청 리스트 불러오기 실패:', error.message);
-    }
-  };
-
-  const handleApprovedAction = async (workationSubNo) => {
-    console.log('workationSubNo', workationSubNo);
-
-    if (workationSubNo.length === 0) {
-      alert('항목을 먼저 선택해주세요.');
-      return;
-    }
-    try {
-      const workResponse = await workationService.workationApprovedUpdate(workationSubNo);
-
-      console.log(workResponse);
-      alert('성공적으로 처리되었습니다.');
-
-      const updatedData = await workationService.workationSubList(user.companyCode);
-      setWorkationData(updatedData);
-      setWorkationSubNo([]);
-    } catch (error) {
-      console.error('휴가 신청 승인 에러', error);
-      alert('휴가 신청 승인 중 에러가 발생했습니다.');
+      console.error(error);
     }
   };
 
@@ -136,10 +142,9 @@ const VacationAdmin = () => {
   const itemsPerPage = 7; // 한 페이지에 10개씩
 
   // 전체 페이지 수 계산
-  const totalPages = Math.ceil(workationData.length / itemsPerPage);
-
-  // 현재 페이지에 보여줄 데이터만 slice로 추출
-  const pagedData = workationData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(vacationData.length / itemsPerPage);
+  // 렌더링 데이터는 항상 페이징 처리
+  const pagedData = vacationData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // 이전/다음 버튼 활성화 여부
   const hasPrevious = currentPage > 1;
@@ -175,35 +180,33 @@ const VacationAdmin = () => {
               <input
                 type="checkbox"
                 onChange={handleSelectAll}
-                checked={workationSubNo.length === workationData.length && workationData.length > 0}
+                checked={vacationNo.length === setVacationData.length && setVacationData.length > 0}
                 disabled={isFullList}
               />
             </TableHeader>
             <TableHeader>번호 ↓</TableHeader>
             <TableHeader>일정</TableHeader>
             <TableHeader>이름</TableHeader>
-            <TableHeader>제목</TableHeader>
             <TableHeader>사유</TableHeader>
             <TableHeader>상태 ↓</TableHeader>
           </tr>
         </thead>
         <tbody>
           {pagedData.map((req) => (
-            <TableRow key={req.workationSubNo}>
+            <TableRow key={req.vacationNo}>
               <TableCell>
                 <input
                   type="checkbox"
-                  checked={workationSubNo.includes(req.workationSubNo)}
-                  onChange={() => handleSelectSingle(req.workationSubNo)}
+                  checked={vacationNo.includes(req.vacationNo)}
+                  onChange={() => handleSelectSingle(req.vacationNo)}
                   disabled={isFullList}
                 />
               </TableCell>
-              <TableCell>{req.workationSubNo}</TableCell>
+              <TableCell>{req.vacationNo}</TableCell>
               <TableCell>
-                {req.workationStartDate}~{req.workationEndDate}
+                {req.startDate}~{req.endDate}
               </TableCell>
               <TableCell>{req.userName}</TableCell>
-              <TableCell>{req.workationTitle}</TableCell>
               <TableCell>{req.content}</TableCell>
               <TableCell>
                 {console.log(req.status, getStatusText(req.status))}
@@ -215,10 +218,10 @@ const VacationAdmin = () => {
       </AdminTable>
 
       <ButtonContainer>
-        <ActionButton variant="reject" onClick={() => handleReturnAction({ workationSubNo })}>
+        <ActionButton variant="reject" onClick={() => handleReturnAction(vacationNo)}>
           거부
         </ActionButton>
-        <ActionButton variant="approve" onClick={() => handleApprovedAction({ workationSubNo })}>
+        <ActionButton variant="approve" onClick={() => handleApprovedAction(vacationNo)}>
           승인
         </ActionButton>
       </ButtonContainer>
@@ -246,8 +249,6 @@ const VacationAdmin = () => {
 };
 
 export default VacationAdmin;
-
-// --- Styled Components ---
 
 const AdminTable = styled.table`
   width: 100%;

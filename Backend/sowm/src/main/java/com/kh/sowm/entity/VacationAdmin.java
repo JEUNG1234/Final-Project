@@ -51,6 +51,7 @@ public class VacationAdmin {
     @Column(name = "AMOUNT", nullable = false)
     private int amount;
 
+    // 휴가 사유
     @Column(name = "CONTENT")
     private String content;
 
@@ -78,6 +79,10 @@ public class VacationAdmin {
     //승인상태값 Y=승인. W=대기, N=반려
     public enum StatusType{
         Y, W, N;
+    }
+
+    public void changeStauts(StatusType newStatus) {
+        this.status = newStatus;
     }
 
 
