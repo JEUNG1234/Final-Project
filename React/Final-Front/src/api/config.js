@@ -116,5 +116,6 @@ export const API_ENDPOINTS = {
     getvacationlist: '/vacationadmin/getvactionlist',
     updateVacationStatus: '/vacationadmin/updateVacationStatus',
     getAllVacationList: '/vacationadmin/getAllVacationList',
+    rejectVacation: '/vacationadmin/rejectVacation',
   },
 };
