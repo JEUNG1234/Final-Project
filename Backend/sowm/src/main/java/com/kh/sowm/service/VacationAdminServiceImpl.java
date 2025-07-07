@@ -60,8 +60,8 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     }
 
     @Override
-    public ResponseEntity<List<ResponseDto>> getAllVactionList() {
-        return vacationAdminRepository.getAllVactionList();
+    public ResponseEntity<List<ResponseDto>> getAllVactionList(String companyCode) {
+        return vacationAdminRepository.getAllVactionList(companyCode);
     }
 
     @Override

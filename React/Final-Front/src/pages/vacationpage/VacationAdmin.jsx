@@ -123,7 +123,7 @@ const VacationAdmin = () => {
   // 전체 보기 토글 핸들러 (임시)
   const handleFullList = async () => {
     try {
-      const allData = await vacationAdminService.getAllVacationList(); // 전체 데이터 API
+      const allData = await vacationAdminService.getAllVacationList(user.companyCode); // 전체 데이터 API
       setVacationData(allData);
       setIsFullList(true);
       setCurrentPage(1);
