@@ -182,9 +182,9 @@ const WorkationDetail = () => {
         {activeTab === 'intro' && (
           <>
             <ImageSection>
-              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${placeImage}`} />
+              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${placeImage}`} />
             </ImageSection>
-            {/* 실제 이미지 URL로 교체 필요 */}
+      
             <Title>{workationInfo.workationTitle}</Title>
             <Subtitle>{workationInfo.address}</Subtitle>
             <Description>{workationInfo.placeInfo}</Description>
@@ -198,9 +198,9 @@ const WorkationDetail = () => {
         {activeTab === 'facilities' && (
           <>
             <ImageSection>
-              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${facilityImage}`} />
+              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${facilityImage}`} />
             </ImageSection>
-            {/* 실제 이미지 URL로 교체 필요 */}
+          
             <FacilityContent>
               <FacilityLeftContent>
                 <FaciltyLeftFirstInfo>
@@ -249,7 +249,7 @@ const WorkationDetail = () => {
         {activeTab === 'precautions' && (
           <>
             <ImageSection>
-              <img src={`https://d1qzqzab49ueo8.cloudfront.net/${precautionImage}`} />
+              <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${precautionImage}`} />
             </ImageSection>
 
             <RefundPolicy>{workationInfo.precautions}</RefundPolicy>
@@ -525,46 +525,6 @@ const DetailText = styled.span`
   margin-left: 10px;
 `;
 
-const IconGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3열 그리드 */
-  gap: 20px; /* 아이콘 항목 간 간격 */
-  margin-top: 30px; /* 정보 블록과의 간격 */
-  padding-left: 10px; /* InfoBlock과 정렬 */
-`;
-
-const IconItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: #555;
-  text-align: center;
-  ${media.md`
-      font-size: ${({ theme }) => theme.fontSizes.xs};
-      gap: 10px;
-    `}
-
-  svg {
-    font-size: 20px; /* 아이콘 크기 */
-    color: #666;
-    margin-bottom: 8px; /* 아이콘과 텍스트 간 간격 */
-  }
-  ${media.md`
-    
-      gap: 10px;
-      margin-top: 0;
-      font-size: 0px;
-    `}
-  ${media.xl`
-      font-size: ${({ theme }) => theme.fontSizes.base};
-      gap: 10px;
-      margin-top: 0;
-      
-      
-    `}
-`;
 
 const FaciltyLeftFirstInfo = styled.div`
   width: 100%;
@@ -603,12 +563,6 @@ const FaciltyLeftSecondInfo = styled.div`
   }
 `;
 
-const PrecautionContent = styled.div`
-  width: 80%;
-  height: 80%;
-
-  margin: 0 auto;
-`;
 
 //지도 컨테이너 스타일
 const MapContainerStyled = styled.div`
@@ -765,13 +719,6 @@ const TextArea = styled.textarea`
     border-color: #61a5fa;
     box-shadow: 0 0 0 3px rgba(97, 165, 250, 0.2);
   }
-`;
-
-const DateRangeWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-grow: 1;
 `;
 
 const Tilde = styled.span`

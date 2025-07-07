@@ -1,3 +1,5 @@
 Backend/sowm/src/main/resources/application.yml
 Backend/tdb.trace.db
 Backend/tdb.mv.db
+React/Final-Front/.env
+Backend/.env.local

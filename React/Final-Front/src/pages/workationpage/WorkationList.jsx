@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { MainContent, PageTitle } from '../../styles/common/MainContentLayout';
+
+import {
+  MainContent,
+  Pagination,
+  PageButton,
+  BottomBar,
+  SearchInput,
+  PageTitle,
+} from '../../styles/common/MainContentLayout';
 
 //달력기능
 import DatePicker from 'react-datepicker';
@@ -76,7 +84,7 @@ const WorkationList = () => {
     '세종',
     '충북',
   ];
-  const peopleList = ['전체','1명', '2명', '3명', '4명 이상'];
+  const peopleList = ['전체', '1명', '2명', '3명', '4명 이상'];
 
   //날짜 적용후 달력 닫기
   const applyDates = () => {
@@ -135,15 +143,37 @@ const WorkationList = () => {
     }
 
     let dateMatch = true;
-  if (startDate && endDate) {
-    const itemStart = new Date(item.workationStartDate); 
-    const itemEnd = new Date(item.workationEndDate);
+    if (startDate && endDate) {
+      const itemStart = new Date(item.workationStartDate);
+      const itemEnd = new Date(item.workationEndDate);
 
-    dateMatch = !(itemEnd < startDate || itemStart > endDate);
-  }
+      dateMatch = !(itemEnd < startDate || itemStart > endDate);
+    }
 
-  return regionMatch && peopleMatch && dateMatch;
+    return regionMatch && peopleMatch && dateMatch;
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const pagedData = filteredData.slice(startIndex, endIndex);
+
+  // 전체 페이지 수 계산
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedRegion, selectedPeople, startDate, endDate]);
+
+  const hasPrevious = currentPage > 1;
+  const hasNext = currentPage < totalPages;
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return; // 범위 체크
+    setCurrentPage(page);
+  };
 
   return (
     <MainContent>
@@ -231,17 +261,17 @@ const WorkationList = () => {
       <SectionTitle>장소</SectionTitle>
 
       <CardGrid>
-        {filteredData.length === 0 ? (
+        {pagedData.length === 0 ? (
           <div>검색 결과가 없습니다.</div>
         ) : (
-          filteredData.map((place) => (
+          pagedData.map((place) => (
             <Card key={place.locationNo} onClick={() => navigate(`/workationDetail/${place.locationNo}`)}>
               {/* 워케이션 장소 리스트 출력 */}
-              <CardImage src={`https://d1qzqzab49ueo8.cloudfront.net/${place?.placeImage}`} alt={place.title} />
+              <CardImage src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${place?.placeImage}`} alt={place.title} />
               <CardTitle>{place.workationTitle}</CardTitle>
               <CardLocationWrapper>
                 <CardLocation>
-                  {place.address} 
+                  {place.address}
                   {/* <CardAvailability>남은 예약: {place.availability}</CardAvailability> */}
                 </CardLocation>
                 {user && user.jobCode === 'J2' && (
@@ -274,11 +304,29 @@ const WorkationList = () => {
         )}
       </RegisterDiv>
       {/* 페이지 버튼 영역 */}
+
       <BottomBar>
         <Pagination>
-          {[1, 2, 3, 4].map((num) => (
-            <PageButton key={num}>{num}</PageButton>
+          {/* 이전 페이지 버튼 */}
+          <PageButton disabled={!hasPrevious} onClick={() => handlePageChange(currentPage - 1)}>
+            &lt;
+          </PageButton>
+          {/* 숫자 버튼 */}
+          {Array.from({ length: totalPages }, (_, idx) => (
+            <PageButton
+              key={idx + 1}
+              onClick={() => handlePageChange(idx + 1)}
+              style={{
+                background: currentPage === idx + 1 ? '#2563eb' : '#3b82f6',
+              }}
+            >
+              {idx + 1}
+            </PageButton>
           ))}
+          {/* 다음 페이지 버튼 */}
+          <PageButton disabled={!hasNext} onClick={() => handlePageChange(currentPage + 1)}>
+            &gt;
+          </PageButton>
         </Pagination>
       </BottomBar>
     </MainContent>
@@ -436,11 +484,7 @@ const CardLocation = styled.p`
   text-align: right;
 `;
 
-const CardAvailability = styled.span`
-  font-size: 0.875rem;
-  color: #e74c3c;
-  padding-left: 20px;
-`;
+
 
 //워케이션 신청 목록 div
 const RegisterDiv = styled.div`
@@ -495,32 +539,6 @@ const DeleteButton = styled.button`
   margin-top: 5px;
   &:hover {
     background-color: #ff0004;
-  }
-`;
-
-//페이지 버튼 영역
-const BottomBar = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Pagination = styled.div`
-  display: flex;
-  gap: 0.5rem;
-`;
-
-const PageButton = styled.button`
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #3b82f6;
-  color: white;
-  cursor: pointer;
-
-  &:hover {
-    background: #2563eb;
   }
 `;
 

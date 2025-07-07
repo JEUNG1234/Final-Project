@@ -269,7 +269,7 @@ const MemberDashBoard = () => {
                         <img
                             src={
                                 myInfoState?.profileImagePath
-                                    ? `https://d1qzqzab49ueo8.cloudfront.net/${myInfoState.profileImagePath}`
+                                    ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${myInfoState.profileImagePath}`
                                     : ProfileImg
                             }
                             alt="사용자 아바타"
