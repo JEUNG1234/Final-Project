@@ -12,6 +12,10 @@ public class UserAlreadyExistsException extends BaseException {
         super(ErrorCode.USER_ALREADY_EXISTS, message);
     }
 
+    public UserAlreadyExistsException(ErrorCode errorCode) {
+        super(errorCode);
+    }
+
     public UserAlreadyExistsException(String message, Throwable cause) {
         super(ErrorCode.USER_ALREADY_EXISTS, message, cause);
     }

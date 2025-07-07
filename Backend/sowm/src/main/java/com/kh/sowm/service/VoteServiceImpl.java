@@ -6,7 +6,9 @@ import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Vote;
 import com.kh.sowm.entity.VoteContent;
 import com.kh.sowm.entity.VoteUser;
-import com.kh.sowm.repository.*; 
+import com.kh.sowm.exception.ErrorCode;
+import com.kh.sowm.exception.usersException.CompanyNotFoundException;
+import com.kh.sowm.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +29,7 @@ public class VoteServiceImpl implements VoteService {
     private final VoteContentRepository voteContentRepository;
     private final UserRepository userRepository;
     private final VoteUserRepository voteUserRepository;
-    private final ChallengeRepository challengeRepository; //  ChallengeRepository 주입
+    private final ChallengeRepository challengeRepository;
 
     @Override
     public Long createVote(VoteDto.CreateRequest createRequest, String userId) {
@@ -79,9 +80,7 @@ public class VoteServiceImpl implements VoteService {
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
 
-        // 챌린지 존재 여부 확인
         boolean isChallengeCreated = challengeRepository.findByVote(vote).isPresent();
-        // 디버그 코드 추가
         System.out.println("✅ [DEBUG] VoteService - 투표번호 " + voteNo + "의 챌린지 생성 여부: " + isChallengeCreated);
 
         return VoteDto.DetailResponse.fromEntity(vote, isChallengeCreated);
@@ -127,14 +126,23 @@ public class VoteServiceImpl implements VoteService {
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         if (!"J2".equals(user.getJob().getJobCode())) {
-            throw new IllegalStateException("삭제 권한이 없습니다.");
+            throw new CompanyNotFoundException(ErrorCode.VOTE_CANNOT_BE_DELETED);
         }
 
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
 
-        // 연관된 Challenge를 먼저 찾아서 삭제하는 로직
-        challengeRepository.findByVote(vote).ifPresent(challenge -> {
+        Optional<Challenge> challengeOpt = challengeRepository.findByVote(vote);
+        boolean isVoteFinished = vote.getVoteEndDate().isBefore(LocalDate.now());
+
+        if (isVoteFinished && challengeOpt.isPresent()) {
+            Challenge challenge = challengeOpt.get();
+            if (challenge.getParticipantCount() > 0) {
+                throw new CompanyNotFoundException(ErrorCode.VOTE_CANNOT_BE_DELETED);
+            }
+        }
+
+        challengeOpt.ifPresent(challenge -> {
             challengeRepository.delete(challenge);
         });
 
