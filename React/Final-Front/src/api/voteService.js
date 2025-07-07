@@ -27,12 +27,16 @@ export const voteService = {
    * @param {string} userId - 현재 로그인한 사용자의 ID
    * @returns {Promise<any>} - 투표 목록
    */
-  getAllVotes: async (userId) => {
+  getAllVotes: async (userId, page = 0, size = 10) => {
     try {
-      // API 호출 시 userId를 쿼리 파라미터로 전달하고, 캐시 방지를 위해 타임스탬프 추가
-      const response = await api.get(
-        `${API_ENDPOINTS.VOTES.BASE}?userId=${userId}&_=${new Date().getTime()}`
-      );
+      const response = await api.get(API_ENDPOINTS.VOTES.BASE, {
+        params: {
+          userId,
+          page,
+          size,
+          sort: 'voteNo,desc' // 최신순 정렬
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('투표 목록 조회 API 호출 중 오류 발생:', error);
@@ -79,24 +83,22 @@ export const voteService = {
   /**
    * 투표를 삭제합니다. (관리자용)
    * @param {number} voteId - 삭제할 투표의 ID
-   * @param {string} userId - 요청하는 사용자의 ID (권한 확인용)
    * @returns {Promise<any>}
    */
   deleteVote: async (voteId, userId) => {
     try {
       const response = await api.delete(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`, {
-        params: { userId },
+        params: { userId }
       });
       return response.data;
     } catch (error) {
       console.error('투표 삭제 API 호출 중 오류 발생:', error);
-      throw error;
+      // 서버에서 보낸 구체적인 에러 메시지를 throw합니다.
+      throw new Error(error.response?.data?.message || '투표 삭제 중 오류가 발생했습니다.');
     }
   },
 
-
-
-   /**
+  /**
    * 특정 항목에 투표한 사용자 목록을 가져옵니다.
    * @param {number} voteNo - 해당 항목이 속한 투표의 ID
    * @param {number} voteContentNo - 조회할 투표 항목의 ID

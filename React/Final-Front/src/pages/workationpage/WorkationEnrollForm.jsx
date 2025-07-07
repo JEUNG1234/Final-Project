@@ -42,6 +42,7 @@ const WorkationEnrollForm = () => {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const [selectedCoords, setSelectedCoords] = useState({ lat: null, lng: null });
+  const [selectedZipCode, setSelectedZipCode] = useState('');
 
   //유효성 검사
   const schema = yup.object().shape({
@@ -133,9 +134,10 @@ const WorkationEnrollForm = () => {
     }
   }, [selectedCoords]);
 
-  const handleAddressSelect = (address, lat, lng) => {
+  const handleAddressSelect = (address, lat, lng, zipCode) => {
     setValue('address', address); // 메인 폼의 주소 input에 설정
     setSelectedCoords({ lat, lng }); // 위도/경도 저장
+    setSelectedZipCode(zipCode); // 우편번호 저장
     setIsMapModalOpen(false); // 모달 닫기
 
     console.log(selectedCoords);
@@ -250,6 +252,7 @@ const WorkationEnrollForm = () => {
         parkingInfo,
         latitude: selectedCoords.lat,
         longitude: selectedCoords.lng,
+        zipCode: selectedZipCode, // 우편번호 추가
       };
       const workation = {
         workationTitle: data.workationTitle,

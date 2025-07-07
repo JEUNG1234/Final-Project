@@ -48,6 +48,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import useUserStore from './Store/useStore';
 import UpdateMyInfo from './pages/mypage/UpdateMyInfo';
 import PrivateRoute from './PrivateRoute';
+import VacationAdmin from './pages/vacationpage/VacationAdmin';
+import VacationList from './pages/vacationpage/VacationList';
+import VacationWaitList from './pages/vacationpage/VacationWaitList';
 
 const AppContainer = styled.div`
   display: flex;
@@ -158,6 +161,10 @@ function App() {
                       <Route path="physicalcareresult" element={<PhysicalCareResult />} />
                       <Route path="physicaltest" element={<PhysicalCareTest />} />
                       <Route path="testresult" element={<TestResult />} />
+                      {/* 휴가 관리 페이지 */}
+                      <Route path="vacationadmin" element={<VacationAdmin />} />
+                      <Route path="vacationlist" element={<VacationList />} />
+                      <Route path="vacationwaitlist" element={<VacationWaitList />} />
                     </Routes>
                   </Layout>
                 </PrivateRoute>

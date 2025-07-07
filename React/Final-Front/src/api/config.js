@@ -111,4 +111,21 @@ export const API_ENDPOINTS = {
     physicalresult: '/health/physicalquestion/result',
     allresultList: '/health/allresult', //  결과 목록 추가
   },
+
+  VACATION: {
+    BASE: '/vacation',
+    SUBMIT: '/vacation/submit',
+    VACATIONLIST: '/vacation/list',
+    LIST: '/vacation/list',
+    WAITLIST: '/vacation/waitList',
+    VADELETE: '/vacation/delete',
+
+  },
+
+  VACATIONADMIN: {
+    getvacationlist: '/vacationadmin/getvactionlist',
+    updateVacationStatus: '/vacationadmin/updateVacationStatus',
+    getAllVacationList: '/vacationadmin/getAllVacationList',
+    rejectVacation: '/vacationadmin/rejectVacation',
+  },
 };

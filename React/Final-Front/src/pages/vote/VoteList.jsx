@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled, { css } from 'styled-components';
-import { FaPoll, FaTrashAlt } from 'react-icons/fa'; // FaTrashAlt 아이콘 추가
+import { FaPoll, FaTrashAlt } from 'react-icons/fa';
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
-import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
+import { MainContent as BaseMainContent, PageTitle, BottomBar, Pagination, PageButton } from '../../styles/common/MainContentLayout';
 import { useNavigate } from 'react-router-dom';
 import { voteService } from '../../api/voteService';
 import useUserStore from '../../Store/useStore';
@@ -15,28 +15,38 @@ const VoteList = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [pageInfo, setPageInfo] = useState({
+    currentPage: 0,
+    totalPage: 0,
+    hasNext: false,
+    hasPrevious: false
+  });
 
-  const fetchVotes = async () => {
+  const fetchVotes = useCallback(async (page = 0) => {
     if (!user?.userId) {
       return;
     }
     setIsLoading(true);
     try {
-      const data = await voteService.getAllVotes(user.userId);
-      setVoteList(data);
+      const data = await voteService.getAllVotes(user.userId, page, 5); // 페이지당 5개씩
+      setVoteList(data.content);
+      setPageInfo({
+        currentPage: data.currentPage,
+        totalPage: data.totalPage,
+        hasNext: data.hasNext,
+        hasPrevious: data.hasPrevious
+      });
     } catch (error) {
       console.error('투표 목록 조회 실패:', error);
       alert('투표 목록을 불러오는 데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    if (user?.userId) {
-      fetchVotes();
-    }
-  }, [user?.userId]);
+    fetchVotes(0);
+  }, [fetchVotes]);
 
   const handleToggle = (id) => {
     setOpenId(openId === id ? null : id);
@@ -55,22 +65,21 @@ const VoteList = () => {
     try {
       await voteService.castVote(voteNo, selectedOptionNo, user.userId);
       alert('투표가 완료되었습니다!');
-      fetchVotes();
+      fetchVotes(pageInfo.currentPage);
     } catch (error) {
       alert(error.response?.data?.message || '투표 처리 중 오류가 발생했습니다.');
       console.error('투표 실패:', error);
     }
   };
-  
-  // 투표 삭제 핸들러 함수
+
   const handleDeleteVote = async (voteNo) => {
     if (window.confirm(`정말로 ${voteNo}번 투표를 삭제하시겠습니까?`)) {
       try {
         await voteService.deleteVote(voteNo, user.userId);
         alert('투표가 삭제되었습니다.');
-        fetchVotes(); // 목록 새로고침
+        fetchVotes(pageInfo.currentPage); // 목록 새로고침
       } catch (error) {
-        alert(error.response?.data?.message || '투표 삭제 중 오류가 발생했습니다.');
+        alert(error.message);
         console.error('투표 삭제 실패:', error);
       }
     }
@@ -105,13 +114,12 @@ const VoteList = () => {
         <Description>모든 응답은 익명으로 처리됩니다. 마음 편히 의견을 들려주세요.</Description>
       </ComponentHeader>
       <ButtonContainer>
-        {/* ✅ [수정] 관리자일 때만 투표 생성 버튼이 보이도록 변경 */}
         {user?.jobCode === 'J2' && <CreateButton onClick={() => navigate('/votecreate')}>투표 생성</CreateButton>}
       </ButtonContainer>
       <VoteListWrapper>
         {voteList.map((vote) => {
           const dDay = calculateDday(vote.voteEndDate);
-          const isFinished = dDay < 0; // "종료" 상태 조건: D-day가 0보다 작을 때
+          const isFinished = dDay < 0;
           const hasVoted = !!vote.votedOptionNo;
 
           return (
@@ -135,12 +143,11 @@ const VoteList = () => {
                   >
                     결과보기
                   </ResultButton>
-                  
-                  {/* ✅ [추가] 관리자일 때만 삭제 버튼 렌더링 */}
+
                   {user?.jobCode === 'J2' && (
                     <DeleteButton
                       onClick={(e) => {
-                        e.stopPropagation(); // 이벤트 버블링 방지
+                        e.stopPropagation();
                         handleDeleteVote(vote.voteNo);
                       }}
                     >
@@ -178,15 +185,29 @@ const VoteList = () => {
           );
         })}
       </VoteListWrapper>
+      <BottomBar>
+        <Pagination>
+          <PageButton onClick={() => fetchVotes(pageInfo.currentPage - 1)} disabled={!pageInfo.hasPrevious}>
+            &lt;
+          </PageButton>
+          {Array.from({ length: pageInfo.totalPage }, (_, i) => (
+            <PageButton
+              key={i}
+              className={pageInfo.currentPage === i ? 'active' : ''}
+              onClick={() => fetchVotes(i)}
+            >
+              {i + 1}
+            </PageButton>
+          ))}
+          <PageButton onClick={() => fetchVotes(pageInfo.currentPage + 1)} disabled={!pageInfo.hasNext}>
+            &gt;
+          </PageButton>
+        </Pagination>
+      </BottomBar>
     </MainContent>
   );
 };
 
-// --- Styled Components ---
-
-// ... (기존 Styled Components는 변경 없음) ...
-
-// ✅ [추가] 삭제 버튼 스타일
 const DeleteButton = styled.button`
   background: none;
   border: none;
