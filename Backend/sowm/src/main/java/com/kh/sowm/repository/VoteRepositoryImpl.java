@@ -3,7 +3,11 @@ package com.kh.sowm.repository;
 import com.kh.sowm.entity.Vote;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,12 +31,26 @@ public class VoteRepositoryImpl implements VoteRepository {
     }
 
     @Override
-    public List<Vote> findAll(String companyCode) {
-        // companyCode를 기준으로 필터링하는 WHERE 절 추가
-        return em.createQuery("SELECT v FROM Vote v WHERE v.companyCode = :companyCode ORDER BY v.voteNo DESC", Vote.class)
-                .setParameter("companyCode", companyCode)
-                .getResultList();
+    public Page<Vote> findAll(String companyCode, Pageable pageable) {
+        // 데이터 조회를 위한 JPQL
+        TypedQuery<Vote> query = em.createQuery("SELECT v FROM Vote v WHERE v.companyCode = :companyCode ORDER BY v.voteNo DESC", Vote.class)
+                .setParameter("companyCode", companyCode);
+
+        // 페이징 적용
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+
+        List<Vote> votes = query.getResultList();
+
+        // 전체 카운트 조회를 위한 JPQL
+        TypedQuery<Long> countQuery = em.createQuery("SELECT COUNT(v) FROM Vote v WHERE v.companyCode = :companyCode", Long.class)
+                .setParameter("companyCode", companyCode);
+
+        long total = countQuery.getSingleResult();
+
+        return new PageImpl<>(votes, pageable, total);
     }
+
 
     @Override
     public Optional<Vote> findById(Long voteNo) {

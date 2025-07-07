@@ -13,5 +13,5 @@ public interface VacationAdminRepository {
 
     void saveAll(List<VacationAdmin> vacations);
 
-    ResponseEntity<List<ResponseDto>> getAllVactionList();
+    ResponseEntity<List<ResponseDto>> getAllVactionList(String companyCode);
 }

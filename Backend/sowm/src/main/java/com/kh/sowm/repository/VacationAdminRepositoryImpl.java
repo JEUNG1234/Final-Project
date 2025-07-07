@@ -52,12 +52,17 @@ public class VacationAdminRepositoryImpl implements VacationAdminRepository {
     }
 
     @Override
-    public ResponseEntity<List<ResponseDto>> getAllVactionList() {
-        String jpql = "SELECT v FROM VacationAdmin v";
-        List<VacationAdmin> vacationList = em.createQuery(jpql, VacationAdmin.class).getResultList();
+    public ResponseEntity<List<ResponseDto>> getAllVactionList(String companyCode) {
+        String jpql = "SELECT v FROM VacationAdmin v WHERE v.user.companyCode = :companyCode";
+        List<VacationAdmin> vacationList = em.createQuery(jpql, VacationAdmin.class)
+                .setParameter("companyCode", companyCode)
+                .getResultList();
+
+        System.out.println("휴가 기록 페이지쪽 현재 회사코드 : " + companyCode);
+        System.out.println("vacationList.size = " + vacationList.size());
 
         List<ResponseDto> responseList = vacationList.stream()
-                .map(v -> new ResponseDto(v))
+                .map(ResponseDto::new)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(responseList);
