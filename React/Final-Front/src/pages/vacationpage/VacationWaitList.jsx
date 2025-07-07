@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-
 import {
   MainContent as BaseMainContent,
   PageTitle,
@@ -19,14 +18,12 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { FaSquare, FaExclamationTriangle, FaUsers } from 'react-icons/fa';
 
-import { useNavigate } from 'react-router-dom';
-
 import useUserStore from '../../Store/useStore';
 import { useForm } from 'react-hook-form';
 import { vacationService } from '../../api/vacation';
 import { MdOutlineWbSunny } from 'react-icons/md';
 
-const VacationList = () => {
+const VacationWaitList = () => {
   const { user } = useUserStore();
 
   const [vacationData, setVacation] = useState([]);
@@ -35,6 +32,7 @@ const VacationList = () => {
   const [startDate, endDate] = dateRange;
 
   const [content, setContent] = useState('');
+  const [selectedVacationIds, setSelectedVacationIds] = useState([]);
 
   //날짜 초기화
   const resetDates = () => setDateRange([null, null]);
@@ -47,16 +45,36 @@ const VacationList = () => {
   const currentItems = vacationData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(vacationData.length / itemsPerPage);
 
-  const getStatusText = (status) => {
-    if (status === 'PLUS') return 'PLUS';
-    if (status === 'MINUS') return 'MINUS';
-
-    return status;
-  };
-
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+  // 체크박스: 현재 페이지의 모든 항목 선택/해제
+  const [vacationNo, setVacationNo] = useState([]);
+
+  //전체선택
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      const currentIds = currentItems.map((item) => item.vacationNo);
+      setSelectedVacationIds((prev) => [...new Set([...prev, ...currentIds])]);
+    } else {
+      const currentIds = currentItems.map((item) => item.vacationNo);
+      setSelectedVacationIds((prev) => prev.filter((id) => !currentIds.includes(id)));
+    }
+  };
+
+  const handleCheckboxChange = (vacationNo, status) => {
+    if (status === 'Y') {
+      alert('승인된 휴가는 취소할 수 없습니다.');
+      return;
+    }
+    setSelectedVacationIds((prev) =>
+      prev.includes(vacationNo) ? prev.filter((id) => id !== vacationNo) : [...prev, vacationNo]
+    );
+  };
+
+  const isAllCurrentItemsSelected =
+    currentItems.length > 0 && currentItems.every((item) => selectedVacationIds.includes(item.vacationNo));
 
   //유효성 검사
   const schema = yup.object().shape({
@@ -75,17 +93,19 @@ const VacationList = () => {
   });
 
   useEffect(() => {
-    const workationInfo = async () => {
+    const vacationWaitList = async () => {
       try {
-        const data = await vacationService.vacationList(user.userId);
+        const data = await vacationService.vacationWaitList(user.userId);
         console.log('휴가 내역: ', data);
         setVacation(data);
       } catch (error) {
         console.error(error.message);
       }
     };
-    workationInfo();
-  }, []);
+    vacationWaitList();
+  }, [user.userId]);
+
+
 
   const {
     register,
@@ -96,7 +116,6 @@ const VacationList = () => {
     resolver: yupResolver(schema),
     shouldFocusError: true,
   });
-  const navigate = useNavigate();
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
@@ -128,6 +147,47 @@ const VacationList = () => {
     console.log({ data });
   };
 
+  // 신청취소 버튼
+  const handleCancelApplication = async () => {
+    if (selectedVacationIds.length === 0) {
+      alert('취소할 신청을 선택해주세요.');
+      return;
+    }
+
+    const selectedApplications = vacationData.filter((item) => selectedVacationIds.includes(item.vacationNo));
+    const approvedApplications = selectedApplications.filter((item) => item.status === 'Y');
+
+    if (approvedApplications.length > 0) {
+      const approvedNames = approvedApplications.map((item) => item.content).join(', ');
+      alert(`다음 휴가는 이미 승인되어 취소할 수 없습니다: ${approvedNames}`);
+      return;
+    }
+
+    const confirmed = window.confirm(`선택된 ${selectedVacationIds.length}개의 휴가를 정말 취소하시겠습니까?`);
+    if (!confirmed) return;
+
+    try {
+      // ✅ 실제 API에 맞게 이 부분만 수정하세요!
+      await vacationService.cancelVacations({ vacationNos: selectedVacationIds });
+      alert(`선택된 ${selectedVacationIds.length}개의 신청이 취소되었습니다.`);
+      setSelectedVacationIds([]);
+      // 목록 새로고침
+      console.log()
+      const data = await vacationService.vacationWaitList(user.userId);
+      setVacation(data);
+    } catch (error) {
+      alert('휴가 신청 취소 중 에러가 발생했습니다.');
+      console.error(error);
+    }
+  };
+
+  const getStatusText = (status) => {
+    if (status === 'W') return '대기';
+    if (status === 'Y') return '승인';
+    if (status === 'N') return '거절';
+    return status;
+  };
+
   return (
     <FullWapper>
       <MainContent>
@@ -136,46 +196,63 @@ const VacationList = () => {
             <MdOutlineWbSunny /> 휴가 {'>'} 신청 내역
           </PageTitle>
           <TopRightButtonContainer>
-            <CancelButton onClick={() => navigate('/vacationWaitList')}>신청 목록 보기</CancelButton>
+            <CancelButton onClick={handleCancelApplication}>신청취소</CancelButton>
           </TopRightButtonContainer>
         </PageTitleWrapper>
         <TableContainer>
           <StyledTable>
             <thead>
               <tr>
+                <TableHeader>
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAll}
+                    checked={isAllCurrentItemsSelected}
+                    ref={(input) => {
+                      if (input) {
+                        input.indeterminate = selectedVacationIds.length > 0 && !isAllCurrentItemsSelected;
+                      }
+                    }}
+                  />
+                </TableHeader>
                 <TableHeader>날짜</TableHeader>
                 <TableHeader>이름</TableHeader>
                 <TableHeader>사유</TableHeader>
-                <TableHeader>휴가일수 </TableHeader>
+                <TableHeader>휴가일수</TableHeader>
                 <TableHeader>증감</TableHeader>
               </tr>
             </thead>
             <tbody>
               {currentItems.map((item) => (
-                <TableRow key={item.workationSubNo}>
+                <TableRow key={item.vacationNo}>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedVacationIds.includes(item.vacationNo)}
+                      onChange={() => handleCheckboxChange(item.vacationNo, item.status)}
+                      disabled={item.status === 'Y'}
+                    />
+                  </TableCell>
                   <TableCell>{item.vacationDate}</TableCell>
                   <TableCell>{item.userName}</TableCell>
-
                   <TableCell>{item.content}</TableCell>
                   <TableCell>{item.amount}</TableCell>
                   <TableCell>
-                    <StatusChip status={item.status}>{getStatusText(item.status)}</StatusChip>
+                    <StatusBadge status={item.status}>{getStatusText(item.status)}</StatusBadge>
                   </TableCell>
                 </TableRow>
               ))}
-              {/* 테이블의 최소 높이를 유지하기 위해 빈 행 추가 */}
+              {/* 테이블의 최소 높이 유지 */}
               {Array(itemsPerPage - currentItems.length)
                 .fill()
                 .map((_, index) => (
                   <TableRow key={`empty-${index}`} style={{ height: '52px' }}>
-                    {/* 각 행의 대략적인 높이로 설정. 실제 행 높이에 맞춰 조절하세요. */}
-                    <TableCell colSpan="8">&nbsp;</TableCell> {/* 모든 열을 커버하도록 colspan 설정 */}
+                    <TableCell colSpan="8">&nbsp;</TableCell>
                   </TableRow>
                 ))}
             </tbody>
           </StyledTable>
         </TableContainer>
-
         <StyledPagination>
           <StyledPageButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
             &lt;
@@ -499,7 +576,26 @@ const ErrorTooltip = styled.div`
     filter: drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.09));
   }
 `;
+const StatusBadge = styled.span`
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 13px;
 
+  color: ${(props) => {
+    if (props.status === 'W') return '#9A6700';
+    if (props.status === 'Y') return '#047857';
+    if (props.status === 'N') return '#991B1B';
+    return '#333';
+  }};
+
+  background-color: ${(props) => {
+    if (props.status === 'W') return '#FEF9C3';
+    if (props.status === 'Y') return '#D1FAE5';
+    if (props.status === 'N') return '#FEE2E2';
+    return '#F3F4F6';
+  }};
+`;
 const IconBox = styled.div`
   background: #ffb300;
   color: #fff;
@@ -574,7 +670,7 @@ const StatusChip = styled.span`
   font-weight: bold;
   color: #fff;
   background-color: ${(props) =>
-    props.status === 'PLUS' ? '#3b82f6' : '#f85555'}; // 대기 상태는 노란색, 승인 상태는 초록색
+    props.status === '대기' ? '#FFC107' : '#28A745'}; // 대기 상태는 노란색, 승인 상태는 초록색
 `;
 
 const StyledPagination = styled(Pagination)`
@@ -624,8 +720,9 @@ const TopRightButtonContainer = styled.div`
   margin-bottom: 15px;
   width: 100%;
 `;
+
 const CancelButton = styled.button`
-  background-color: #3c67f3; /* 빨간색 */
+  background-color: #f44336; /* 빨간색 */
   color: white;
   padding: 10px 20px;
   border: none;
@@ -633,7 +730,9 @@ const CancelButton = styled.button`
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
-
+  &:hover {
+    background-color: #d64444;
+  }
 `;
 
-export default VacationList;
+export default VacationWaitList;

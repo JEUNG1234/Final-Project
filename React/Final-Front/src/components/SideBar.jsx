@@ -51,7 +51,7 @@ const Sidebar = () => {
         </MenuItem>
         {user && user.jobCode !== 'J2' && (
           <MenuItem onClick={() => navigate('/vacationlist')}>
-            <MdOutlineWbSunny /> 휴가신청
+            <MdOutlineWbSunny /> 휴가
           </MenuItem>
         )}
 

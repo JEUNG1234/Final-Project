@@ -49,7 +49,7 @@ public class VacationAdmin {
 
     //사용 휴가 일수
     @Column(name = "AMOUNT", nullable = false)
-    private int amount;
+    private Integer  amount;
 
     // 휴가 사유
     @Column(name = "CONTENT")
