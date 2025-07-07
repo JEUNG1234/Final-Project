@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,5 +38,12 @@ public class VacationAdminController {
     @GetMapping("/getAllVacationList")
     public ResponseEntity<List<VacationAdminDto.ResponseDto>> getAllVacationList() {
         return vacationAdminService.getAllVactionList();
+    }
+
+    // 승인 거부
+    @PatchMapping("/rejectVacation")
+    public ResponseEntity<List<Long>> rejectVacation(@RequestBody VacationAdminDto.RequestDto vacation) {
+        List<Long> result = vacationAdminService.rejectVacation(vacation);
+        return ResponseEntity.ok(result);
     }
 }
