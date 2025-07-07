@@ -78,7 +78,7 @@ public class VoteController {
     }
 
     /**
-     * ✅ [수정] 특정 투표 항목에 투표한 사용자 목록을 조회하는 API
+     * 특정 투표 항목에 투표한 사용자 목록을 조회하는 API
      * @param voteNo        (경로 변수)
      * @param voteContentNo 조회할 투표 항목의 ID
      * @return 투표자 목록 (userId, userName) 또는 403 Forbidden 에러
