@@ -61,23 +61,13 @@ public class JwtTokenFilter extends GenericFilter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        String path = httpRequest.getRequestURI();
-
-        // 인증이 필요 없는 경로들
-        if (path.equals("/api/users/login") || path.equals("/api/users/signup")
-                || path.equals("/api/users/enrolladmin")
-                || path.equals("/api/users/enrollcompany")
-                || path.startsWith("/api/public")) {
-            chain.doFilter(request, response); // 토큰 검사 없이 그냥 다음 필터 진행
-            return;
-        }
-
         String token = httpRequest.getHeader("Authorization");
 
         try {
-            if (token == null || !token.startsWith("Bearer ")) {
-                throw new AuthenticationServiceException("Bearer 형식이 아닙니다.");
-            }
+            if (token != null) {
+                if (!token.startsWith("Bearer ")) {
+                    throw new AuthenticationServiceException("Bearer 형식이 아닙니다.");
+                }
             // Bearer 뒤에 담긴 실제 jwt 문자열 추출
             String jwtToken = token.substring(7);
 
@@ -94,15 +84,18 @@ public class JwtTokenFilter extends GenericFilter {
             // jwt 의 subject 값을 username 으로 사용하겠다.
             UserDetails userDetails = new User(claims.getSubject(), "", authorities);
             // 인증 객체 생성(사용자 정보, 인증수단, 권한리스트)
-            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, jwtToken, userDetails.getAuthorities());
+            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, jwtToken,
+                    userDetails.getAuthorities());
 
             /**
              * SecurityContextHolder : 현재 스레드 요청에 대한 보안 정보를 저장하는 보안 컨텍스트의 저장소
              * 현재 요청에 대한 인증 정보 등록, 이 요청을 인증된 것으로 간주하겠다.
              */
             SecurityContextHolder.getContext().setAuthentication(auth);
-            chain.doFilter(request, response);
-        } catch (Exception e) {
+
+        }
+        chain.doFilter(request, response);
+    } catch (Exception e) {
             e.printStackTrace();
 
             httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
