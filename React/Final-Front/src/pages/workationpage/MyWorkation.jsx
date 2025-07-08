@@ -53,15 +53,26 @@ const CheckboxCell = styled(TableCell)`
   width: 40px;
 `;
 
+
 const StatusChip = styled.span`
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-weight: bold;
-  color: #fff;
-  background-color: ${(props) =>
-    props.status === '대기' ? '#FFC107' : '#28A745'}; // 대기 상태는 노란색, 승인 상태는 초록색
+  font-size: 13px;
+
+  color: ${(props) => {
+    if (props.status === 'W') return '#9A6700';
+    if (props.status === 'Y') return '#047857';
+    if (props.status === 'N') return '#991B1B';
+    return '#333';
+  }};
+
+  background-color: ${(props) => {
+    if (props.status === 'W') return '#FEF9C3';
+    if (props.status === 'Y') return '#D1FAE5';
+    if (props.status === 'N') return '#FEE2E2';
+    return '#F3F4F6';
+  }};
 `;
 
 const TopRightButtonContainer = styled.div`

@@ -90,6 +90,11 @@ public class VacationServiceImpl implements VacationService{
         List<VacationAdmin> vacationList = vacationRepository.findByWaitList(userId);
 
         return vacationList.stream().map(VacationWaitDto::new).toList();
-
     }
+
+    @Override
+    public Integer amount(String userId) {
+        return vacationRepository.amount(userId);
+    }
+
 }

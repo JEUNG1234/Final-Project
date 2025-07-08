@@ -40,7 +40,15 @@ export const vacationService = {
         console.error('휴가 신청 취소에 실패했습니다.', error);
         throw error;
     }
-
+  },
+  vacationAmount: async(userId) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.VACATION.AMOUNT}?userId=${userId}`);
+      return response.data;
+    }catch(error) {
+      console.error('보유 휴가일 수 불러오기 실패', error);
+      throw error;
+    }
   }
   
 };

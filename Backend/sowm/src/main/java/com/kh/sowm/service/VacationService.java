@@ -17,4 +17,6 @@ public interface VacationService {
     List<VacationResponseDto> listGet(String userId);
 
     List<VacationWaitDto> waitListGet(String userId);
+
+    Integer amount(String userId);
 }

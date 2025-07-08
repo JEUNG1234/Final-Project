@@ -2,6 +2,7 @@ package com.kh.sowm.controller;
 
 
 import com.kh.sowm.dto.VacationDto;
+
 import com.kh.sowm.dto.VacationDto.VacationNoDto;
 import com.kh.sowm.dto.VacationDto.VacationResponseDto;
 import com.kh.sowm.dto.VacationDto.VacationSubmitDto;
@@ -60,4 +61,9 @@ public class VacationController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/amount")
+    public Integer amount(@RequestParam String userId) {
+        System.out.println(vacationService.amount(userId));
+        return vacationService.amount(userId);
+    }
 }
