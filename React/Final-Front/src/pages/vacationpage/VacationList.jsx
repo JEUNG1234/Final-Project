@@ -78,7 +78,7 @@ const VacationList = () => {
     const workationInfo = async () => {
       try {
         const data = await vacationService.vacationList(user.userId);
-        console.log(data)
+        console.log(data);
         setVacation(data);
       } catch (error) {
         console.error(error.message);
@@ -110,6 +110,13 @@ const VacationList = () => {
         return;
       }
 
+      const vacationAmount = await vacationService.vacationAmount(user.userId);
+
+      if (vacationAmount < amount) {
+        alert('보유 휴가일수를 초과하였습니다.');
+        return;
+      }
+
       const submitBody = {
         startDate,
         endDate,
@@ -123,13 +130,12 @@ const VacationList = () => {
 
       console.log(requestBody);
 
-      const response = await vacationService.vacationSubmit(requestBody);
+      await vacationService.vacationSubmit(requestBody);
 
-      alert('워케이션 신청되었습니다.');
-      console.log(response);
+      alert('휴가 신청되었습니다.');
     } catch (error) {
-      console.error('워케이션 신청 에러:', error);
-      alert('워케이션 신청 중 에러가 발생했습니다.');
+      console.error('휴가 신청 에러:', error);
+      alert('휴가 신청 중 에러가 발생했습니다.');
     }
     console.log({ data });
   };
@@ -137,14 +143,14 @@ const VacationList = () => {
   return (
     <FullWapper>
       <MainContent>
-        <PageTitleWrapper>
+       
           <PageTitle>
-            <MdOutlineWbSunny /> 휴가 {'>'} 신청 내역
+            <MdOutlineWbSunny /> 휴가 {'>'} 내역
           </PageTitle>
           <TopRightButtonContainer>
             <CancelButton onClick={() => navigate('/vacationWaitList')}>신청 목록 보기</CancelButton>
           </TopRightButtonContainer>
-        </PageTitleWrapper>
+        
         <TableContainer>
           <StyledTable>
             <thead>
@@ -173,7 +179,7 @@ const VacationList = () => {
                 .fill()
                 .map((_, index) => (
                   <TableRow key={`empty-${index}`} style={{ height: '52px' }}>
-                    <TableCell colSpan="5">&nbsp;</TableCell> 
+                    <TableCell colSpan="5">&nbsp;</TableCell>
                   </TableRow>
                 ))}
             </tbody>
@@ -248,7 +254,7 @@ const VacationList = () => {
             <Label>사유</Label>
             <TextArea value={content} onChange={(e) => setContent(e.target.value)} placeholder="사유를 입력하세요" />
           </FormRow>
-          <SubmitButton type="submit">워케이션 신청</SubmitButton>
+          <SubmitButton type="submit">휴가 신청</SubmitButton>
         </FormContent>
       </DateContent>
     </FullWapper>
@@ -591,34 +597,6 @@ const StyledPageButton = styled(PageButton)`
   &.active {
     background-color: #007bff;
     color: white;
-  }
-`;
-
-const BottomButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: 20px;
-`;
-
-const GoBackButton = styled.button`
-  height: 50px;
-  background-color: #4d8eff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 15px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #3c75e0;
   }
 `;
 

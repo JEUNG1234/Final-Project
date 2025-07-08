@@ -59,7 +59,8 @@ public class SubmitWorkationRepositoryImpl implements SubmitWorkationRepository 
     @Override
     public List<SubmitWorkation> findById(String userId) {
         String jpql = "SELECT w FROM SubmitWorkation w " +
-                "WHERE w.user.userId = :userId";
+                "WHERE w.user.userId = :userId " +
+                "ORDER BY CASE WHEN w.status = 'W' THEN 0 ELSE 1 END, w.workationSubNo DESC";
         return em.createQuery(jpql, SubmitWorkation.class)
                 .setParameter("userId", userId)
                 .getResultList();

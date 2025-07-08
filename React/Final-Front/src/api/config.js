@@ -119,7 +119,7 @@ export const API_ENDPOINTS = {
     LIST: '/vacation/list',
     WAITLIST: '/vacation/waitList',
     VADELETE: '/vacation/delete',
-
+    AMOUNT: '/vacation/amount',
   },
 
   VACATIONADMIN: {

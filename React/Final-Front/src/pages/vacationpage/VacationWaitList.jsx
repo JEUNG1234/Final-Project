@@ -16,7 +16,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { FaSquare, FaExclamationTriangle, FaUsers } from 'react-icons/fa';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 import useUserStore from '../../Store/useStore';
 import { useForm } from 'react-hook-form';
@@ -40,7 +40,7 @@ const VacationWaitList = () => {
 
   // 페이지네이션 로직
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7; // 이미지에서 보이는 대로 한 페이지에 7개 항목 표시
+  const itemsPerPage = 7; 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = vacationData.slice(indexOfFirstItem, indexOfLastItem);
@@ -94,7 +94,7 @@ const VacationWaitList = () => {
     const vacationWaitList = async () => {
       try {
         const data = await vacationService.vacationWaitList(user.userId);
-      
+
         setVacation(data);
       } catch (error) {
         console.error(error.message);
@@ -104,7 +104,7 @@ const VacationWaitList = () => {
   }, [user.userId]);
 
   const handleGoBack = () => {
-    navigate(-1); // 이전 페이지로 이동
+    navigate(-1);
   };
 
   const {
@@ -128,9 +128,12 @@ const VacationWaitList = () => {
         alert('이미 대기 중인 휴가 신청이 있습니다. 승인/거절 처리 후 추가 신청이 가능합니다.');
         return;
       }
+      const vacationAmount = await vacationService.vacationAmount(user.userId);
 
-   
-
+      if (vacationAmount < amount) {
+        alert('보유 휴가일수를 초과하였습니다.');
+        return;
+      }
       const submitBody = {
         startDate,
         endDate,
@@ -144,16 +147,15 @@ const VacationWaitList = () => {
 
       console.log(requestBody);
 
-      const response = await vacationService.vacationSubmit(requestBody);
+      await vacationService.vacationSubmit(requestBody);
       const data = await vacationService.vacationWaitList(user.userId);
 
       setVacation(data);
 
-      alert('워케이션 신청되었습니다.');
-      console.log(response);
+      alert('휴가 신청되었습니다.');
     } catch (error) {
-      console.error('워케이션 신청 에러:', error);
-      alert('워케이션 신청 중 에러가 발생했습니다.');
+      console.error('휴가 신청 에러:', error);
+      alert('휴가 신청 중 에러가 발생했습니다.');
     }
     console.log({ data });
   };
@@ -178,12 +180,10 @@ const VacationWaitList = () => {
     if (!confirmed) return;
 
     try {
-      // ✅ 실제 API에 맞게 이 부분만 수정하세요!
       await vacationService.cancelVacations({ vacationNos: selectedVacationIds });
       alert(`선택된 ${selectedVacationIds.length}개의 신청이 취소되었습니다.`);
       setSelectedVacationIds([]);
-      // 목록 새로고침
-      console.log();
+
       const data = await vacationService.vacationWaitList(user.userId);
       setVacation(data);
     } catch (error) {
@@ -202,14 +202,14 @@ const VacationWaitList = () => {
   return (
     <FullWapper>
       <MainContent>
-        <PageTitleWrapper>
+        
           <PageTitle>
             <MdOutlineWbSunny /> 휴가 {'>'} 신청 내역
           </PageTitle>
           <TopRightButtonContainer>
             <CancelButton onClick={handleCancelApplication}>신청취소</CancelButton>
           </TopRightButtonContainer>
-        </PageTitleWrapper>
+      
         <TableContainer>
           <StyledTable>
             <thead>
@@ -253,7 +253,6 @@ const VacationWaitList = () => {
                   </TableCell>
                 </TableRow>
               ))}
-              {/* 테이블의 최소 높이 유지 */}
               {Array(itemsPerPage - currentItems.length)
                 .fill()
                 .map((_, index) => (
@@ -336,7 +335,7 @@ const VacationWaitList = () => {
             <Label>사유</Label>
             <TextArea value={content} onChange={(e) => setContent(e.target.value)} placeholder="사유를 입력하세요" />
           </FormRow>
-          <SubmitButton type="submit">워케이션 신청</SubmitButton>
+          <SubmitButton type="submit">휴가 신청</SubmitButton>
         </FormContent>
       </DateContent>
     </FullWapper>
@@ -626,7 +625,6 @@ const IconBox = styled.div`
   font-size: 17px;
 `;
 
-// FormField(최대 인원 입력 부분에만 새로 사용)
 const FormField = styled.div`
   width: 100%;
   display: flex;
@@ -652,7 +650,7 @@ const TableContainer = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   margin-top: 20px;
-  min-height: 450px; /* 테이블 내용의 높이가 달라져도 전체 컨테이너 높이를 일정하게 유지 */
+  min-height: 450px; 
 `;
 
 const StyledTable = styled.table`
@@ -677,14 +675,13 @@ const TableCell = styled.td`
   color: #555;
 `;
 
-
 const StyledPagination = styled(Pagination)`
   margin-top: 20px;
-  justify-content: center; /* 페이징 버튼을 중앙 정렬 */
+  justify-content: center; 
 `;
 
 const StyledPageButton = styled(PageButton)`
-  min-width: 40px; /* 버튼 너비를 일정하게 유지 */
+  min-width: 40px; 
   &.active {
     background-color: #007bff;
     color: white;
@@ -727,7 +724,7 @@ const TopRightButtonContainer = styled.div`
 `;
 
 const CancelButton = styled.button`
-  background-color: #f44336; /* 빨간색 */
+  background-color: #f44336; 
   color: white;
   padding: 10px 20px;
   border: none;
