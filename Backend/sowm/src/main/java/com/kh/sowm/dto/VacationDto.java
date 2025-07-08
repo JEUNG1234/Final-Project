@@ -93,4 +93,6 @@ public class VacationDto {
     public static class VacationNoDto {
         private List<Long> vacationNos;
     }
+
+
 }

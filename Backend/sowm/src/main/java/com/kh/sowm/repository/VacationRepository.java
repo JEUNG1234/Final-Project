@@ -25,4 +25,6 @@ public interface VacationRepository {
     Optional<VacationAdmin> findById(Long vacationNos);
 
     void delete(Long vacationNos);
+
+    Integer amount(String userId);
 }

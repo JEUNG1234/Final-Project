@@ -7,6 +7,7 @@ const useUserStore = create(
       user: null,
       token: null,
       isAuthenticated: false,
+      attendanceStatus: null,
 
       login: (userData, token) => {
         console.log('login userData:', userData);
@@ -39,7 +40,9 @@ const useUserStore = create(
           user: { ...state.user, ...userData },
         }));
       },
+      setAttendanceStatus: (status) => set({ attendanceStatus: status }),
     }),
+
     {
       name: 'user-storage', // sessionStorage에 저장될 키 이름
       storage: createJSONStorage(() => sessionStorage),
@@ -47,6 +50,7 @@ const useUserStore = create(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         token: state.token,
+        attendanceStatus: state.attendanceStatus,
       }),
     }
   )

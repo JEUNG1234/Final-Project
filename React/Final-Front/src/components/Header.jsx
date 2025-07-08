@@ -10,24 +10,29 @@ import { toast } from 'react-toastify';
 
 const Header = ({ onLogout }) => {
   const navigate = useNavigate(); // useNavigate 훅 사용
-  const { user } = useUserStore();
-  const [attendanceStatus, setAttendanceStatus] = useState(null);
+  const { user, attendanceStatus, setAttendanceStatus } = useUserStore();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAttendanceStatus = async () => {
       if (!user?.userId) {
         setAttendanceStatus(null);
+        setLoading(false);
         return;
       }
       try {
         const status = await attendanceService.checkTodayStatus(user.userId);
-        setAttendanceStatus(status); // 서버 상태로 초기 세팅
+        setAttendanceStatus(status);
+        console.log('서버에서 받아온 출퇴근 상태:', status);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchAttendanceStatus();
-  }, [user]);
+  }, [user?.userId]); // userId 기준으로 호출
 
   const handleMyPageClick = () => {
     if (!user) {
@@ -48,9 +53,12 @@ const Header = ({ onLogout }) => {
   };
 
   const handleAttendanceClick = async () => {
-    const userId = user?.userId;
+    if (loading) {
+      toast.info('출퇴근 상태를 불러오는 중입니다. 잠시만 기다려주세요.');
+      return;
+    }
 
-    if (!userId) {
+    if (!user?.userId) {
       alert('로그인 후 이용해주세요.');
       navigate('/login');
       return;
@@ -58,16 +66,14 @@ const Header = ({ onLogout }) => {
 
     try {
       if (!attendanceStatus) {
-        // 출근 기록이 없으면 출근 처리
-        await attendanceService.clockIn(userId);
+        await attendanceService.clockIn(user.userId);
         toast.success('출근 완료!');
         setAttendanceStatus('w');
-      } else if (attendanceStatus === 'w') {
-        // 이미 출근했으면 퇴근 처리
-        await attendanceService.clockOut(userId);
+      } else if (attendanceStatus.toLowerCase() === 'w') {
+        await attendanceService.clockOut(user.userId);
         toast.success('퇴근 완료!');
         setAttendanceStatus('l');
-      } else if (attendanceStatus === 'l') {
+      } else if (attendanceStatus.toLowerCase() === 'l') {
         toast.info('이미 퇴근하셨습니다.');
       }
     } catch (error) {

@@ -28,6 +28,7 @@ export const attendanceService = {
   checkTodayStatus: async (userId) => {
     try {
       const response = await api.get(`${API_ENDPOINTS.ATTENDANCE.STATUS}/${userId}`);
+      console.log('출근 여부 확인 : ', response.data);
       return response.data.status; // 예: "w" or "l" or null
     } catch (error) {
       console.error('근태 상태 조회 실패:', error);

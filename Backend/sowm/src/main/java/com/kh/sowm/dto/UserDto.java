@@ -29,6 +29,7 @@ public class UserDto {
         private String jobName;
         private String companyCode;
         private String status;
+        private Integer vacation;
 
         private String profileImageUrl;
         private String profileImagePath;
@@ -43,6 +44,7 @@ public class UserDto {
                     .jobCode(user.getJob().getJobCode())
                     .createdDate(user.getCreatedDate())
                     .updatedDate(user.getUpdatedDate())
+                    .vacation(user.getVacation())
                     .deptCode(user.getDepartment().getDeptCode())
                     .companyCode(user.getCompanyCode())
                     .status(String.valueOf(user.getStatus()))
@@ -62,6 +64,7 @@ public class UserDto {
                     .deptName(user.getDepartment().getDeptName())
                     .createdDate(user.getCreatedDate())
                     .updatedDate(user.getUpdatedDate())
+                    .vacation(user.getVacation())
                     .companyCode(user.getCompanyCode())
                     .profileImageUrl(user.getOldImg() != null ? user.getOldImg().getPath() : null)
                     .point(user.getPoint())
