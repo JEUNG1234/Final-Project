@@ -32,6 +32,7 @@ public class VacationDto {
     @Setter
     @NoArgsConstructor
     public static class VacationResponseDto {
+        private Long vacationNo;
         private LocalDate vacationDate;
         private String content;
         private Integer amount;
@@ -92,8 +93,4 @@ public class VacationDto {
     public static class VacationNoDto {
         private List<Long> vacationNos;
     }
-
-
-
-
 }
