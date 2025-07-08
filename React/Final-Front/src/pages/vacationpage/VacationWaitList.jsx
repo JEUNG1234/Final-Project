@@ -22,10 +22,11 @@ import useUserStore from '../../Store/useStore';
 import { useForm } from 'react-hook-form';
 import { vacationService } from '../../api/vacation';
 import { MdOutlineWbSunny } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 const VacationWaitList = () => {
   const { user } = useUserStore();
-
+  const navigate = useNavigate();
   const [vacationData, setVacation] = useState([]);
   //날짜 범위 선택[시작일, 종료일]
   const [dateRange, setDateRange] = useState([null, null]);
@@ -48,9 +49,6 @@ const VacationWaitList = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
-  // 체크박스: 현재 페이지의 모든 항목 선택/해제
-  const [vacationNo, setVacationNo] = useState([]);
 
   //전체선택
   const handleSelectAll = (e) => {
@@ -96,7 +94,7 @@ const VacationWaitList = () => {
     const vacationWaitList = async () => {
       try {
         const data = await vacationService.vacationWaitList(user.userId);
-        console.log('휴가 내역: ', data);
+      
         setVacation(data);
       } catch (error) {
         console.error(error.message);
@@ -105,10 +103,11 @@ const VacationWaitList = () => {
     vacationWaitList();
   }, [user.userId]);
 
-
+  const handleGoBack = () => {
+    navigate(-1); // 이전 페이지로 이동
+  };
 
   const {
-    register,
     handleSubmit,
     formState: { errors },
     setValue,
@@ -119,10 +118,19 @@ const VacationWaitList = () => {
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
+
     const [startDate, endDate] = data.dateRange;
 
     const amount = startDate && endDate ? Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1 : 0;
     try {
+      const hasWaiting = vacationData.some((item) => item.status === 'W');
+      if (hasWaiting) {
+        alert('이미 대기 중인 휴가 신청이 있습니다. 승인/거절 처리 후 추가 신청이 가능합니다.');
+        return;
+      }
+
+   
+
       const submitBody = {
         startDate,
         endDate,
@@ -137,6 +145,9 @@ const VacationWaitList = () => {
       console.log(requestBody);
 
       const response = await vacationService.vacationSubmit(requestBody);
+      const data = await vacationService.vacationWaitList(user.userId);
+
+      setVacation(data);
 
       alert('워케이션 신청되었습니다.');
       console.log(response);
@@ -172,7 +183,7 @@ const VacationWaitList = () => {
       alert(`선택된 ${selectedVacationIds.length}개의 신청이 취소되었습니다.`);
       setSelectedVacationIds([]);
       // 목록 새로고침
-      console.log()
+      console.log();
       const data = await vacationService.vacationWaitList(user.userId);
       setVacation(data);
     } catch (error) {
@@ -270,6 +281,10 @@ const VacationWaitList = () => {
             &gt;
           </StyledPageButton>
         </StyledPagination>
+
+        <BottomButtonContainer>
+          <GoBackButton onClick={handleGoBack}>뒤로가기</GoBackButton>
+        </BottomButtonContainer>
       </MainContent>
       <DateContent>
         <DateMenu>
@@ -662,16 +677,6 @@ const TableCell = styled.td`
   color: #555;
 `;
 
-const StatusChip = styled.span`
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 12px;
-  font-weight: bold;
-  color: #fff;
-  background-color: ${(props) =>
-    props.status === '대기' ? '#FFC107' : '#28A745'}; // 대기 상태는 노란색, 승인 상태는 초록색
-`;
 
 const StyledPagination = styled(Pagination)`
   margin-top: 20px;
