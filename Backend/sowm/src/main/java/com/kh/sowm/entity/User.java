@@ -104,7 +104,7 @@ public class User {
         if (this.status == null) {
             this.status = CommonEnums.Status.N;
         }
-        if (this.vacation == 0) {
+        if (this.vacation == null) {
             this.vacation = 15;
         }
     }

@@ -36,7 +36,9 @@ public class SecurityConfig {
                                 "/api/users/login",
                                 "/api/users/signup",
                                 "/api/users/enrolladmin",
-                                "/api/company/enrollcompany"
+                                "/api/company/enrollcompany",
+                                "/api/users/check-user-id",
+                                "/api/users/check-user-email"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
