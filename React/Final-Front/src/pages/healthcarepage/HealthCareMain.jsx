@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   FaExclamationTriangle,
@@ -6,18 +6,11 @@ import {
   FaHeartbeat,
   FaFileAlt,
   FaChartLine,
-  FaPills,
-  FaMoon,
-  FaRunning,
   FaBrain,
   FaUserMd,
 } from 'react-icons/fa';
 import { PageTitle } from '../../styles/common/MainContentLayout';
-import bodyCareImage from '../../assets/bodycare.jpg';
-import mentalCareImage from '../../assets/mentalcare.jpg';
 import { useNavigate } from 'react-router-dom';
-
-// Chart.js 관련 임포트 및 등록
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -29,28 +22,90 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { healthService } from '../../api/health';
+import mentalCareImage from '../../assets/mentalcare.jpg';
+import bodyCareImage from '../../assets/bodycare.jpg';
+import dayjs from 'dayjs';
 
-// Chart.js에 필요한 컴포넌트들을 등록합니다.
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const HealthCareMain = () => {
-  // 그래프 데이터 (예시 데이터)
   const navigate = useNavigate();
-  const healthData = {
-    labels: ['1차', '2차', '3차', '4차', '5차', '6차', '7차'],
+  const [recentResult, setRecentResult] = useState(null);
+  const [questionScores, setQuestionScores] = useState([]);
+  const [historyScores, setHistoryScores] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const userId = sessionStorage.getItem('userId');
+        const history = await healthService.getAllResultList({ page: 0, size: 10 });
+        const sorted = history.content.sort((a, b) => b.medicalCheckResultNo - a.medicalCheckResultNo);
+        setHistoryScores(history.content);
+        const latest = sorted[0];
+        setRecentResult(latest);
+
+        if (latest?.medicalCheckType === '신체검사') {
+          const detail = await healthService.physicalresult(userId);
+          setQuestionScores(detail.questionScores);
+        } else if (latest?.medicalCheckType === '심리검사') {
+          const detail = await healthService.mentalresult(userId);
+          setQuestionScores(detail.questionScores);
+        }
+      } catch (error) {
+        console.error('건강검사 데이터를 불러오는 데 실패했습니다.', error);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const getStatusText = (score) => {
+    if (score >= 80) return '매우 양호';
+    if (score >= 50) return '보통';
+    return '주의 단계';
+  };
+
+  const getStatusColor = (score) => {
+    if (score >= 80) return '#28a745';
+    if (score >= 50) return '#ffc107';
+    return '#dc3545';
+  };
+
+  const getStatusDescription = (score) => {
+    if (score >= 80) return '현재 건강 상태가 매우 양호합니다. 꾸준히 유지해 주세요.';
+    if (score >= 50) return '건강 상태는 보통입니다. 규칙적인 운동과 식습관을 유지해 보세요.';
+    return '건강 상태가 좋지 않습니다. 전문가 상담이 권장됩니다.';
+  };
+
+  const getScoreColor = (score) => {
+    if (score >= 8) return 'green';
+    if (score >= 5) return 'orange';
+    return 'red';
+  };
+
+  const sortedHistoryScores = [...historyScores].sort(
+    (a, b) => new Date(a.medicalCheckCreateDate) - new Date(b.medicalCheckCreateDate)
+  );
+
+  const historyGraphData = {
+    labels: sortedHistoryScores.map((item) => dayjs(item.medicalCheckCreateDate).format('MM/DD')),
     datasets: [
       {
-        label: '신체 점수',
-        data: [50, 20, 90, 30, 95, 40, 80], // 예시 데이터
-        borderColor: colors.primary,
+        label: '신체검사',
+        data: historyScores
+          .filter((item) => item.medicalCheckType === '신체검사')
+          .map((item) => item.medicalCheckTotalScore),
+        borderColor: '#007bff',
         backgroundColor: 'rgba(0, 123, 255, 0.2)',
-        tension: 0.4, // 곡선 부드러움
-        fill: false, // 선 아래를 채우지 않음
+        tension: 0.4,
+        fill: false,
       },
       {
-        label: '심리 점수', // 두 번째 선 (예시)
-        data: [70, 60, 65, 70, 68, 62, 65],
-        borderColor: colors.success,
+        label: '심리검사',
+        data: historyScores
+          .filter((item) => item.medicalCheckType === '심리검사')
+          .map((item) => item.medicalCheckTotalScore),
+        borderColor: '#28a745',
         backgroundColor: 'rgba(40, 167, 69, 0.2)',
         tension: 0.4,
         fill: false,
@@ -58,59 +113,23 @@ const HealthCareMain = () => {
     ],
   };
 
-  // 그래프 옵션
   const graphOptions = {
     responsive: true,
-    maintainAspectRatio: false, // 컨테이너에 맞춰 크기 조절
+    maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          font: {
-            size: 12, // 범례 폰트 크기
-          },
-        },
-      },
-      title: {
-        display: false, // 차트 자체의 제목은 SectionTitle이 대체
-        text: '건강 상태 변화 추이',
-      },
+      legend: { position: 'top' },
       tooltip: {
-        // 툴팁 스타일 조정
         backgroundColor: 'rgba(0,0,0,0.7)',
-        bodyFont: {
-          size: 14,
-        },
-        titleFont: {
-          size: 16,
-          weight: 'bold',
-        },
+        bodyFont: { size: 14 },
+        titleFont: { size: 16, weight: 'bold' },
       },
     },
     scales: {
-      x: {
-        grid: {
-          display: false, // x축 그리드 라인 숨기기
-        },
-        ticks: {
-          font: {
-            size: 12, // x축 라벨 폰트 크기
-          },
-        },
-      },
       y: {
         beginAtZero: true,
         min: 0,
         max: 100,
-        ticks: {
-          stepSize: 10, // y축 10단위로 표시
-          font: {
-            size: 12, // y축 라벨 폰트 크기
-          },
-        },
-        grid: {
-          color: colors.mediumGray, // y축 그리드 라인 색상
-        },
+        ticks: { stepSize: 10 },
       },
     },
   };
@@ -121,31 +140,25 @@ const HealthCareMain = () => {
         <LeftColumn>
           <Card>
             <PageTitle>
-              <FaHeartbeat />
-              건강관리
+              <FaHeartbeat /> 건강관리
             </PageTitle>
             <SectionTitle>
-              <FaChartLine style={{ marginRight: '10px', color: colors.primary }} />
-              나의 건강 상태 결과
+              <FaChartLine style={{ marginRight: '10px' }} /> 최근 건강 점수 이력
             </SectionTitle>
             <GraphContainer>
               <GraphWrapper>
-                <Line data={healthData} options={graphOptions} />
+                <Line data={historyGraphData} options={graphOptions} />
               </GraphWrapper>
-
               <ImageSection>
                 <StyledImage src={mentalCareImage} alt="심리 검사" />
                 <StyledImage src={bodyCareImage} alt="신체 검사" />
               </ImageSection>
-
               <BottomButtons>
                 <ActionButton onClick={() => navigate('/mentaltest')}>
-                  <FaBrain style={{ marginRight: '8px' }} />
-                  심리 검사
+                  <FaBrain style={{ marginRight: '8px' }} /> 심리 검사
                 </ActionButton>
                 <ActionButton onClick={() => navigate('/physicaltest')}>
-                  <FaUserMd style={{ marginRight: '8px' }} />
-                  신체 검사
+                  <FaUserMd style={{ marginRight: '8px' }} /> 신체 검사
                 </ActionButton>
               </BottomButtons>
             </GraphContainer>
@@ -153,57 +166,50 @@ const HealthCareMain = () => {
         </LeftColumn>
 
         <RightColumnCard>
-          <SectionTitle>자가진단 결과</SectionTitle>
-          <ScoreText>총점: 42점 / 100점</ScoreText>
-          <StatusText>
-            <FaExclamationTriangle /> 상태: <span style={{ color: colors.warning }}>주의 단계</span>
-          </StatusText>
-          <p style={{ fontSize: '0.9em', color: colors.text, marginBottom: '15px' }}>
-            원문 증상이 있으므로 생활습관 개선이 필요합니다.
-          </p>
-          <GuideSection />
-          <SectionTitle style={{ fontSize: '1.2em' }}>
-            <span style={{ color: colors.primary, marginRight: '8px' }}>•</span> 항목별 요약
-          </SectionTitle>
-          <ul>
-            <ListItem color="red">
-              <FaPills style={{ marginRight: '5px' }} /> 피로/무기력: 2점 - 약간의 피로 있음
-            </ListItem>
-            <ListItem color="orange">식욕 변화: 3점 - 식사 패턴 변화 존재</ListItem>
-            <ListItem color="red">
-              <FaMoon style={{ marginRight: '5px' }} /> 수면 문제: 6점 - 수면 질 저하
-            </ListItem>
-            <ListItem color="orange">
-              <FaRunning style={{ marginRight: '5px' }} /> 운동 부족: 4점 - 활동량 부족
-            </ListItem>
-            <ListItem color="green">소화 불량: 1점 - 양호</ListItem>
-            <ListItem color="yellow">소화 불편: 3점 - 주기적 불편감</ListItem>
-            <ListItem color="red">체중/체중 변화: 8점 - 순환 이상 가능성</ListItem>
-            <ListItem color="red">면역 저하: 7점 - 면역력 약화 징후</ListItem>
-            <ListItem color="yellow">지구력 저하: 5점 - 피로 누적</ListItem>
-            <ListItem color="orange">건강 불안감: 3점 - 약간의 걱정 존재</ListItem>
-
-            <GuideSection />
-            <SectionTitle>
-              <FaLightbulb style={{ color: colors.warning, marginRight: '10px' }} /> 건강관리 가이드
-            </SectionTitle>
-            <ul>
-              <GuideListItem>수면 루틴을 일정하게 유지하세요.</GuideListItem>
-              <GuideListItem>가벼운 산책과 스트레칭을 시작해보세요.</GuideListItem>
-              <GuideListItem>면역력 높이는 식단(과일, 유산균 등)을 챙기세요.</GuideListItem>
-              <GuideListItem>소화기 및 순환계 불편이 계속된다면 의료 상담 권장</GuideListItem>
-            </ul>
-          </ul>
+          <SectionTitle>최근 자가진단 결과</SectionTitle>
+          {recentResult ? (
+            <>
+              <ScoreText>총점: {recentResult.medicalCheckTotalScore}점 / 100점</ScoreText>
+              <StatusText>
+                <FaExclamationTriangle /> 상태:{' '}
+                <span style={{ color: getStatusColor(recentResult.medicalCheckTotalScore) }}>
+                  {getStatusText(recentResult.medicalCheckTotalScore)}
+                </span>
+              </StatusText>
+              <p style={{ fontSize: '0.9em', color: '#555' }}>
+                {getStatusDescription(recentResult.medicalCheckTotalScore)}
+              </p>
+              <SectionTitle>항목별 요약</SectionTitle>
+              <ul>
+                {questionScores.map((q, idx) => (
+                  <ListItem key={q.questionNo} color={getScoreColor(q.score)}>
+                    Q{idx + 1}. {q.questionText} - {q.score}점
+                  </ListItem>
+                ))}
+              </ul>
+              <SectionTitle>
+                <FaLightbulb style={{ color: '#ffc107', marginRight: '10px' }} /> 건강관리 가이드
+              </SectionTitle>
+              <ul>
+                {recentResult.guideMessage
+                  .split('\n')
+                  .filter((line) => line.trim() && !line.startsWith('총 점수'))
+                  .map((line, idx) => (
+                    <GuideListItem key={idx}>{line}</GuideListItem>
+                  ))}
+              </ul>
+            </>
+          ) : (
+            <p>최근 건강 정보가 없습니다.</p>
+          )}
           <ResultButton onClick={() => navigate('/testresult')}>
-            <FaFileAlt style={{ marginRight: '8px' }} />
-            결과 기록
+            <FaFileAlt style={{ marginRight: '8px' }} /> 결과 기록
           </ResultButton>
         </RightColumnCard>
       </MainContentGrid>
     </HealthCareContainer>
   );
 };
-
 const colors = {
   primary: '#007bff',
   secondary: '#6c757d',
