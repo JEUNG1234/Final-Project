@@ -2,13 +2,11 @@ package com.kh.sowm.controller;
 
 
 import com.kh.sowm.dto.VacationDto;
+
 import com.kh.sowm.dto.VacationDto.VacationNoDto;
 import com.kh.sowm.dto.VacationDto.VacationResponseDto;
 import com.kh.sowm.dto.VacationDto.VacationSubmitDto;
 import com.kh.sowm.dto.VacationDto.VacationWaitDto;
-import com.kh.sowm.dto.WorkationDto.WorkationSubNoDto;
-import com.kh.sowm.entity.Vacation;
-import com.kh.sowm.entity.VacationAdmin;
 import com.kh.sowm.service.VacationService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +27,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class VacationController {
 
     private final VacationService vacationService;
+    //휴가 신청
     @PostMapping("/submit")
     public ResponseEntity<VacationDto.VacationSubmitDto> submit(@RequestBody VacationSubmitDto request) {
-
         VacationDto.VacationSubmitDto submitDto = vacationService.submit(request);
 
         return ResponseEntity.ok(submitDto);
     }
 
+    //휴가 내역리스트 가져오기
     @GetMapping("/list")
     public ResponseEntity<List<VacationResponseDto>> list(@RequestParam String userId) {
 
@@ -45,6 +44,7 @@ public class VacationController {
         return ResponseEntity.ok(dtoList);
     }
 
+    //휴가 신청 리스트 가져오기
     @GetMapping("/waitList")
     public ResponseEntity<List<VacationWaitDto>> waitList(@RequestParam String userId) {
 
@@ -53,14 +53,17 @@ public class VacationController {
         return ResponseEntity.ok(dtoList);
     }
 
+    //휴가 신청 취소
     @DeleteMapping("/delete")
     public ResponseEntity<List<Long>> delete(@RequestBody VacationNoDto vacationNos) {
-        System.out.println("11111111111111");
-
         List <Long> result = vacationService.vacationDelete(vacationNos);
-        System.out.println("2222222222222222");
-        return ResponseEntity.ok(result);
 
+        return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/amount")
+    public Integer amount(@RequestParam String userId) {
+        System.out.println(vacationService.amount(userId));
+        return vacationService.amount(userId);
+    }
 }

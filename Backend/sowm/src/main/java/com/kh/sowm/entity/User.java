@@ -64,7 +64,7 @@ public class User {
     @JoinColumn(name = "COMPANY_CODE", insertable = false, updatable = false)
     private Company company;
 
-    @Column(name = "COMPANY_CODE")
+    @Column(name = "COMPANY_CODE", nullable = false)
     private String companyCode;
 
     @Column(name = "VACATION")

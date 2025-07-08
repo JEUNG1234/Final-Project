@@ -27,19 +27,17 @@ public class VacationServiceImpl implements VacationService{
 
     private final VacationRepository vacationRepository;
 
+    //휴가 신청 취소
     @Override
     public List<Long> vacationDelete(VacationNoDto vacationNos) {
-        System.out.println("33333333333333333333333");
+
         List<Long> selectedIds = vacationNos.getVacationNos();
-        System.out.println("4444444444444444444444444444");
+
         for(Long selectedId : selectedIds){
             VacationAdmin vacation = vacationRepository.findById(selectedId)
                     .orElseThrow(() -> new EntityNotFoundException("신청 내역을 찾을 수 없습니다."));
             vacationRepository.delete(selectedId);
-            System.out.println("55555555555555555555555555");
-
         }
-        System.out.println("666666666666666666666666666666");
         return List.of();
     }
 
@@ -64,9 +62,7 @@ public class VacationServiceImpl implements VacationService{
     @Override
     public List<VacationResponseDto> listGet(String userId) {
 
-
         List<VacationAdmin> vacationList = vacationRepository.findBySubmitList(userId, StatusType.Y);
-
 
         List<Vacation> vacationpointList = vacationRepository.findBySubmitList(userId);
 
@@ -77,19 +73,28 @@ public class VacationServiceImpl implements VacationService{
         List<VacationResponseDto> resultList = new ArrayList<>();
         resultList.addAll(dtoList);
         resultList.addAll(vaList);
+        int i = 1;
+        for(VacationResponseDto dto : resultList){
 
+            dto.setVacationNo((long) i++);
 
+        }
 
         return resultList;
     }
 
+    //휴가 신청 내역 가져오기
     @Override
     public List<VacationWaitDto> waitListGet(String userId) {
 
         List<VacationAdmin> vacationList = vacationRepository.findByWaitList(userId);
 
         return vacationList.stream().map(VacationWaitDto::new).toList();
-
-
     }
+
+    @Override
+    public Integer amount(String userId) {
+        return vacationRepository.amount(userId);
+    }
+
 }
