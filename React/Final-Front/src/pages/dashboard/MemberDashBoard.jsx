@@ -60,7 +60,6 @@ const MemberDashBoard = () => {
   });
   const [myInfoState, setMyInfoState] = useState(null);
   const [notices, setNotices] = useState([]);
-  const [vacationCount, setVacationCount] = useState(0); // 휴가 일수 상태 추가
   const [approvedWorkations, setApprovedWorkations] = useState([]); // 승인된 워케이션 목록 상태 추가
 
   const myInfo = async () => {
@@ -72,7 +71,6 @@ const MemberDashBoard = () => {
         workationService.getApprovedWorkations(userId),
       ]);
       setMyInfoState(userInfo);
-      setVacationCount(vacationData);
       setApprovedWorkations(workationData);
       console.log('계정 데이터', userInfo);
       console.log('휴가 데이터', vacationData);
@@ -286,9 +284,9 @@ const MemberDashBoard = () => {
               <dd>{myInfoState?.deptName}</dd>
             </dl>
             <dl>
-              <dt>남은 연차 수:</dt>
+              <dt>남은 휴가 수:</dt>
               <dd>
-                <span>{vacationCount}일</span>
+                <span>{myInfoState?.vacation}일</span>
               </dd>
             </dl>
             <dl>
@@ -322,12 +320,10 @@ const MemberDashBoard = () => {
             <div>
               <span>출근 시간 : </span>
               <span className="time">{formatTime(attendance.attendTime)}</span>
-              <button className="check-in">출근</button>
             </div>
             <div>
               <span>퇴근 시간 : </span>
               <span className="time">{formatTime(attendance.leaveTime)}</span>
-              <button className="check-out">퇴근</button>
             </div>
           </AttendanceTimeCard>
         </BottomRightSection>
@@ -645,40 +641,18 @@ const AttendanceTimeCard = styled(Card)`
   gap: 20px;
 
   div {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 80px;
     align-items: center;
     font-size: 18px;
-    color: #333;
     font-weight: 500;
+    color: #333;
+  }
 
-    .time {
-      font-size: 24px;
-      font-weight: bold;
-      color: #007bff;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: bold;
-
-      &.check-in {
-        background-color: #28a745;
-        &:hover {
-          background-color: #218838;
-        }
-      }
-      &.check-out {
-        background-color: #dc3545;
-        &:hover {
-          background-color: #c82333;
-        }
-      }
-    }
+  .time {
+    justify-self: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #007bff;
   }
 `;

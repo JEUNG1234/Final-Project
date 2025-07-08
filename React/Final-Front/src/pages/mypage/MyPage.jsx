@@ -159,6 +159,10 @@ const MyPage = () => {
                 : {userInfo?.point} | 1500 점당 휴가 하루 | 현재 추가 휴가 : {vacationCount}일
               </UserInfoValue>
             </UserDetailRow>
+            <UserDetailRow>
+              <Label>보유 휴가 수</Label>
+              <UserInfoValue>: {userInfo?.vacation} 일</UserInfoValue>
+            </UserDetailRow>
             <ActionButton onClick={handleEdit}>수정하기</ActionButton>
             <ActionButton onClick={handlePointConversion} disabled={(userInfo?.point || 0) < 1500}>
               휴가 전환
