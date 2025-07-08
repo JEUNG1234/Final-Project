@@ -3,9 +3,11 @@ package com.kh.sowm.service;
 import com.kh.sowm.dto.VacationAdminDto;
 import com.kh.sowm.dto.VacationAdminDto.RequestDto;
 import com.kh.sowm.dto.VacationAdminDto.ResponseDto;
+import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.VacationAdmin;
 import com.kh.sowm.entity.VacationAdmin.StatusType;
 import com.kh.sowm.repository.VacationAdminRepository;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +52,19 @@ public class VacationAdminServiceImpl implements VacationAdminService {
 
         for (VacationAdmin vacation : vacations) {
             vacation.changeStauts(newStatus);
-        }
 
+            if (vacation.getStatus() == StatusType.Y) {
+
+                long days = ChronoUnit.DAYS.between(vacation.getStartDate(), vacation.getEndDate()) + 1;
+                User user = vacation.getUser();
+                Integer remainVacation = user.getVacation();
+
+                if (remainVacation < days) {
+                    throw new IllegalArgumentException(user.getUserName() + "님의 남은 휴가일 수가 부족합니다.");
+                }
+                user.minusVacation((int)days);
+            }
+        }
         vacationAdminRepository.saveAll(vacations);
 
         return vacations.stream()

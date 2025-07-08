@@ -164,4 +164,11 @@ public class User {
         this.currentProfileImage = newImg;
         this.updatedDate = LocalDate.now();
     }
+
+    public void minusVacation(int days) {
+        if (this.vacation < days) {
+            throw new IllegalArgumentException("남은 휴가일수가 부족합니다.");
+        }
+        this.vacation -= days;
+    }
 }
