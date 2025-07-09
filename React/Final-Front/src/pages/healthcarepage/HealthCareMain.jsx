@@ -39,7 +39,7 @@ const HealthCareMain = () => {
     async function fetchData() {
       try {
         const userId = sessionStorage.getItem('userId');
-        const history = await healthService.getAllResultList({ page: 0, size: 10 });
+        const history = await healthService.getAllResultList({ page: 0, size: 10, userId });
         const sorted = history.content.sort((a, b) => b.medicalCheckResultNo - a.medicalCheckResultNo);
         setHistoryScores(history.content);
         const latest = sorted[0];
@@ -87,27 +87,36 @@ const HealthCareMain = () => {
     (a, b) => new Date(a.medicalCheckCreateDate) - new Date(b.medicalCheckCreateDate)
   );
 
+  const labels = sortedHistoryScores.map((item) => dayjs(item.medicalCheckCreateDate).format('MM/DD'));
+
+  // 날짜 순서에 맞게 각 검사 유형 점수 정렬
+  const physicalScores = sortedHistoryScores.map((item) =>
+    item.medicalCheckType === '신체검사' ? item.medicalCheckTotalScore : null
+  );
+
+  const mentalScores = sortedHistoryScores.map((item) =>
+    item.medicalCheckType === '심리검사' ? item.medicalCheckTotalScore : null
+  );
+
   const historyGraphData = {
-    labels: sortedHistoryScores.map((item) => dayjs(item.medicalCheckCreateDate).format('MM/DD')),
+    labels,
     datasets: [
       {
         label: '신체검사',
-        data: historyScores
-          .filter((item) => item.medicalCheckType === '신체검사')
-          .map((item) => item.medicalCheckTotalScore),
+        data: physicalScores,
         borderColor: '#007bff',
         backgroundColor: 'rgba(0, 123, 255, 0.2)',
         tension: 0.4,
+        spanGaps: true,
         fill: false,
       },
       {
         label: '심리검사',
-        data: historyScores
-          .filter((item) => item.medicalCheckType === '심리검사')
-          .map((item) => item.medicalCheckTotalScore),
+        data: mentalScores,
         borderColor: '#28a745',
         backgroundColor: 'rgba(40, 167, 69, 0.2)',
         tension: 0.4,
+        spanGaps: true,
         fill: false,
       },
     ],
