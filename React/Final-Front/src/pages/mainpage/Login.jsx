@@ -82,7 +82,11 @@ const Login = () => {
             <LoginButton type="submit">로그인</LoginButton>
             <BackButton to="/">뒤로가기</BackButton>
           </LoginForm>
-          <SignUpLink to="/signup">회원가입</SignUpLink>
+          <UnderContainer>
+            <SignUpLink to="/signup">회원가입</SignUpLink>
+            <p></p>
+            <SearchPwdLink to="/searchPwd">PWD 찾기</SearchPwdLink>
+          </UnderContainer>
         </FormCard>
       </LoginFormContainer>
     </LoginPageContainer>
@@ -214,12 +218,30 @@ const SignUpLink = styled(Link)`
   color: #007bff;
   text-decoration: none;
   text-align: center;
-  font-size: 12px;
-  width: 100%;
+  font-size: 14px;
+  width: max-content;
 
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const SearchPwdLink = styled(Link)`
+  color: #007bff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+  width: max-content;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const UnderContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
 `;
 
 export default Login;

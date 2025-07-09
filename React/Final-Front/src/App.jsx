@@ -51,6 +51,7 @@ import PrivateRoute from './PrivateRoute';
 import VacationAdmin from './pages/vacationpage/VacationAdmin';
 import VacationList from './pages/vacationpage/VacationList';
 import VacationWaitList from './pages/vacationpage/VacationWaitList';
+import SearchPwd from './pages/mainpage/SearchPwd';
 
 const AppContainer = styled.div`
   display: flex;
@@ -107,6 +108,7 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/enrollcompany" element={<EnrollCompany />} />
             <Route path="/enrolladmin" element={<EnrollAdmin />} />
+            <Route path="/searchPwd" element={<SearchPwd />} />
             {/* 4. 그 외 다른 페이지들: Layout 컴포넌트 (Header와 Sidebar 포함) 사용 */}
             {/* 이제 '/*'는 Main, Login, SignUp을 제외한 나머지 모든 경로를 의미합니다. */}
             <Route
