@@ -18,5 +18,5 @@ public interface MedicalCheckRepository {
 
     List<MedicalCheckHeadScore> findByMedicalCheckResult(MedicalCheckResult result);
 
-    Page<MedicalCheckResult> findResults(Pageable pageable, LocalDate createDate, Type type);
+    Page<MedicalCheckResult> findResults(Pageable pageable, LocalDate createDate, Type type, User user);
 }

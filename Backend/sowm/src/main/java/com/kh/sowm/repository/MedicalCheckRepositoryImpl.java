@@ -52,11 +52,12 @@ public class MedicalCheckRepositoryImpl implements MedicalCheckRepository {
     }
 
     @Override
-    public Page<MedicalCheckResult> findResults(Pageable pageable, LocalDate createDate, Type type) {
-        StringBuilder jpql = new StringBuilder("SELECT r FROM MedicalCheckResult r WHERE 1=1");
-        StringBuilder countJpql = new StringBuilder("SELECT COUNT(r) FROM MedicalCheckResult r WHERE 1=1");
+    public Page<MedicalCheckResult> findResults(Pageable pageable, LocalDate createDate, Type type, User user) {
+        StringBuilder jpql = new StringBuilder("SELECT r FROM MedicalCheckResult r WHERE r.user = :user");
+        StringBuilder countJpql = new StringBuilder("SELECT COUNT(r) FROM MedicalCheckResult r WHERE r.user = :user");
 
         Map<String, Object> params = new HashMap<>();
+        params.put("user", user); // 로그인한 유저 추가
 
         if (createDate != null) {
             jpql.append(" AND r.medicalCheckCreateDate = :createDate");

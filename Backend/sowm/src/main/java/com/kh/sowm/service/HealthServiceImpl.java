@@ -334,8 +334,11 @@ public class HealthServiceImpl implements HealthService {
     }
 
     @Override
-    public Page<MedicalCheckResultDto> getResultList(Pageable pageable, LocalDate createDate, Type type) {
-        Page<MedicalCheckResult> results = medicalCheckRepository.findResults(pageable, createDate, type);
+    public Page<MedicalCheckResultDto> getResultList(Pageable pageable, LocalDate createDate, Type type, String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+
+        Page<MedicalCheckResult> results = medicalCheckRepository.findResults(pageable, createDate, type, user);
 
         return results.map(r -> MedicalCheckResultDto.builder()
                 .medicalCheckResultNo(r.getMedicalCheckResultNo())

@@ -88,10 +88,11 @@ public class HealthController {
     public ResponseEntity<PageResponse<MedicalCheckResultDto>> getAllResult(
             @PageableDefault(size = 10, sort = "medicalCheckCreateDate", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) LocalDate createDate,
-            @RequestParam(required = false) Type type
+            @RequestParam(required = false) Type type,
+            @RequestParam String userId
     ) {
         return ResponseEntity.ok(
-                new PageResponse<>(healthService.getResultList(pageable, createDate, type))
+                new PageResponse<>(healthService.getResultList(pageable, createDate, type, userId))
         );
     }
 
