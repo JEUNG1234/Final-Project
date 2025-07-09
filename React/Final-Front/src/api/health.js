@@ -62,7 +62,7 @@ export const healthService = {
     }
   },
 
-  getAllResultList: async ({ page = 0, size = 10, createDate, type }) => {
+  getAllResultList: async ({ page = 0, size = 10, createDate, type, userId }) => {
     try {
       const response = await api.get(API_ENDPOINTS.HEALTH.allresultList, {
         params: {
@@ -70,6 +70,7 @@ export const healthService = {
           size,
           createDate,
           type,
+          userId,
         },
       });
       console.log(response.data);

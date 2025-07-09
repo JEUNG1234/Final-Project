@@ -23,11 +23,13 @@ const TestResult = () => {
 
   const fetchData = async (page = 0) => {
     try {
+      const userId = sessionStorage.getItem('userId');
       const res = await healthService.getAllResultList({
         page,
         size: 10,
         createDate: selectedDate || undefined,
         type: selectedCategory === '신체검사' ? 'PHYSICAL' : selectedCategory === '심리검사' ? 'PSYCHOLOGY' : undefined,
+        userId,
       });
       setResults(res.content);
       setPageInfo({

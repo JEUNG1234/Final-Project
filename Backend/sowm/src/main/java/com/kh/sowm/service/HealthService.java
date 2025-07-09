@@ -25,6 +25,6 @@ public interface HealthService {
 
     PhysicalResultDto getPhysicalCheckResult(String userId);
 
-    Page<MedicalCheckResultDto> getResultList(Pageable pageable, LocalDate createDate, Type type);
+    Page<MedicalCheckResultDto> getResultList(Pageable pageable, LocalDate createDate, Type type, String userId);
 
 }
