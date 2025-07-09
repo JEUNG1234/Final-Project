@@ -75,7 +75,7 @@ const MemberDashBoard = () => {
       setVacationCount(vacationData);
       setApprovedWorkations(workationData);
       console.log('계정 데이터', userInfo);
-
+      console.log('휴가 데이터', vacationData);
       console.log('워케이션 데이터', workationData);
     } catch (err) {
       console.log('계정, 휴가 또는 워케이션 정보를 불러오지 못했습니다.', err);
@@ -288,7 +288,7 @@ const MemberDashBoard = () => {
             <dl>
               <dt>남은 연차 수:</dt>
               <dd>
-                <span>{myInfoState?.vacation ?? '-'}일</span>
+                <span>{vacationCount}일</span>
               </dd>
             </dl>
             <dl>
