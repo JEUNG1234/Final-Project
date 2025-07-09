@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components';
@@ -9,48 +9,13 @@ import { attendanceService } from '../../api/attendance';
 import BoardAPI from '../../api/board';
 import { challengeService } from '../../api/challengeService';
 import { workationService } from '../../api/workation';
+import { healthService } from '../../api/health';
+import { useLocation } from 'react-router-dom';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
-
-const healthDoughnutData = {
-  labels: ['수면 시간', '걸음 수', '스트레스 지수'],
-  datasets: [
-    {
-      data: [35, 55, 10],
-      backgroundColor: ['#28A745', '#007BFF', '#FFC107'],
-      borderColor: ['#ffffff'],
-      borderWidth: 2,
-    },
-  ],
-};
-
-const healthDoughnutOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          let label = context.label || '';
-          if (label) {
-            label += ': ';
-          }
-          if (context.parsed) {
-            label += context.parsed + '%';
-          }
-          return label;
-        },
-      },
-    },
-  },
-  cutout: '50%',
-};
 
 const MemberDashBoard = () => {
   const [attendance, setAttendance] = useState({
@@ -61,6 +26,10 @@ const MemberDashBoard = () => {
   const [myInfoState, setMyInfoState] = useState(null);
   const [notices, setNotices] = useState([]);
   const [approvedWorkations, setApprovedWorkations] = useState([]); // 승인된 워케이션 목록 상태 추가
+  const [healthSummary, setHealthSummary] = useState({
+    totalScore: 0,
+    guideMessage: '',
+  });
 
   const myInfo = async () => {
     try {
@@ -158,12 +127,153 @@ const MemberDashBoard = () => {
     }
   };
 
+  const totalScoreData = useMemo(
+    () => ({
+      labels: ['건강 점수', '남은 점수'],
+      datasets: [
+        {
+          data: [healthSummary.totalScore, 100 - healthSummary.totalScore],
+          backgroundColor: ['#4CAF50', '#e0e0e0'],
+          borderWidth: 2,
+        },
+      ],
+    }),
+    [healthSummary.totalScore]
+  );
+
+  const totalScoreOptions = {
+    cutout: '70%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => context.label + ': ' + context.parsed + '점',
+        },
+      },
+    },
+  };
+
+  const location = useLocation();
+
+  const getLatestHealthData = async () => {
+    try {
+      const userId = sessionStorage.getItem('userId');
+
+      let mentalResult = null;
+      let physicalResult = null;
+
+      // 심리 검사 결과 가져오기
+      try {
+        mentalResult = await healthService.mentalresult(userId);
+      } catch (err) {
+        if (err.response && err.response.status === 400) {
+          console.warn('심리검사 결과가 없습니다.');
+        } else {
+          console.error('심리 검사 결과 불러오기 실패:', err);
+        }
+      }
+
+      // 신체 검사 결과 가져오기
+      try {
+        physicalResult = await healthService.physicalresult(userId);
+      } catch (err) {
+        if (err.response && err.response.status === 400) {
+          console.warn('신체검사 결과가 없습니다.');
+        } else {
+          console.error('신체 검사 결과 불러오기 실패:', err);
+        }
+      }
+
+      let latestData = null;
+      let latestType = '';
+      let combinedMessage = ''; // 최종적으로 guideMessage에 들어갈 변수
+
+      const getScoreAndMessage = (data) => {
+        if (!data || !data.guideMessage) return { score: 0, message: '' };
+        const scoreMatch = data.guideMessage.match(/총 점수:\s*(\d+)점/);
+        const totalScore = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+        return { score: totalScore, message: data.guideMessage };
+      };
+
+      // 두 검사 결과가 모두 있을 경우, 날짜만 비교 (시분초 무시)
+      if (mentalResult && physicalResult) {
+        const mentalDate = new Date(mentalResult.medicalCheckCreateDate);
+        const physicalDate = new Date(physicalResult.medicalCheckCreateDate);
+
+        // 시분초를 초기화하여 날짜만으로 비교합니다.
+        mentalDate.setHours(0, 0, 0, 0);
+        physicalDate.setHours(0, 0, 0, 0);
+
+        if (mentalDate.getTime() > physicalDate.getTime()) {
+          latestData = mentalResult;
+          latestType = '심리';
+          combinedMessage = getScoreAndMessage(mentalResult).message;
+        } else if (physicalDate.getTime() > mentalDate.getTime()) {
+          latestData = physicalResult;
+          latestType = '신체';
+          combinedMessage = getScoreAndMessage(physicalResult).message;
+        } else {
+          // 날짜가 동일한 경우 (년,월,일이 같을 때)
+          // 신체 검사 결과 우선
+          latestData = physicalResult;
+          latestType = '신체';
+
+          const originalMessage = getScoreAndMessage(physicalResult).message;
+          // toLocaleDateString()으로 날짜만 가져오기
+          const dateString = new Date(physicalResult.medicalCheckCreateDate).toLocaleDateString('ko-KR');
+
+          // 안내 메시지 추가
+          combinedMessage = `두 가지 검사 모두 ${dateString}에 완료되었습니다. 현재는 신체 검사 결과가 표시됩니다.\n\n${originalMessage}`;
+        }
+      } else if (physicalResult) {
+        // 신체 검사 결과만 있는 경우
+        latestData = physicalResult;
+        latestType = '신체';
+        combinedMessage = getScoreAndMessage(physicalResult).message;
+      } else if (mentalResult) {
+        // 심리 검사 결과만 있는 경우
+        latestData = mentalResult;
+        latestType = '심리';
+        combinedMessage = getScoreAndMessage(mentalResult).message;
+      }
+
+      if (latestData) {
+        const { score } = getScoreAndMessage(latestData); // score만 필요
+        setHealthSummary({
+          totalScore: score,
+          guideMessage: combinedMessage, // 최종 메시지 할당
+          type: latestType,
+        });
+        console.log(`HealthSummary set to ${latestType}:`, {
+          totalScore: score,
+          guideMessage: combinedMessage,
+          type: latestType,
+        });
+      } else {
+        console.log('둘 다 검사 결과 없음');
+        setHealthSummary({
+          totalScore: 0,
+          guideMessage: '검사 결과가 없습니다.',
+          type: '',
+        });
+      }
+    } catch (err) {
+      console.error('건강 데이터 불러오기 중 예기치 않은 오류 발생', err);
+      setHealthSummary({
+        totalScore: 0,
+        guideMessage: '검사 결과를 불러오는 데 실패했습니다.',
+        type: '',
+      });
+    }
+  };
+
   useEffect(() => {
     getAttendance();
     myInfo();
     getNotice();
     getChallengeForDashBoard();
-  }, []);
+    getLatestHealthData();
+  }, [location.pathname]);
 
   const formatTime = (dateTime) => {
     if (!dateTime) return '-';
@@ -300,22 +410,16 @@ const MemberDashBoard = () => {
 
         <BottomRightSection>
           <HealthDataCard>
-            <h3>최근 건강 데이터 요약</h3>
+            <h3>최근 검사 점수 ({healthSummary.type} 검사)</h3>
             <div className="chart-wrapper">
-              <Doughnut data={healthDoughnutData} options={healthDoughnutOptions} />
+              <Doughnut data={totalScoreData} options={totalScoreOptions} />
+              <div style={{ position: 'absolute', fontSize: '22px', fontWeight: 'bold' }}></div>
             </div>
-            <div className="legend-list">
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>수면 시간: 9시간
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#007BFF' }}></span>걸음 수: 3000보
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#FFC107' }}></span>스트레스 지수: 중간
-              </div>
-            </div>
+            <p style={{ fontSize: '14px', color: '#555', marginTop: '10px', whiteSpace: 'pre-line' }}>
+              {healthSummary.guideMessage}
+            </p>
           </HealthDataCard>
+
           <AttendanceTimeCard>
             <div>
               <span>출근 시간 : </span>
