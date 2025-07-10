@@ -5,6 +5,7 @@ import com.kh.sowm.dto.AttendanceDto.WeeklyAttendanceDto;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.Company;
 import com.kh.sowm.entity.User;
+import com.kh.sowm.entity.VacationAdmin;
 import com.kh.sowm.enums.CommonEnums;
 import com.kh.sowm.enums.CommonEnums.AttendanceStatus;
 import jakarta.persistence.EntityManager;
@@ -313,53 +314,27 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
         }
 
         // 4. 휴가 통계 JPQL (Vacation 엔티티에 맞게 수정 필요)
-        String vacationJpql =
-                "SELECT v.startDate, COUNT(DISTINCT v.user.userId) " +
-                        "FROM VacationAdmin v " +
-                        "WHERE v.user.company.companyCode = :companyCode " +
-                        "AND v.startDate <= :end AND v.endDate >= :start " +
-                        "GROUP BY v.startDate";
-
-        List<Object[]> vacationStats = em.createQuery(vacationJpql, Object[].class)
+        List<VacationAdmin> vacations = em.createQuery(
+                        "SELECT v FROM VacationAdmin v WHERE v.user.company.companyCode = :companyCode AND v.endDate >= :start AND v.startDate <= :end",
+                        VacationAdmin.class)
                 .setParameter("companyCode", companyCode)
                 .setParameter("start", weekStart)
                 .setParameter("end", weekEnd)
                 .getResultList();
 
-        for (Object[] row : vacationStats) {
-            LocalDate date = (LocalDate) row[0];
-            Long count = (Long) row[1];
-            AttendanceDto.WeeklyAttendanceDto dto = summaryMap.get(date.toString());
-            if (dto != null) {
-                dto.setVacation(dto.getVacation() + count.intValue());
+        for (VacationAdmin v : vacations) {
+            LocalDate vacStart = v.getStartDate().isBefore(weekStart) ? weekStart : v.getStartDate();
+            LocalDate vacEnd = v.getEndDate().isAfter(weekEnd) ? weekEnd : v.getEndDate();
+
+            for (LocalDate date = vacStart; !date.isAfter(vacEnd); date = date.plusDays(1)) {
+                AttendanceDto.WeeklyAttendanceDto dto = summaryMap.get(date.toString());
+                if (dto != null) {
+                    dto.setVacation(dto.getVacation() + 1);
+                }
             }
         }
 
-        // 5. 워케이션 통계 JPQL (Workation 엔티티에 맞게 수정 필요)
-        String workationJpql =
-                "SELECT w.workationStartDate, COUNT(DISTINCT w.user.userId) " +
-                        "FROM Workation w " +
-                        "WHERE w.user.company.companyCode = :companyCode " +
-                        "AND w.workationStartDate <= :end AND w.workationEndDate >= :start " +
-                        "GROUP BY w.workationStartDate";
-
-        List<Object[]> workationStats = em.createQuery(workationJpql, Object[].class)
-                .setParameter("companyCode", companyCode)
-                .setParameter("start", weekStart)
-                .setParameter("end", weekEnd)
-                .getResultList();
-
-        for (Object[] row : workationStats) {
-            LocalDate date = (LocalDate) row[0];
-            Long count = (Long) row[1];
-            AttendanceDto.WeeklyAttendanceDto dto = summaryMap.get(date.toString());
-            if (dto != null) {
-                // 워케이션도 휴가에 합산
-                dto.setVacation(dto.getVacation() + count.intValue());
-            }
-        }
-
-        // 6. 7일치 리스트 반환
+        // 5. Map 값을 List로 변환하여 반환
         return new ArrayList<>(summaryMap.values());
     }
 
