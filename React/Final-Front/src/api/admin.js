@@ -98,4 +98,14 @@ export const adminService = {
       console.log('에러', err);
     }
   },
+  getWeeklyAttendance: async (companyCode) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.ADMIN.getWeeklyAttendance}`, {
+        params: { companyCode },
+      });
+      return response.data;
+    } catch (err) {
+      console.log('주간 근태관리 페이지 값 에러', err);
+    }
+  },
 };

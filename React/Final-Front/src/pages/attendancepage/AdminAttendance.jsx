@@ -85,40 +85,11 @@ const donutChartOptions = {
 
 // =============================================================================================================================
 // 2. 주간/월간 근태 분포 누적 막대 그래프 데이터 (예시: 지난 7일)
-const barChartData = {
-  labels: ['월', '화', '수', '목', '금', '토', '일'],
-  datasets: [
-    {
-      label: '정상 출근',
-      data: [18, 19, 17, 18, 16, 5, 2], // 월별 정상 출근 인원
-      backgroundColor: '#4CAF50', // 녹색
-    },
-    {
-      label: '지각',
-      data: [2, 1, 3, 2, 4, 0, 0], // 월별 지각 인원
-      backgroundColor: '#FFC107', // 노랑
-    },
-    {
-      label: '결근',
-      data: [0, 0, 0, 0, 0, 0, 0], // 월별 결근 인원
-      backgroundColor: '#F44336', // 빨강
-    },
-    {
-      label: '휴가/워케이션',
-      data: [0, 0, 0, 0, 0, 15, 18], // 월별 휴가/연차 인원 (주말 반영)
-      backgroundColor: '#2196F3', // 파랑
-    },
-  ],
-};
 
 const barChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    title: {
-      display: false, // 제목은 h3 태그로 대체
-      text: '주간/월간 근태 분포',
-    },
     legend: {
       position: 'bottom',
       labels: {
@@ -133,13 +104,13 @@ const barChartOptions = {
   },
   scales: {
     x: {
-      stacked: true, // 막대 누적
+      stacked: true,
       grid: {
-        display: false, // X축 그리드 라인 숨김
+        display: false,
       },
     },
     y: {
-      stacked: true, // 막대 누적
+      stacked: true,
       beginAtZero: true,
       title: {
         display: true,
@@ -154,6 +125,7 @@ const barChartOptions = {
 const AdminAttendance = () => {
   // 당일 근무 시간 함수 모음
   const [attendanceList, setAttendanceList] = useState([]);
+  const [barChartData, setBarChartData] = useState(null);
 
   const isToday = (dateString) => {
     if (!dateString) return false;
@@ -390,6 +362,52 @@ const AdminAttendance = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchAttendanceData = async () => {
+      try {
+        if (!companyCode) {
+          console.warn('companyCode가 없습니다. 주간 근태 데이터를 불러올 수 없습니다.');
+          return; // companyCode 없으면 함수 실행 중단
+        }
+
+        const data = await adminService.getWeeklyAttendance(companyCode);
+
+        // 받아온 데이터를 Chart.js 형식으로 변환
+        const labels = data.map((item) => item.day);
+        const normal = data.map((item) => item.normal);
+        const absent = data.map((item) => item.absent);
+        const vacation = data.map((item) => item.vacation);
+
+        const chartData = {
+          labels,
+          datasets: [
+            {
+              label: '정상 출근',
+              data: normal,
+              backgroundColor: '#4CAF50',
+            },
+            {
+              label: '결근',
+              data: absent,
+              backgroundColor: '#F44336',
+            },
+            {
+              label: '휴가/워케이션',
+              data: vacation,
+              backgroundColor: '#2196F3',
+            },
+          ],
+        };
+
+        setBarChartData(chartData);
+      } catch (error) {
+        console.error('주간 근태 데이터 조회 실패:', error);
+      }
+    };
+
+    fetchAttendanceData();
+  }, [companyCode]);
+
   return (
     <AttendanceManagementContainer>
       {/* 페이지 헤더 */}
@@ -477,10 +495,13 @@ const AdminAttendance = () => {
 
       {/* 하단 상세 조회 영역 - 그래프 */}
       <DetailChartArea>
-        <h3>주간/월간 근태 분포</h3>
+        <h3>주간 근태 분포</h3>
         <ChartContainer height="250px">
-          {/* ChartPlaceholder 대신 Bar 차트 렌더링 */}
-          <Bar data={barChartData} options={barChartOptions} />
+          {barChartData ? (
+            <Bar data={barChartData} options={barChartOptions} />
+          ) : (
+            <p>근태 데이터를 불러오는 중입니다...</p>
+          )}
         </ChartContainer>
       </DetailChartArea>
 

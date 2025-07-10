@@ -1,6 +1,7 @@
 package com.kh.sowm.repository;
 
 import com.kh.sowm.dto.AttendanceDto;
+import com.kh.sowm.dto.AttendanceDto.WeeklyAttendanceDto;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
@@ -35,4 +36,5 @@ public interface AttendanceRepository {
 
     Page<Attendance> findByFilter(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable);
 
+    List<WeeklyAttendanceDto> findWeeklyAttendanceSummary(String companyCode);
 }

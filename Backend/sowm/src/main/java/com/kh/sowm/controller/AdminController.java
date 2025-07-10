@@ -107,4 +107,10 @@ public class AdminController {
         return ResponseEntity.ok(attendanceList);
     }
 
+    // 주간별 직원 출퇴근 정보 가져오기(휴가, 워케이션, 지각, 퇴근 포함)
+    @GetMapping("/adminattendance/weeklyattendance")
+    public ResponseEntity<List<AttendanceDto.WeeklyAttendanceDto>> getWeeklyAttendance(@RequestParam String companyCode) {
+        return adminService.getWeeklyAttendance(companyCode);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.kh.sowm.service;
 
 import com.kh.sowm.dto.AttendanceDto;
+import com.kh.sowm.dto.AttendanceDto.WeeklyAttendanceDto;
 import com.kh.sowm.dto.PageResponse;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.User;
@@ -9,6 +10,7 @@ import com.kh.sowm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,5 +87,12 @@ public class AdminServiceImpl implements AdminService {
         // 3. Page → PageResponse 로 감싸서 반환
         return new PageResponse<>(dtoPage);
     }
+
+    @Override
+    public ResponseEntity<List<AttendanceDto.WeeklyAttendanceDto>> getWeeklyAttendance(String companyCode) {
+        List<AttendanceDto.WeeklyAttendanceDto> weeklyData = attendanceRepository.findWeeklyAttendanceSummary(companyCode);
+        return ResponseEntity.ok(weeklyData);
+    }
+
 
 }
