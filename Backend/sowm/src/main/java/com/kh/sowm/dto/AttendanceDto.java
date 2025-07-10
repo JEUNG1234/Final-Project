@@ -105,5 +105,19 @@ public class AttendanceDto {
         private String deptName;   // 부서명 (optional)
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class WeeklyAttendanceDto {
+        private String day;       // "월", "화", "수", ...
+        private int normal;       // 정상 출근 인원 수
+        private int late;         // 지각 인원 수
+        private int absent;       // 결근 인원 수
+        private int vacation;
+        private int workation;
+    }
+
 
 }
