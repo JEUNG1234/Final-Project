@@ -362,6 +362,22 @@ const AdminAttendance = () => {
     }
   };
 
+  const getWeekDates = () => {
+    const today = new Date();
+    const dates = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      dates.push(d);
+    }
+
+    return dates; // [Date, Date, ...]
+  };
+
+  const daysKor = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekDates = getWeekDates();
+
   useEffect(() => {
     const fetchAttendanceData = async () => {
       try {
@@ -371,9 +387,16 @@ const AdminAttendance = () => {
         }
 
         const data = await adminService.getWeeklyAttendance(companyCode);
+        console.log('주간 데이터 : ', data);
 
         // 받아온 데이터를 Chart.js 형식으로 변환
-        const labels = data.map((item) => item.day);
+
+        const labels = weekDates.map((date) => {
+          const dayName = daysKor[date.getDay()]; // 요일
+          const month = date.getMonth() + 1;
+          const day = date.getDate();
+          return `${dayName} (${month}/${day})`; // 예: '금 (7/11)'
+        });
         const normal = data.map((item) => item.normal);
         const absent = data.map((item) => item.absent);
         const vacation = data.map((item) => item.vacation);
@@ -392,7 +415,7 @@ const AdminAttendance = () => {
               backgroundColor: '#F44336',
             },
             {
-              label: '휴가/워케이션',
+              label: '휴가',
               data: vacation,
               backgroundColor: '#2196F3',
             },

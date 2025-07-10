@@ -115,7 +115,8 @@ public class AttendanceDto {
         private int normal;       // 정상 출근 인원 수
         private int late;         // 지각 인원 수
         private int absent;       // 결근 인원 수
-        private int vacation;     // 휴가/워케이션 인원 수
+        private int vacation;
+        private int workation;
     }
 
 
