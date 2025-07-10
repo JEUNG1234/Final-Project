@@ -134,4 +134,31 @@ export const userService = {
       throw error;
     }
   },
+
+  resetPassword: async (userId, email) => {
+    try {
+      const response = await api.post(API_ENDPOINTS.USERS.RESET_PASSWORD_REQUEST, {
+        userId,
+        email,
+      });
+      return response.data; // 메시지 문자열 등
+    } catch (error) {
+      console.error('비밀번호 재설정 요청 중 오류 발생:', error);
+      throw error.response?.data?.message || new Error('비밀번호 재설정 요청 실패');
+    }
+  },
+
+  // 이메일 링크로 비밀번호 변경 (token + newPassword)
+  updatePassword: async (token, newPassword) => {
+    try {
+      const response = await api.post(API_ENDPOINTS.USERS.RESET_PASSWORD_UPDATE, {
+        token,
+        newPassword,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('비밀번호 변경 중 오류 발생:', error);
+      throw error.response?.data?.message || new Error('비밀번호 변경 실패');
+    }
+  },
 };

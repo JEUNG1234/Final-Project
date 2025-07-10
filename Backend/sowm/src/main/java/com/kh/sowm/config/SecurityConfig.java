@@ -38,7 +38,9 @@ public class SecurityConfig {
                                 "/api/users/enrolladmin",
                                 "/api/company/enrollcompany",
                                 "/api/users/check-user-id",
-                                "/api/users/check-user-email"
+                                "/api/users/check-user-email",
+                                "/api/password/reset-link",
+                                "/api/password/reset-password"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

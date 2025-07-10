@@ -25,6 +25,8 @@ export const API_ENDPOINTS = {
     UPLOADPROFILEIMAGE: '/profileimage',
     CONVERT_POINTS: (userId) => `/users/${userId}/point-conversion`,
     GET_VACATION_COUNT: (userId) => `/users/${userId}/vacation-count`,
+    RESET_PASSWORD_REQUEST: '/password/reset-link',
+    RESET_PASSWORD_UPDATE: '/password/reset-password',
   },
   COMPANY: {
     BASE: '/company',
