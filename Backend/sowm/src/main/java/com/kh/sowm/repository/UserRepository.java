@@ -23,4 +23,11 @@ public interface UserRepository {
     String deleteUser(User user);
 
     String updateUserInfo(User user);
+
+
+    Optional<User> findByUserIdAndEmail(String userId, String email);
+
+    Optional<User> findById(Long id);
+
+    void updatePassword(String userId, String encodedPassword);
 }

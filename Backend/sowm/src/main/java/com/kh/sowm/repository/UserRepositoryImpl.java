@@ -90,5 +90,35 @@ public class UserRepositoryImpl implements UserRepository {
         return Optional.ofNullable(em.find(User.class, userId));
     }
 
-   
+
+
+    // 아이디 + 이메일로 유저 찾기
+    @Override
+    public Optional<User> findByUserIdAndEmail(String userId, String email) {
+        String jpql = "SELECT u FROM User u WHERE u.userId = :userId AND u.email = :email";
+        try {
+            User user = em.createQuery(jpql, User.class)
+                    .setParameter("userId", userId)
+                    .setParameter("email", email)
+                    .getSingleResult();
+            return Optional.of(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    // ID(Long)로 찾기 (토큰 처리용)
+    @Override
+    public Optional<User> findById(Long id) {
+        return Optional.ofNullable(em.find(User.class, id));
+    }
+
+    // 비밀번호 변경
+    @Override
+    public void updatePassword(String userId, String encodedPassword) {
+        em.createQuery("UPDATE User u SET u.userPwd = :pwd WHERE u.id = :id")
+                .setParameter("pwd", encodedPassword)
+                .setParameter("id", userId)
+                .executeUpdate();
+    }
 }
