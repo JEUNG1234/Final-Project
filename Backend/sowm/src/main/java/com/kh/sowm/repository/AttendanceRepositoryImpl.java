@@ -1,18 +1,23 @@
 package com.kh.sowm.repository;
 
 import com.kh.sowm.dto.AttendanceDto;
+import com.kh.sowm.dto.AttendanceDto.WeeklyAttendanceDto;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.Company;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
+import com.kh.sowm.enums.CommonEnums.AttendanceStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Repository
 public class AttendanceRepositoryImpl implements AttendanceRepository {
@@ -240,6 +246,121 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
 
         // 7. Page 객체 리턴
         return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public List<AttendanceDto.WeeklyAttendanceDto> findWeeklyAttendanceSummary(String companyCode) {
+        // 1. 이번 주 날짜 구하기 (오늘부터 6일 전까지)
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.minusDays(6);
+        LocalDate weekEnd = today;
+
+        // 날짜별 요일 이름 배열 (일~토)
+        String[] dayNames = {"일", "월", "화", "수", "목", "금", "토"};
+
+        // 2. 결과 저장용 Map: 날짜 문자열 -> DTO
+        Map<String, AttendanceDto.WeeklyAttendanceDto> summaryMap = new LinkedHashMap<>();
+
+        // 초기화: 7일 치 기본값 세팅
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = weekStart.plusDays(i);
+            String dayOfWeekName = dayNames[date.getDayOfWeek().getValue() % 7]; // 일요일=7이므로 %7 처리
+            summaryMap.put(date.toString(),
+                    AttendanceDto.WeeklyAttendanceDto.builder()
+                            .day(dayOfWeekName)
+                            .normal(0)
+                            .late(0)
+                            .absent(0)
+                            .vacation(0)
+                            .build()
+            );
+        }
+
+        // 3. 출퇴근 상태별 집계 쿼리
+        String attendanceJpql =
+                "SELECT FUNCTION('DATE', a.attendTime), a.status, COUNT(a) " +
+                        "FROM Attendance a " +
+                        "WHERE a.user.company.companyCode = :companyCode " +
+                        "AND a.attendTime BETWEEN :start AND :end " +
+                        "GROUP BY FUNCTION('DATE', a.attendTime), a.status";
+
+        List<Object[]> attendanceStats = em.createQuery(attendanceJpql, Object[].class)
+                .setParameter("companyCode", companyCode)
+                .setParameter("start", weekStart.atStartOfDay())
+                .setParameter("end", weekEnd.atTime(LocalTime.MAX))
+                .getResultList();
+
+        for (Object[] row : attendanceStats) {
+            Date sqlDate = (Date) row[0];               // java.sql.Date
+            LocalDate date = sqlDate.toLocalDate();     // LocalDate 변환
+
+            AttendanceStatus status = (AttendanceStatus) row[1];  // enum 타입으로 캐스팅
+            Long count = (Long) row[2];
+
+            AttendanceDto.WeeklyAttendanceDto dto = summaryMap.get(date.toString());
+            if (dto == null) continue;
+
+            switch (status) {
+                case L:  // 정상 출근
+                    dto.setNormal(dto.getNormal() + count.intValue());
+                    break;
+                case W:  // 결근(휴가 아님)
+                    dto.setAbsent(dto.getAbsent() + count.intValue());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // 4. 휴가 통계 JPQL (Vacation 엔티티에 맞게 수정 필요)
+        String vacationJpql =
+                "SELECT v.startDate, COUNT(DISTINCT v.user.userId) " +
+                        "FROM VacationAdmin v " +
+                        "WHERE v.user.company.companyCode = :companyCode " +
+                        "AND v.startDate <= :end AND v.endDate >= :start " +
+                        "GROUP BY v.startDate";
+
+        List<Object[]> vacationStats = em.createQuery(vacationJpql, Object[].class)
+                .setParameter("companyCode", companyCode)
+                .setParameter("start", weekStart)
+                .setParameter("end", weekEnd)
+                .getResultList();
+
+        for (Object[] row : vacationStats) {
+            LocalDate date = (LocalDate) row[0];
+            Long count = (Long) row[1];
+            AttendanceDto.WeeklyAttendanceDto dto = summaryMap.get(date.toString());
+            if (dto != null) {
+                dto.setVacation(dto.getVacation() + count.intValue());
+            }
+        }
+
+        // 5. 워케이션 통계 JPQL (Workation 엔티티에 맞게 수정 필요)
+        String workationJpql =
+                "SELECT w.workationStartDate, COUNT(DISTINCT w.user.userId) " +
+                        "FROM Workation w " +
+                        "WHERE w.user.company.companyCode = :companyCode " +
+                        "AND w.workationStartDate <= :end AND w.workationEndDate >= :start " +
+                        "GROUP BY w.workationStartDate";
+
+        List<Object[]> workationStats = em.createQuery(workationJpql, Object[].class)
+                .setParameter("companyCode", companyCode)
+                .setParameter("start", weekStart)
+                .setParameter("end", weekEnd)
+                .getResultList();
+
+        for (Object[] row : workationStats) {
+            LocalDate date = (LocalDate) row[0];
+            Long count = (Long) row[1];
+            AttendanceDto.WeeklyAttendanceDto dto = summaryMap.get(date.toString());
+            if (dto != null) {
+                // 워케이션도 휴가에 합산
+                dto.setVacation(dto.getVacation() + count.intValue());
+            }
+        }
+
+        // 6. 7일치 리스트 반환
+        return new ArrayList<>(summaryMap.values());
     }
 
 
