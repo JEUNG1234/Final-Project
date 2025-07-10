@@ -315,7 +315,7 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
 
         // 4. 휴가 통계 JPQL (Vacation 엔티티에 맞게 수정 필요)
         List<VacationAdmin> vacations = em.createQuery(
-                        "SELECT v FROM VacationAdmin v WHERE v.user.company.companyCode = :companyCode AND v.endDate >= :start AND v.startDate <= :end",
+                        "SELECT v FROM VacationAdmin v WHERE v.user.company.companyCode = :companyCode AND v.endDate >= :start AND v.startDate <= :end AND v.status = 'Y'",
                         VacationAdmin.class)
                 .setParameter("companyCode", companyCode)
                 .setParameter("start", weekStart)
