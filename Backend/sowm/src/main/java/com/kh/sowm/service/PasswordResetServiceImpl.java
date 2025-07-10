@@ -71,7 +71,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         User user = resetToken.getUser();
         String userId = user.getUserId(); // 또는 user.getUserId()에 맞게 조정
 
-//        String encodedPassword = passwordEncoder.encode(newPassword);
+//        String encodedPassword = passwordEncoder.encode(newPassword); // spring에서 제공하는 비밀번호 암호화 기능
         userRepository.updatePassword(userId, newPassword); // 🔁 핵심 변경
 
         tokenRepository.delete(resetToken); // 토큰 재사용 방지
