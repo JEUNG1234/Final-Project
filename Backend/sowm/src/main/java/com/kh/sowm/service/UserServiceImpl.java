@@ -45,6 +45,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("아이디를 찾을 수 없습니다."));
 
         if (user.getStatus() == CommonEnums.Status.N) {
+            throw new IllegalArgumentException("회원가입 승인 대기중입니다. 관리자에게 문의하세요.");
+        } else if (user.getStatus() == CommonEnums.Status.D) {
             throw new IllegalArgumentException("탈퇴한 회원입니다.");
         }
 
@@ -61,7 +63,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public String adminSignUp(UserDto.RequestDto signUp) {
 
-        User user = signUp.adminSignUp();
+        User user = signUp.adminSignUp(Status.N);
+
         userRepository.save(user);
         return user.getUserId();
     }
