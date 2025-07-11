@@ -42,9 +42,9 @@ const Login = () => {
       console.log('상태 업데이트 후:', useUserStore.getState()); // 상태가 잘 갱신되었는지 확인
 
       if (userInfo.jobCode === 'J2') {
-        navigate('/AdminDashBoard');
+        navigate('/admindashboard');
       } else if (['J1', 'J3', 'J4'].includes(userInfo.jobCode)) {
-        navigate('/MemberDashBoard');
+        navigate('/memberdashboard');
       } else if (userInfo.jobCode === 'J0') {
         alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
         navigate('/login');

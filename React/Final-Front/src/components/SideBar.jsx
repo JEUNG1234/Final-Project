@@ -23,8 +23,17 @@ const Sidebar = () => {
   return (
     <SidebarContainer>
       <LogoContainer>
-        <img src={logoImg} onClick={() => navigate('/memberdashboard')} alt="SOWM 캐릭터" />{' '}
-        {/* 해당 경로는 적절히 변경 필요 */}
+        <img
+          src={logoImg}
+          alt="SOWM 캐릭터"
+          onClick={() => {
+            if (user.jobCode === 'J2') {
+              navigate('/admindashboard');
+            } else {
+              navigate('/memberdashboard');
+            }
+          }}
+        />
       </LogoContainer>
 
       <MenuList>
