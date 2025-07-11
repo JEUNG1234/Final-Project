@@ -3,6 +3,8 @@ package com.kh.sowm.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -32,4 +34,14 @@ public class VoteUser {
     @JoinColumn(name = "VOTE_CONTENT_NO", nullable = false)
     private VoteContent voteContent;
 
+    //  투표 날짜 필드 추가 및 기본값 설정
+    @Column(name = "VOTED_DATE", nullable = false, columnDefinition = "DATE DEFAULT (CURRENT_DATE)")
+    private LocalDate votedDate;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.votedDate == null) {
+            this.votedDate = LocalDate.now();
+        }
+    }
 }
