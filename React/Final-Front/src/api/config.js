@@ -72,6 +72,8 @@ export const API_ENDPOINTS = {
     BASE: '/votes',
     // 투표자 목록 조회 엔드포인트
     GET_VOTERS: (voteNo, voteContentNo) => `/votes/${voteNo}/options/${voteContentNo}/voters`,
+    // [수정] 투표 응답률 통계 조회 엔드포인트
+    GET_RESPONSE_RATE: '/votes/statistics/response-rate',
   },
 
   CHALLENGE: {

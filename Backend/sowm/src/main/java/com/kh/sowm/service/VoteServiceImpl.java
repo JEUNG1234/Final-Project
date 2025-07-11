@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -155,5 +157,30 @@ public class VoteServiceImpl implements VoteService {
         return voters.stream()
                 .map(VoteDto.VoterResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Double> getVoteResponseRateStatistics(String companyCode) {
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+
+        long totalUsers = voteRepository.countTotalUsersByCompanyCode(companyCode);
+
+        if (totalUsers == 0) {
+            return Map.of("daily", 0.0, "weekly", 0.0, "monthly", 0.0);
+        }
+
+        long dailyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, yesterday, today);
+        long weeklyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, startOfWeek, today);
+        long monthlyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, startOfMonth, today);
+
+        Map<String, Double> stats = new HashMap<>();
+        stats.put("daily", (double) dailyVoters / totalUsers * 100);
+        stats.put("weekly", (double) weeklyVoters / totalUsers * 100);
+        stats.put("monthly", (double) monthlyVoters / totalUsers * 100);
+
+        return stats;
     }
 }

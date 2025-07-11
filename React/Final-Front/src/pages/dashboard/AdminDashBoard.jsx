@@ -1,86 +1,160 @@
 import React, { useState, useEffect } from 'react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 import styled from 'styled-components';
 import ProfileImg from '../../assets/profile.jpg';
 import ChallangeImg from '../../assets/challengeImg.jpg';
 import { userService } from '../../api/users';
-import { attendanceService } from '../../api/attendance';
 import BoardAPI from '../../api/board';
 import { challengeService } from '../../api/challengeService';
 import { workationService } from '../../api/workation';
+import { voteService } from '../../api/voteService';
+import useUserStore from '../../Store/useStore';
+import { adminService } from '../../api/admin';
+import { FaUsers, FaUmbrellaBeach, FaExclamationTriangle } from 'react-icons/fa';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
-const healthDoughnutData = {
-  labels: ['수면 시간', '걸음 수', '스트레스 지수'],
-  datasets: [
-    {
-      data: [35, 55, 10],
-      backgroundColor: ['#28A745', '#007BFF', '#FFC107'],
-      borderColor: ['#ffffff'],
-      borderWidth: 2,
-    },
-  ],
-};
-
-const healthDoughnutOptions = {
+const voteResponseOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
       display: false,
     },
+    title: {
+      display: true,
+      text: '투표 응답률',
+      font: {
+        size: 18,
+      },
+    },
     tooltip: {
       callbacks: {
-        label: function (context) {
-          let label = context.label || '';
-          if (label) {
-            label += ': ';
-          }
-          if (context.parsed) {
-            label += context.parsed + '%';
-          }
-          return label;
-        },
+        label: (context) => `${context.dataset.label}: ${context.parsed.y}%`,
       },
     },
   },
-  cutout: '50%',
+  scales: {
+    y: {
+      beginAtZero: true,
+      max: 100,
+      ticks: {
+        callback: (value) => `${value}%`,
+      },
+    },
+    x: {
+      grid: {
+        display: false,
+      },
+    },
+  },
 };
 
-const MemberDashBoard = () => {
-  const [attendance, setAttendance] = useState({
-    attendanceTime: null,
-    leaveTime: null,
-    status: null,
-  });
+const AdminDashBoard = () => {
   const [myInfoState, setMyInfoState] = useState(null);
   const [notices, setNotices] = useState([]);
-  const [vacationCount, setVacationCount] = useState(0); // 휴가 일수 상태 추가
-  const [approvedWorkations, setApprovedWorkations] = useState([]); // 승인된 워케이션 목록 상태 추가
+  const [vacationCount, setVacationCount] = useState(0);
+  const [approvedWorkations, setApprovedWorkations] = useState([]);
+  const [challenge, setChallenge] = useState(null);
+  const [voteResponseData, setVoteResponseData] = useState({
+    labels: ['일간', '주간', '월간'],
+    datasets: [
+      {
+        label: '응답률',
+        data: [0, 0, 0],
+        backgroundColor: ['#A4BEEA', '#C3E6CB', '#B2EBF2'],
+        borderColor: ['#8CADDD', '#A1D6AE', '#99DDE5'],
+        borderWidth: 1,
+        barThickness: 50,
+      },
+    ],
+  });
 
-  const myInfo = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const [userInfo, vacationData, workationData] = await Promise.all([
-        userService.getUserInfo(userId),
-        userService.getVacationCount(userId),
-        workationService.getApprovedWorkations(userId),
-      ]);
-      setMyInfoState(userInfo);
-      setVacationCount(vacationData);
-      setApprovedWorkations(workationData);
-      console.log('계정 데이터', userInfo);
-      console.log('휴가 데이터', vacationData);
-      console.log('워케이션 데이터', workationData);
-    } catch (err) {
-      console.log('계정, 휴가 또는 워케이션 정보를 불러오지 못했습니다.', err);
-    }
-  };
+  const [todayStatus, setTodayStatus] = useState({
+    clockedIn: 0,
+    absent: 0,
+    workation: 0,
+    late: 0,
+  });
+
+  const { user } = useUserStore();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user || !user.companyCode) return;
+
+      try {
+        const [
+          userInfo,
+          vacationData,
+          workationData,
+          noticeData,
+          challengeData,
+          todayAttendance,
+          allEmployees,
+          allWorkations,
+          stats,
+        ] = await Promise.all([
+          userService.getUserInfo(),
+          userService.getVacationCount(user.userId),
+          workationService.getApprovedWorkations(user.userId),
+          BoardAPI.getNotice(user.userId),
+          challengeService.getChallengeForDashBoard(user.userId),
+          adminService.getTodayAttendance(user.userId),
+          adminService.MemberManagement({ companyCode: user.companyCode }),
+          workationService.workationFullList(user.companyCode), // [수정] 함수 이름 변경
+          voteService.getVoteResponseRateStatistics(user.companyCode),
+        ]);
+
+        setMyInfoState(userInfo);
+        setVacationCount(vacationData);
+        setApprovedWorkations(workationData);
+        setNotices(noticeData.data);
+        setChallenge(challengeData);
+
+        const totalEmployeeCount = allEmployees.length;
+        const lateCount = todayAttendance.filter((a) => new Date(a.attendTime).getHours() >= 9).length;
+        const clockedInCount = todayAttendance.length;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const workationCount = allWorkations.filter((w) => {
+          const startDate = new Date(w.workationStartDate);
+          startDate.setHours(0, 0, 0, 0);
+          const endDate = new Date(w.workationEndDate);
+          endDate.setHours(0, 0, 0, 0);
+          return w.status === 'Y' && today >= startDate && today <= endDate;
+        }).length;
+
+        const absentCount = totalEmployeeCount - clockedInCount - workationCount;
+
+        setTodayStatus({
+          clockedIn: clockedInCount,
+          absent: absentCount > 0 ? absentCount : 0,
+          workation: workationCount,
+          late: lateCount,
+        });
+
+        setVoteResponseData((prevData) => ({
+          ...prevData,
+          datasets: [
+            {
+              ...prevData.datasets[0],
+              data: [stats.daily.toFixed(1), stats.weekly.toFixed(1), stats.monthly.toFixed(1)],
+            },
+          ],
+        }));
+      } catch (err) {
+        console.error('대시보드 데이터 로딩 중 오류 발생:', err);
+      }
+    };
+
+    fetchData();
+  }, [user]);
 
   const today = new Date();
   const currentMonth = today.getMonth();
@@ -106,7 +180,6 @@ const MemberDashBoard = () => {
     }
   });
 
-  // 날짜가 워케이션 기간에 포함되는지 확인하고, 해당 워케이션 정보를 반환하는 함수
   const getWorkationForDay = (day) => {
     const date = new Date(currentYear, currentMonth, day);
     return approvedWorkations.find((workation) => {
@@ -114,65 +187,6 @@ const MemberDashBoard = () => {
       const endDate = new Date(workation.workationEndDate);
       return date >= startDate && date <= endDate;
     });
-  };
-
-  const getAttendance = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const response = await attendanceService.attendanceList(userId);
-      const todayRecord = filterTodayAttendance(response);
-      setAttendance(
-        todayRecord || {
-          attendTime: null,
-          leaveTime: null,
-          status: null,
-        }
-      );
-    } catch (err) {
-      console.log('출퇴근 정보 불러오기 실패', err);
-    }
-  };
-
-  const filterTodayAttendance = (list) => {
-    const today = new Date().toISOString().slice(0, 10);
-    return list.find((item) => item.attendTime?.slice(0, 10) === today) || null;
-  };
-
-  const getNotice = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const response = await BoardAPI.getNotice(userId);
-      setNotices(response.data);
-    } catch (error) {
-      console.error('공지사항 조회 실패:', error);
-    }
-  };
-
-  const [challenge, setChallenge] = useState(null);
-
-  const getChallengeForDashBoard = async () => {
-    try {
-      const userId = sessionStorage.getItem('userId');
-      const response = await challengeService.getChallengeForDashBoard(userId);
-      setChallenge(response);
-    } catch (err) {
-      console.log('대시보드에 챌린지 가져오기 실패', err);
-    }
-  };
-
-  useEffect(() => {
-    getAttendance();
-    myInfo();
-    getNotice();
-    getChallengeForDashBoard();
-  }, []);
-
-  const formatTime = (dateTime) => {
-    if (!dateTime) return '-';
-    const date = new Date(dateTime);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
   };
 
   return (
@@ -301,43 +315,56 @@ const MemberDashBoard = () => {
         </UserInfoCard>
 
         <BottomRightSection>
-          <HealthDataCard>
-            <h3>최근 건강 데이터 요약</h3>
+          <VoteResponseCard>
             <div className="chart-wrapper">
-              <Doughnut data={healthDoughnutData} options={healthDoughnutOptions} />
+              <Bar options={voteResponseOptions} data={voteResponseData} />
             </div>
-            <div className="legend-list">
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#28A745' }}></span>수면 시간: 9시간
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#007BFF' }}></span>걸음 수: 3000보
-              </div>
-              <div>
-                <span className="color-box" style={{ backgroundColor: '#FFC107' }}></span>스트레스 지수: 중간
-              </div>
-            </div>
-          </HealthDataCard>
-          <AttendanceTimeCard>
-            <div>
-              <span>출근 시간 : </span>
-              <span className="time">{formatTime(attendance.attendTime)}</span>
-              <button className="check-in">출근</button>
-            </div>
-            <div>
-              <span>퇴근 시간 : </span>
-              <span className="time">{formatTime(attendance.leaveTime)}</span>
-              <button className="check-out">퇴근</button>
-            </div>
-          </AttendanceTimeCard>
+          </VoteResponseCard>
+
+          <TodayStatusCard>
+            <h3>오늘 근태 현황</h3>
+            <StatusWrapper>
+              <StatusItem>
+                <StatusIcon>
+                  <FaUsers />
+                </StatusIcon>
+                <StatusText>
+                  <p>출근 {todayStatus.clockedIn}명</p>
+                  <p>미출근 {todayStatus.absent}명</p>
+                </StatusText>
+              </StatusItem>
+              <VerticalDivider />
+              <StatusItem>
+                <StatusIcon>
+                  <FaUmbrellaBeach />
+                </StatusIcon>
+                <StatusText>
+                  <p>워케이션 {todayStatus.workation}명</p>
+                </StatusText>
+              </StatusItem>
+              <VerticalDivider />
+              <StatusItem>
+                <StatusIcon>
+                  <FaExclamationTriangle />
+                </StatusIcon>
+                <StatusText>
+                  <p>지각 {todayStatus.late}명</p>
+                </StatusText>
+              </StatusItem>
+            </StatusWrapper>
+          </TodayStatusCard>
         </BottomRightSection>
       </BottomSection>
     </DashboardContainer>
   );
 };
 
-export default MemberDashBoard;
+// Styled Components...
+// ... (나머지 스타일 코드는 동일)
 
+export default AdminDashBoard;
+
+// Styled Components... (기존과 동일하게 유지)
 const DashboardContainer = styled.div`
   padding: 25px;
   background-color: #f0f7ff;
@@ -605,7 +632,7 @@ const UserInfoCard = styled(Card)`
   }
 `;
 
-const HealthDataCard = styled(Card)`
+const VoteResponseCard = styled(Card)`
   h3 {
     font-size: 20px;
     color: #333;
@@ -613,72 +640,53 @@ const HealthDataCard = styled(Card)`
   }
   .chart-wrapper {
     width: 100%;
-    max-width: 250px;
-    margin: 0 auto 20px;
-    height: 200px;
+    height: 250px; /* 차트 높이 조절 */
+    margin: 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
   }
-  .legend-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-size: 14px;
-    color: #555;
-    div {
-      display: flex;
-      align-items: center;
-      .color-box {
-        width: 12px;
-        height: 12px;
-        border-radius: 3px;
-        margin-right: 8px;
-      }
-    }
+`;
+
+const TodayStatusCard = styled(Card)`
+  h3 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 20px;
   }
 `;
 
-const AttendanceTimeCard = styled(Card)`
+const StatusWrapper = styled.div`
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0;
+`;
+
+const StatusItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  gap: 10px;
+`;
 
-  div {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 18px;
+const StatusIcon = styled.div`
+  font-size: 2.5rem;
+  color: #555;
+`;
+
+const StatusText = styled.div`
+  text-align: center;
+  p {
+    margin: 2px 0;
+    font-size: 1rem;
     color: #333;
     font-weight: 500;
-
-    .time {
-      font-size: 24px;
-      font-weight: bold;
-      color: #007bff;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: bold;
-
-      &.check-in {
-        background-color: #28a745;
-        &:hover {
-          background-color: #218838;
-        }
-      }
-      &.check-out {
-        background-color: #dc3545;
-        &:hover {
-          background-color: #c82333;
-        }
-      }
-    }
   }
+`;
+
+const VerticalDivider = styled.div`
+  width: 1px;
+  height: 60px;
+  background-color: #e0e0e0;
 `;

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/votes")
@@ -62,5 +63,12 @@ public class VoteController {
 
         List<VoteDto.VoterResponse> voters = voteService.getVotersForOption(voteContentNo);
         return ResponseEntity.ok(voters);
+    }
+
+    //  투표 응답률 통계 조회 엔드포인트 추가
+    @GetMapping("/statistics/response-rate")
+    public ResponseEntity<Map<String, Double>> getVoteResponseRateStatistics(@RequestParam String companyCode) {
+        Map<String, Double> stats = voteService.getVoteResponseRateStatistics(companyCode);
+        return ResponseEntity.ok(stats);
     }
 }

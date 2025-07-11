@@ -34,8 +34,8 @@ export const voteService = {
           userId,
           page,
           size,
-          sort: 'voteNo,desc' // 최신순 정렬
-        }
+          sort: 'voteNo,desc', // 최신순 정렬
+        },
       });
       return response.data;
     } catch (error) {
@@ -88,7 +88,7 @@ export const voteService = {
   deleteVote: async (voteId, userId) => {
     try {
       const response = await api.delete(`${API_ENDPOINTS.VOTES.BASE}/${voteId}`, {
-        params: { userId }
+        params: { userId },
       });
       return response.data;
     } catch (error) {
@@ -111,6 +111,23 @@ export const voteService = {
       return response.data;
     } catch (error) {
       console.error('투표자 목록 조회 API 호출 중 오류 발생:', error);
+      throw error;
+    }
+  },
+
+  /**
+   *  투표 응답률 통계를 조회합니다.
+   * @param {string} companyCode - 회사 코드
+   * @returns {Promise<any>} - { daily, weekly, monthly } 응답률 데이터
+   */
+  getVoteResponseRateStatistics: async (companyCode) => {
+    try {
+      const response = await api.get('/votes/statistics/response-rate', {
+        params: { companyCode },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('투표 응답률 통계 조회 API 호출 중 오류 발생:', error);
       throw error;
     }
   },

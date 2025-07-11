@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,5 +62,26 @@ public class VoteRepositoryImpl implements VoteRepository {
     @Override
     public void delete(Vote vote) {
         em.remove(vote);
+    }
+
+    @Override
+    public long countUniqueVotersByCompanyCodeInPeriod(String companyCode, LocalDate startDate, LocalDate endDate) {
+        //  vu.vote.voteCreatedDate -> vu.votedDate
+        return em.createQuery(
+                        "SELECT COUNT(DISTINCT vu.user) FROM VoteUser vu " +
+                                "WHERE vu.vote.companyCode = :companyCode " +
+                                "AND vu.votedDate BETWEEN :startDate AND :endDate", Long.class)
+                .setParameter("companyCode", companyCode)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getSingleResult();
+    }
+
+    @Override
+    public long countTotalUsersByCompanyCode(String companyCode) {
+        return em.createQuery(
+                        "SELECT COUNT(u) FROM User u WHERE u.companyCode = :companyCode AND u.status = 'Y'", Long.class)
+                .setParameter("companyCode", companyCode)
+                .getSingleResult();
     }
 }
