@@ -119,7 +119,7 @@ public class UserDto {
                    .build();
        }
 
-        public User adminSignUp() {
+        public User adminSignUp(Status status) {
             return User.builder()
                     .userId(this.userId)
                     .userPwd(this.password)
@@ -127,7 +127,7 @@ public class UserDto {
                     .email(this.email)
                     .companyCode(this.companyCode)
                     .job(Job.adminDefaultJob())
-                    .status(Status.Y)
+                    .status(status)
                     .build();
         }
     }

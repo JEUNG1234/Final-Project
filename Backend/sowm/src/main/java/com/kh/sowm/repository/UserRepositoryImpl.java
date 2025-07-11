@@ -62,7 +62,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public String deleteUser(User user) {
-        int result =  em.createQuery("UPDATE User u SET u.status = 'N' WHERE u.userId = :id")
+        int result =  em.createQuery("UPDATE User u SET u.status = 'D' WHERE u.userId = :id")
                 .setParameter("id", user.getUserId())
                 .executeUpdate();
 

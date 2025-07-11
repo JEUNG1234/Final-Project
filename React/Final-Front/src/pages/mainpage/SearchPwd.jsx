@@ -20,6 +20,7 @@ const SearchPwd = () => {
     try {
       const response = await userService.resetPassword(userId, email); // 이메일 발송 API
       toast.success('비밀번호 재설정 이메일을 전송했습니다. 이메일을 확인해주세요.');
+      console.log('현재 데이터 : ', response.data);
     } catch (error) {
       toast.error('일치하는 계정이 없습니다. 다시 확인해주세요.');
       console.error(error);
