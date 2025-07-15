@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String adminSignUp(UserDto.RequestDto signUp) {
 
-        User user = signUp.adminSignUp(Status.N);
+        User user = signUp.adminSignUp(Status.Y);
 
         userRepository.save(user);
         return user.getUserId();
