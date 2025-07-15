@@ -5,6 +5,7 @@ import com.kh.sowm.dto.VoteDto;
 import com.kh.sowm.entity.*;
 import com.kh.sowm.exception.ErrorCode;
 import com.kh.sowm.exception.usersException.CompanyNotFoundException;
+import com.kh.sowm.exception.voteException.VotePermissionException; // 새로운 예외 클래스 임포트
 import com.kh.sowm.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +83,7 @@ public class VoteServiceImpl implements VoteService {
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
 
         boolean isChallengeCreated = challengeRepository.findByVote(vote).isPresent();
-        System.out.println("✅ [DEBUG] VoteService - 투표번호 " + voteNo + "의 챌린지 생성 여부: " + isChallengeCreated);
+        System.out.println("[DEBUG] VoteService - 투표번호 " + voteNo + "의 챌린지 생성 여부: " + isChallengeCreated);
 
         return VoteDto.DetailResponse.fromEntity(vote, isChallengeCreated);
     }
@@ -126,8 +127,9 @@ public class VoteServiceImpl implements VoteService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
+        // 권한이 없을 때, 명확한 예외를 발생시키도록 변경
         if (!"J2".equals(user.getJob().getJobCode())) {
-            throw new CompanyNotFoundException(ErrorCode.VOTE_CANNOT_BE_DELETED);
+            throw new VotePermissionException();
         }
 
         Vote vote = voteRepository.findById(voteNo)
