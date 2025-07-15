@@ -1,11 +1,14 @@
 package com.kh.sowm.controller;
 
+import com.kh.sowm.dto.BoardDto.Response;
 import com.kh.sowm.dto.WorkationDto;
 import com.kh.sowm.dto.WorkationDto.ResponseDto;
 import com.kh.sowm.dto.WorkationDto.WorkationNoDto;
+import com.kh.sowm.dto.WorkationDto.WorkationSubListDto;
 import com.kh.sowm.dto.WorkationDto.WorkationSubNoDto;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.service.WorkationService;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.jdbc.Work;
 import org.springframework.http.HttpStatus;
@@ -108,8 +111,8 @@ public class WorkationController {
     //워케이션 전체 신청내역 리스트
     @GetMapping("/fullsublist")
     public ResponseEntity<List<WorkationDto.WorkationSubListDto>> fullsublist(@RequestParam String companyCode) {
-
-        return workationService.workationFullSubList(companyCode);
+        ResponseEntity<List<WorkationSubListDto>> result =workationService.workationFullSubList(companyCode);
+        return result;
     }
 
     @GetMapping("/approved-list")

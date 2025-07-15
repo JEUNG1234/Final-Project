@@ -323,7 +323,9 @@ public class WorkationServiceImpl implements WorkationService {
     public ResponseEntity<List<WorkationSubListDto>> workationFullSubList(String companyCode) {
         List<SubmitWorkation> subWorkation = submitWorkationRepository.findByList(companyCode);
         if (subWorkation == null || subWorkation.isEmpty()) {
+            System.out.println(ResponseEntity.ok(Collections.emptyList()));
             throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
+
         }
 
         List<WorkationSubListDto> dtoList = subWorkation.stream()
