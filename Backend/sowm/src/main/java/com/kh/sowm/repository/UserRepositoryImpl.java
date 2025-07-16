@@ -1,6 +1,7 @@
 package com.kh.sowm.repository;
 
 import com.kh.sowm.dto.UserDto;
+import com.kh.sowm.entity.Company;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums;
 import jakarta.persistence.EntityManager;
@@ -131,5 +132,10 @@ public class UserRepositoryImpl implements UserRepository {
         return em.createQuery(jpql, Long.class)
                 .setParameter("jobCode", jobCode)
                 .getSingleResult();
+    }
+
+    @Override
+    public Optional<Company> findByCompanyCode(String companyCode) {
+        return Optional.ofNullable(em.find(Company.class, companyCode));
     }
 }
