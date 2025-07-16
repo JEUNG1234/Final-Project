@@ -119,5 +119,4 @@ public class AdminController {
         List<String> userIds = deleteUser.getUserIds();
         return adminService.deleteUserAccount(userIds);
     }
-
 }
