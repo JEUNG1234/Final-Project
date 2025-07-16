@@ -18,7 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VoteRepositoryImpl implements VoteRepository {
 
-    @PersistenceContext
     private final EntityManager em;
 
     @Override
@@ -60,8 +59,17 @@ public class VoteRepositoryImpl implements VoteRepository {
     }
 
     @Override
+    public void deleteVoteUsersByVote(Vote vote) {
+        em.createQuery("DELETE FROM VoteUser vu WHERE vu.vote = :vote")
+                .setParameter("vote", vote)
+                .executeUpdate();
+    }
+
+    @Override
     public void delete(Vote vote) {
-        // 가장 표준적인 삭제 방식으로 수정합니다.
+        // VoteUser 기록을 먼저 삭제
+        deleteVoteUsersByVote(vote);
+        // 그 다음 Vote를 삭제
         em.remove(em.contains(vote) ? vote : em.merge(vote));
     }
 

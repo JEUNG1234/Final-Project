@@ -21,6 +21,9 @@ public interface VoteRepository {
     // 투표 삭제
     void delete(Vote vote);
 
+    // 특정 투표에 연결된 모든 VoteUser 기록을 삭제하는 메서드 추가
+    void deleteVoteUsersByVote(Vote vote);
+
     // 특정 기간 내에 투표한 유니크한 사용자 수 조회
     long countUniqueVotersByCompanyCodeInPeriod(String companyCode, LocalDate startDate, LocalDate endDate);
 
