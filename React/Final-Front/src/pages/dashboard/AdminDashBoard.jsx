@@ -302,13 +302,15 @@ const AdminDashBoard = () => {
             <dl>
               <dt>남은 연차 수:</dt>
               <dd>
-                <span>{vacationCount}일</span>
+                {/* 수정된 부분 */}
+                <span>{myInfoState?.vacation}일</span>
               </dd>
             </dl>
             <dl>
               <dt>복지 포인트:</dt>
               <dd>
-                <span>{myInfoState?.point}</span>(1500점 = 휴가 1일)
+                {/* 추가된 부분 */}
+                <span>{myInfoState?.point}</span>(1500점 = 휴가 1일) | 현재 추가 휴가 : {vacationCount}일
               </dd>
             </dl>
           </div>
