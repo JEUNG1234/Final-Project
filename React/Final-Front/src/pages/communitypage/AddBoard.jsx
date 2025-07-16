@@ -27,6 +27,8 @@ const AddBoard = () => {
 
   const [content, setContent] = useState('');
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleContentChange = () => {
     const text = contentRef.current?.innerText || '';
     setContent(text);
@@ -62,17 +64,20 @@ const AddBoard = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return; // ✅ 중복 제출 방지
+    setIsSubmitting(true); // ✅ 등록 시작
+
     const text = contentRef.current?.innerText || '';
 
     if (!title || !category || !text || !userId) {
       alert('모든 필드를 입력해주세요.');
+      setIsSubmitting(false);
       return;
     }
 
     let uploadedImageMeta = null;
 
     try {
-      // ✅ 파일이 있으면 이때 업로드 수행
       if (file) {
         const uploaded = await fileupload.uploadImageToS3(file, 'board/');
         uploadedImageMeta = {
@@ -97,6 +102,8 @@ const AddBoard = () => {
     } catch (error) {
       console.error('게시글 등록 실패:', error);
       alert('게시글 등록에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false); // ✅ 항상 초기화
     }
   };
 
@@ -158,13 +165,15 @@ const AddBoard = () => {
               <img src={previewUrl} alt="미리보기 이미지" />
             </ImagePreviewInEditor>
           )}
-          {content === '' && <PlaceholderText>내용을 입력하세요.</PlaceholderText>}
+          {content === '' && !previewUrl && <PlaceholderText>내용을 입력하세요.</PlaceholderText>}
           <EditableDiv contentEditable suppressContentEditableWarning ref={contentRef} onInput={handleContentChange} />
         </EditorWrapper>
       </InputGroup>
 
       <ButtonGroup>
-        <ActionButton onClick={handleSubmit}>게시글 등록</ActionButton>
+        <ActionButton onClick={handleSubmit} disabled={isSubmitting}>
+          게시글 등록
+        </ActionButton>
         <ActionButton onClick={() => navigate('/communityboard')}>뒤로가기</ActionButton>
       </ButtonGroup>
     </MainContent>
@@ -250,6 +259,8 @@ const ActionButton = styled.button`
   gap: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease;
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
 
   &:hover {
     background-color: #3c75e0;

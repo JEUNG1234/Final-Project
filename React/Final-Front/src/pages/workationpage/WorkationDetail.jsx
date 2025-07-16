@@ -162,7 +162,7 @@ const WorkationDetail = () => {
       alert('워케이션 신청되었습니다.');
       console.log(response);
     } catch (error) {
-      console.error('워케이션 신청 에러:', error.message);
+      console.error('워케이션 신청 에러:', error.response.data.message);
       const apiError = error.response.data.message;
 
       alert(apiError);
