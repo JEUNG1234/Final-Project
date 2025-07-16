@@ -150,7 +150,7 @@ const WorkationDetail = () => {
       const requestBody = {
         ...submitBody,
         userId: user.userId,
-        companyCode: user.companyCode,
+        companyCode: user.companyCode,  
         location: workationInfo.address,
         workationNo: no,
       };
