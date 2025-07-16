@@ -4,6 +4,7 @@ import { FaHeartbeat } from 'react-icons/fa';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { healthService } from '../../api/health';
+import { toast } from 'react-toastify';
 
 const QUESTIONS = [
   '1. 평소에 충분한 수면을 취하고 있다고 느낀다.',
@@ -22,6 +23,7 @@ const PhysicalCareTest = () => {
   const navigate = useNavigate();
   // 배열 길이 10, 초기값 5 (슬라이드를 위해)
   const [scores, setScores] = useState(new Array(10).fill(5));
+  const [loading, setLoading] = useState(false);
 
   const handleScoreChange = (index, value) => {
     setScores((prevScores) => {
@@ -32,21 +34,23 @@ const PhysicalCareTest = () => {
   };
 
   const handleSubmit = async () => {
+    if (loading) return; // 중복 클릭 방지
+
+    setLoading(true); // 버튼 비활성화
+    toast.info('현재 AI에게 신체검사를 요청중입니다. 잠시만 기다려주세요...');
+
     try {
       const userId = sessionStorage.getItem('userId');
-      console.log('현재 로그인된 계정의 아이디 : ', userId);
-
       const response = await healthService.physicalquestion({ userId, questions: QUESTIONS, scores });
-
       console.log('서버 응답:', response.data);
-
       navigate('/physicalcareresult');
     } catch (error) {
       console.error('서버 에러:', error);
-      alert('서버 요청 중 문제가 발생했습니다.');
+      toast.error('서버 요청 중 문제가 발생했습니다.');
+    } finally {
+      setLoading(false); // 다시 활성화할 수도 있음
     }
   };
-
   return (
     <MainContent>
       <PageTitle>
@@ -94,7 +98,9 @@ const PhysicalCareTest = () => {
 
       <ButtonGroup>
         <PageButton onClick={() => navigate('/healthcaremain')}>뒤로가기</PageButton>
-        <PageButton onClick={handleSubmit}>결과 확인하기</PageButton>
+        <PageButton onClick={handleSubmit} disabled={loading}>
+          {loading ? '처리 중...' : '결과 확인하기'}
+        </PageButton>
       </ButtonGroup>
     </MainContent>
   );
