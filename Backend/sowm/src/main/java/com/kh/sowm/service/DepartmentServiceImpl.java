@@ -17,6 +17,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
 
+    // 전체 부서 조회하는 메소드
     @Override
     public List<DepartmentDto.ResponseDto> getAllDepartments() {
         List<Department> departments =  departmentRepository.findAll();
