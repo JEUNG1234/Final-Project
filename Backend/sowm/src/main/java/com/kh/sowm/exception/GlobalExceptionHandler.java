@@ -1,5 +1,6 @@
 package com.kh.sowm.exception;
 
+import com.kh.sowm.exception.usersException.CompanyNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException ex, HttpServletRequest request) {
         log.error("BaseException 발생 : {}", ex.getMessage(), ex);
         ErrorResponse error = ErrorResponse.of(ex.getErrorCode(), request.getRequestURI());
+        return ResponseEntity.status(ex.getErrorCode().getStatus()).body(error);
+    }
+
+    // CompanyNotFoundException 전용 핸들러 추가
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCompanyNotFoundException(CompanyNotFoundException ex, HttpServletRequest request) {
+        log.error("CompanyNotFoundException 발생 : {}", ex.getMessage());
+        // 생성자에서 전달된 커스텀 메시지를 사용하도록 of 메서드 변경
+        ErrorResponse error = ErrorResponse.of(ex.getErrorCode(), ex.getMessage(), request.getRequestURI());
         return ResponseEntity.status(ex.getErrorCode().getStatus()).body(error);
     }
 

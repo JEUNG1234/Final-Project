@@ -127,7 +127,6 @@ public class VoteServiceImpl implements VoteService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
-        // 권한이 없을 때, 명확한 예외를 발생시키도록 변경
         if (!"J2".equals(user.getJob().getJobCode())) {
             throw new VotePermissionException();
         }
@@ -135,19 +134,7 @@ public class VoteServiceImpl implements VoteService {
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
 
-        Optional<Challenge> challengeOpt = challengeRepository.findByVote(vote);
-        boolean isVoteFinished = vote.getVoteEndDate().isBefore(LocalDate.now());
-
-        if (isVoteFinished && challengeOpt.isPresent()) {
-            Challenge challenge = challengeOpt.get();
-            if (challenge.getParticipantCount() > 0) {
-                throw new CompanyNotFoundException(ErrorCode.VOTE_CANNOT_BE_DELETED);
-            }
-        }
-
-        challengeOpt.ifPresent(challenge -> {
-            challengeRepository.delete(challenge);
-        });
+        challengeRepository.findByVote(vote).ifPresent(challengeRepository::delete);
 
         voteRepository.delete(vote);
     }
@@ -164,7 +151,6 @@ public class VoteServiceImpl implements VoteService {
     @Transactional(readOnly = true)
     public Map<String, Double> getVoteResponseRateStatistics(String companyCode) {
         LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(1);
         LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
         LocalDate startOfMonth = today.withDayOfMonth(1);
 
@@ -174,7 +160,7 @@ public class VoteServiceImpl implements VoteService {
             return Map.of("daily", 0.0, "weekly", 0.0, "monthly", 0.0);
         }
 
-        long dailyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, yesterday, today);
+        long dailyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, today, today);
         long weeklyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, startOfWeek, today);
         long monthlyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, startOfMonth, today);
 

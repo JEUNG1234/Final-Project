@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { voteService } from '../../api/voteService';
 import useUserStore from '../../Store/useStore';
 import { ClipLoader } from 'react-spinners';
+import dayjs from 'dayjs';
 
 const VoteList = () => {
   const [voteList, setVoteList] = useState([]);
@@ -19,7 +20,7 @@ const VoteList = () => {
     currentPage: 0,
     totalPage: 0,
     hasNext: false,
-    hasPrevious: false
+    hasPrevious: false,
   });
 
   const fetchVotes = useCallback(async (page = 0) => {
@@ -34,7 +35,7 @@ const VoteList = () => {
         currentPage: data.currentPage,
         totalPage: data.totalPage,
         hasNext: data.hasNext,
-        hasPrevious: data.hasPrevious
+        hasPrevious: data.hasPrevious,
       });
     } catch (error) {
       console.error('투표 목록 조회 실패:', error);
@@ -86,12 +87,10 @@ const VoteList = () => {
   };
 
   const calculateDday = (endDate) => {
-    const end = new Date(endDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const diff = end.getTime() - today.getTime();
-    const dDay = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return dDay;
+    // 오늘 날짜와 종료 날짜를 시간 정보 없이 순수한 날짜로 비교
+    const end = dayjs(endDate).startOf('day');
+    const today = dayjs().startOf('day');
+    return end.diff(today, 'day');
   };
 
   if (isLoading) {
