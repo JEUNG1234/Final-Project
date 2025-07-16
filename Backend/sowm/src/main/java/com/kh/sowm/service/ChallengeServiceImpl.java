@@ -3,6 +3,7 @@ package com.kh.sowm.service;
 import com.kh.sowm.dto.ChallengeDto;
 import com.kh.sowm.dto.ChallengeDto.CompletionResponse;
 import com.kh.sowm.entity.*;
+import com.kh.sowm.exception.usersException.CompanyDisagreementException;
 import com.kh.sowm.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -104,6 +105,10 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         Challenge challenge = challengeRepository.findById(challengeNo)
                 .orElseThrow(() -> new EntityNotFoundException("챌린지를 찾을 수 없습니다: " + challengeNo));
+
+        if (!challenge.getUser().getCompany().getCompanyCode().equals(user.getCompany().getCompanyCode())) {
+            throw new CompanyDisagreementException("회사코드가 일치하지 않습니다.");
+        }
 
         ChallengeComplete completion = ChallengeComplete.builder()
                 .challenge(challenge)
