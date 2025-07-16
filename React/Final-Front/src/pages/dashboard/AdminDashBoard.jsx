@@ -83,7 +83,7 @@ const AdminDashBoard = () => {
     vacation: 0,
   });
 
-  const { user } = useUserStore();
+  const { user, attendanceStatus } = useUserStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,7 +167,7 @@ const AdminDashBoard = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, attendanceStatus]);
 
   const today = new Date();
   const currentMonth = today.getMonth();
@@ -372,8 +372,6 @@ const AdminDashBoard = () => {
     </DashboardContainer>
   );
 };
-
-// Styled Components...
 const DashboardContainer = styled.div`
   padding: 25px;
   background-color: #f0f7ff;
