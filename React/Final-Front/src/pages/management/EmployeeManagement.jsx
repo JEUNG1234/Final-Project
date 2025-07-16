@@ -157,6 +157,7 @@ const EmployeeManagement = () => {
                 <StyledSelect
                   value={emp.jobCode}
                   onChange={(e) => handleFieldChange(emp.userId, 'jobCode', e.target.value)}
+                  disabled={emp.jobCode === 'J2'} // J2면 드롭다운 비활성화
                 >
                   {Object.entries(jobMap).map(([code, label]) => (
                     <option key={code} value={code}>
