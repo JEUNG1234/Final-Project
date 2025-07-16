@@ -45,9 +45,9 @@ public class Challenge {
     @JoinColumn(name = "VOTE_CONTENT_NO")
     private VoteContent voteContent;
 
-    //  챌린지 대표 이미지 URL
-    @Column(name = "CHALLENGE_IMAGE_URL")
-    private String challengeImageUrl;
+    // 챌린지 대표 이미지 (ChallengeImage와 1:N 관계)
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChallengeImage> challengeImages = new ArrayList<>();
 
     //챌린지시작날
     @Column(name = "CHALLENGE_START_DATE")

@@ -61,7 +61,13 @@ const ChallengeJoin = () => {
         userId: user.userId,
         completeTitle: title,
         completeContent: content,
-        completeImageUrl: imageInfo.filename, // 수정: url -> filename
+        // 수정된 부분: 이미지 정보를 객체로 전달
+        image: {
+            originalName: imageInfo.originalName,
+            changedName: imageInfo.filename,
+            path: imageInfo.url,
+            size: imageFile.size
+        },
       };
       
       await challengeService.createCompletion(challengeNo, payload);

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,9 +39,9 @@ public class ChallengeComplete {
     @Column(name = "COMPLETE_CONTENT")
     private String completeContent;
 
-    // 인증 이미지 URL 필드 추가
-    @Column(name = "COMPLETE_IMAGE_URL")
-    private String completeImageUrl;
+    // 인증 이미지 (ChallengeImage와 1:N 관계)
+    @OneToMany(mappedBy = "challengeComplete", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChallengeImage> challengeImages = new ArrayList<>();
 
     //작성날짜
     @Column(name = "CREATED_DATE")

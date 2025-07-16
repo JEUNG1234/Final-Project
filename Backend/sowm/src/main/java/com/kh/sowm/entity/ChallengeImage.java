@@ -20,7 +20,11 @@ public class ChallengeImage {
     private Long fileNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "COMPLETE_NO", nullable = false)
+    @JoinColumn(name = "CHALLENGE_NO") // 챌린지와 연결
+    private Challenge challenge;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "COMPLETE_NO") // 챌린지 인증과 연결 (Nullable)
     private ChallengeComplete challengeComplete;
 
     @Column(name = "ORIGINAL_NAME", nullable = false, length = 255)

@@ -102,7 +102,7 @@ const ChallengeDetail = () => {
           </ProgressBarWrapper>
         </SummaryTextContent>
         <SummaryImage 
-              src={challenge.challengeImageUrl ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${challenge.challengeImageUrl}` : runningWoman} 
+              src={challenge.challengeImageUrl ? challenge.challengeImageUrl : runningWoman} 
               alt={challenge.challengeTitle} 
             />
       </ChallengeSummarySection>
