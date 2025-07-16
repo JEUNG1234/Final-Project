@@ -40,7 +40,7 @@ const VacationWaitList = () => {
 
   // 페이지네이션 로직
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7; 
+  const itemsPerPage = 7;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = vacationData.slice(indexOfFirstItem, indexOfLastItem);
@@ -116,6 +116,15 @@ const VacationWaitList = () => {
     shouldFocusError: true,
   });
 
+  const formatDate = (date) =>
+    date
+      ? date.getFullYear() +
+        '-' +
+        String(date.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(date.getDate()).padStart(2, '0')
+      : '';
+
   const onSubmit = async (data, e) => {
     e.preventDefault();
 
@@ -135,8 +144,8 @@ const VacationWaitList = () => {
         return;
       }
       const submitBody = {
-        startDate,
-        endDate,
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate),
         content,
         amount,
       };
@@ -202,14 +211,13 @@ const VacationWaitList = () => {
   return (
     <FullWapper>
       <MainContent>
-        
-          <PageTitle>
-            <MdOutlineWbSunny /> 휴가 {'>'} 신청 내역
-          </PageTitle>
-          <TopRightButtonContainer>
-            <CancelButton onClick={handleCancelApplication}>신청취소</CancelButton>
-          </TopRightButtonContainer>
-      
+        <PageTitle>
+          <MdOutlineWbSunny /> 휴가 {'>'} 신청 내역
+        </PageTitle>
+        <TopRightButtonContainer>
+          <CancelButton onClick={handleCancelApplication}>신청취소</CancelButton>
+        </TopRightButtonContainer>
+
         <TableContainer>
           <StyledTable>
             <thead>
@@ -650,7 +658,7 @@ const TableContainer = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   margin-top: 20px;
-  min-height: 450px; 
+  min-height: 450px;
 `;
 
 const StyledTable = styled.table`
@@ -677,11 +685,11 @@ const TableCell = styled.td`
 
 const StyledPagination = styled(Pagination)`
   margin-top: 20px;
-  justify-content: center; 
+  justify-content: center;
 `;
 
 const StyledPageButton = styled(PageButton)`
-  min-width: 40px; 
+  min-width: 40px;
   &.active {
     background-color: #007bff;
     color: white;
@@ -724,7 +732,7 @@ const TopRightButtonContainer = styled.div`
 `;
 
 const CancelButton = styled.button`
-  background-color: #f44336; 
+  background-color: #f44336;
   color: white;
   padding: 10px 20px;
   border: none;

@@ -49,6 +49,7 @@ export const workationService = {
   },
   workationSubmit: async (requestBody) => {
     try {
+      console.log("과연 여기는?", requestBody)
       const response = await api.post(API_ENDPOINTS.WORKATION.SUBMIT, requestBody);
       return response.data;
     } catch (error) {
@@ -59,7 +60,7 @@ export const workationService = {
 
   workationSubList: async (companyCode) => {
     try {
-      console.log('2');
+   
       const response = await api.get(`${API_ENDPOINTS.WORKATION.SUBLIST}?companyCode=${companyCode}`);
       return response.data;
     } catch (error) {
@@ -70,7 +71,7 @@ export const workationService = {
 
   workationApprovedUpdate: async (workationSubNo) => {
     try {
-      console.log(workationSubNo);
+   
       const response = await api.patch(API_ENDPOINTS.WORKATION.SUBUPDATE, workationSubNo);
       return response.data;
     } catch (error) {
@@ -80,7 +81,7 @@ export const workationService = {
   },
   handleReturnAction: async (workationSubNo) => {
     try {
-      console.log('여기까지 옴', workationSubNo);
+      
       const response = await api.patch(API_ENDPOINTS.WORKATION.RETURNUPDATE, workationSubNo);
       return response.data;
     } catch (error) {
@@ -90,7 +91,7 @@ export const workationService = {
   },
   workationMySubList: async (userId) => {
     try {
-      console.log('여기까지 옴', userId);
+   
       const response = await api.get(`${API_ENDPOINTS.WORKATION.MYLIST}?userId=${userId}`);
       return response.data;
     } catch (error) {
@@ -100,7 +101,7 @@ export const workationService = {
   },
   workationMyDelete: async (workationSubNo) => {
     try {
-      console.log('::::', workationSubNo);
+      
       const response = await api.delete(API_ENDPOINTS.WORKATION.MYDELETE, { data: workationSubNo });
 
       return response.data;
@@ -110,23 +111,22 @@ export const workationService = {
     }
   },
   workationFullList: async (companyCode) => {
-    try { 
-      console.log(companyCode);
+    try {
+      
       const response = await api.get(`${API_ENDPOINTS.WORKATION.FULLSUBLIST}?companyCode=${companyCode}`);
       return response.data;
-    } catch (error) {
-      console.error('워케이션 전체 신청내역을 불러오는 중 실패했습니다.', error);
-
-      throw error;
+    } catch {
+    
+      return null;
     }
   },
   getApprovedWorkations: async (userId) => {
     try {
-        const response = await api.get(API_ENDPOINTS.WORKATION.APPROVED_LIST, { params: { userId } });
-        return response.data;
+      const response = await api.get(API_ENDPOINTS.WORKATION.APPROVED_LIST, { params: { userId } });
+      return response.data;
     } catch (error) {
-        console.error('승인된 워케이션 목록 조회 실패:', error);
-        throw error;
+      console.error('승인된 워케이션 목록 조회 실패:', error);
+      throw error;
     }
-  }
+  },
 };
