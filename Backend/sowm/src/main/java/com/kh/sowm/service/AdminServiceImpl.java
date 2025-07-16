@@ -3,6 +3,9 @@ package com.kh.sowm.service;
 import com.kh.sowm.dto.AttendanceDto;
 import com.kh.sowm.dto.AttendanceDto.WeeklyAttendanceDto;
 import com.kh.sowm.dto.PageResponse;
+import com.kh.sowm.dto.UserDto.DeleteUsersRequest;
+import com.kh.sowm.dto.UserDto.RequestDto;
+import com.kh.sowm.dto.UserDto.ResponseDto;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.repository.AttendanceRepository;
@@ -93,6 +96,18 @@ public class AdminServiceImpl implements AdminService {
         List<AttendanceDto.WeeklyAttendanceDto> weeklyData = attendanceRepository.findWeeklyAttendanceSummary(companyCode);
         return ResponseEntity.ok(weeklyData);
     }
+
+    @Override
+    public ResponseEntity<?> deleteUserAccount(List<String> userIds) {
+        for (String userId : userIds) {
+            userRepository.findByUserId(userId).ifPresent(user -> {
+                userRepository.deleteUser(user);  // 실제 삭제 또는 상태 변경 처리
+            });
+            // 없으면 그냥 무시
+        }
+        return ResponseEntity.ok().build();
+    }
+
 
 
 }

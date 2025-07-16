@@ -52,7 +52,7 @@ const Login = () => {
         alert('회원가입 승인 대기중입니다. 관리자에게 문의하세요.');
         navigate('/login');
       } else if (message.includes('탈퇴한 회원')) {
-        alert('탈퇴한 회원입니다. 재가입 후 이용해주세요.');
+        toast.error('탈퇴한 회원입니다. 재가입 후 이용해주세요.');
       } else {
         alert('아이디 또는 비밀번호가 틀렸습니다.');
       }
