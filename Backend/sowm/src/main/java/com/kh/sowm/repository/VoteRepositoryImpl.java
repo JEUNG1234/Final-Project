@@ -67,7 +67,7 @@ public class VoteRepositoryImpl implements VoteRepository {
 
     @Override
     public long countUniqueVotersByCompanyCodeInPeriod(String companyCode, LocalDate startDate, LocalDate endDate) {
-        //  vu.vote.voteCreatedDate -> vu.votedDate
+        // VoteUser를 통해 연결된 Vote의 companyCode로 필터링하도록 수정
         return em.createQuery(
                         "SELECT COUNT(DISTINCT vu.user) FROM VoteUser vu " +
                                 "WHERE vu.vote.companyCode = :companyCode " +

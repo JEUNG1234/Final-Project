@@ -134,19 +134,8 @@ public class VoteServiceImpl implements VoteService {
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
 
-        Optional<Challenge> challengeOpt = challengeRepository.findByVote(vote);
+        challengeRepository.findByVote(vote).ifPresent(challengeRepository::delete);
 
-        if (challengeOpt.isPresent()) {
-            Challenge challenge = challengeOpt.get();
-            if (challenge.getParticipantCount() > 0) {
-                // 커스텀 메시지를 사용하기 위해 예외를 직접 생성하여 던집니다.
-                throw new CompanyNotFoundException("이미 챌린지 참여자가 있어 삭제가 불가능합니다");
-            }
-            // 참여자가 없는 챌린지는 삭제
-            challengeRepository.delete(challenge);
-        }
-
-        // 챌린지가 없거나, 참여자가 없는 챌린지를 삭제한 후 투표를 삭제
         voteRepository.delete(vote);
     }
 
@@ -162,7 +151,6 @@ public class VoteServiceImpl implements VoteService {
     @Transactional(readOnly = true)
     public Map<String, Double> getVoteResponseRateStatistics(String companyCode) {
         LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(1);
         LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
         LocalDate startOfMonth = today.withDayOfMonth(1);
 
@@ -172,7 +160,7 @@ public class VoteServiceImpl implements VoteService {
             return Map.of("daily", 0.0, "weekly", 0.0, "monthly", 0.0);
         }
 
-        long dailyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, yesterday, today);
+        long dailyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, today, today);
         long weeklyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, startOfWeek, today);
         long monthlyVoters = voteRepository.countUniqueVotersByCompanyCodeInPeriod(companyCode, startOfMonth, today);
 

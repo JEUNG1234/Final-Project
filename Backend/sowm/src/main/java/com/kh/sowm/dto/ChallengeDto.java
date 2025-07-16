@@ -104,12 +104,17 @@ public class ChallengeDto {
         }
 
         public static CompletionResponse from(Challenge challenge) {
+            String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
+                    ? challenge.getChallengeImages().get(0).getChangedName()
+                    : null;
+
             return CompletionResponse.builder()
                     .completeNo(challenge.getChallengeNo())
                     .completeTitle(challenge.getChallengeTitle())
                     .createdDate(challenge.getChallengeEndDate())
                     .startDate(challenge.getChallengeStartDate())
                     .endDate(challenge.getChallengeEndDate())
+                    .completeImageUrl(imageUrl) // 이미지 URL 추가
                     .build();
         }
         public static CompletionResponse empty() {
