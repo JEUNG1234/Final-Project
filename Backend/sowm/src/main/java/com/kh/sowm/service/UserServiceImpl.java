@@ -197,6 +197,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.deductPoints(1500);
+        user.addVacation(1); // 보유 휴가 수 1 증가
         userRepository.save(user);
 
         Vacation vacation = Vacation.builder()

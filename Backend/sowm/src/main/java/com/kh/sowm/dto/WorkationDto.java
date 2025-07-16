@@ -260,6 +260,7 @@ public class WorkationDto {
     @NoArgsConstructor
     public static class SubWorkation {
         private Long workationNo;
+        private String companyCode;
         private String location;
         private String content;
         private int peopleMax;

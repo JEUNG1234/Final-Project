@@ -3,6 +3,7 @@ package com.kh.sowm.repository;
 import com.kh.sowm.dto.WorkationDto;
 import com.kh.sowm.entity.Attendance;
 import com.kh.sowm.entity.SubmitWorkation;
+import com.kh.sowm.entity.User;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
@@ -90,6 +91,11 @@ public class WorkationRepositoryImpl implements WorkationRepository {
         workation.setStatus(CommonEnums.Status.N); // 상태만 'N'으로 바꿈
         em.merge(workation);
         return workation;
+    }
+
+    @Override
+    public Workation findByUserId(Long workationNo) {
+        return em.find(Workation.class, workationNo);
     }
 
 

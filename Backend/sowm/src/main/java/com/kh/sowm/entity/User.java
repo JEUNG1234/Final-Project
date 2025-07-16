@@ -165,6 +165,14 @@ public class User {
         this.updatedDate = LocalDate.now();
     }
 
+    // 휴가 증가
+    public void addVacation(int days) {
+        if (this.vacation == null) {
+            this.vacation = 0;
+        }
+        this.vacation += days;
+    }
+
     public void minusVacation(int days) {
         if (this.vacation < days) {
             throw new IllegalArgumentException("남은 휴가일수가 부족합니다.");

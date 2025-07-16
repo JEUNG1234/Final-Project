@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaClipboardCheck } from 'react-icons/fa';
 // MainContent를 BaseMainContent로 가져와서 확장합니다.
-import { MainContent as BaseMainContent, PageTitle, PageButton, Pagination, BottomBar} from '../../styles/common/MainContentLayout';
+import {
+  MainContent as BaseMainContent,
+  PageTitle,
+  PageButton,
+  Pagination,
+  BottomBar,
+} from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
 import { workationService } from '../../api/workation';
 
@@ -86,7 +92,7 @@ const WorkationAdmin = () => {
       const data = await workationService.workationFullList(user.companyCode);
       console.log('워케이션 전체 신청 리스트 : ', data);
 
-      setWorkationData(data);
+      setWorkationData(Array.isArray(data) ? data : []);
       setIsFullList(true);
     } catch (error) {
       console.error('워케이션 전체 리스트를 불러오는데 실패했습니다.', error.message);
@@ -182,29 +188,37 @@ const WorkationAdmin = () => {
           </tr>
         </thead>
         <tbody>
-          {pagedData.map((req) => (
-            <TableRow key={req.workationSubNo}>
-              <TableCell>
-                <input
-                  type="checkbox"
-                  checked={workationSubNo.includes(req.workationSubNo)}
-                  onChange={() => handleSelectSingle(req.workationSubNo)}
-                  disabled={isFullList}
-                />
+          {pagedData.length === 0 ? (
+            <tr>
+              <TableCell colSpan={7} style={{ color: '#bbb', fontSize: '16px', padding: '40px 0' }}>
+                신청 내역이 없습니다.
               </TableCell>
-              <TableCell>{req.workationSubNo}</TableCell>
-              <TableCell>
-                {req.workationStartDate}~{req.workationEndDate}
-              </TableCell>
-              <TableCell>{req.userName}</TableCell>
-              <TableCell>{req.workationTitle}</TableCell>
-              <TableCell>{req.content}</TableCell>
-              <TableCell>
-                {console.log(req.status, getStatusText(req.status))}
-                <StatusBadge status={req.status}>{getStatusText(req.status)}</StatusBadge>
-              </TableCell>
-            </TableRow>
-          ))}
+            </tr>
+          ) : (
+            pagedData.map((req) => (
+              <TableRow key={req.workationSubNo}>
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    checked={workationSubNo.includes(req.workationSubNo)}
+                    onChange={() => handleSelectSingle(req.workationSubNo)}
+                    disabled={isFullList}
+                  />
+                </TableCell>
+                <TableCell>{req.workationSubNo}</TableCell>
+                <TableCell>
+                  {req.workationStartDate}~{req.workationEndDate}
+                </TableCell>
+                <TableCell>{req.userName}</TableCell>
+                <TableCell>{req.workationTitle}</TableCell>
+                <TableCell>{req.content}</TableCell>
+                <TableCell>
+                  {console.log(req.status, getStatusText(req.status))}
+                  <StatusBadge status={req.status}>{getStatusText(req.status)}</StatusBadge>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </tbody>
       </AdminTable>
 
@@ -216,25 +230,28 @@ const WorkationAdmin = () => {
           승인
         </ActionButton>
       </ButtonContainer>
-      <BottomBar>
-        <Pagination>
-          <PageButton disabled={!hasPrevious} onClick={() => handlePageChange(currentPage - 1)}>
-            &lt;
-          </PageButton>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <PageButton
-              key={i + 1}
-              onClick={() => handlePageChange(i + 1)}
-              style={{ background: currentPage === i + 1 ? '#2563eb' : '#3b82f6' }}
-            >
-              {i + 1}
+
+      {totalPages > 0 && (
+        <BottomBar>
+          <Pagination>
+            <PageButton disabled={!hasPrevious} onClick={() => handlePageChange(currentPage - 1)}>
+              &lt;
             </PageButton>
-          ))}
-          <PageButton disabled={!hasNext} onClick={() => handlePageChange(currentPage + 1)}>
-            &gt;
-          </PageButton>
-        </Pagination>
-      </BottomBar>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PageButton
+                key={i + 1}
+                onClick={() => handlePageChange(i + 1)}
+                style={{ background: currentPage === i + 1 ? '#2563eb' : '#3b82f6' }}
+              >
+                {i + 1}
+              </PageButton>
+            ))}
+            <PageButton disabled={!hasNext} onClick={() => handlePageChange(currentPage + 1)}>
+              &gt;
+            </PageButton>
+          </Pagination>
+        </BottomBar>
+      )}
     </MainContent>
   );
 };

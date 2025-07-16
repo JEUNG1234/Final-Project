@@ -176,6 +176,8 @@ const WorkationEnrollForm = () => {
     }
   };
 
+  const [loading, setLoading] = useState(false);
+
   //시설별 이미지 등록
   const [placeImage, setPlaceImage] = useState({ name: '', previewUrl: '', file: null });
   const [facilityImage, setFacilityImage] = useState({ name: '', previewUrl: '', file: null });
@@ -201,6 +203,8 @@ const WorkationEnrollForm = () => {
   };
 
   const onSubmit = async (data) => {
+    if (loading) return;
+    setLoading(true);
     const start = new Date(data.workationStartDate);
     const end = new Date(data.workationEndDate);
 
@@ -690,7 +694,9 @@ const WorkationEnrollForm = () => {
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('precautions')}>이전으로</DangerButton>
-              <PrimaryButton type="submit">등록하기</PrimaryButton>
+              <PrimaryButton type="submit" disabled={loading}>
+                {loading ? '등록 중...' : '등록하기'}
+              </PrimaryButton>
             </ActionButtons>
           </>
         )}
