@@ -65,6 +65,7 @@ const EmployeeManagement = () => {
 
   // 직급 또는 부서 변경 핸들러
   const handleFieldChange = async (userId, field, value) => {
+    const originalEmployees = [...employees]; // 변경 전 상태 저장
     const updatedEmployee = employees.find((emp) => emp.userId === userId);
     if (!updatedEmployee) return;
 
@@ -72,17 +73,23 @@ const EmployeeManagement = () => {
       ...updatedEmployee,
       [field]: value,
     };
+    
+    // UI 우선 업데이트
+    setEmployees((prev) => prev.map((emp) => (emp.userId === userId ? updatedData : emp)));
 
     try {
       await adminService.UpdateMemberRole(userId, {
         jobCode: updatedData.jobCode,
         deptCode: updatedData.deptCode,
       });
+      // 성공 시 특별한 처리 없음 (이미 UI는 업데이트 됨)
 
-      setEmployees((prev) => prev.map((emp) => (emp.userId === userId ? { ...emp, [field]: value } : emp)));
     } catch (error) {
       console.error('직급/부서 변경 실패:', error);
-      alert('변경에 실패했습니다.');
+      // 실패 시 서버에서 받은 에러 메시지를 alert로 표시
+      alert(error.response?.data?.message || '변경에 실패했습니다.');
+      // 실패 시 UI를 원래 상태로 복원
+      setEmployees(originalEmployees);
     }
   };
 

@@ -110,6 +110,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
+        // 관리자 직급 변경 시 로직 추가
+        if ("J2".equals(user.getJob().getJobCode()) && !requestDto.getJobCode().equals("J2")) {
+            long adminCount = userRepository.countByJobCode("J2");
+            if (adminCount <= 1) {
+                throw new IllegalStateException("최소 한 명의 관리자는 유지해야 합니다.");
+            }
+        }
+
         Job job = jobRepository.findById(requestDto.getJobCode())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직업 코드입니다."));
         user.changeJob(job);
