@@ -1,6 +1,7 @@
 package com.kh.sowm.repository;
 
 import com.kh.sowm.dto.UserDto;
+import com.kh.sowm.entity.Company;
 import com.kh.sowm.entity.User;
 
 import java.util.List;
@@ -32,4 +33,6 @@ public interface UserRepository {
     void updatePassword(String userId, String encodedPassword);
 
     long countByJobCode(String jobCode);
+
+    Optional<Company> findByCompanyCode(String companyCode);
 }
