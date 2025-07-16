@@ -25,6 +25,13 @@ const AddBoard = () => {
 
   const contentRef = useRef(null); // 👈 contentEditable 참조
 
+  const [content, setContent] = useState('');
+
+  const handleContentChange = () => {
+    const text = contentRef.current?.innerText || '';
+    setContent(text);
+  };
+
   // 카테고리 불러오기
   useEffect(() => {
     CategoryAPI.getAllCategories()
@@ -151,13 +158,8 @@ const AddBoard = () => {
               <img src={previewUrl} alt="미리보기 이미지" />
             </ImagePreviewInEditor>
           )}
-          <EditableDiv
-            contentEditable
-            suppressContentEditableWarning
-            ref={contentRef}
-            placeholder="내용을 입력하세요."
-            onInput={() => {}} // 내용은 handleSubmit에서만 참조
-          />
+          {content === '' && <PlaceholderText>내용을 입력하세요.</PlaceholderText>}
+          <EditableDiv contentEditable suppressContentEditableWarning ref={contentRef} onInput={handleContentChange} />
         </EditorWrapper>
       </InputGroup>
 
@@ -330,6 +332,7 @@ const FileSelectButton = styled.label`
 
 // 내용 작성 영역 스타일
 const EditorWrapper = styled.div`
+  position: relative;
   border: 1px solid #d0d5dd;
   border-radius: 10px;
   padding: 10px;
@@ -367,6 +370,14 @@ const EditableDiv = styled.div`
   &:focus::before {
     content: '';
   }
+`;
+
+const PlaceholderText = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #999;
+  pointer-events: none;
 `;
 
 export default AddBoard;
