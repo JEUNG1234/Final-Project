@@ -106,7 +106,7 @@ const Challenge = () => {
   );
 };
 
-// ... (styled-components는 기존과 동일)
+// ... (styled-components는 이전과 동일)
 const MyChallengeAera = styled.div`
   width: 100%;
   height: 50px;

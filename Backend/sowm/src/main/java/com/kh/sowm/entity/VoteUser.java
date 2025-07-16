@@ -34,8 +34,8 @@ public class VoteUser {
     @JoinColumn(name = "VOTE_CONTENT_NO", nullable = false)
     private VoteContent voteContent;
 
-    //  투표 날짜 필드 추가 및 기본값 설정
-    @Column(name = "VOTED_DATE", nullable = false, columnDefinition = "DATE DEFAULT (CURRENT_DATE)")
+    //  투표 날짜 필드 추가 및 기본값 설정 (수정된 부분)
+    @Column(name = "VOTED_DATE", nullable = false)
     private LocalDate votedDate;
 
     @PrePersist

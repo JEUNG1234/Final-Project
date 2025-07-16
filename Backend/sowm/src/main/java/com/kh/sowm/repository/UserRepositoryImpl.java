@@ -123,4 +123,13 @@ public class UserRepositoryImpl implements UserRepository {
                 .setParameter("id", userId)
                 .executeUpdate();
     }
+
+    // 관리자 명수 세기
+    @Override
+    public long countByJobCode(String jobCode) {
+        String jpql = "SELECT COUNT(u) FROM User u WHERE u.job.jobCode = :jobCode AND u.status = 'Y'";
+        return em.createQuery(jpql, Long.class)
+                .setParameter("jobCode", jobCode)
+                .getSingleResult();
+    }
 }

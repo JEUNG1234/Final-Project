@@ -2,12 +2,7 @@ package com.kh.sowm.service;
 
 import com.kh.sowm.dto.ChallengeDto;
 import com.kh.sowm.dto.ChallengeDto.CompletionResponse;
-import com.kh.sowm.entity.Challenge;
-import com.kh.sowm.entity.ChallengeComplete;
-import com.kh.sowm.entity.ChallengeResult;
-import com.kh.sowm.entity.User;
-import com.kh.sowm.entity.Vote;
-import com.kh.sowm.entity.VoteContent;
+import com.kh.sowm.entity.*;
 import com.kh.sowm.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +30,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final VoteContentRepository voteContentRepository;
     private final ChallengeCompleteRepository challengeCompleteRepository;
     private final ChallengeResultRepository challengeResultRepository;
+    private final ChallengeImageRepository challengeImageRepository;
 
     @Override
     public Long createChallenge(ChallengeDto.CreateRequest requestDto) {
@@ -44,19 +40,31 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .orElseThrow(() -> new EntityNotFoundException("원본 투표를 찾을 수 없습니다."));
         VoteContent voteContent = voteContentRepository.findById(requestDto.getVoteContentNo())
                 .orElseThrow(() -> new EntityNotFoundException("원본 투표 항목을 찾을 수 없습니다."));
+
         Challenge challenge = Challenge.builder()
                 .challengeTitle(requestDto.getChallengeTitle())
                 .challengeContent(requestDto.getChallengeContent())
                 .user(adminUser)
                 .vote(vote)
                 .voteContent(voteContent)
-                .challengeImageUrl(requestDto.getChallengeImageUrl())
                 .challengeStartDate(requestDto.getChallengeStartDate())
                 .challengeEndDate(requestDto.getChallengeEndDate())
                 .challengePoint(requestDto.getChallengePoint())
-                .pointsAwarded(false) // 생성 시 기본값 false
+                .pointsAwarded(false)
                 .build();
-        challengeRepository.save(challenge);
+
+        if (requestDto.getImage() != null) {
+            ChallengeDto.ImageDto imageDto = requestDto.getImage();
+            ChallengeImage challengeImage = ChallengeImage.builder()
+                    .originalName(imageDto.getOriginalName())
+                    .changedName(imageDto.getChangedName())
+                    .path(imageDto.getPath())
+                    .size(imageDto.getSize())
+                    .build();
+            challenge.addChallengeImage(challengeImage); // 연관관계 설정
+        }
+
+        challengeRepository.save(challenge); // Challenge 저장 (ChallengeImage도 함께 저장됨)
         return challenge.getChallengeNo();
     }
 
@@ -102,19 +110,27 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .user(user)
                 .completeTitle(requestDto.getCompleteTitle())
                 .completeContent(requestDto.getCompleteContent())
-                .completeImageUrl(requestDto.getCompleteImageUrl())
                 .build();
 
-        challengeCompleteRepository.save(completion);
+        if (requestDto.getImage() != null) {
+            ChallengeDto.ImageDto imageDto = requestDto.getImage();
+            ChallengeImage challengeImage = ChallengeImage.builder()
+                    .originalName(imageDto.getOriginalName())
+                    .changedName(imageDto.getChangedName())
+                    .path(imageDto.getPath())
+                    .size(imageDto.getSize())
+                    .build();
+            completion.addChallengeImage(challengeImage); // 연관관계 설정
+        }
 
-        // 인증글 작성 후 달성률 체크 및 포인트 지급 로직
+        challengeCompleteRepository.save(completion); // ChallengeComplete 저장 (ChallengeImage도 함께 저장됨)
+
         checkAndAwardPoints(challenge, user);
 
         return completion.getCompleteNo();
     }
 
     private void checkAndAwardPoints(Challenge challenge, User user) {
-        // 이미 포인트가 지급되었거나 챌린지 기간이 아니면 중단
         if (challenge.isPointsAwarded() || LocalDate.now().isAfter(challenge.getChallengeEndDate())) {
             return;
         }
@@ -128,8 +144,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         if (achievementRate >= 70) {
             user.addPoints(challenge.getChallengePoint());
-            challenge.markAsPointsAwarded(); // 포인트 지급 상태로 변경
-            // 변경된 user와 challenge 상태를 DB에 즉시 반영
+            challenge.markAsPointsAwarded();
             userRepository.save(user);
             challengeRepository.save(challenge);
         }
@@ -150,7 +165,6 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         List<Challenge> allUserChallenges = challengeRepository.findAllByUserId(userId);
 
-        // 종료된 챌린지에 대한 최종 결과만 저장
         for (Challenge challenge : allUserChallenges) {
             if (challenge.getChallengeEndDate().isBefore(LocalDate.now()) &&
                     challengeResultRepository.findByUserAndChallenge(user, challenge).isEmpty()) {
@@ -182,12 +196,16 @@ public class ChallengeServiceImpl implements ChallengeService {
             long completedCount = challenge.getCompletions().stream().filter(c -> c.getUser().getUserId().equals(userId)).count();
             int achievement = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
 
+            String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
+                    ? challenge.getChallengeImages().get(0).getChangedName()
+                    : null;
+
             Map<String, Object> ongoingChallengeData = new HashMap<>();
             ongoingChallengeData.put("challengeNo", challenge.getChallengeNo());
             ongoingChallengeData.put("challengeTitle", challenge.getChallengeTitle());
             ongoingChallengeData.put("challengeStartDate", challenge.getChallengeStartDate().toString());
             ongoingChallengeData.put("challengeEndDate", challenge.getChallengeEndDate().toString());
-            ongoingChallengeData.put("challengeImageUrl", challenge.getChallengeImageUrl());
+            ongoingChallengeData.put("challengeImageUrl", imageUrl);
             ongoingChallengeData.put("achievement", achievement);
             ongoingChallengeData.put("currentProgressDays", completedCount);
             ongoingChallengeData.put("totalChallengeDays", totalDuration);

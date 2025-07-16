@@ -169,6 +169,7 @@ const ChallengeDetail = () => {
   );
 };
 
+// ... (styled-components는 기존과 동일)
 const JoinButtonArea = styled.div`
   width: 100%;
   height: 50px;
