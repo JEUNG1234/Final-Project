@@ -127,7 +127,6 @@ public class VoteServiceImpl implements VoteService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
-        // 권한이 없을 때, 명확한 예외를 발생시키도록 변경
         if (!"J2".equals(user.getJob().getJobCode())) {
             throw new VotePermissionException();
         }
@@ -137,17 +136,17 @@ public class VoteServiceImpl implements VoteService {
 
         Optional<Challenge> challengeOpt = challengeRepository.findByVote(vote);
 
-        // 연결된 챌린지가 있고, 해당 챌린지에 참여자가 있으면 삭제 불가
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
             if (challenge.getParticipantCount() > 0) {
-                throw new CompanyNotFoundException(ErrorCode.VOTE_CANNOT_BE_DELETED);
+                // 커스텀 메시지를 사용하기 위해 예외를 직접 생성하여 던집니다.
+                throw new CompanyNotFoundException("이미 챌린지 참여자가 있어 삭제가 불가능합니다");
             }
+            // 참여자가 없는 챌린지는 삭제
+            challengeRepository.delete(challenge);
         }
 
-        // 챌린지가 없거나, 있어도 참여자가 없으면 챌린지부터 삭제 후 투표 삭제
-        challengeOpt.ifPresent(challengeRepository::delete);
-
+        // 챌린지가 없거나, 참여자가 없는 챌린지를 삭제한 후 투표를 삭제
         voteRepository.delete(vote);
     }
 

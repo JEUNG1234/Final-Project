@@ -21,11 +21,11 @@ public class ChallengeImage {
     private Long fileNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CHALLENGE_NO", nullable = true) // nullable = true 로 수정
+    @JoinColumn(name = "CHALLENGE_NO", nullable = true) //
     private Challenge challenge;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "COMPLETE_NO", nullable = true) // nullable = true 로 수정
+    @JoinColumn(name = "COMPLETE_NO", nullable = true) //
     private ChallengeComplete challengeComplete;
 
     @Column(name = "ORIGINAL_NAME", nullable = false, length = 255)
