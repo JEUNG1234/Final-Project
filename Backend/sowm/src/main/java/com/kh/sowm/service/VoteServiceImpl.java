@@ -134,7 +134,15 @@ public class VoteServiceImpl implements VoteService {
         Vote vote = voteRepository.findById(voteNo)
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
 
-        challengeRepository.findByVote(vote).ifPresent(challengeRepository::delete);
+        Optional<Challenge> challengeOpt = challengeRepository.findByVote(vote);
+
+        if (challengeOpt.isPresent()) {
+            Challenge challenge = challengeOpt.get();
+            if (challenge.getParticipantCount() > 0) {
+                throw new IllegalStateException("이미 챌린지 참여자가 있어 삭제가 불가능합니다.");
+            }
+            challengeRepository.delete(challenge);
+        }
 
         voteRepository.delete(vote);
     }
