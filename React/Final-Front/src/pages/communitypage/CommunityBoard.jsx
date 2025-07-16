@@ -57,7 +57,14 @@ const CommunityBoard = () => {
           categoryNo: categoryNo,
           companyCode: user.companyCode,
         });
-        const { content, currentPage, totalCount, hasNext, hasPrevious, totalPage } = response.data;
+        let { content, currentPage, totalCount, hasNext, hasPrevious, totalPage } = response.data;
+
+        // ✅ 공지사항 먼저 정렬
+        content.sort((a, b) => {
+          const isNoticeA = a.categoryName === '공지사항' ? 1 : 0;
+          const isNoticeB = b.categoryName === '공지사항' ? 1 : 0;
+          return isNoticeB - isNoticeA; // 공지사항이면 앞쪽
+        });
         setPosts(content);
         setPageInfo({
           currentPage,
