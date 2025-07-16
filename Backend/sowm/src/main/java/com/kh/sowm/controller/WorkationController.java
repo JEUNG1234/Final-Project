@@ -1,11 +1,14 @@
 package com.kh.sowm.controller;
 
+import com.kh.sowm.dto.BoardDto.Response;
 import com.kh.sowm.dto.WorkationDto;
 import com.kh.sowm.dto.WorkationDto.ResponseDto;
 import com.kh.sowm.dto.WorkationDto.WorkationNoDto;
+import com.kh.sowm.dto.WorkationDto.WorkationSubListDto;
 import com.kh.sowm.dto.WorkationDto.WorkationSubNoDto;
 import com.kh.sowm.entity.Workation;
 import com.kh.sowm.service.WorkationService;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.jdbc.Work;
 import org.springframework.http.HttpStatus;
@@ -48,6 +51,7 @@ public class WorkationController {
     @PostMapping("/submit")
     public WorkationDto.SubWorkation submit(@RequestBody WorkationDto.SubWorkation subWork) {
 
+        System.out.println(":::::::::::::::::::::"+subWork.getStartDate());
         return workationService.submit(subWork);
     }
 
@@ -98,17 +102,13 @@ public class WorkationController {
     //워케이션 신청 취소
     @DeleteMapping("/mydelete")
     public ResponseEntity<List<Long>> mydelete(@RequestBody WorkationSubNoDto selectedIds) {
-
-
         List <Long> result = workationService.workationMyDelete(selectedIds);
         return ResponseEntity.ok(result);
-
     }
 
     //워케이션 전체 신청내역 리스트
     @GetMapping("/fullsublist")
-    public ResponseEntity<List<WorkationDto.WorkationSubListDto>> fullsublist(@RequestParam String companyCode) {
-
+    public ResponseEntity<List<WorkationSubListDto>> fullsublist(@RequestParam String companyCode) {
         return workationService.workationFullSubList(companyCode);
     }
 

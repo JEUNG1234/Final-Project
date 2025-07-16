@@ -76,6 +76,15 @@ const WorkationDetail = () => {
     }
   }, [workationInfo]);
 
+  //로컬 기준 날짜 데이터포멧
+  const formatDate = (date) =>
+    date
+      ? date.getFullYear() +
+        '-' +
+        String(date.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(date.getDate()).padStart(2, '0')
+      : '';
   //유효성 검사
   const schema = yup.object().shape({
     peopleMax: yup
@@ -130,30 +139,34 @@ const WorkationDetail = () => {
   const navigate = useNavigate();
   const onSubmit = async (data, e) => {
     e.preventDefault();
-    const [startDate, endDate] = data.dateRange;
+
     try {
       const submitBody = {
         peopleMax: data.peopleMax,
-        startDate,
-        endDate,
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate),
         content,
       };
       const requestBody = {
         ...submitBody,
         userId: user.userId,
+        companyCode: user.companyCode,
         location: workationInfo.address,
         workationNo: no,
       };
 
-      console.log(requestBody);
+      console.log('지금 입력한 정보', requestBody);
 
       const response = await workationService.workationSubmit(requestBody);
       navigate('/workationList');
       alert('워케이션 신청되었습니다.');
       console.log(response);
     } catch (error) {
-      console.error('워케이션 신청 에러:', error);
-      alert('워케이션 신청 중 에러가 발생했습니다.');
+      console.error('워케이션 신청 에러:', error.message);
+      const apiError = error.response.data.message;
+
+      alert(apiError);
+      // alert('워케이션 신청 중 에러가 발생했습니다.');
     }
     console.log({ data });
   };
@@ -184,7 +197,7 @@ const WorkationDetail = () => {
             <ImageSection>
               <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${placeImage}`} />
             </ImageSection>
-      
+
             <Title>{workationInfo.workationTitle}</Title>
             <Subtitle>{workationInfo.address}</Subtitle>
             <Description>{workationInfo.placeInfo}</Description>
@@ -200,7 +213,7 @@ const WorkationDetail = () => {
             <ImageSection>
               <img src={`${import.meta.env.VITE_CLOUDFRONT_URL}/${facilityImage}`} />
             </ImageSection>
-          
+
             <FacilityContent>
               <FacilityLeftContent>
                 <FaciltyLeftFirstInfo>
@@ -525,7 +538,6 @@ const DetailText = styled.span`
   margin-left: 10px;
 `;
 
-
 const FaciltyLeftFirstInfo = styled.div`
   width: 100%;
   height: 50%;
@@ -562,7 +574,6 @@ const FaciltyLeftSecondInfo = styled.div`
     text-align: left;
   }
 `;
-
 
 //지도 컨테이너 스타일
 const MapContainerStyled = styled.div`
