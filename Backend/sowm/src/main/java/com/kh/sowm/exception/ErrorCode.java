@@ -23,6 +23,7 @@ public enum ErrorCode {
 
     // 투표 관련 에러
     VOTE_CANNOT_BE_DELETED(HttpStatus.BAD_REQUEST, "진행중인 챌린지가 있어 삭제가 불가능합니다."),
+    VOTE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "투표를 삭제할 권한이 없습니다."),
 
 
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
