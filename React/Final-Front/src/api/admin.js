@@ -108,4 +108,12 @@ export const adminService = {
       console.log('주간 근태관리 페이지 값 에러', err);
     }
   },
+  deleteUser: async (userIds) => {
+    try {
+      const response = await api.patch(`${API_ENDPOINTS.ADMIN.deleteUser}`, { userIds });
+      return response.data;
+    } catch (err) {
+      console.log('회원 삭제 에러', err);
+    }
+  },
 };

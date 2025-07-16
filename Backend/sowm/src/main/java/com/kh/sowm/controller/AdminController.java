@@ -113,4 +113,11 @@ public class AdminController {
         return adminService.getWeeklyAttendance(companyCode);
     }
 
+    // 직원 삭제
+    @PatchMapping("/deleteUser")
+    public ResponseEntity<?> deleteUserAccount(@RequestBody UserDto.DeleteUsersRequest deleteUser) {
+        List<String> userIds = deleteUser.getUserIds();
+        return adminService.deleteUserAccount(userIds);
+    }
+
 }

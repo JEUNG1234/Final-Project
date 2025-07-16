@@ -88,6 +88,10 @@ const MyPage = () => {
 
   const handleWithdrawal = async () => {
     const userId = sessionStorage.getItem('userId');
+    if (userInfo.jobCode === 'J2') {
+      toast.warn('관리자는 회원 탈퇴할 수 없습니다. 다른 관리자에게 권한을 이양한 후 다시 시도하세요.');
+      return;
+    }
     try {
       await userService.deleteUser(userId);
       toast.success('회원 탈퇴하셨습니다.');
