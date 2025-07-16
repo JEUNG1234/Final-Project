@@ -19,6 +19,7 @@ const VoteCreate = () => {
     { id: 4, text: '1일 10000보 걷기' },
   ]);
   const [isAnonymous, setIsAnonymous] = useState(true);
+  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [endDate, setEndDate] = useState(prefillData?.endDate || '2025-07-04');
   const [voteType, setVoteType] = useState(prefillData?.type === 'LONG' ? '장기' : '단기');
   const [points, setPoints] = useState(prefillData?.points || '300');
@@ -52,6 +53,15 @@ const VoteCreate = () => {
       return;
     }
 
+    // 날짜 유효성 검사 추가
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      alert('종료일은 시작일보다 빠를 수 없습니다. 날짜를 다시 확인해주세요.');
+      return;
+    }
+
     const payload = {
       userId: user.userId,
       voteTitle: title,
@@ -59,7 +69,7 @@ const VoteCreate = () => {
       voteEndDate: endDate,
       options: options.map((opt) => opt.text),
       anonymous: isAnonymous,
-      points: parseInt(points, 10) || 0, 
+      points: parseInt(points, 10) || 0,
     };
 
     try {
@@ -86,7 +96,7 @@ const VoteCreate = () => {
         <FormGroup>
           <Label>투표 기간</Label>
           <DateWrapper>
-            <DateInput type="date" defaultValue={new Date().toISOString().slice(0, 10)} readOnly={isPrefilled} />
+            <DateInput type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} readOnly={isPrefilled} />
             <span>–</span>
             <DateInput type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} readOnly={isPrefilled} />
             <CheckboxWrapper>
@@ -307,6 +317,8 @@ const BaseButton = styled.button`
   font-size: 18px;
   font-weight: 700;
   border-radius: 8px;
+  border: none;
+  cursor: pointer;
 `;
 const SubmitButton = styled(BaseButton)`
   background-color: #007bff;
