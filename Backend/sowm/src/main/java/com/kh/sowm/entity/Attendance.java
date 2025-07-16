@@ -15,18 +15,22 @@ import lombok.*;
 @Table(name = "ATTENDANCE")
 public class Attendance {
 
+    //출퇴근 기록 고유번호
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ATTENDANCE_NO")
     private Long attendanceNo;
 
+    //직원 아이디
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
+    //출근 시간
     @Column(name = "ATTEND_TIME")
     private LocalDateTime attendTime;
 
+    //회사코드
     @ManyToOne
     @JoinColumn(name = "COMPANY_CODE", insertable = false, updatable = false)
     private Company company;
