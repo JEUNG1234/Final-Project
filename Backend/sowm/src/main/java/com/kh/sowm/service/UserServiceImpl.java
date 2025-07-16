@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final ProfileImgRepository profileImgRepository;
     private final VacationRepository vacationRepository;
 
+    // 로그인 메소드
     @Override
     public User login(String userId, String userPwd) {
         User user = userRepository.findByUserId(userId)
@@ -39,6 +40,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    // 유저 정보를 userId 기준으로 가져오는 메소드
     @Override
     public UserDto.ResponseDto getUserByUserId(String userId) {
         User user = userRepository.findByUserId(userId)
@@ -53,6 +55,7 @@ public class UserServiceImpl implements UserService {
         return UserDto.ResponseDto.getLoginUserDto(user);
     }
 
+    // 일반 회원 회원가입 메소드
     @Override
     public String signUp(UserDto.RequestDto signUp) {
         User user = signUp.signUp();
@@ -60,6 +63,7 @@ public class UserServiceImpl implements UserService {
         return user.getUserId();
     }
 
+    // 회사 대표(관리자) 회원가입 메소드
     @Override
     public String adminSignUp(UserDto.RequestDto signUp) {
 
@@ -69,27 +73,31 @@ public class UserServiceImpl implements UserService {
         return user.getUserId();
     }
 
+    // 아이디 중복 검사
     @Override
     public boolean isUserIdDuplicate(String userId) {
         return userRepository.existsByUserId(userId);
     }
 
+    // 이메일 중복 검사
     @Override
     public boolean isUserEmailDuplicate(String email) {
         return userRepository.existsByEmail(email);
     }
 
-
+    // 직원 찾는 메소드
     @Override
     public List<User> findEmployee(UserDto.EmployeeSearchCondition searchCondition) {
         return userRepository.findAllEmployees(searchCondition);
     }
 
+    // 미승인 계정 가져오는 메소드
     @Override
     public List<User> findNotApproval(UserDto.EmployeeSearchCondition searchCondition) {
         return userRepository.findNotApproval(searchCondition);
     }
 
+    // 유저 직업코드 변경 메소드
     @Override
     public UserDto.ResponseDto changeStatus(String userId, UserDto.RequestDto requestDto) {
 
@@ -105,6 +113,7 @@ public class UserServiceImpl implements UserService {
         return UserDto.ResponseDto.toDto(user);
     }
 
+    // 멤버 상태 변경 메소드
     @Override
     public UserDto.ResponseDto changeMemberStatus(String userId, UserDto.RequestDto requestDto) {
         User user = userRepository.findByUserId(userId)
@@ -131,6 +140,7 @@ public class UserServiceImpl implements UserService {
         return UserDto.ResponseDto.toDto(user);
     }
 
+    // 회원 탈퇴 메소드
     @Override
     public String deleteUser(String userId) {
         User user = userRepository.findByUserId(userId)
@@ -139,6 +149,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.deleteUser(user);
     }
 
+    // 유저 정보 업데이트 메소드
     @Override
     public String updateUserInfo(RequestDto updateDto, String userId) {
         System.out.println("입력 비밀번호: " + updateDto.getPassword());
@@ -155,6 +166,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.updateUserInfo(user);
     }
 
+    // 프로필 이미지 업로드 메소드
     @Override
     public void uploadProfileImage(String userId, ProfileImageDto.Request dto) {
         User user = userRepository.findByUserId(userId)
@@ -194,6 +206,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    // 포인트 휴가로 변경하는 메소드
     @Override
     @Transactional
     public void convertPointsToVacation(String userId) {

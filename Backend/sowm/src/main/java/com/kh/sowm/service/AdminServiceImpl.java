@@ -30,7 +30,7 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final AttendanceRepository attendanceRepository;
 
-
+    // 회사별 근태 정보 페이징 처리로 가져오는 메소드
     @Override
     public PageResponse<AttendanceDto.Record> getAllAttendanceByCompany(String userId, Pageable pageable) {
 
@@ -45,6 +45,7 @@ public class AdminServiceImpl implements AdminService {
         return new PageResponse<>(dtoPage);
     }
 
+    // 회사별 금일 출퇴근 정보 가져오는 메소드
     @Override
     public List<AttendanceDto.Record> getTodayAttendance(String userId) {
         User user = userRepository.findByUserId(userId)
@@ -56,6 +57,7 @@ public class AdminServiceImpl implements AdminService {
         return attendanceRepository.getTodayAttendance(companyCode);
     }
 
+    // 근태정보 수정하는 메소드
     @Override
     public AttendanceDto.Record updateAttendance(AttendanceDto.UpdateRequest request) {
 
@@ -78,6 +80,7 @@ public class AdminServiceImpl implements AdminService {
         return AttendanceDto.Record.toDto(attendance);
     }
 
+    // 전체 회원 근태 정보 가져오는 메소드 페이징 처리
     @Override
     public PageResponse<AttendanceDto.Record> getAttendances(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable) {
 
@@ -91,12 +94,14 @@ public class AdminServiceImpl implements AdminService {
         return new PageResponse<>(dtoPage);
     }
 
+    // 주간별 근태관리 가져오는 메소드
     @Override
     public ResponseEntity<List<AttendanceDto.WeeklyAttendanceDto>> getWeeklyAttendance(String companyCode) {
         List<AttendanceDto.WeeklyAttendanceDto> weeklyData = attendanceRepository.findWeeklyAttendanceSummary(companyCode);
         return ResponseEntity.ok(weeklyData);
     }
 
+    // 계정 삭제 메소드
     @Override
     public ResponseEntity<?> deleteUserAccount(List<String> userIds) {
         for (String userId : userIds) {
