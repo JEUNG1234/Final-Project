@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -60,6 +61,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .getResultList();
     }
 
+    @Transactional
     @Override
     public String deleteUser(User user) {
         int result =  em.createQuery("UPDATE User u SET u.status = 'D' WHERE u.userId = :id")
@@ -120,5 +122,14 @@ public class UserRepositoryImpl implements UserRepository {
                 .setParameter("pwd", encodedPassword)
                 .setParameter("id", userId)
                 .executeUpdate();
+    }
+
+    // 관리자 명수 세기
+    @Override
+    public long countByJobCode(String jobCode) {
+        String jpql = "SELECT COUNT(u) FROM User u WHERE u.job.jobCode = :jobCode AND u.status = 'Y'";
+        return em.createQuery(jpql, Long.class)
+                .setParameter("jobCode", jobCode)
+                .getSingleResult();
     }
 }

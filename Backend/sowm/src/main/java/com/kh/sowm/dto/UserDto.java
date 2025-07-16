@@ -4,6 +4,7 @@ import com.kh.sowm.entity.Department;
 import com.kh.sowm.entity.Job;
 import com.kh.sowm.entity.User;
 import com.kh.sowm.enums.CommonEnums.Status;
+import java.util.List;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -130,5 +131,12 @@ public class UserDto {
                     .status(status)
                     .build();
         }
+
+    }
+
+    @Getter
+    @Setter
+    public static class DeleteUsersRequest {
+        private List<String> userIds;
     }
 }

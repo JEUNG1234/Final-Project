@@ -30,4 +30,6 @@ public interface UserRepository {
     Optional<User> findById(Long id);
 
     void updatePassword(String userId, String encodedPassword);
+
+    long countByJobCode(String jobCode);
 }
