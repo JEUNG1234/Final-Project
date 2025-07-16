@@ -51,6 +51,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         return "출근 완료";
     }
 
+    // 퇴근
     @Override
     @Transactional
     public String clockOut(String userId) {
@@ -88,6 +89,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         return "퇴근 완료";
     }
 
+    // 회원 별 전체 근태관리 가져옴
     @Override
     public List<AttendanceDto.Record> getAllAttendance(String userId) {
         User user = userRepository.findByUserId(userId)
@@ -111,8 +113,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     }
 
-
-
+    // 대시보드용 금일 근태 정보 가져오기
     @Override
     public String getTodayAttendanceStatus(String userId) {
 
