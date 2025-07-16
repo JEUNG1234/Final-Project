@@ -19,6 +19,7 @@ const ChallengeComplete = () => {
         setCompletion(data);
       } catch (error) {
         alert('인증글을 불러오는 데 실패했습니다.');
+        console.error(error);
         navigate(-1);
       } finally {
         setLoading(false);

@@ -40,8 +40,8 @@ const ChallengeJoin = () => {
       return;
     }
     if (!imageFile) {
-        alert('인증 사진을 첨부해주세요.');
-        return;
+      alert('인증 사진을 첨부해주세요.');
+      return;
     }
     if (!user || !user.userId) {
       alert('로그인이 필요합니다.');
@@ -55,22 +55,32 @@ const ChallengeJoin = () => {
         alert('이미지 업로드에 실패했습니다.');
         return;
       }
-      
+
       // 2. 백엔드에 데이터 전송
       const payload = {
         userId: user.userId,
+        companyCode: user.companyCode,
         completeTitle: title,
         completeContent: content,
-        completeImageUrl: imageInfo.filename, // 수정: url -> filename
+        // 수정된 부분: 이미지 정보를 객체로 전달
+        image: {
+          originalName: imageInfo.originalName,
+          changedName: imageInfo.filename,
+          path: imageInfo.url,
+          size: imageFile.size,
+        },
       };
-      
+
       await challengeService.createCompletion(challengeNo, payload);
 
       alert('챌린지 참여가 완료되었습니다!');
       navigate(`/challenge/${challengeNo}`);
     } catch (error) {
+      const apiError = error.response.data.message;
+
+      alert(apiError);
       console.error('챌린지 참여 실패:', error);
-      alert('챌린지 참여에 실패했습니다. 다시 시도해주세요.');
+  
     }
   };
 

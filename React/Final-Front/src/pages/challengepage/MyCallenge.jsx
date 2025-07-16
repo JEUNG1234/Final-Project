@@ -59,11 +59,7 @@ const MyCallenge = () => {
             </ProgressBarWrapper>
           </SummaryTextContent>
           <SummaryImage
-            src={
-              ongoingChallenge.challengeImageUrl
-                ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${ongoingChallenge.challengeImageUrl}`
-                : runningWoman
-            }
+            src={ongoingChallenge.challengeImageUrl ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${ongoingChallenge.challengeImageUrl}` : runningWoman}
             alt={ongoingChallenge.challengeTitle}
           />
         </ChallengeSummarySection>
@@ -255,7 +251,6 @@ const SummaryCard = styled.div`
   }
 `;
 
-// 도전한 챌린지 목록 섹션
 const CompletedChallengesSection = styled.div`
   padding: 0 10px;
   margin: 0 30px;

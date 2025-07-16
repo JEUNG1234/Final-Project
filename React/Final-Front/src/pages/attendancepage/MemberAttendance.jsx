@@ -37,6 +37,24 @@ const MemberAttendance = () => {
     if (user && user.userId && user.userName) fetchAttendanceList();
   }, [user]);
 
+  const [currentPage, setCurrentPage] = useState(1); // 1페이지부터 시작
+  const itemsPerPage = 7; // 한 페이지에 10개씩
+
+  // 전체 페이지 수 계산
+  const totalPages = Math.ceil(attendanceRecords.length / itemsPerPage);
+
+  // 현재 페이지에 보여줄 데이터만 slice로 추출
+  const pagedData = attendanceRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // 이전/다음 버튼 활성화 여부
+  const hasPrevious = currentPage > 1;
+  const hasNext = currentPage < totalPages;
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
@@ -91,7 +109,14 @@ const MemberAttendance = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredRecords.map((record) => (
+                    {pagedData.length === 0 ? (
+            <tr>
+              <TableCell colSpan={7} style={{ color: '#bbb', fontSize: '16px', padding: '40px 0' }}>
+                출퇴근 기록이 없습니다.
+              </TableCell>
+            </tr>
+          ) : (
+          filteredRecords.map((record) => (
             <AttendanceRow key={record.id}>
               <AttendanceCell>{record.attendanceNo}</AttendanceCell>
               <AttendanceCell>
@@ -108,19 +133,31 @@ const MemberAttendance = () => {
                 {record.attendTime && new Date(record.attendTime).toISOString().slice(0, 10)}
               </AttendanceCell>
             </AttendanceRow>
-          ))}
+          )))}
         </tbody>
       </AttendanceTable>
 
-      <BottomBar>
-        <Pagination>
-          <PageButton>&lt;</PageButton>
-          <PageButton className="active">1</PageButton>
-          <PageButton>2</PageButton>
-          <PageButton>3</PageButton>
-          <PageButton>&gt;</PageButton>
-        </Pagination>
-      </BottomBar>
+      {totalPages > 0 && (
+        <BottomBar>
+          <Pagination>
+            <PageButton disabled={!hasPrevious} onClick={() => handlePageChange(currentPage - 1)}>
+              &lt;
+            </PageButton>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PageButton
+                key={i + 1}
+                onClick={() => handlePageChange(i + 1)}
+                style={{ background: currentPage === i + 1 ? '#2563eb' : '#3b82f6' }}
+              >
+                {i + 1}
+              </PageButton>
+            ))}
+            <PageButton disabled={!hasNext} onClick={() => handlePageChange(currentPage + 1)}>
+              &gt;
+            </PageButton>
+          </Pagination>
+        </BottomBar>
+      )}
     </MainContent>
   );
 };
@@ -176,6 +213,14 @@ const AttendanceTable = styled.table`
   td {
     padding: 12px 15px;
     border-bottom: 1px solid #eee;
+  }
+`;
+
+const TableCell = styled.td`
+  color: #333;
+
+  input[type='checkbox'] {
+    cursor: pointer;
   }
 `;
 

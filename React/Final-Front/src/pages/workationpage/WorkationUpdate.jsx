@@ -333,6 +333,8 @@ const WorkationUpdate = () => {
         area,
         busInfo,
         parkingInfo,
+        latitude,
+        longitude,
       };
       const workation = {
         workationTitle: data.workationTitle,
@@ -360,11 +362,11 @@ const WorkationUpdate = () => {
 
       console.log(workResponse);
     } catch (error) {
-      console.error('워케이션 생성 에러:', error);
-      alert('워케이션 정보 등록 중 에러가 발생했습니다.');
+      console.error('워케이션 수정 에러:', error);
+      alert('워케이션 정보 수정 중 에러가 발생했습니다.');
     }
     console.log({ data });
-    alert('워케이션정보가 등록되었습니다.');
+    alert('워케이션정보가 수정되었습니다.');
     navigate('/workationList');
   };
 
@@ -773,7 +775,7 @@ const WorkationUpdate = () => {
 
             <ActionButtons>
               <DangerButton onClick={() => setActiveTab('precautions')}>이전으로</DangerButton>
-              <PrimaryButton type="submit">등록하기</PrimaryButton>
+              <PrimaryButton type="submit">수정하기</PrimaryButton>
             </ActionButtons>
           </>
         )}

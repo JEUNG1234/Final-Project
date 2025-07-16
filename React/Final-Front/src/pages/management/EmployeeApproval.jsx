@@ -50,18 +50,21 @@ const EmployeeApproval = () => {
     }
 
     try {
-      const status = action === '승인' ? 'Y' : 'N';
-      const jobCode = 'J1';
-      for (const userId of selectedIds) {
-        await adminService.approveUser(userId, status, jobCode);
+      if (action === '승인') {
+        const status = 'Y';
+        const jobCode = 'J1';
+        for (const userId of selectedIds) {
+          await adminService.approveUser(userId, status, jobCode);
+        }
+      } else if (action === '거부') {
+        // 거부(삭제) API에 selectedIds 배열 전체를 넘깁니다.
+        await adminService.deleteUser(selectedIds);
       }
-      // 처리 후 목록에서 제거
       setApprovalList((prevList) => prevList.filter((item) => !selectedIds.includes(item.userId)));
-      setSelectedIds([]); // 선택 초기화
-
+      setSelectedIds([]);
       alert(`${selectedIds.length}개의 계정을 ${action} 처리했습니다.`);
     } catch (err) {
-      console.log('에러 발생', err);
+      console.error('에러 발생', err);
     }
   };
 

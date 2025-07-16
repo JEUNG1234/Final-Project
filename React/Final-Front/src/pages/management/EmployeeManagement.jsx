@@ -65,6 +65,7 @@ const EmployeeManagement = () => {
 
   // 직급 또는 부서 변경 핸들러
   const handleFieldChange = async (userId, field, value) => {
+    const originalEmployees = [...employees]; // 변경 전 상태 저장
     const updatedEmployee = employees.find((emp) => emp.userId === userId);
     if (!updatedEmployee) return;
 
@@ -72,31 +73,49 @@ const EmployeeManagement = () => {
       ...updatedEmployee,
       [field]: value,
     };
+    
+    // UI 우선 업데이트
+    setEmployees((prev) => prev.map((emp) => (emp.userId === userId ? updatedData : emp)));
 
     try {
       await adminService.UpdateMemberRole(userId, {
         jobCode: updatedData.jobCode,
         deptCode: updatedData.deptCode,
       });
+      // 성공 시 특별한 처리 없음 (이미 UI는 업데이트 됨)
 
-      setEmployees((prev) => prev.map((emp) => (emp.userId === userId ? { ...emp, [field]: value } : emp)));
     } catch (error) {
       console.error('직급/부서 변경 실패:', error);
-      alert('변경에 실패했습니다.');
+      // 실패 시 서버에서 받은 에러 메시지를 alert로 표시
+      alert(error.response?.data?.message || '변경에 실패했습니다.');
+      // 실패 시 UI를 원래 상태로 복원
+      setEmployees(originalEmployees);
     }
   };
 
   // 계정 삭제 핸들러
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedIds.length === 0) {
       alert('삭제할 계정을 선택해주세요.');
       return;
     }
+
     if (window.confirm(`${selectedIds.length}개의 계정을 정말 삭제하시겠습니까?`)) {
-      setEmployees((prev) => prev.filter((emp) => !selectedIds.includes(emp.userId)));
-      setSelectedIds([]);
-      alert('선택한 계정이 삭제되었습니다.');
-      // 실제 앱에서는 여기서 API를 호출하여 서버 데이터를 삭제합니다.
+      try {
+        // 서버에 삭제 요청
+        await adminService.deleteUser(selectedIds);
+
+        // 삭제된 계정 목록을 제외한 나머지로 상태 갱신
+        setEmployees((prev) => prev.filter((emp) => !selectedIds.includes(emp.userId)));
+
+        // 선택 해제
+        setSelectedIds([]);
+
+        alert('선택한 계정이 삭제되었습니다.');
+      } catch (error) {
+        console.error('계정 삭제 실패:', error);
+        alert('계정 삭제에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 
@@ -145,6 +164,7 @@ const EmployeeManagement = () => {
                 <StyledSelect
                   value={emp.jobCode}
                   onChange={(e) => handleFieldChange(emp.userId, 'jobCode', e.target.value)}
+                  disabled={emp.jobCode === 'J2'} // J2면 드롭다운 비활성화
                 >
                   {Object.entries(jobMap).map(([code, label]) => (
                     <option key={code} value={code}>
