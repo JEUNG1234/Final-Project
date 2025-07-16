@@ -2,7 +2,6 @@ import api from './axios';
 import { API_ENDPOINTS } from './config';
 
 export const challengeService = {
-  // ... (createChallenge는 기존과 동일)
   createChallenge: async (payload) => {
     try {
       const response = await api.post(API_ENDPOINTS.CHALLENGE.BASE, payload, {
@@ -17,7 +16,7 @@ export const challengeService = {
     }
   },
 
-  getAllChallenges: async (page = 0, size = 8, userId) => { // userId 파라미터 추가
+  getAllChallenges: async (page = 0, size = 8, userId) => { 
     try {
       const response = await api.get(API_ENDPOINTS.CHALLENGE.BASE, {
         params: {

@@ -11,6 +11,16 @@ import java.util.stream.Collectors;
 
 public class ChallengeDto {
 
+    // 이미지 정보를 담을 DTO 클래스 추가
+    @Getter
+    @NoArgsConstructor
+    public static class ImageDto {
+        private String originalName;
+        private String changedName;
+        private String path;
+        private Long size;
+    }
+
     @Getter
     @NoArgsConstructor
     public static class CreateRequest {
@@ -22,7 +32,7 @@ public class ChallengeDto {
         private LocalDate challengeStartDate;
         private LocalDate challengeEndDate;
         private int challengePoint;
-        private String challengeImageUrl;
+        private ImageDto image; // String -> ImageDto로 변경
     }
 
     @Getter
@@ -31,7 +41,7 @@ public class ChallengeDto {
         private String userId;
         private String completeTitle;
         private String completeContent;
-        private String completeImageUrl; //  인증 이미지 URL 필드 추가
+        private ImageDto image; // String -> ImageDto로 변경
     }
 
     @Getter
@@ -46,10 +56,15 @@ public class ChallengeDto {
         private int participantCount;
 
         public static ListResponse fromEntity(Challenge challenge) {
+            // 챌린지 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
+            String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
+                    ? challenge.getChallengeImages().get(0).getChangedName()
+                    : null;
+
             return ListResponse.builder()
                     .challengeNo(challenge.getChallengeNo())
                     .challengeTitle(challenge.getChallengeTitle())
-                    .challengeImageUrl(challenge.getChallengeImageUrl())
+                    .challengeImageUrl(imageUrl) // 수정된 이미지 URL
                     .challengeStartDate(challenge.getChallengeStartDate())
                     .challengeEndDate(challenge.getChallengeEndDate())
                     .challengePoint(challenge.getChallengePoint())
@@ -69,9 +84,14 @@ public class ChallengeDto {
         private LocalDate createdDate;
         private LocalDate startDate;
         private LocalDate endDate;
-        private String completeImageUrl; //  인증 이미지 URL 필드 추가
+        private String completeImageUrl;
 
         public static CompletionResponse fromEntity(ChallengeComplete completion) {
+            // 인증글 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
+            String imageUrl = (completion.getChallengeImages() != null && !completion.getChallengeImages().isEmpty())
+                    ? completion.getChallengeImages().get(0).getChangedName()
+                    : null;
+
             return CompletionResponse.builder()
                     .completeNo(completion.getCompleteNo())
                     .completeTitle(completion.getCompleteTitle())
@@ -79,7 +99,7 @@ public class ChallengeDto {
                     .userName(completion.getUser().getUserName())
                     .userId(completion.getUser().getUserId())
                     .createdDate(completion.getCreatedDate())
-                    .completeImageUrl(completion.getCompleteImageUrl()) //  필드 매핑
+                    .completeImageUrl(imageUrl) // 수정된 이미지 URL
                     .build();
         }
 
@@ -112,7 +132,7 @@ public class ChallengeDto {
     public static class DetailResponse {
         private Long challengeNo;
         private String challengeTitle;
-        private String challengeContent; // 상세 설명 필드 추가
+        private String challengeContent;
         private String challengeImageUrl;
         private LocalDate challengeStartDate;
         private LocalDate challengeEndDate;
@@ -121,11 +141,16 @@ public class ChallengeDto {
         private List<CompletionResponse> completions;
 
         public static DetailResponse fromEntity(Challenge challenge) {
+            // 챌린지 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
+            String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
+                    ? challenge.getChallengeImages().get(0).getChangedName()
+                    : null;
+
             return DetailResponse.builder()
                     .challengeNo(challenge.getChallengeNo())
                     .challengeTitle(challenge.getChallengeTitle())
-                    .challengeContent(challenge.getChallengeContent()) // 상세 설명 매핑
-                    .challengeImageUrl(challenge.getChallengeImageUrl())
+                    .challengeContent(challenge.getChallengeContent())
+                    .challengeImageUrl(imageUrl) // 수정된 이미지 URL
                     .challengeStartDate(challenge.getChallengeStartDate())
                     .challengeEndDate(challenge.getChallengeEndDate())
                     .challengePoint(challenge.getChallengePoint())
@@ -146,7 +171,7 @@ public class ChallengeDto {
         private LocalDate challengeStartDate;
         private LocalDate challengeEndDate;
         private int challengePoint;
-        private int userAchievementRate; // 개인 달성률
+        private int userAchievementRate;
 
         public static MyChallengeResponse fromEntity(Challenge challenge, String userId) {
             long totalDuration = challenge.getChallengeEndDate().toEpochDay() - challenge.getChallengeStartDate().toEpochDay() + 1;
@@ -155,10 +180,14 @@ public class ChallengeDto {
                     .count();
             int achievement = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
 
+            String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
+                    ? challenge.getChallengeImages().get(0).getChangedName()
+                    : null;
+
             return MyChallengeResponse.builder()
                     .challengeNo(challenge.getChallengeNo())
                     .challengeTitle(challenge.getChallengeTitle())
-                    .challengeImageUrl(challenge.getChallengeImageUrl())
+                    .challengeImageUrl(imageUrl)
                     .challengeStartDate(challenge.getChallengeStartDate())
                     .challengeEndDate(challenge.getChallengeEndDate())
                     .challengePoint(challenge.getChallengePoint())

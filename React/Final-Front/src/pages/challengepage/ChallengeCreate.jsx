@@ -85,7 +85,12 @@ const ChallengeCreate = () => {
         challengeStartDate: formData.challengeStartDate,
         challengeEndDate: formData.challengeEndDate,
         challengePoint: parseInt(formData.challengePoint, 10),
-        challengeImageUrl: imageInfo.filename,
+        image: {
+            originalName: imageInfo.originalName,
+            changedName: imageInfo.filename,
+            path: imageInfo.url,
+            size: imageFile.size,
+        },
       };
 
       await challengeService.createChallenge(payload);
