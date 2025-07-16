@@ -136,18 +136,17 @@ public class VoteServiceImpl implements VoteService {
                 .orElseThrow(() -> new EntityNotFoundException("투표를 찾을 수 없습니다: " + voteNo));
 
         Optional<Challenge> challengeOpt = challengeRepository.findByVote(vote);
-        boolean isVoteFinished = vote.getVoteEndDate().isBefore(LocalDate.now());
 
-        if (isVoteFinished && challengeOpt.isPresent()) {
+        // 연결된 챌린지가 있고, 해당 챌린지에 참여자가 있으면 삭제 불가
+        if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
             if (challenge.getParticipantCount() > 0) {
                 throw new CompanyNotFoundException(ErrorCode.VOTE_CANNOT_BE_DELETED);
             }
         }
 
-        challengeOpt.ifPresent(challenge -> {
-            challengeRepository.delete(challenge);
-        });
+        // 챌린지가 없거나, 있어도 참여자가 없으면 챌린지부터 삭제 후 투표 삭제
+        challengeOpt.ifPresent(challengeRepository::delete);
 
         voteRepository.delete(vote);
     }

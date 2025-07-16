@@ -61,7 +61,18 @@ public class VoteRepositoryImpl implements VoteRepository {
 
     @Override
     public void delete(Vote vote) {
-        em.remove(vote);
+        // 관련된 VoteUser 엔티티를 먼저 삭제합니다.
+        em.createQuery("DELETE FROM VoteUser vu WHERE vu.vote = :vote")
+                .setParameter("vote", vote)
+                .executeUpdate();
+
+        // 관련된 VoteContent 엔티티를 삭제합니다.
+        em.createQuery("DELETE FROM VoteContent vc WHERE vc.vote = :vote")
+                .setParameter("vote", vote)
+                .executeUpdate();
+
+        // Vote 엔티티를 삭제합니다. (영속성 컨텍스트에 없는 엔티티일 수 있으므로 merge 후 remove)
+        em.remove(em.contains(vote) ? vote : em.merge(vote));
     }
 
     @Override
