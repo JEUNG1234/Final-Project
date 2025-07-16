@@ -87,16 +87,28 @@ const EmployeeManagement = () => {
   };
 
   // 계정 삭제 핸들러
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedIds.length === 0) {
       alert('삭제할 계정을 선택해주세요.');
       return;
     }
+
     if (window.confirm(`${selectedIds.length}개의 계정을 정말 삭제하시겠습니까?`)) {
-      setEmployees((prev) => prev.filter((emp) => !selectedIds.includes(emp.userId)));
-      setSelectedIds([]);
-      alert('선택한 계정이 삭제되었습니다.');
-      // 실제 앱에서는 여기서 API를 호출하여 서버 데이터를 삭제합니다.
+      try {
+        // 서버에 삭제 요청
+        await adminService.deleteUser(selectedIds);
+
+        // 삭제된 계정 목록을 제외한 나머지로 상태 갱신
+        setEmployees((prev) => prev.filter((emp) => !selectedIds.includes(emp.userId)));
+
+        // 선택 해제
+        setSelectedIds([]);
+
+        alert('선택한 계정이 삭제되었습니다.');
+      } catch (error) {
+        console.error('계정 삭제 실패:', error);
+        alert('계정 삭제에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 

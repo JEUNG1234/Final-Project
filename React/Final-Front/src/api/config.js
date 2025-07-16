@@ -67,6 +67,7 @@ export const API_ENDPOINTS = {
     updateAttendTime: '/admin/adminattendance',
     getMemberAttendance: '/admin/adminattendance/filter',
     getWeeklyAttendance: '/admin/adminattendance/weeklyattendance',
+    deleteUser: '/admin/deleteUser',
   },
   VOTES: {
     BASE: '/votes',

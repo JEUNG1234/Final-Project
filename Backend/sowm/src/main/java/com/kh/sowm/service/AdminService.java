@@ -3,6 +3,9 @@ package com.kh.sowm.service;
 import com.kh.sowm.dto.AttendanceDto;
 import com.kh.sowm.dto.AttendanceDto.Record;
 import com.kh.sowm.dto.PageResponse;
+import com.kh.sowm.dto.UserDto.DeleteUsersRequest;
+import com.kh.sowm.dto.UserDto.RequestDto;
+import com.kh.sowm.dto.UserDto.ResponseDto;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
@@ -20,4 +23,6 @@ public interface AdminService {
     PageResponse<AttendanceDto.Record> getAttendances(String companyCode, String userName, String deptName, LocalDate date, Pageable pageable);
 
     ResponseEntity<List<AttendanceDto.WeeklyAttendanceDto>> getWeeklyAttendance(String companyCode);
+
+    ResponseEntity<?> deleteUserAccount(List<String> userIds);
 }
