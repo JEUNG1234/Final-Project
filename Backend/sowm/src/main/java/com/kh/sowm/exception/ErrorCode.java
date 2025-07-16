@@ -14,6 +14,7 @@ public enum ErrorCode {
 
     //회사 관련 에러
     COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "회사코드를 조회할 수 없습니다."),
+    COMPANY_DISAGREEMENT(HttpStatus.BAD_REQUEST, "회사코드가 일치하지 않습니다."),
 
     //워케이션 관련 에러
     WORKATION_NOT_FOUND(HttpStatus.NOT_FOUND, "워케이션 정보를 조회할 수 없습니다."),

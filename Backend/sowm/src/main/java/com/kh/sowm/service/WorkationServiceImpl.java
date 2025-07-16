@@ -14,6 +14,7 @@ import com.kh.sowm.entity.WorkationImage;
 import com.kh.sowm.entity.WorkationImage.Tab;
 import com.kh.sowm.entity.WorkationLocation;
 import com.kh.sowm.enums.CommonEnums;
+import com.kh.sowm.exception.usersException.CompanyDisagreementException;
 import com.kh.sowm.exception.usersException.UserNotFoundException;
 import com.kh.sowm.exception.workationException.SubmitWorkationNotFoundException;
 import com.kh.sowm.exception.workationException.WorkationEnrollException;
@@ -160,9 +161,22 @@ public class WorkationServiceImpl implements WorkationService {
     //워케이션 신청용
     @Override
     public WorkationDto.SubWorkation submit(WorkationDto.SubWorkation subWork) {
+        //유저정보 확인
         User user = userRepository.findByUserId(subWork.getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
+        //작성자 유저 정보 가져오기
+        Workation writerUser = workationRepository.findByUserId(subWork.getWorkationNo());
+
+        //작성자의 회사코드
+        String writerUserCompanyCode = writerUser.getUser().getCompany().getCompanyCode();
+
+        //작성자의 회사코드와 신청한 유저의 회사코드 일치 여부 확인
+        if (!writerUserCompanyCode.equals(subWork.getCompanyCode())) {
+         throw new CompanyDisagreementException("회사코드가 일치하지 않습니다.");
+        }
+
+        //워케이션 정보 조회
         Workation workation = workationRepository.findByWorkationNo(subWork.getWorkationNo())
                 .orElseThrow(WorkationNotFountException::new);
 
@@ -194,6 +208,7 @@ public class WorkationServiceImpl implements WorkationService {
         } catch (DataIntegrityViolationException e) {
             throw new WorkationEnrollException("워케이션 수정에 실패했습니다.");
         }
+
         try {
             workationLocationRepository.updateLocation(location);
         } catch (DataIntegrityViolationException e) {
@@ -323,11 +338,8 @@ public class WorkationServiceImpl implements WorkationService {
     public ResponseEntity<List<WorkationSubListDto>> workationFullSubList(String companyCode) {
         List<SubmitWorkation> subWorkation = submitWorkationRepository.findByList(companyCode);
         if (subWorkation == null || subWorkation.isEmpty()) {
-            System.out.println(ResponseEntity.ok(Collections.emptyList()));
             throw new SubmitWorkationNotFoundException("신청내역이 없습니다.");
-
         }
-
         List<WorkationSubListDto> dtoList = subWorkation.stream()
                 .map(WorkationSubListDto::dto)
                 .toList();
@@ -338,7 +350,6 @@ public class WorkationServiceImpl implements WorkationService {
     @Override
     public ResponseEntity<List<WorkationSubListDto>> getApprovedWorkations(String userId) {
         List<SubmitWorkation> approvedWorkations = submitWorkationRepository.findApprovedByUserId(userId);
-
         List<WorkationSubListDto> dtoList = approvedWorkations.stream()
                 .map(WorkationSubListDto::dto)
                 .collect(Collectors.toList());

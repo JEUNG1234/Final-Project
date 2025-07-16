@@ -51,6 +51,7 @@ public class WorkationController {
     @PostMapping("/submit")
     public WorkationDto.SubWorkation submit(@RequestBody WorkationDto.SubWorkation subWork) {
 
+        System.out.println(":::::::::::::::::::::"+subWork.getStartDate());
         return workationService.submit(subWork);
     }
 
@@ -101,18 +102,14 @@ public class WorkationController {
     //워케이션 신청 취소
     @DeleteMapping("/mydelete")
     public ResponseEntity<List<Long>> mydelete(@RequestBody WorkationSubNoDto selectedIds) {
-
-
         List <Long> result = workationService.workationMyDelete(selectedIds);
         return ResponseEntity.ok(result);
-
     }
 
     //워케이션 전체 신청내역 리스트
     @GetMapping("/fullsublist")
-    public ResponseEntity<List<WorkationDto.WorkationSubListDto>> fullsublist(@RequestParam String companyCode) {
-        ResponseEntity<List<WorkationSubListDto>> result =workationService.workationFullSubList(companyCode);
-        return result;
+    public ResponseEntity<List<WorkationSubListDto>> fullsublist(@RequestParam String companyCode) {
+        return workationService.workationFullSubList(companyCode);
     }
 
     @GetMapping("/approved-list")
