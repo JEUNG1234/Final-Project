@@ -12,6 +12,7 @@ import { voteService } from '../../api/voteService';
 import useUserStore from '../../Store/useStore';
 import { adminService } from '../../api/admin';
 import { FaUsers, FaUmbrellaBeach, FaExclamationTriangle } from 'react-icons/fa';
+import { vacationAdminService } from '../../api/vacationAdmin';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -79,6 +80,7 @@ const AdminDashBoard = () => {
     absent: 0,
     workation: 0,
     late: 0,
+    vacation: 0,
   });
 
   const { user } = useUserStore();
@@ -98,6 +100,7 @@ const AdminDashBoard = () => {
           allEmployees,
           allWorkations,
           stats,
+          allVacations,
         ] = await Promise.all([
           userService.getUserInfo(),
           userService.getVacationCount(user.userId),
@@ -106,8 +109,9 @@ const AdminDashBoard = () => {
           challengeService.getChallengeForDashBoard(user.userId),
           adminService.getTodayAttendance(user.userId),
           adminService.MemberManagement({ companyCode: user.companyCode }),
-          workationService.workationFullList(user.companyCode), // [수정] 함수 이름 변경
+          workationService.workationFullList(user.companyCode),
           voteService.getVoteResponseRateStatistics(user.companyCode),
+          vacationAdminService.getAllVacationList(user.companyCode),
         ]);
 
         setMyInfoState(userInfo);
@@ -129,14 +133,23 @@ const AdminDashBoard = () => {
           endDate.setHours(0, 0, 0, 0);
           return w.status === 'Y' && today >= startDate && today <= endDate;
         }).length;
+        
+        const vacationTodayCount = allVacations.filter(v => {
+          const vStart = new Date(v.startDate);
+          const vEnd = new Date(v.endDate);
+          vStart.setHours(0, 0, 0, 0);
+          vEnd.setHours(0, 0, 0, 0);
+          return v.status === 'Y' && today >= vStart && today <= vEnd;
+        }).length;
 
-        const absentCount = totalEmployeeCount - clockedInCount - workationCount;
+        const absentCount = totalEmployeeCount - clockedInCount - workationCount - vacationTodayCount;
 
         setTodayStatus({
           clockedIn: clockedInCount,
           absent: absentCount > 0 ? absentCount : 0,
           workation: workationCount,
           late: lateCount,
+          vacation: vacationTodayCount,
         });
 
         setVoteResponseData((prevData) => ({
@@ -302,14 +315,12 @@ const AdminDashBoard = () => {
             <dl>
               <dt>남은 연차 수:</dt>
               <dd>
-                {/* 수정된 부분 */}
                 <span>{myInfoState?.vacation}일</span>
               </dd>
             </dl>
             <dl>
               <dt>복지 포인트:</dt>
               <dd>
-                {/* 추가된 부분 */}
                 <span>{myInfoState?.point}</span>(1500점 = 휴가 1일) | 현재 추가 휴가 : {vacationCount}일
               </dd>
             </dl>
@@ -342,6 +353,7 @@ const AdminDashBoard = () => {
                 </StatusIcon>
                 <StatusText>
                   <p>워케이션 {todayStatus.workation}명</p>
+                  <p>휴가 {todayStatus.vacation}명</p>
                 </StatusText>
               </StatusItem>
               <VerticalDivider />
@@ -362,11 +374,6 @@ const AdminDashBoard = () => {
 };
 
 // Styled Components...
-// ... (나머지 스타일 코드는 동일)
-
-export default AdminDashBoard;
-
-// Styled Components... (기존과 동일하게 유지)
 const DashboardContainer = styled.div`
   padding: 25px;
   background-color: #f0f7ff;
@@ -692,3 +699,5 @@ const VerticalDivider = styled.div`
   height: 60px;
   background-color: #e0e0e0;
 `;
+
+export default AdminDashBoard;
