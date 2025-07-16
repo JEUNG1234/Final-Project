@@ -30,7 +30,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final VoteContentRepository voteContentRepository;
     private final ChallengeCompleteRepository challengeCompleteRepository;
     private final ChallengeResultRepository challengeResultRepository;
-    private final ChallengeImageRepository challengeImageRepository; // 주입
+    private final ChallengeImageRepository challengeImageRepository;
 
     @Override
     public Long createChallenge(ChallengeDto.CreateRequest requestDto) {
@@ -52,21 +52,19 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .challengePoint(requestDto.getChallengePoint())
                 .pointsAwarded(false)
                 .build();
-        challengeRepository.save(challenge);
 
-        // 이미지 정보가 있으면 ChallengeImage로 저장
         if (requestDto.getImage() != null) {
             ChallengeDto.ImageDto imageDto = requestDto.getImage();
             ChallengeImage challengeImage = ChallengeImage.builder()
-                    .challenge(challenge)
                     .originalName(imageDto.getOriginalName())
                     .changedName(imageDto.getChangedName())
                     .path(imageDto.getPath())
                     .size(imageDto.getSize())
                     .build();
-            challengeImageRepository.save(challengeImage);
+            challenge.addChallengeImage(challengeImage); // 연관관계 설정
         }
 
+        challengeRepository.save(challenge); // Challenge 저장 (ChallengeImage도 함께 저장됨)
         return challenge.getChallengeNo();
     }
 
@@ -113,29 +111,26 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .completeTitle(requestDto.getCompleteTitle())
                 .completeContent(requestDto.getCompleteContent())
                 .build();
-        challengeCompleteRepository.save(completion);
 
-        // 이미지 정보가 있으면 ChallengeImage로 저장
         if (requestDto.getImage() != null) {
             ChallengeDto.ImageDto imageDto = requestDto.getImage();
             ChallengeImage challengeImage = ChallengeImage.builder()
-                    .challengeComplete(completion)
                     .originalName(imageDto.getOriginalName())
                     .changedName(imageDto.getChangedName())
                     .path(imageDto.getPath())
                     .size(imageDto.getSize())
                     .build();
-            challengeImageRepository.save(challengeImage);
+            completion.addChallengeImage(challengeImage); // 연관관계 설정
         }
 
-        // 인증글 작성 후 달성률 체크 및 포인트 지급 로직
+        challengeCompleteRepository.save(completion); // ChallengeComplete 저장 (ChallengeImage도 함께 저장됨)
+
         checkAndAwardPoints(challenge, user);
 
         return completion.getCompleteNo();
     }
 
     private void checkAndAwardPoints(Challenge challenge, User user) {
-        // 이미 포인트가 지급되었거나 챌린지 기간이 아니면 중단
         if (challenge.isPointsAwarded() || LocalDate.now().isAfter(challenge.getChallengeEndDate())) {
             return;
         }
@@ -149,8 +144,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         if (achievementRate >= 70) {
             user.addPoints(challenge.getChallengePoint());
-            challenge.markAsPointsAwarded(); // 포인트 지급 상태로 변경
-            // 변경된 user와 challenge 상태를 DB에 즉시 반영
+            challenge.markAsPointsAwarded();
             userRepository.save(user);
             challengeRepository.save(challenge);
         }
@@ -171,7 +165,6 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         List<Challenge> allUserChallenges = challengeRepository.findAllByUserId(userId);
 
-        // 종료된 챌린지에 대한 최종 결과만 저장
         for (Challenge challenge : allUserChallenges) {
             if (challenge.getChallengeEndDate().isBefore(LocalDate.now()) &&
                     challengeResultRepository.findByUserAndChallenge(user, challenge).isEmpty()) {
@@ -204,7 +197,7 @@ public class ChallengeServiceImpl implements ChallengeService {
             int achievement = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
 
             String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
-                    ? challenge.getChallengeImages().get(0).getPath()
+                    ? challenge.getChallengeImages().get(0).getChangedName()
                     : null;
 
             Map<String, Object> ongoingChallengeData = new HashMap<>();

@@ -58,7 +58,7 @@ public class ChallengeDto {
         public static ListResponse fromEntity(Challenge challenge) {
             // 챌린지 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
             String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
-                    ? challenge.getChallengeImages().get(0).getPath()
+                    ? challenge.getChallengeImages().get(0).getChangedName()
                     : null;
 
             return ListResponse.builder()
@@ -89,7 +89,7 @@ public class ChallengeDto {
         public static CompletionResponse fromEntity(ChallengeComplete completion) {
             // 인증글 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
             String imageUrl = (completion.getChallengeImages() != null && !completion.getChallengeImages().isEmpty())
-                    ? completion.getChallengeImages().get(0).getPath()
+                    ? completion.getChallengeImages().get(0).getChangedName()
                     : null;
 
             return CompletionResponse.builder()
@@ -143,7 +143,7 @@ public class ChallengeDto {
         public static DetailResponse fromEntity(Challenge challenge) {
             // 챌린지 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
             String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
-                    ? challenge.getChallengeImages().get(0).getPath()
+                    ? challenge.getChallengeImages().get(0).getChangedName()
                     : null;
 
             return DetailResponse.builder()
@@ -181,7 +181,7 @@ public class ChallengeDto {
             int achievement = totalDuration > 0 ? (int) Math.round(((double) completedCount / totalDuration) * 100) : 0;
 
             String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
-                    ? challenge.getChallengeImages().get(0).getPath()
+                    ? challenge.getChallengeImages().get(0).getChangedName()
                     : null;
 
             return MyChallengeResponse.builder()

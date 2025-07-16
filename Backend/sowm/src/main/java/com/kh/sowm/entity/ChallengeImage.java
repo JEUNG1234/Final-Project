@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import lombok.*;
 
 @Getter
+@Setter // 연관관계 편의 메서드에서 사용하기 위해 추가
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
@@ -20,11 +21,11 @@ public class ChallengeImage {
     private Long fileNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CHALLENGE_NO") // 챌린지와 연결
+    @JoinColumn(name = "CHALLENGE_NO", nullable = true) // nullable = true 로 수정
     private Challenge challenge;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "COMPLETE_NO") // 챌린지 인증과 연결 (Nullable)
+    @JoinColumn(name = "COMPLETE_NO", nullable = true) // nullable = true 로 수정
     private ChallengeComplete challengeComplete;
 
     @Column(name = "ORIGINAL_NAME", nullable = false, length = 255)
@@ -54,7 +55,5 @@ public class ChallengeImage {
         if(this.status == null) {
             this.status = CommonEnums.Status.Y;
         }
-
     }
-
 }

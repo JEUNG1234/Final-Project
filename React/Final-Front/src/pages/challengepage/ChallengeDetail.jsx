@@ -102,7 +102,7 @@ const ChallengeDetail = () => {
           </ProgressBarWrapper>
         </SummaryTextContent>
         <SummaryImage 
-              src={challenge.challengeImageUrl ? challenge.challengeImageUrl : runningWoman} 
+              src={challenge.challengeImageUrl ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${challenge.challengeImageUrl}` : runningWoman} 
               alt={challenge.challengeTitle} 
             />
       </ChallengeSummarySection>
@@ -169,6 +169,7 @@ const ChallengeDetail = () => {
   );
 };
 
+// ... (styled-components는 기존과 동일)
 const JoinButtonArea = styled.div`
   width: 100%;
   height: 50px;
