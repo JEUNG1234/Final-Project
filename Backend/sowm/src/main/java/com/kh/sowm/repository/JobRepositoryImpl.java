@@ -13,7 +13,7 @@ public class JobRepositoryImpl implements JobRepository {
     @PersistenceContext
     private EntityManager em;
 
-
+    // 직급별 유저 정보 조회
     @Override
     public Optional<Job> findById(String jobCode) {
         Job job = em.find(Job.class, jobCode);

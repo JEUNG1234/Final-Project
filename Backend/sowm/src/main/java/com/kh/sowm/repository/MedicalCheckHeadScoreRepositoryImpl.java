@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+// 검사 점수 별 항목 저장하는 레파지토리
 @Repository
 @Transactional
 public class MedicalCheckHeadScoreRepositoryImpl implements MedicalCheckHeadScoreRepository {
