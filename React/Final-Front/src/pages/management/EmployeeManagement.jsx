@@ -73,7 +73,7 @@ const EmployeeManagement = () => {
       ...updatedEmployee,
       [field]: value,
     };
-    
+
     // UI 우선 업데이트
     setEmployees((prev) => prev.map((emp) => (emp.userId === userId ? updatedData : emp)));
 
@@ -83,7 +83,6 @@ const EmployeeManagement = () => {
         deptCode: updatedData.deptCode,
       });
       // 성공 시 특별한 처리 없음 (이미 UI는 업데이트 됨)
-
     } catch (error) {
       console.error('직급/부서 변경 실패:', error);
       // 실패 시 서버에서 받은 에러 메시지를 alert로 표시
@@ -118,6 +117,14 @@ const EmployeeManagement = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (user?.jobCode != 'J2') {
+      alert('관리자만 접근할 수 있습니다.');
+      navigate('/memberdashboard');
+      return;
+    }
+  }, [user, navigate]);
 
   return (
     <MainContent>

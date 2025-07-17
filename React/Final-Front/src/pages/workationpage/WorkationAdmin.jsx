@@ -11,6 +11,7 @@ import {
 } from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
 import { workationService } from '../../api/workation';
+import { useNavigate } from 'react-router-dom';
 
 // 1. 스크롤 제거를 위해 기존 MainContent를 확장하고 min-height를 auto로 변경
 const MainContent = styled(BaseMainContent)`
@@ -33,6 +34,17 @@ const WorkationAdmin = () => {
       setWorkationSubNo([]);
     }
   };
+  const navigate = useNavigate();
+
+  useEffect(() => {
+ 
+    if (user?.jobCode != 'J2') {
+      alert('관리자만 접근할 수 있습니다.');
+
+      navigate('/memberdashboard');
+      return;
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     const workationSubList = async () => {
