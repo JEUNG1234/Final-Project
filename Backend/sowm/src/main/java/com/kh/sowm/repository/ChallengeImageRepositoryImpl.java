@@ -11,6 +11,7 @@ public class ChallengeImageRepositoryImpl implements ChallengeImageRepository {
     @PersistenceContext
     private EntityManager em;
 
+    // 챌린지 이미지 저장
     @Override
     public void save(ChallengeImage challengeImage) {
         em.persist(challengeImage);

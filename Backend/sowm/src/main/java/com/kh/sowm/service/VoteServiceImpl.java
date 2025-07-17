@@ -5,7 +5,7 @@ import com.kh.sowm.dto.VoteDto;
 import com.kh.sowm.entity.*;
 import com.kh.sowm.exception.ErrorCode;
 import com.kh.sowm.exception.usersException.CompanyNotFoundException;
-import com.kh.sowm.exception.voteException.VotePermissionException; // 새로운 예외 클래스 임포트
+import com.kh.sowm.exception.voteException.VotePermissionException;
 import com.kh.sowm.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +33,7 @@ public class VoteServiceImpl implements VoteService {
     private final VoteUserRepository voteUserRepository;
     private final ChallengeRepository challengeRepository;
 
+    // 투표 생성 메소드
     @Override
     public Long createVote(VoteDto.CreateRequest createRequest, String userId) {
         User writer = userRepository.findByUserId(userId)
@@ -53,6 +54,7 @@ public class VoteServiceImpl implements VoteService {
         return vote.getVoteNo();
     }
 
+    // 모든 투표 목록 조회 메소드 (페이징 처리)
     @Override
     @Transactional(readOnly = true)
     public PageResponse<VoteDto.ListResponse> getAllVotes(String userId, Pageable pageable) {
@@ -76,6 +78,7 @@ public class VoteServiceImpl implements VoteService {
         return new PageResponse<>(dtoPage);
     }
 
+    // 투표 상세 정보 조회 메소드
     @Override
     @Transactional(readOnly = true)
     public VoteDto.DetailResponse getVoteDetails(Long voteNo) {
@@ -88,6 +91,7 @@ public class VoteServiceImpl implements VoteService {
         return VoteDto.DetailResponse.fromEntity(vote, isChallengeCreated);
     }
 
+    // 투표하기 메소드
     @Override
     public void castVote(Long voteNo, Long voteContentNo, String userId) {
         User user = userRepository.findByUserId(userId)
@@ -122,6 +126,7 @@ public class VoteServiceImpl implements VoteService {
         voteRepository.save(vote);
     }
 
+    // 투표 삭제 메소드
     @Override
     public void deleteVote(Long voteNo, String userId) {
         User user = userRepository.findByUserId(userId)
@@ -147,6 +152,7 @@ public class VoteServiceImpl implements VoteService {
         voteRepository.delete(vote);
     }
 
+    // 특정 항목에 투표한 사용자 목록 조회 메소드
     @Override
     @Transactional(readOnly = true)
     public List<VoteDto.VoterResponse> getVotersForOption(Long voteContentNo) {
@@ -155,6 +161,8 @@ public class VoteServiceImpl implements VoteService {
                 .map(VoteDto.VoterResponse::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    // 투표 응답률 통계 조회 메소드
     @Override
     @Transactional(readOnly = true)
     public Map<String, Double> getVoteResponseRateStatistics(String companyCode) {

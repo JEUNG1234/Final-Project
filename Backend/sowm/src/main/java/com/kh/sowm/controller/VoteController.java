@@ -20,24 +20,28 @@ public class VoteController {
 
     private final VoteService voteService;
 
+    // 투표 생성
     @PostMapping
     public ResponseEntity<Long> createVote(@RequestBody VoteDto.CreateRequest createRequest) {
         Long voteId = voteService.createVote(createRequest, createRequest.getUserId());
         return ResponseEntity.ok(voteId);
     }
 
+    // 모든 투표 목록 조회 (페이징)
     @GetMapping
     public ResponseEntity<PageResponse<VoteDto.ListResponse>> getAllVotes(@RequestParam String userId, Pageable pageable) {
         PageResponse<VoteDto.ListResponse> votes = voteService.getAllVotes(userId, pageable);
         return ResponseEntity.ok(votes);
     }
 
+    // 투표 상세 정보 조회
     @GetMapping("/{voteNo}")
     public ResponseEntity<VoteDto.DetailResponse> getVoteDetails(@PathVariable Long voteNo) {
         VoteDto.DetailResponse voteDetails = voteService.getVoteDetails(voteNo);
         return ResponseEntity.ok(voteDetails);
     }
 
+    // 투표하기
     @PostMapping("/{voteNo}/cast")
     public ResponseEntity<Void> castVote(@PathVariable Long voteNo,
                                          @RequestBody VoteDto.CastRequest castRequest) {
@@ -45,12 +49,14 @@ public class VoteController {
         return ResponseEntity.ok().build();
     }
 
+    // 투표 삭제
     @DeleteMapping("/{voteNo}")
     public ResponseEntity<Void> deleteVote(@PathVariable Long voteNo, @RequestParam String userId) {
         voteService.deleteVote(voteNo, userId);
         return ResponseEntity.noContent().build();
     }
 
+    // 특정 투표 항목의 투표자 목록 조회
     @GetMapping("/{voteNo}/options/{voteContentNo}/voters")
     public ResponseEntity<?> getVotersForOption(
             @PathVariable Long voteNo,
@@ -65,7 +71,7 @@ public class VoteController {
         return ResponseEntity.ok(voters);
     }
 
-    //  투표 응답률 통계 조회 엔드포인트 추가
+    // 투표 응답률 통계 조회
     @GetMapping("/statistics/response-rate")
     public ResponseEntity<Map<String, Double>> getVoteResponseRateStatistics(@RequestParam String companyCode) {
         Map<String, Double> stats = voteService.getVoteResponseRateStatistics(companyCode);
