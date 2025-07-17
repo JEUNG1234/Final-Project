@@ -23,6 +23,7 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
     @PersistenceContext
     private EntityManager em;
 
+    // 게시글 필터링 해서 가져오기
     @Override
     public Page<Board> findBoardsByFilters(Pageable pageable, String title, String writer, Long categoryNo, String companyCode, CommonEnums.Status status) {
         StringBuilder jpql = new StringBuilder("SELECT b FROM Board b WHERE b.status = :status");
@@ -109,12 +110,14 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
         return new PageImpl<>(boards, pageable, totalCount);
     }
 
+    // 아이디별로 게시글 가져오기
     @Override
     public Optional<Board> findById(Long id) {
         if(id == null) return Optional.empty();
         return Optional.ofNullable(em.find(Board.class, id));
     }
 
+    // 저장
     @Override
     public Long save(Board board) {
         if (board.getBoardNo() == null) { // 새로운 엔티티인 경우 persist
@@ -125,14 +128,7 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
         return board.getBoardNo();
     }
 
-//    @Override
-//    public void delete(Board board) {
-//        // 영속성 컨텍스트에 없는 엔티티를 삭제하려 하면 예외 발생
-//        // merge를 통해 영속성 컨텍스트에 엔티티를 로드한 후 삭제
-//        Board managedBoard = em.merge(board);
-//        em.remove(managedBoard);
-//    }
-
+    // 조회수 증가
     @Override
     public int increaseViewCount(Long boardId) {
         String jpql = "UPDATE Board b SET b.views = b.views + 1 WHERE b.boardNo = :boardId";
@@ -141,6 +137,7 @@ public class BoardRepositoryImpl implements BoardRepository { // BoardRepository
         return query.executeUpdate();
     }
 
+    // 날짜 최신순으로 공지사항 3개 가져오기(대시보드용)
     @Override
     public List<Board> getNoticeTop3(String companyCode) {
         String jpql = "SELECT b FROM Board b WHERE b.user.companyCode = :companyCode AND b.category.categoryNo = 1 ORDER BY b.createdDate DESC";
