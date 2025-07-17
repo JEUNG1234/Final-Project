@@ -13,6 +13,7 @@ import useUserStore from '../../Store/useStore';
 import { adminService } from '../../api/admin';
 import { FaUsers, FaUmbrellaBeach, FaExclamationTriangle } from 'react-icons/fa';
 import { vacationAdminService } from '../../api/vacationAdmin';
+import { vacationService } from '../../api/vacation'; // vacationService import 추가
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -60,6 +61,7 @@ const AdminDashBoard = () => {
   const [notices, setNotices] = useState([]);
   const [vacationCount, setVacationCount] = useState(0);
   const [approvedWorkations, setApprovedWorkations] = useState([]);
+  const [approvedVacations, setApprovedVacations] = useState([]);
   const [challenge, setChallenge] = useState(null);
   const [voteResponseData, setVoteResponseData] = useState({
     labels: ['일간', '주간', '월간'],
@@ -101,6 +103,7 @@ const AdminDashBoard = () => {
           allWorkations,
           stats,
           allVacations,
+          vacationList, // 휴가 데이터 추가
         ] = await Promise.all([
           userService.getUserInfo(),
           userService.getVacationCount(user.userId),
@@ -112,6 +115,7 @@ const AdminDashBoard = () => {
           workationService.workationFullList(user.companyCode),
           voteService.getVoteResponseRateStatistics(user.companyCode),
           vacationAdminService.getAllVacationList(user.companyCode),
+          vacationService.vacationList(user.userId), // 휴가 데이터 호출
         ]);
 
         setMyInfoState(userInfo);
@@ -119,6 +123,7 @@ const AdminDashBoard = () => {
         setApprovedWorkations(workationData);
         setNotices(noticeData.data);
         setChallenge(challengeData);
+        setApprovedVacations(vacationList.filter(v => v.status === 'MINUS'));
 
         const totalEmployeeCount = allEmployees.length;
         const lateCount = todayAttendance.filter((a) => new Date(a.attendTime).getHours() >= 9).length;
@@ -202,6 +207,18 @@ const AdminDashBoard = () => {
     });
   };
 
+  const getVacationForDay = (day) => {
+    const date = new Date(currentYear, currentMonth, day);
+    date.setHours(0, 0, 0, 0);
+    return approvedVacations.find(vacation => {
+        const startDate = new Date(vacation.startDate);
+        const endDate = new Date(vacation.endDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        return date >= startDate && date <= endDate;
+    });
+  };
+
   return (
     <DashboardContainer>
       <TopSection>
@@ -226,11 +243,13 @@ const AdminDashBoard = () => {
                 <tr key={weekIndex}>
                   {week.map((day, dayIndex) => {
                     const workationForDay = getWorkationForDay(day);
+                    const vacationForDay = getVacationForDay(day);
                     const isToday =
                       day === today.getDate() &&
                       currentMonth === today.getMonth() &&
                       currentYear === today.getFullYear();
                     const isWorkation = !!workationForDay;
+                    const isVacation = !!vacationForDay;
 
                     let className = '';
                     if (isToday) {
@@ -239,11 +258,15 @@ const AdminDashBoard = () => {
                     if (isWorkation) {
                       className += 'workation ';
                     }
+                    if(isVacation){
+                        className += 'vacation';
+                    }
 
                     return (
                       <td key={dayIndex} className={className.trim()}>
                         <div className="day-number">{day}</div>
                         {isWorkation && <div className="workation-title">{workationForDay.workationTitle}</div>}
+                        {isVacation && <div className="vacation-title">휴가</div>}
                       </td>
                     );
                   })}
@@ -484,6 +507,19 @@ const CalendarCard = styled(Card)`
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      .vacation-title {
+        font-size: 12px;
+        color: #fff;
+        background-color: #28a745;
+        border-radius: 4px;
+        padding: 2px 5px;
+        margin-top: 4px;
+        display: inline-block;
+        max-width: 90%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
       &.today {
         background-color: #fb3f4a;
@@ -499,6 +535,11 @@ const CalendarCard = styled(Card)`
         background-color: #a2d2ff;
         color: white;
         font-weight: bold;
+      }
+      &.vacation {
+          background-color: #8ce99a;
+          color: white;
+          font-weight: bold;
       }
 
       &.highlight {
