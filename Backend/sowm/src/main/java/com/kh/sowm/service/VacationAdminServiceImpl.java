@@ -42,6 +42,7 @@ public class VacationAdminServiceImpl implements VacationAdminService {
         return ResponseEntity.ok(vacationAdminDtoList);
     }
 
+    // 휴가 상태값 바꾸기 (승인 기준)
     @Override
     public List<Long> updateVacationStatus(RequestDto vacationNo) {
 
@@ -72,11 +73,13 @@ public class VacationAdminServiceImpl implements VacationAdminService {
                 .toList();
     }
 
+    // 전체 휴가 리스트 가져오는 메소드
     @Override
     public ResponseEntity<List<ResponseDto>> getAllVactionList(String companyCode) {
         return vacationAdminRepository.getAllVactionList(companyCode);
     }
 
+    // 휴가 거부 메소드
     @Override
     public List<Long> rejectVacation(RequestDto vacation) {
         List<Long> vacationNos = vacation.getVacationNos();
