@@ -8,6 +8,7 @@ const useUserStore = create(
       token: null,
       isAuthenticated: false,
       attendanceStatus: null,
+      isLoggingOut: false, // 로그아웃 진행 상태 추가
 
       login: (userData, token) => {
         console.log('login userData:', userData);
@@ -21,6 +22,7 @@ const useUserStore = create(
           },
           token: token,
           isAuthenticated: true,
+          isLoggingOut: false, // 로그인 시에는 플래그를 false로 설정
         });
       },
 
@@ -32,7 +34,12 @@ const useUserStore = create(
           user: null,
           token: null,
           isAuthenticated: false,
+          isLoggingOut: true, // 로그아웃 시 플래그를 true로 설정
         });
+      },
+
+      finishLogout: () => {
+        set({ isLoggingOut: false }); // 로그인 페이지에서 플래그를 리셋하는 함수
       },
 
       updateUser: (userData) => {
@@ -51,6 +58,7 @@ const useUserStore = create(
         isAuthenticated: state.isAuthenticated,
         token: state.token,
         attendanceStatus: state.attendanceStatus,
+        isLoggingOut: state.isLoggingOut, // 플래그도 세션스토리지에 저장
       }),
     }
   )
