@@ -117,7 +117,7 @@ function App() {
               path="/*" // 이 catch-all 라우트는 명시된 위의 라우트들보다 하위에 있어야 합니다.
               element={
                 <PrivateRoute>
-                  <Layout user={user} onLogout={logout}>
+                  <Layout user={user}>
                     <Routes>
                       {/* Layout 안에 포함될 페이지들 */}
                       <Route path="/workationlist" element={<WorkationList />} />

@@ -12,14 +12,24 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const login = useUserStore((state) => state.login);
+  const isLoggingOut = useUserStore((state) => state.isLoggingOut);
+  const finishLogout = useUserStore((state) => state.finishLogout);
 
-  const locaion = useLocation();
+  const location = useLocation();
 
   useEffect(() => {
-    if (locaion.state && locaion.state.fromPrivateRoute) {
+    // PrivateRoute에서 온 경우, "로그인 후 이용해주세요" 메시지 표시
+    if (location.state?.fromPrivateRoute) {
       toast.info('로그인 후 이용해주세요.');
+      // 중복 메시지를 막기 위해 state를 초기화합니다.
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [locaion]);
+
+    // 로그아웃 과정이 끝났음을 알리고 상태를 초기화합니다.
+    if (isLoggingOut) {
+      finishLogout();
+    }
+  }, [location, navigate, isLoggingOut, finishLogout]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
