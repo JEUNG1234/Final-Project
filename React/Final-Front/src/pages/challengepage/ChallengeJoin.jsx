@@ -17,6 +17,7 @@ const ChallengeJoin = () => {
   const [content, setContent] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false); // 연속 클릭 방지를 위한 상태 추가
 
   const handleGoBack = () => {
     navigate(-1);
@@ -35,6 +36,8 @@ const ChallengeJoin = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return; // 중복 클릭 방지
+
     if (!title.trim() || !content.trim()) {
       alert('제목과 내용을 모두 입력해주세요.');
       return;
@@ -48,11 +51,14 @@ const ChallengeJoin = () => {
       return;
     }
 
+    setIsSubmitting(true); // 등록 시작, 버튼 비활성화
+
     try {
       // 1. S3에 이미지 업로드
       const imageInfo = await fileupload.uploadImageToS3(imageFile, 'challenge-completions/');
       if (!imageInfo || !imageInfo.filename) {
         alert('이미지 업로드에 실패했습니다.');
+        setIsSubmitting(false); // 오류 발생 시 버튼 활성화
         return;
       }
 
@@ -62,7 +68,6 @@ const ChallengeJoin = () => {
         companyCode: user.companyCode,
         completeTitle: title,
         completeContent: content,
-        // 수정된 부분: 이미지 정보를 객체로 전달
         image: {
           originalName: imageInfo.originalName,
           changedName: imageInfo.filename,
@@ -80,7 +85,8 @@ const ChallengeJoin = () => {
 
       alert(apiError);
       console.error('챌린지 참여 실패:', error);
-  
+    } finally {
+      setIsSubmitting(false); // 성공/실패 여부와 관계없이 버튼 다시 활성화
     }
   };
 
@@ -122,7 +128,10 @@ const ChallengeJoin = () => {
       </FormContainer>
 
       <GoBackButtonContainer>
-        <GoBackButton onClick={handleSubmit}>참여신청</GoBackButton>
+        {/* disabled 속성 추가 */}
+        <GoBackButton onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? '처리 중...' : '참여신청'}
+        </GoBackButton>
         <GoBackButton onClick={handleGoBack}>뒤로가기</GoBackButton>
       </GoBackButtonContainer>
     </MainContent>
@@ -174,7 +183,7 @@ const Label = styled.label`
   font-size: 20px;
   font-weight: bold;
   color: #555;
-  min-width: 80px;
+  min-width: 80px; /* 라벨 너비 고정 */
 
   @media (max-width: 768px) {
     min-width: unset;
@@ -203,7 +212,7 @@ const AuthorInputGroup = styled.div`
   align-items: center;
   flex-grow: 1;
   gap: 15px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* 작은 화면에서 줄바꿈 허용 */
 
   @media (max-width: 480px) {
     flex-direction: column;
@@ -221,12 +230,12 @@ const AuthorName = styled.div`
   color: #333;
   font-size: 16px;
   font-weight: 500;
-  flex-shrink: 0;
-  min-width: 120px;
+  flex-shrink: 0; /* 내용이 길어져도 줄어들지 않음 */
+  min-width: 120px; /* 최소 너비 설정 */
   text-align: center;
 
   @media (max-width: 480px) {
-    width: calc(100% - 30px);
+    width: calc(100% - 30px); /* 패딩 고려하여 100% */
   }
 `;
 
@@ -299,24 +308,19 @@ const FileInput = styled.input`
 `;
 
 const TextArea = styled.textarea`
-  width: calc(100% - 20px);
-  height: 300px;
+  width: calc(100% - 20px); /* 양쪽 패딩 고려 */
+  height: 300px; /* 이미지와 유사하게 높이 설정 */
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 500;
   color: #333;
-  outline: none;
-  resize: vertical;
-  transition: border-color 0.2s;
-
-  &:focus {
-    border-color: #4d8eff;
-  }
+  background-color: #fff;
+  resize: vertical; /* 세로로만 크기 조절 가능 */
 
   @media (max-width: 768px) {
-    width: 100%;
+    width: 100%; /* 작은 화면에서 꽉 채우도록 */
     height: 200px;
     padding: 12px;
   }
@@ -345,8 +349,10 @@ const GoBackButton = styled.button`
   gap: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease;
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 
   &:hover {
-    background-color: #3c75e0;
+    background-color: ${(props) => (props.disabled ? '#b0c4de' : '#3c75e0')};
   }
 `;
