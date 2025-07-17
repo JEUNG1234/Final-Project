@@ -27,6 +27,6 @@ public interface VoteService {
     //  특정 항목의 투표자 목록 조회
     List<VoteDto.VoterResponse> getVotersForOption(Long voteContentNo);
 
-    // [수정] 투표 응답률 통계 조회
+    // 투표 응답률 통계 조회
     Map<String, Double> getVoteResponseRateStatistics(String companyCode);
 }

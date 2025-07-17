@@ -11,52 +11,62 @@ import java.util.stream.Collectors;
 
 public class ChallengeDto {
 
-    // 이미지 정보를 담을 DTO 클래스 추가
+    /**
+     * 이미지 정보 DTO
+     */
     @Getter
     @NoArgsConstructor
     public static class ImageDto {
-        private String originalName;
-        private String changedName;
-        private String path;
-        private Long size;
+        private String originalName; // 원본 파일명
+        private String changedName;  // 변경된 파일명
+        private String path;         // 파일 경로
+        private Long size;           // 파일 크기
     }
 
+    /**
+     * 챌린지 생성 요청 DTO
+     */
     @Getter
     @NoArgsConstructor
     public static class CreateRequest {
-        private String userId;
-        private Long voteNo;
-        private Long voteContentNo;
-        private String challengeTitle;
-        private String challengeContent; // 상세 설명 필드 추가
-        private LocalDate challengeStartDate;
-        private LocalDate challengeEndDate;
-        private int challengePoint;
-        private ImageDto image; // String -> ImageDto로 변경
+        private String userId;                // 작성자 ID
+        private Long voteNo;                  // 관련 투표 번호
+        private Long voteContentNo;           // 관련 투표 항목 번호
+        private String challengeTitle;        // 챌린지 제목
+        private String challengeContent;      // 챌린지 상세 설명
+        private LocalDate challengeStartDate; // 챌린지 시작일
+        private LocalDate challengeEndDate;   // 챌린지 종료일
+        private int challengePoint;           // 보상 포인트
+        private ImageDto image;               // 대표 이미지 정보
     }
 
+    /**
+     * 챌린지 인증(참여) 요청 DTO
+     */
     @Getter
     @NoArgsConstructor
     public static class CompletionRequest {
-        private String userId;
-        private String completeTitle;
-        private String completeContent;
-        private ImageDto image; // String -> ImageDto로 변경
+        private String userId;          // 참여자 ID
+        private String completeTitle;   // 인증글 제목
+        private String completeContent; // 인증글 내용
+        private ImageDto image;         // 인증 이미지 정보
     }
 
+    /**
+     * 챌린지 목록 조회 응답 DTO
+     */
     @Getter
     @Builder
     public static class ListResponse {
-        private Long challengeNo;
-        private String challengeTitle;
-        private String challengeImageUrl;
-        private LocalDate challengeStartDate;
-        private LocalDate challengeEndDate;
-        private int challengePoint;
-        private int participantCount;
+        private Long challengeNo;             // 챌린지 번호
+        private String challengeTitle;        // 챌린지 제목
+        private String challengeImageUrl;     // 챌린지 대표 이미지 URL
+        private LocalDate challengeStartDate; // 챌린지 시작일
+        private LocalDate challengeEndDate;   // 챌린지 종료일
+        private int challengePoint;           // 보상 포인트
+        private int participantCount;         // 참여자 수
 
         public static ListResponse fromEntity(Challenge challenge) {
-            // 챌린지 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
             String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
                     ? challenge.getChallengeImages().get(0).getChangedName()
                     : null;
@@ -64,7 +74,7 @@ public class ChallengeDto {
             return ListResponse.builder()
                     .challengeNo(challenge.getChallengeNo())
                     .challengeTitle(challenge.getChallengeTitle())
-                    .challengeImageUrl(imageUrl) // 수정된 이미지 URL
+                    .challengeImageUrl(imageUrl)
                     .challengeStartDate(challenge.getChallengeStartDate())
                     .challengeEndDate(challenge.getChallengeEndDate())
                     .challengePoint(challenge.getChallengePoint())
@@ -73,21 +83,23 @@ public class ChallengeDto {
         }
     }
 
+    /**
+     * 챌린지 인증글 응답 DTO
+     */
     @Getter
     @Builder
     public static class CompletionResponse {
-        private Long completeNo;
-        private String completeTitle;
-        private String completeContent;
-        private String userName;
-        private String userId;
-        private LocalDate createdDate;
-        private LocalDate startDate;
-        private LocalDate endDate;
-        private String completeImageUrl;
+        private Long completeNo;          // 인증글 번호
+        private String completeTitle;     // 인증글 제목
+        private String completeContent;   // 인증글 내용
+        private String userName;          // 작성자 이름
+        private String userId;            // 작성자 ID
+        private LocalDate createdDate;    // 작성일
+        private LocalDate startDate;      // 챌린지 시작일 (대시보드용)
+        private LocalDate endDate;        // 챌린지 종료일 (대시보드용)
+        private String completeImageUrl;  // 인증 이미지 URL
 
         public static CompletionResponse fromEntity(ChallengeComplete completion) {
-            // 인증글 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
             String imageUrl = (completion.getChallengeImages() != null && !completion.getChallengeImages().isEmpty())
                     ? completion.getChallengeImages().get(0).getChangedName()
                     : null;
@@ -99,7 +111,7 @@ public class ChallengeDto {
                     .userName(completion.getUser().getUserName())
                     .userId(completion.getUser().getUserId())
                     .createdDate(completion.getCreatedDate())
-                    .completeImageUrl(imageUrl) // 수정된 이미지 URL
+                    .completeImageUrl(imageUrl)
                     .build();
         }
 
@@ -114,7 +126,7 @@ public class ChallengeDto {
                     .createdDate(challenge.getChallengeEndDate())
                     .startDate(challenge.getChallengeStartDate())
                     .endDate(challenge.getChallengeEndDate())
-                    .completeImageUrl(imageUrl) // 이미지 URL 추가
+                    .completeImageUrl(imageUrl)
                     .build();
         }
         public static CompletionResponse empty() {
@@ -132,21 +144,23 @@ public class ChallengeDto {
         }
     }
 
+    /**
+     * 챌린지 상세 정보 응답 DTO
+     */
     @Getter
     @Builder
     public static class DetailResponse {
-        private Long challengeNo;
-        private String challengeTitle;
-        private String challengeContent;
-        private String challengeImageUrl;
-        private LocalDate challengeStartDate;
-        private LocalDate challengeEndDate;
-        private int challengePoint;
-        private int participantCount;
-        private List<CompletionResponse> completions;
+        private Long challengeNo;             // 챌린지 번호
+        private String challengeTitle;        // 챌린지 제목
+        private String challengeContent;      // 챌린지 상세 설명
+        private String challengeImageUrl;     // 챌린지 대표 이미지 URL
+        private LocalDate challengeStartDate; // 챌린지 시작일
+        private LocalDate challengeEndDate;   // 챌린지 종료일
+        private int challengePoint;           // 보상 포인트
+        private int participantCount;         // 참여자 수
+        private List<CompletionResponse> completions; // 인증글 목록
 
         public static DetailResponse fromEntity(Challenge challenge) {
-            // 챌린지 이미지 리스트에서 첫 번째 이미지의 경로를 가져옴
             String imageUrl = (challenge.getChallengeImages() != null && !challenge.getChallengeImages().isEmpty())
                     ? challenge.getChallengeImages().get(0).getChangedName()
                     : null;
@@ -155,7 +169,7 @@ public class ChallengeDto {
                     .challengeNo(challenge.getChallengeNo())
                     .challengeTitle(challenge.getChallengeTitle())
                     .challengeContent(challenge.getChallengeContent())
-                    .challengeImageUrl(imageUrl) // 수정된 이미지 URL
+                    .challengeImageUrl(imageUrl)
                     .challengeStartDate(challenge.getChallengeStartDate())
                     .challengeEndDate(challenge.getChallengeEndDate())
                     .challengePoint(challenge.getChallengePoint())
@@ -167,16 +181,19 @@ public class ChallengeDto {
         }
     }
 
+    /**
+     * 나의 챌린지 정보 응답 DTO
+     */
     @Getter
     @Builder
     public static class MyChallengeResponse {
-        private Long challengeNo;
-        private String challengeTitle;
-        private String challengeImageUrl;
-        private LocalDate challengeStartDate;
-        private LocalDate challengeEndDate;
-        private int challengePoint;
-        private int userAchievementRate;
+        private Long challengeNo;             // 챌린지 번호
+        private String challengeTitle;        // 챌린지 제목
+        private String challengeImageUrl;     // 챌린지 대표 이미지 URL
+        private LocalDate challengeStartDate; // 챌린지 시작일
+        private LocalDate challengeEndDate;   // 챌린지 종료일
+        private int challengePoint;           // 보상 포인트
+        private int userAchievementRate;      // 사용자 달성률
 
         public static MyChallengeResponse fromEntity(Challenge challenge, String userId) {
             long totalDuration = challenge.getChallengeEndDate().toEpochDay() - challenge.getChallengeStartDate().toEpochDay() + 1;

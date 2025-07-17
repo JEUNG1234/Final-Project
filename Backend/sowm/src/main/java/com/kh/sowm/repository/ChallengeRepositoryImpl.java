@@ -22,6 +22,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @PersistenceContext
     private EntityManager em;
 
+    // 챌린지 저장
     @Override
     public void save(Challenge challenge) {
         if (!em.contains(challenge)) {
@@ -31,6 +32,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         }
     }
 
+    // 투표 정보로 챌린지 조회
     @Override
     public Optional<Challenge> findByVote(Vote vote) {
         try {
@@ -42,6 +44,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         }
     }
 
+    // 챌린지 삭제
     @Override
     public void delete(Challenge challenge) {
         if (!em.contains(challenge)) {
@@ -51,7 +54,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         }
     }
 
-
+    // 모든 챌린지 목록 조회 (페이징 및 회사 코드로 필터링)
     @Override
     public Page<Challenge> findAll(Pageable pageable, String companyCode) {
         // JPQL 수정: User 엔티티와 조인하여 companyCode로 필터링
@@ -72,12 +75,13 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         return new PageImpl<>(challenges, pageable, total);
     }
 
-    // ... (findById 이하 기존과 동일)
+    // 챌린지 ID로 상세 정보 조회
     @Override
     public Optional<Challenge> findById(Long challengeNo) {
         return Optional.ofNullable(em.find(Challenge.class, challengeNo));
     }
 
+    // 특정 사용자의 완료된 챌린지 목록 조회
     @Override
     public List<Challenge> findCompletedChallengesByUserId(String userId, LocalDate today) {
         String jpql = "SELECT DISTINCT c FROM Challenge c " +
@@ -90,6 +94,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
                 .getResultList();
     }
 
+    // 특정 사용자가 참여한 모든 챌린지 목록 조회
     @Override
     public List<Challenge> findAllByUserId(String userId) {
         String jpql = "SELECT DISTINCT c FROM Challenge c " +
@@ -101,6 +106,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
                 .getResultList();
     }
 
+    // 대시보드에 표시할 최신 챌린지 정보 조회
     @Override
     public Optional<Challenge> findDashBoardChallenge(String companyCode) {
         String jpql = "SELECT c FROM Challenge c WHERE c.user.company.companyCode = :companyCode ORDER BY c.challengeStartDate DESC";

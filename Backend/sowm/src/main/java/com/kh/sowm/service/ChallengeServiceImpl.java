@@ -33,6 +33,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeResultRepository challengeResultRepository;
     private final ChallengeImageRepository challengeImageRepository;
 
+    // 챌린지 생성 메소드
     @Override
     public Long createChallenge(ChallengeDto.CreateRequest requestDto) {
         User adminUser = userRepository.findByUserId(requestDto.getUserId())
@@ -69,7 +70,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return challenge.getChallengeNo();
     }
 
-
+    // 모든 챌린지 목록 조회 메소드 (페이징 처리)
     @Override
     @Transactional(readOnly = true)
     public Page<ChallengeDto.ListResponse> findAllChallenges(Pageable pageable, String userId) {
@@ -81,6 +82,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return challengePage.map(ChallengeDto.ListResponse::fromEntity);
     }
 
+    // 챌린지 상세 정보 조회 메소드
     @Override
     @Transactional(readOnly = true)
     public ChallengeDto.DetailResponse findChallengeById(Long challengeNo) {
@@ -89,6 +91,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return ChallengeDto.DetailResponse.fromEntity(challenge);
     }
 
+    // 챌린지 참여(인증) 생성 메소드
     @Override
     public Long createChallengeCompletion(Long challengeNo, ChallengeDto.CompletionRequest requestDto) {
         Optional<ChallengeComplete> activeCompletionOpt = challengeCompleteRepository.findActiveChallengeByUserId(requestDto.getUserId(), LocalDate.now());
@@ -135,6 +138,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return completion.getCompleteNo();
     }
 
+    // 포인트 지급 조건 확인 및 지급 메소드
     private void checkAndAwardPoints(Challenge challenge, User user) {
         if (challenge.isPointsAwarded() || LocalDate.now().isAfter(challenge.getChallengeEndDate())) {
             return;
@@ -155,13 +159,14 @@ public class ChallengeServiceImpl implements ChallengeService {
         }
     }
 
-
+    // 현재 진행 중인 챌린지 여부 확인 메소드
     @Override
     @Transactional(readOnly = true)
     public boolean hasActiveChallenge(String userId) {
         return challengeCompleteRepository.findActiveChallengeByUserId(userId, LocalDate.now()).isPresent();
     }
 
+    // 나의 챌린지 목록 조회 메소드
     @Override
     @Transactional
     public Map<String, Object> findMyChallenges(String userId) {
@@ -231,6 +236,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return response;
     }
 
+    // 특정 챌린지의 모든 인증글 조회 메소드 (페이징 처리)
     @Override
     @Transactional(readOnly = true)
     public Page<ChallengeDto.CompletionResponse> findCompletionsByChallenge(Long challengeNo, Pageable pageable) {
@@ -238,6 +244,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return completions.map(ChallengeDto.CompletionResponse::fromEntity);
     }
 
+    // 특정 챌린지에 대한 나의 모든 인증글 조회 메소드 (페이징 처리)
     @Override
     @Transactional(readOnly = true)
     public Page<ChallengeDto.CompletionResponse> findMyCompletionsByChallenge(Long challengeNo, String userId, Pageable pageable) {
@@ -245,6 +252,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return completions.map(ChallengeDto.CompletionResponse::fromEntity);
     }
 
+    // 인증글 상세 조회 메소드
     @Override
     @Transactional(readOnly = true)
     public ChallengeDto.CompletionResponse getCompletionDetail(Long completionNo) {
@@ -253,6 +261,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         return ChallengeDto.CompletionResponse.fromEntity(completion);
     }
 
+    // 대시보드용 챌린지 정보 조회 메소드
     @Override
     public CompletionResponse getChallenge(String userId) {
         User user = userRepository.findByUserId(userId)

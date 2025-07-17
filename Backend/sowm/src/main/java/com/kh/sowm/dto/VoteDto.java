@@ -12,11 +12,14 @@ import java.util.stream.Collectors;
 
 public class VoteDto {
 
+    /**
+     * 투표자 정보 응답 DTO
+     */
     @Getter
     @Builder
     public static class VoterResponse {
-        private String userId;
-        private String userName;
+        private String userId;   // 사용자 ID
+        private String userName; // 사용자 이름
 
         public static VoterResponse fromEntity(User user) {
             return VoterResponse.builder()
@@ -28,19 +31,18 @@ public class VoteDto {
 
     /**
      * 투표 생성을 위한 요청 DTO
-     * 프론트엔드에서 userId를 포함하여 전송합니다.
      */
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateRequest {
-        private String voteTitle;
-        private String voteType;
-        private LocalDate voteEndDate;
-        private List<String> options;
-        private String userId;
-        private boolean anonymous;
-        private Integer points;
+        private String voteTitle;      // 투표 제목
+        private String voteType;       // 투표 유형 (단기/장기)
+        private LocalDate voteEndDate; // 투표 종료일
+        private List<String> options;  // 투표 항목 목록
+        private String userId;         // 작성자 ID
+        private boolean anonymous;     // 익명 여부
+        private Integer points;        // 관련 포인트
 
         public Vote toVoteEntity(User writer) {
             return Vote.builder()
@@ -58,7 +60,6 @@ public class VoteDto {
 
     /**
      * 투표하기 요청 DTO
-     * 프론트엔드에서 userId를 포함하여 전송합니다.
      */
     @Getter
     @NoArgsConstructor
@@ -74,19 +75,17 @@ public class VoteDto {
     @Getter
     @Builder
     public static class ListResponse {
-        private Long voteNo;
-        private String voteTitle;
-        private String voteType;
-        private LocalDate voteEndDate;
-        private int totalVotes;
-        private Integer points;
-
-        private Long votedOptionNo; // 사용자가 투표한 항목 ID, 없으면 null
+        private Long voteNo;            // 투표 번호
+        private String voteTitle;       // 투표 제목
+        private String voteType;        // 투표 유형
+        private LocalDate voteEndDate;  // 투표 종료일
+        private int totalVotes;         // 총 투표 수
+        private Integer points;         // 관련 포인트
+        private Long votedOptionNo;     // 사용자가 투표한 항목 ID, 없으면 null
 
         @JsonProperty("isAnonymous")
-        private boolean isAnonymous;
-
-        private List<OptionResponse> options;
+        private boolean isAnonymous;    // 익명 여부
+        private List<OptionResponse> options; // 투표 항목 목록
 
         public static ListResponse fromEntity(Vote vote, Long votedOptionNo) {
             return ListResponse.builder()
@@ -111,18 +110,17 @@ public class VoteDto {
     @Getter
     @Builder
     public static class DetailResponse {
-        private Long voteNo;
-        private String voteTitle;
-        private String voteType;
-        private LocalDate voteEndDate;
-        private int totalVotes;
-        private Integer points;
-        private boolean isChallengeCreated; // 챌린지 생성 여부 필드 추가
+        private Long voteNo;                // 투표 번호
+        private String voteTitle;           // 투표 제목
+        private String voteType;            // 투표 유형
+        private LocalDate voteEndDate;      // 투표 종료일
+        private int totalVotes;             // 총 투표 수
+        private Integer points;             // 관련 포인트
+        private boolean isChallengeCreated; // 챌린지 생성 여부
 
         @JsonProperty("isAnonymous")
-        private boolean isAnonymous;
-
-        private List<OptionResponse> options;
+        private boolean isAnonymous;        // 익명 여부
+        private List<OptionResponse> options; // 투표 항목 목록
 
         public static DetailResponse fromEntity(Vote vote, boolean isChallengeCreated) {
             return DetailResponse.builder()
@@ -147,9 +145,9 @@ public class VoteDto {
     @Getter
     @Builder
     public static class OptionResponse {
-        private Long voteContentNo;
-        private String voteContent;
-        private int voteCount;
+        private Long voteContentNo;   // 투표 항목 번호
+        private String voteContent;   // 투표 항목 내용
+        private int voteCount;        // 해당 항목의 투표 수
 
         public static OptionResponse fromEntity(VoteContent voteContent) {
             return OptionResponse.builder()
