@@ -34,6 +34,7 @@ public class UserRepositoryImpl implements UserRepository {
         return count > 0;
     }
 
+    // 이메일 중복검사
     @Override
     public boolean existsByEmail(String email) {
         String jpql = "SELECT COUNT(u) FROM User u WHERE u.email = :email";
@@ -43,6 +44,7 @@ public class UserRepositoryImpl implements UserRepository {
         return count > 0;
     }
 
+    // 현재 일하는 직원 정보 조회
     @Override
     public List<User> findAllEmployees(UserDto.EmployeeSearchCondition searchCondition) {
         String jpql = "SELECT u FROM User u WHERE u.companyCode = :companyCode AND u.status = :status";
@@ -52,16 +54,17 @@ public class UserRepositoryImpl implements UserRepository {
                 .getResultList();
     }
 
+    // 미승인 직원 정보 조회
     @Override
     public List<User> findNotApproval(UserDto.EmployeeSearchCondition searchCondition) {
         String jpql = "SELECT u FROM User u WHERE u.companyCode = :companyCode AND u.status = :status";
         return em.createQuery(jpql, User.class)
                 .setParameter("companyCode", searchCondition.getCompanyCode())
                 .setParameter("status", CommonEnums.Status.N)
-//                .setParameter("jobCode", searchCondition.getJobCode())
                 .getResultList();
     }
 
+    // 직원 계정 삭제
     @Transactional
     @Override
     public String deleteUser(User user) {
@@ -72,6 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
         return result > 0 ? "삭제 성공" : "삭제 실패";
     }
 
+    // 직원 정보 수정
     @Override
     public String updateUserInfo(User user) {
         int result = em.createQuery("UPDATE User u SET u.userPwd = :newPwd, u.userName = :newName WHERE u.userId = :id")
@@ -134,6 +138,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .getSingleResult();
     }
 
+    // 회사 코드 찾기
     @Override
     public Optional<Company> findByCompanyCode(String companyCode) {
         return Optional.ofNullable(em.find(Company.class, companyCode));

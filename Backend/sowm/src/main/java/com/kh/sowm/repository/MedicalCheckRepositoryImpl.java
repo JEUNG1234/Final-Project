@@ -27,12 +27,13 @@ public class MedicalCheckRepositoryImpl implements MedicalCheckRepository {
         em.persist(medicalCheckResult);
     }
 
+    // 유저별 기록 조회
     @Override
     public Optional<MedicalCheckResult> findResultByUserId(User user, Type type) {
         List<MedicalCheckResult> result = em.createQuery(
                         "SELECT r FROM MedicalCheckResult r " +
                                 "WHERE r.user = :user AND r.medicalCheckType = :type " +
-                                "ORDER BY r.medicalCheckResultNo DESC", // 변경된 부분
+                                "ORDER BY r.medicalCheckResultNo DESC",
                         MedicalCheckResult.class)
                 .setParameter("user", user)
                 .setParameter("type", type)
@@ -42,6 +43,7 @@ public class MedicalCheckRepositoryImpl implements MedicalCheckRepository {
         return result.stream().findFirst();
     }
 
+    // 총 결과 조회
     @Override
     public List<MedicalCheckHeadScore> findByMedicalCheckResult(MedicalCheckResult result) {
         return em.createQuery(

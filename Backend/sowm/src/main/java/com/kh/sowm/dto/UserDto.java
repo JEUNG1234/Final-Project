@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 public class UserDto {
 
+    // 응답 dto
     @Getter
     @Setter
     @AllArgsConstructor
@@ -75,9 +76,10 @@ public class UserDto {
 
     }
 
+    // 직원 검색용 dto
     @Getter
     @Setter
-    @ToString // 로깅 등을 위해 추가하면 좋습니다.
+    @ToString
     public class EmployeeSearchCondition {
         private String companyCode;
         private String createdDate;

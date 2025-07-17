@@ -16,6 +16,7 @@ public class VacationAdminRepositoryImpl implements VacationAdminRepository {
     @PersistenceContext
     EntityManager em;
 
+    // 회사코드별 휴가 값 조회
     @Override
     public List<VacationAdmin> findByStatus(StatusType statusType, String companyCode) {
 
@@ -26,6 +27,7 @@ public class VacationAdminRepositoryImpl implements VacationAdminRepository {
                 .getResultList();
     }
 
+    // 회원별 휴가 기록 조회
     @Override
     public List<VacationAdmin> findAllById(List<Long> vacationNos) {
         if (vacationNos == null || vacationNos.isEmpty()) {
@@ -51,15 +53,13 @@ public class VacationAdminRepositoryImpl implements VacationAdminRepository {
         em.flush();
     }
 
+    // 관리자 - 전체 휴가 리스트 조회
     @Override
     public ResponseEntity<List<ResponseDto>> getAllVactionList(String companyCode) {
         String jpql = "SELECT v FROM VacationAdmin v WHERE v.user.companyCode = :companyCode";
         List<VacationAdmin> vacationList = em.createQuery(jpql, VacationAdmin.class)
                 .setParameter("companyCode", companyCode)
                 .getResultList();
-
-        System.out.println("휴가 기록 페이지쪽 현재 회사코드 : " + companyCode);
-        System.out.println("vacationList.size = " + vacationList.size());
 
         List<ResponseDto> responseList = vacationList.stream()
                 .map(ResponseDto::new)
