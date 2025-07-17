@@ -103,15 +103,13 @@ public class ChallengeServiceImpl implements ChallengeService {
         User user = userRepository.findByUserId(requestDto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + requestDto.getUserId()));
 
-
         Challenge challenge = challengeRepository.findById(challengeNo)
                 .orElseThrow(() -> new EntityNotFoundException("챌린지를 찾을 수 없습니다: " + challengeNo));
-
-
 
         if (!challenge.getUser().getCompany().getCompanyCode().equals(user.getCompany().getCompanyCode())) {
             throw new CompanyDisagreementException("회사코드가 일치하지 않습니다.");
         }
+
         ChallengeComplete completion = ChallengeComplete.builder()
                 .challenge(challenge)
                 .user(user)

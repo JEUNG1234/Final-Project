@@ -58,7 +58,12 @@ public class UserServiceImpl implements UserService {
     // 일반 회원 회원가입 메소드
     @Override
     public String signUp(UserDto.RequestDto signUp) {
+
         User user = signUp.signUp();
+
+        Company company = userRepository.findByCompanyCode(signUp.getCompanyCode())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회사코드입니다."));
+
         userRepository.save(user);
         return user.getUserId();
     }

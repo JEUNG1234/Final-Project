@@ -18,7 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VoteRepositoryImpl implements VoteRepository {
 
-    @PersistenceContext
     private final EntityManager em;
 
     @Override
@@ -60,13 +59,23 @@ public class VoteRepositoryImpl implements VoteRepository {
     }
 
     @Override
+    public void deleteVoteUsersByVote(Vote vote) {
+        em.createQuery("DELETE FROM VoteUser vu WHERE vu.vote = :vote")
+                .setParameter("vote", vote)
+                .executeUpdate();
+    }
+
+    @Override
     public void delete(Vote vote) {
-        em.remove(vote);
+        // VoteUser 기록을 먼저 삭제
+        deleteVoteUsersByVote(vote);
+        // 그 다음 Vote를 삭제
+        em.remove(em.contains(vote) ? vote : em.merge(vote));
     }
 
     @Override
     public long countUniqueVotersByCompanyCodeInPeriod(String companyCode, LocalDate startDate, LocalDate endDate) {
-        //  vu.vote.voteCreatedDate -> vu.votedDate
+        // VoteUser를 통해 연결된 Vote의 companyCode로 필터링하도록 수정
         return em.createQuery(
                         "SELECT COUNT(DISTINCT vu.user) FROM VoteUser vu " +
                                 "WHERE vu.vote.companyCode = :companyCode " +

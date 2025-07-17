@@ -22,7 +22,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @PersistenceContext
     private EntityManager em;
 
-    // ... (save, findByVote, delete 메소드는 기존과 동일)
     @Override
     public void save(Challenge challenge) {
         if (!em.contains(challenge)) {

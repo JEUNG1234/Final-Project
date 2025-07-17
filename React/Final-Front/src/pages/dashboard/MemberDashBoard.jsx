@@ -346,7 +346,7 @@ const MemberDashBoard = () => {
                   <h2>{challenge.completeTitle}</h2>
                 </div>
                 <div className="challenge-image">
-                  <img src={ChallangeImg} alt="챌린지 이미지" />
+                  <img src={challenge.completeImageUrl ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${challenge.completeImageUrl}` : ChallangeImg} alt="챌린지 이미지" />
                 </div>
               </>
             ) : (
