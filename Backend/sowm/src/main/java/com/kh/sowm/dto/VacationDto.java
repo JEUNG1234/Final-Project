@@ -34,6 +34,8 @@ public class VacationDto {
     public static class VacationResponseDto {
         private Long vacationNo;
         private LocalDate vacationDate;
+        private LocalDate startDate; // startDate 필드 추가
+        private LocalDate endDate;   // endDate 필드 추가
         private String content;
         private Integer amount;
         private StatusType status;
@@ -42,6 +44,8 @@ public class VacationDto {
         // VacationAdmin -> Dto 변환 생성자 추가
         public VacationResponseDto(VacationAdmin vacationAdmin) {
             this.vacationDate = vacationAdmin.getVacationDate();
+            this.startDate = vacationAdmin.getStartDate(); // startDate 매핑
+            this.endDate = vacationAdmin.getEndDate();     // endDate 매핑
             this.content = vacationAdmin.getContent();
             this.amount = vacationAdmin.getAmount();
             this.userName = vacationAdmin.getUser().getUserName();
@@ -50,6 +54,8 @@ public class VacationDto {
 
         public VacationResponseDto(Vacation vacation) {
             this.vacationDate = vacation.getGrantedDate();
+            this.startDate = vacation.getGrantedDate(); // 포인트 전환 휴가는 하루이므로 시작/종료일 동일
+            this.endDate = vacation.getGrantedDate();
             this.content = vacation.getReason();
             this.amount = vacation.getAmount();
             this.userName = vacation.getUser().getUserName();
