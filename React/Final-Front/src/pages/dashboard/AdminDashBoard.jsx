@@ -14,6 +14,7 @@ import { adminService } from '../../api/admin';
 import { FaUsers, FaUmbrellaBeach, FaExclamationTriangle } from 'react-icons/fa';
 import { vacationAdminService } from '../../api/vacationAdmin';
 import { vacationService } from '../../api/vacation'; // vacationService import 추가
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -123,7 +124,7 @@ const AdminDashBoard = () => {
         setApprovedWorkations(workationData);
         setNotices(noticeData.data);
         setChallenge(challengeData);
-        setApprovedVacations(vacationList.filter(v => v.status === 'MINUS'));
+        setApprovedVacations(vacationList.filter((v) => v.status === 'MINUS'));
 
         const totalEmployeeCount = allEmployees.length;
         const lateCount = todayAttendance.filter((a) => new Date(a.attendTime).getHours() >= 9).length;
@@ -138,8 +139,8 @@ const AdminDashBoard = () => {
           endDate.setHours(0, 0, 0, 0);
           return w.status === 'Y' && today >= startDate && today <= endDate;
         }).length;
-        
-        const vacationTodayCount = allVacations.filter(v => {
+
+        const vacationTodayCount = allVacations.filter((v) => {
           const vStart = new Date(v.startDate);
           const vEnd = new Date(v.endDate);
           vStart.setHours(0, 0, 0, 0);
@@ -173,6 +174,18 @@ const AdminDashBoard = () => {
 
     fetchData();
   }, [user, attendanceStatus]);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('user', user);
+    if (user?.jobCode != 'J2') {
+      alert('관리자만 접근할 수 있습니다.');
+
+      navigate('/memberdashboard');
+      return;
+    }
+  }, [user, navigate]);
 
   const today = new Date();
   const currentMonth = today.getMonth();
@@ -210,12 +223,12 @@ const AdminDashBoard = () => {
   const getVacationForDay = (day) => {
     const date = new Date(currentYear, currentMonth, day);
     date.setHours(0, 0, 0, 0);
-    return approvedVacations.find(vacation => {
-        const startDate = new Date(vacation.startDate);
-        const endDate = new Date(vacation.endDate);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(0, 0, 0, 0);
-        return date >= startDate && date <= endDate;
+    return approvedVacations.find((vacation) => {
+      const startDate = new Date(vacation.startDate);
+      const endDate = new Date(vacation.endDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+      return date >= startDate && date <= endDate;
     });
   };
 
@@ -258,8 +271,8 @@ const AdminDashBoard = () => {
                     if (isWorkation) {
                       className += 'workation ';
                     }
-                    if(isVacation){
-                        className += 'vacation';
+                    if (isVacation) {
+                      className += 'vacation';
                     }
 
                     return (
@@ -288,7 +301,14 @@ const AdminDashBoard = () => {
                   <h2>{challenge.completeTitle}</h2>
                 </div>
                 <div className="challenge-image">
-                  <img src={challenge.completeImageUrl ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${challenge.completeImageUrl}` : ChallangeImg} alt="챌린지 이미지" />
+                  <img
+                    src={
+                      challenge.completeImageUrl
+                        ? `${import.meta.env.VITE_CLOUDFRONT_URL}/${challenge.completeImageUrl}`
+                        : ChallangeImg
+                    }
+                    alt="챌린지 이미지"
+                  />
                 </div>
               </>
             ) : (
@@ -537,9 +557,9 @@ const CalendarCard = styled(Card)`
         font-weight: bold;
       }
       &.vacation {
-          background-color: #8ce99a;
-          color: white;
-          font-weight: bold;
+        background-color: #8ce99a;
+        color: white;
+        font-weight: bold;
       }
 
       &.highlight {

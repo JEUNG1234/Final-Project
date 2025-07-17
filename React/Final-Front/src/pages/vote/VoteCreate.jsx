@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MainContent as BaseMainContent, PageTitle } from '../../styles/common/MainContentLayout';
@@ -81,6 +81,16 @@ const VoteCreate = () => {
       console.error('투표 생성 실패:', error);
     }
   };
+  
+    useEffect(() => {
+      console.log('user', user);
+      if (user?.jobCode != 'J2') {
+        alert('관리자만 접근할 수 있습니다.');
+  
+        navigate('/memberdashboard');
+        return;
+      }
+    }, [user, navigate]);
 
   return (
     <MainContent>

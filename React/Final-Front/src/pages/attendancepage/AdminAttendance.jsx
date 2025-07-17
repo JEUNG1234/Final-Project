@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { adminService } from '../../api/admin';
 import { departmentService } from '../../api/department';
 import useUserStore from '../../Store/useStore';
+import { useNavigate } from 'react-router-dom';
 
 // Chart.js에서 사용될 요소들을 등록 (필수)
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -126,6 +127,7 @@ const AdminAttendance = () => {
   // 당일 근무 시간 함수 모음
   const [attendanceList, setAttendanceList] = useState([]);
   const [barChartData, setBarChartData] = useState(null);
+  const { user } = useUserStore();
 
   const isToday = (dateString) => {
     if (!dateString) return false;
@@ -377,6 +379,17 @@ const AdminAttendance = () => {
 
   const daysKor = ['일', '월', '화', '수', '목', '금', '토'];
   const weekDates = getWeekDates();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.jobCode != 'J2') {
+      alert('관리자만 접근할 수 있습니다.');
+
+      navigate('/memberdashboard');
+      return;
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     const fetchAttendanceData = async () => {

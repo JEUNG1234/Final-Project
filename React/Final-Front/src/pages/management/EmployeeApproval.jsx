@@ -68,6 +68,14 @@ const EmployeeApproval = () => {
     }
   };
 
+  useEffect(() => {
+    if (user?.jobCode != 'J2') {
+      alert('관리자만 접근할 수 있습니다.');
+      navigate('/memberdashboard');
+      return;
+    }
+  }, [user, navigate]);
+
   return (
     <MainContent>
       <PageHeader>

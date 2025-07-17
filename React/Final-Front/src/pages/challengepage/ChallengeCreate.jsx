@@ -58,6 +58,18 @@ const ChallengeCreate = () => {
     }
   };
 
+  
+    useEffect(() => {
+      console.log('user', user);
+      if (user?.jobCode != 'J2') {
+        alert('관리자만 접근할 수 있습니다.');
+  
+        navigate('/memberdashboard');
+        return;
+      }
+    }, [user, navigate]);
+
+
   const handleSubmit = async () => {
     if (!user?.userId) {
       alert('관리자 로그인이 필요합니다.');

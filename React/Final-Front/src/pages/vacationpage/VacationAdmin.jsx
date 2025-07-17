@@ -11,6 +11,7 @@ import {
 } from '../../styles/common/MainContentLayout';
 import useUserStore from '../../Store/useStore';
 import { vacationAdminService } from '../../api/vacationAdmin';
+import { useNavigate } from 'react-router-dom';
 
 // 1. 스크롤 제거를 위해 기존 MainContent를 확장하고 min-height를 auto로 변경
 const MainContent = styled(BaseMainContent)`
@@ -93,6 +94,15 @@ const VacationAdmin = () => {
       alert('휴가 승인 중 에러가 발생했습니다.', error);
     }
   };
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (user?.jobCode != 'J2') {
+      alert('관리자만 접근할 수 있습니다.');
+      navigate('/memberdashboard');
+      return;
+    }
+  }, [user, navigate]);
 
   // 거부 처리 함수 (임시 예시)
   const handleReturnAction = async (selectedVacationNos) => {

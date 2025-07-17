@@ -158,6 +158,16 @@ const WorkationEnrollForm = () => {
     });
   };
 
+  useEffect(() => {
+    console.log('user', user);
+    if (user?.jobCode != 'J2') {
+      alert('관리자만 접근할 수 있습니다.');
+
+      navigate('/memberdashboard');
+      return;
+    }
+  }, [user, navigate]);
+
   //면적, 평수 상태
   const [area, setArea] = useState('');
   const [areaPyeong, setAreaPyeong] = useState('');
