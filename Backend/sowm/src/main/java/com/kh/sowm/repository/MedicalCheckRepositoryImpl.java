@@ -53,6 +53,7 @@ public class MedicalCheckRepositoryImpl implements MedicalCheckRepository {
                 .getResultList();
     }
 
+    // 결과 조회
     @Override
     public Page<MedicalCheckResult> findResults(Pageable pageable, LocalDate createDate, Type type, User user) {
         StringBuilder jpql = new StringBuilder("SELECT r FROM MedicalCheckResult r WHERE r.user = :user");

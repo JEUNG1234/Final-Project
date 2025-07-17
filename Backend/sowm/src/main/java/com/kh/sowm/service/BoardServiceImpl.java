@@ -37,15 +37,15 @@ public class BoardServiceImpl implements BoardService {
     private final CategoryRepository categoryRepository; // Category 엔티티 조회용
     private final BoardImageRepository boardImageRepository; // ✅ 이미지 저장용
 
-
+    // 게시글 리스트로 가져오기
     @Override
-    // 검색 조건 추가: title, writer, categoryNo
     public Page<BoardDto.Response> getBoardList(Pageable pageable, String title, String writer, Long categoryNo, String companyCode) {
         // BoardRepositoryImpl의 findBoardsByFilters 메서드 호출
         Page<Board> page = boardRepository.findBoardsByFilters(pageable, title, writer, categoryNo, companyCode, CommonEnums.Status.Y);
         return page.map(BoardDto.Response::fromEntity);
     }
 
+    // 게시글 상세보기
     @Transactional
     @Override
     public BoardDto.Response getBoardDetail(Long boardNo) {
@@ -54,6 +54,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardDto.Response.fromEntity(board);
     }
 
+    // 게시글 생성
     @Transactional
     @Override
     public Long createBoard(BoardDto.Create dto) throws IOException {
@@ -84,6 +85,7 @@ public class BoardServiceImpl implements BoardService {
         return board.getBoardNo();
     }
 
+    // 게시글 삭제
     @Transactional
     @Override
     public void deleteBoard(Long boardNo) {
@@ -93,6 +95,7 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
+    // 게시글 수정
     @Transactional
     @Override
     public BoardDto.Response updateBoard(Long boardNo, BoardDto.Update dto) throws IOException {
@@ -118,6 +121,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardDto.Response.fromEntity(board);
     }
 
+    // 조회수 증가
     @Override
     @Transactional
     public boolean increaseViewCount(Long boardId) {
@@ -125,6 +129,7 @@ public class BoardServiceImpl implements BoardService {
         return updatedRows > 0;
     }
 
+    // 공지사항 3개 가져오기
     @Override
     public List<Response> getNoticeTop3(String userId) {
         User user = userRepository.findByUserId(userId)

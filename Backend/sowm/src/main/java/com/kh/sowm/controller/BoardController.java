@@ -35,6 +35,8 @@ public class BoardController {
     writer: 검색할 작성자 이름
     categoryNo: 검색할 카테고리 번호
      */
+
+    // 게시글 가져오기
     @GetMapping
     public ResponseEntity<PageResponse<BoardDto.Response>> getBoards(
             @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable, // sort 필드명 'createdDate'로 수정
@@ -47,22 +49,26 @@ public class BoardController {
         return ResponseEntity.ok(new PageResponse<>(boardService.getBoardList(pageable, title, writer, categoryNo, companyCode)));
     }
 
+    // 작성자 별 게시글 가져오기
     @GetMapping("/{id}")
     public ResponseEntity<BoardDto.Response> getBoard(@PathVariable("id") Long boardNo) {
         return ResponseEntity.ok(boardService.getBoardDetail(boardNo));
     }
 
+    // 게시글 작성
     @PostMapping
     public ResponseEntity<Long> createBoard(@RequestBody BoardDto.Create boardCreate) throws IOException {
         return ResponseEntity.ok(boardService.createBoard(boardCreate));
     }
 
+    // 게시글 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBoard(@PathVariable("id") Long boardNo) {
         boardService.deleteBoard(boardNo);
         return ResponseEntity.ok("게시글이 삭제되었습니다.");
     }
 
+    // 게시글 수정
     @PatchMapping("/{id}")
     public ResponseEntity<BoardDto.Response> updateBoard(
             @PathVariable("id") Long boardNo,
@@ -71,6 +77,7 @@ public class BoardController {
         return ResponseEntity.ok(boardService.updateBoard(boardNo, updateBoard));
     }
 
+    // 조회수 증가
     @PatchMapping("/{id}/views")
     public ResponseEntity<Void> increaseBoardViewCount(@PathVariable Long id) {
         boolean success = boardService.increaseViewCount(id);
@@ -81,6 +88,7 @@ public class BoardController {
         }
     }
 
+    // 대시보드에 사용할 공지사항 최근 3개 가져오기
     @GetMapping("/getnotice/{userId}")
     public ResponseEntity<List<BoardDto.Response>> getNotice(@PathVariable String userId) {
         List<BoardDto.Response> notices = boardService.getNoticeTop3(userId);
