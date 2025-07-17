@@ -21,12 +21,14 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
+    // 챌린지 생성
     @PostMapping
     public ResponseEntity<Long> createChallenge(@RequestBody ChallengeDto.CreateRequest requestDto) {
         Long newChallengeId = challengeService.createChallenge(requestDto);
         return ResponseEntity.ok(newChallengeId);
     }
 
+    // 모든 챌린지 목록 조회 (페이징)
     @GetMapping
     public ResponseEntity<PageResponse<ChallengeDto.ListResponse>> getAllChallenges(
             @PageableDefault(size = 8, sort = "challengeNo") Pageable pageable,
@@ -35,13 +37,14 @@ public class ChallengeController {
         return ResponseEntity.ok(new PageResponse<>(challenges));
     }
 
-    // ... (이하 기존 코드와 동일)
+    // 챌린지 상세 정보 조회
     @GetMapping("/{challengeNo}")
     public ResponseEntity<ChallengeDto.DetailResponse> getChallengeById(@PathVariable Long challengeNo) {
         ChallengeDto.DetailResponse challenge = challengeService.findChallengeById(challengeNo);
         return ResponseEntity.ok(challenge);
     }
 
+    // 챌린지 참여(인증) 생성
     @PostMapping("/{challengeNo}/complete")
     public ResponseEntity<Long> createCompletion(
             @PathVariable Long challengeNo,
@@ -50,18 +53,21 @@ public class ChallengeController {
         return ResponseEntity.ok(completionId);
     }
 
+    // 현재 진행 중인 챌린지 여부 확인
     @GetMapping("/active-status")
     public ResponseEntity<Map<String, Boolean>> checkActiveChallenge(@RequestParam String userId) {
         boolean hasActive = challengeService.hasActiveChallenge(userId);
         return ResponseEntity.ok(Map.of("hasActiveChallenge", hasActive));
     }
 
+    // 나의 모든 챌린지 목록 조회
     @GetMapping("/my")
     public ResponseEntity<Map<String, Object>> getMyChallenges(@RequestParam String userId) {
         Map<String, Object> myChallenges = challengeService.findMyChallenges(userId);
         return ResponseEntity.ok(myChallenges);
     }
 
+    // 특정 챌린지의 모든 인증글 조회 (페이징)
     @GetMapping("/{challengeNo}/completions")
     public ResponseEntity<PageResponse<ChallengeDto.CompletionResponse>> getCompletionsByChallenge(
             @PathVariable Long challengeNo,
@@ -70,6 +76,7 @@ public class ChallengeController {
         return ResponseEntity.ok(new PageResponse<>(completions));
     }
 
+    // 특정 챌린지에 대한 나의 모든 인증글 조회 (페이징)
     @GetMapping("/{challengeNo}/my-completions")
     public ResponseEntity<PageResponse<ChallengeDto.CompletionResponse>> getMyCompletionsByChallenge(
             @PathVariable Long challengeNo,
@@ -79,14 +86,14 @@ public class ChallengeController {
         return ResponseEntity.ok(new PageResponse<>(completions));
     }
 
-    // 인증글 상세 조회 컨트롤러 메서드 추가
+    // 인증글 상세 조회
     @GetMapping("/completion/{completionNo}")
     public ResponseEntity<ChallengeDto.CompletionResponse> getCompletionDetail(@PathVariable Long completionNo) {
         ChallengeDto.CompletionResponse completion = challengeService.getCompletionDetail(completionNo);
         return ResponseEntity.ok(completion);
     }
 
-    // 대시보드쪽 챌린지 정보 가져오기
+    // 대시보드용 챌린지 정보 조회
     @GetMapping("/getChallenge/{userId}")
     public ResponseEntity<ChallengeDto.CompletionResponse> getChallenge(@PathVariable String userId) {
         ChallengeDto.CompletionResponse challenge = challengeService.getChallenge(userId);

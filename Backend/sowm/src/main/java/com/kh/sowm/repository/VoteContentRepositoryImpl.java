@@ -16,6 +16,7 @@ public class VoteContentRepositoryImpl implements VoteContentRepository {
     @PersistenceContext
     private final EntityManager em;
 
+    // 투표 항목 저장 또는 수정
     @Override
     public VoteContent save(VoteContent voteContent) {
         if (voteContent.getVoteContentNo() == null) {
@@ -26,6 +27,7 @@ public class VoteContentRepositoryImpl implements VoteContentRepository {
         }
     }
 
+    // 투표 항목 여러 개 일괄 저장
     @Override
     public void saveAll(List<VoteContent> voteContents) {
         for (VoteContent content : voteContents) {
@@ -33,6 +35,7 @@ public class VoteContentRepositoryImpl implements VoteContentRepository {
         }
     }
 
+    // ID로 투표 항목 조회
     @Override
     public Optional<VoteContent> findById(Long voteContentNo) {
         VoteContent voteContent = em.find(VoteContent.class, voteContentNo);

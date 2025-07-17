@@ -20,11 +20,13 @@ public class ChallengeCompleteRepositoryImpl implements ChallengeCompleteReposit
     @PersistenceContext
     private EntityManager em;
 
+    // 챌린지 인증글 저장
     @Override
     public void save(ChallengeComplete challengeComplete) {
         em.persist(challengeComplete);
     }
 
+    // 사용자의 현재 진행 중인 챌린지 참여 기록 조회
     @Override
     public Optional<ChallengeComplete> findActiveChallengeByUserId(String userId, LocalDate today) {
         String jpql = "SELECT cc FROM ChallengeComplete cc " +
@@ -43,6 +45,7 @@ public class ChallengeCompleteRepositoryImpl implements ChallengeCompleteReposit
         }
     }
 
+    // 특정 챌린지의 모든 인증글 페이징 조회
     @Override
     public Page<ChallengeComplete> findByChallenge_ChallengeNo(Long challengeNo, Pageable pageable) {
         // 데이터 조회를 위한 JPQL
@@ -62,6 +65,7 @@ public class ChallengeCompleteRepositoryImpl implements ChallengeCompleteReposit
         return new PageImpl<>(completions, pageable, total);
     }
 
+    // 특정 챌린지의 특정 사용자 인증글 페이징 조회
     @Override
     public Page<ChallengeComplete> findByChallenge_ChallengeNoAndUser_UserId(Long challengeNo, String userId, Pageable pageable) {
         // 데이터 조회를 위한 JPQL
@@ -86,7 +90,7 @@ public class ChallengeCompleteRepositoryImpl implements ChallengeCompleteReposit
         return new PageImpl<>(completions, pageable, total);
     }
 
-    // ID로 단일 인증글 조회 구현
+    // 인증글 ID로 단일 인증글 조회
     @Override
     public Optional<ChallengeComplete> findById(Long completeNo) {
         return Optional.ofNullable(em.find(ChallengeComplete.class, completeNo));
