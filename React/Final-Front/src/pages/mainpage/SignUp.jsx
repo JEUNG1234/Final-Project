@@ -75,10 +75,9 @@ const SignUp = () => {
       }
     } catch (error) {
       console.error('회원가입 에러:', error);
-         const apiError = error.response.data.message;
+      const apiError = error.response.data.message;
 
       alert(apiError);
-      // alert('회원가입 중 오류가 발생했습니다.');
     }
   };
 
