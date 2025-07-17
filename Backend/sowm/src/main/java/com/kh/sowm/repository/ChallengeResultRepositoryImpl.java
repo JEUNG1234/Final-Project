@@ -16,6 +16,7 @@ public class ChallengeResultRepositoryImpl implements ChallengeResultRepository 
     @PersistenceContext
     private EntityManager em;
 
+    // 사용자와 챌린지 정보로 챌린지 결과 조회
     @Override
     public Optional<ChallengeResult> findByUserAndChallenge(User user, Challenge challenge) {
         try {
@@ -28,6 +29,7 @@ public class ChallengeResultRepositoryImpl implements ChallengeResultRepository 
         }
     }
 
+    // 챌린지 결과 저장
     @Override
     public void save(ChallengeResult challengeResult) {
         em.persist(challengeResult);

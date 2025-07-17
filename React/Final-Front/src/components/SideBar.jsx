@@ -58,11 +58,11 @@ const Sidebar = () => {
         <MenuItem onClick={() => navigate('/workationlist')}>
           <PiAirplaneTiltFill /> 워케이션
         </MenuItem>
-        {user && user.jobCode !== 'J2' && (
+        
           <MenuItem onClick={() => navigate('/vacationlist')}>
             <MdOutlineWbSunny /> 휴가
           </MenuItem>
-        )}
+       
 
         <MenuItem
           onClick={() => {

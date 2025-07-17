@@ -18,11 +18,13 @@ public class VoteUserRepositoryImpl implements VoteUserRepository {
     @PersistenceContext
     private final EntityManager em;
 
+    // 투표 참여 기록 저장
     @Override
     public void save(VoteUser voteUser) {
         em.persist(voteUser);
     }
 
+    // 특정 투표에 특정 사용자가 참여했는지 여부 확인
     @Override
     public boolean existsByVoteNoAndUserId(Long voteNo, String userId) {
         Long count = em.createQuery(
@@ -33,6 +35,7 @@ public class VoteUserRepositoryImpl implements VoteUserRepository {
         return count > 0;
     }
 
+    // 특정 사용자의 모든 투표 참여 기록 조회
     @Override
     public List<VoteUser> findVoteUsersByUserId(String userId) {
         return em.createQuery("SELECT vu FROM VoteUser vu WHERE vu.user.userId = :userId", VoteUser.class)
@@ -40,6 +43,7 @@ public class VoteUserRepositoryImpl implements VoteUserRepository {
                 .getResultList();
     }
 
+    // 특정 투표 항목에 투표한 사용자 목록 조회
     @Override
     public List<User> findVotersByVoteContentNo(Long voteContentNo) {
         return em.createQuery(

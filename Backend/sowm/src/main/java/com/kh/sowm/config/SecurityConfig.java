@@ -43,6 +43,16 @@ public class SecurityConfig {
                                 "/api/password/reset-link",
                                 "/api/password/reset-password"
                         ).permitAll()
+                        //직원관리 기능들은 관리자(J2(만 가능하도록 설정
+                        .requestMatchers("/api/admin/**").hasRole("J2")
+                        .requestMatchers("/api/workation/create").hasRole("J2")
+                        .requestMatchers("/api/workation/update").hasRole("J2")
+                        .requestMatchers("/api/workation/subupdate").hasRole("J2")
+                        .requestMatchers("/api/workation/returnupdate").hasRole("J2")
+                        .requestMatchers("/api/workation/sublist").hasRole("J2")
+                        .requestMatchers("/api/workation/fullsublist").hasRole("J2")
+                        .requestMatchers("/api/vacationadmin/**").hasRole("J2")
+                        .requestMatchers(HttpMethod.POST,"/api/votes").hasRole("J2")
                         // 챌린지 생성은 관리자(J2)만 가능하도록 설정
                         .requestMatchers(HttpMethod.POST, "/api/challenges").hasRole("J2")
                         .anyRequest().authenticated()
