@@ -3,10 +3,12 @@
 
 ## 프로젝트 개요
 - 개발 기간: 2025-05-26 ~ 2025-07-18
-- 직원의 건강관리와 업무 효율성을 높이기 위한 사내 건강 중심 ERP 플랫폼 구축
-- 본 프로젝트의 구조를 더 자세히 알고 싶다면?
-  - [백엔드 README](./BACK.md)
-  - [프론트엔드 README](./FRONT.md)
+- 목적 : 직원의 건강관리와 업무 효율성을 높이기 위한 사내 건강 중심 ERP 플랫폼 구축
+- 역할 : 팀장, 일정관리 / 프론트엔드 및 백엔드 주요 기능 구현, 전체 로그인·회원 시스템 및 대시보드/심리검사 기능 주도 개발
+
+## 시연 영상 링크
+[![프로젝트 데모](https://img.youtube.com/vi/GDLgoM2Afsw/hqdefault.jpg)](https://youtu.be/GDLgoM2Afsw)
+
 
 ## 기술 스택  
 `Front-End`  <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=React&logoColor=white"/>
@@ -38,36 +40,48 @@
 - **Spring Security**: 백엔드 보안 및 인증 관리  
 - **Naver Maps API**: 지도 및 위치 기반 서비스 구현  
 
+### 3. 담당 역할 및 구현 기능
+
+| 분류       | 상세 내용                                                                 |
+|------------|--------------------------------------------------------------------------|
+| 인증/보안   | JWT 토큰 기반 로그인 구현, 세션 스토리지에 저장하여 로그인 유지           |
+| 회원 시스템 | 로그인/회원가입, 회사 및 대표자 신청 페이지 구현                         |
+| 근태 관리   | 직원/관리자용 출퇴근 기록 및 이력 관리 기능 구현, 휴가 승인 기능 구현      |
+| 마이페이지  | 프로필 조회 및 수정 등 CRUD 기능 구현                                     |
+| 대시보드   | 관리자/직원별 맞춤 대시보드 (근태 요약, 그래프 시각화 등)                  |
+| ERP 메인   | 판매 페이지 중심의 ERP 대시보드 홈 구성                                  |
+| AI 기능    | OpenAI API를 활용한 심리검사 페이지 제작 (텍스트 분석 및 결과 제공)       |
+
 
 ## 설치 및 실행 방법
 ```bash
-git clone https://github.com/myuser/mytodoapp.git
-cd mytodoapp
+
+git clone https://github.com/d5ngjun2/Final-Project.git
+cd Final-Project
 
 # 프론트
-cd frontend
+cd React
 npm install
 npm start
 
 # 백엔드
-cd backend
+cd BackEnd
 ./gradlew bootRun
 
 ## 주요 기능
 - 회원가입 및 로그인 (JWT 기반)
-- 할일관리
+- 인력관리
 - 일정관리
-
-## 부가 기능
-- 소셜 로그인 (카카오)
-- 반응형 웹UI
-- 전역 style 정의하여 라이트/다크 모드 구현
+- 근태관리
+- 자유게시판
+- OpenAI API 를 활용한 심리검사 및 신체검사 테스트
+- 투표
+- 챌린지 기능
 
 ## 팀원 소개
 
 | 이름 | 포지션,역할 | Contact |
 | 황동준 | 팀장, 일정관리 | nikihwangg@ivycomtech.com |
-|  | BE | a1@gmail.com |
-|  | FE | a1@gmail.com |
-|  | FE | a1@gmail.com |
-|  | FE | a1@gmail.com |
+| 정민구 | 이슈관리 | a1@gmail.com |
+| 홍승민 | 형상관리 | a1@gmail.com |
+| 황윤창 | DB관리 | a1@gmail.com |
