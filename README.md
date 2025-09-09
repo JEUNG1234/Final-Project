@@ -79,6 +79,6 @@ cd BackEnd
 
 | 이름 | 포지션,역할 | Contact |
 | 황동준 | 팀장, 일정관리 | nikihwangg@ivycomtech.com |
-| 정민구 | 이슈관리 | a1@gmail.com |
+| 정민구 | 이슈관리 | jmg9152@gmail.com |
 | 홍승민 | 형상관리 | a1@gmail.com |
 | 황윤창 | DB관리 | a1@gmail.com |
